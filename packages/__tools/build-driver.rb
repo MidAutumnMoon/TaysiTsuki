@@ -14,13 +14,11 @@
 #   "subjects" MANIFEST : Get the subjects to build
 #   - MANIFEST: The manifest.rb file
 #
-#   "build" MANIFEST SUBJECT CACHIX : Build some subject
+#   "build" MANIFEST SUBJECT : Build some subject
 #   - MANIFEST: The manifest.rb file
 #   - SUBJECT: Something listed in MANIFEST to build
-#   - CACHIX: Cachix bucket name to upload to
 #
-#   "nixos" CACHIX : Build NixOS
-#   - CACHIX: ~
+#   "nixos" : Build NixOS
 
 require "reinbow"
 require "pathname"
@@ -74,6 +72,13 @@ class Manifest
     def get( sub ) = @manifest[sub.to_sym]
 end
 
+COMMON_NIX_CLI_OPTS = [
+    "--print-build-logs",
+    "--option narinfo-cache-negative-ttl 0",
+    "--option keep-going true",
+    "--option max-jobs 1",
+].join( " " )
+
 case SUBCOMMAND
 
 in "subjects"
@@ -85,36 +90,24 @@ in "subjects"
 
 in "build"
     warn "Command: build".blue
-    abort "Wrong number of options, expecting 3" \
-        unless ARGV.size == 3
+    abort "Wrong number of options, expecting 2" \
+        unless ARGV.size == 2
 
     manifest = Manifest.new( ARGV.shift )
     subject = ARGV.shift
     cachix = ARGV.shift
 
-    system_triple = `nix eval --impure --expr 'builtins.currentSystem'`.strip
-    abort "Failed getting system triple" \
-        unless $CHILD_STATUS.success?
+    # turn [ "a", "b" ] into ".#a .#b" for nix cli
+    nix_option = manifest.get( subject )
+        .map { ".##{it}" }
+        .join " "
 
-    manifest.get( subject ).each do |package|
-        system <<~SH or abort "Failed to build"
-            nix-fast-build \
-                --flake ".#packages.#{system_triple}.#{package}" \
-                --no-nom \
-                --skip-cached \
-                --eval-workers 1 \
-                --cachix-cache #{cachix} \
-                --option narinfo-cache-negative-ttl 0
-        SH
-    end
+    system <<~SH or abort "Failed to build"
+        nix build #{nix_option} #{COMMON_NIX_CLI_OPTS}
+    SH
 
 in "nixos"
     warn "Command: nixos".blue
-
-    abort "Wrong number of options, expecting 1" \
-        unless ARGV.size == 1
-
-    cachix = ARGV.shift
 
     eval_driver = <<~NIX
         toString #{Dir.pwd}
@@ -130,21 +123,14 @@ in "nixos"
         temp
     end
 
-    `nix eval -f #{eval_driver.to_path} --json`
+    build_opts = `nix eval -f #{eval_driver.to_path} --json`
         .then { JSON.parse it }
-        .tap { warn it }
-        .each do |hostname|
-            toplevel = ".#nixosConfigurations.#{hostname}.config.system.build.toplevel"
-            system <<~SH or abort "Failed to build"
-                nix-fast-build \
-                    --flake "#{toplevel}" \
-                    --no-nom \
-                    --skip-cached \
-                    --eval-workers 1 \
-                    --cachix-cache #{cachix} \
-                    --option narinfo-cache-negative-ttl 0
-            SH
-        end
+        .map { ".#nixosConfigurations.#{it}.config.system.build.toplevel" }
+        .join( " " )
+
+    system <<~SH or abort "Failed to build"
+        nix build #{build_opts} #{COMMON_NIX_CLI_OPTS}
+    SH
 
 else
     abort "Unreachable"

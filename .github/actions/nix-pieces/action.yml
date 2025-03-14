@@ -1,0 +1,31 @@
+name: Some Nix Things
+
+inputs:
+    cachix_token: { required: true }
+
+runs:
+    using: composite
+
+    steps:
+
+    -   name: Setup nix
+        uses: MidAutumnMoon/spheti-action/nix@master
+        with:
+            cachix-url: "https://nuirrce.cachix.org/"
+            cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
+
+    -   name: Setup cachix
+        uses: cachix/cachix-action@v16
+        with:
+            installCommand: "nix profile install .#cachix"
+            name: "nuirrce"
+            pushFilter: '(NVIDIA.*\.run)'
+            skipAddingSubstituter: true
+            authToken: ${{ inputs.cachix_token }}
+
+    -   name: Mount tmpfs as cache
+        shell: bash
+        run: |
+            sudo mount -t tmpfs -o defaults,size=100% none "$HOME/.cache"
+
+# vim: nowrap:

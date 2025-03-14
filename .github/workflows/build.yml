@@ -30,26 +30,14 @@ jobs:
             uses: actions/checkout@v4
 
         -   name: Setup nix
-            uses: MidAutumnMoon/spheti-action/nix@master
-            with:
-                cachix-url: "https://nuirrce.cachix.org/"
-                cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
+            uses: ./.github/actions/nix-pieces
+            with: { cachix_token: '${{ secrets.CACHIX_AUTH_TOKEN }}' }
 
         -   name: Get subjects
             id: get_subjects
             run: |
-                system=$(nix eval --impure --expr "builtins.currentSystem")
-                outlink=$(mktemp)
-                nix profile install .#nix-fast-build
-                nix-fast-build \
-                    -f ".#packages.${system}.nuranScripts.build-driver" \
-                    --cachix-cache nuirrce \
-                    --out-link "$outlink" \
-                    --no-nom
-                # Note the trailling "-"
-                # https://github.com/Mic92/nix-fast-build/issues/65
-                out=$( "$outlink-/bin/build-driver.rb" \
-                    subjects "packages/manifest.rb" )
+                out=$( nix run ".#nuranScripts.build-driver" \
+                    -- subjects "packages/manifest.rb" )
                 echo "subjects=${out}" >> "$GITHUB_OUTPUT"
 
     build_packages:
@@ -68,19 +56,15 @@ jobs:
             uses: actions/checkout@v4
 
         -   name: Setup nix
-            uses: MidAutumnMoon/spheti-action/nix@master
-            with:
-                cachix-url: "https://nuirrce.cachix.org/"
-                cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
-
-        -   name: Update flakes
-            run: nix flake update
+            uses: ./.github/actions/nix-pieces
+            with: { cachix_token: '${{ secrets.CACHIX_AUTH_TOKEN }}' }
 
         -   name: Build Subject
             run: |
+                nix flake update
                 nix run --print-build-logs \
                     .#nuranScripts.build-driver -- build \
-                    "packages/manifest.rb" "${{ matrix.subject }}" "nuirrce"
+                    "packages/manifest.rb" "${{ matrix.subject }}"
 
     build-nixos:
         name: Build NixOS
@@ -94,17 +78,13 @@ jobs:
             uses: actions/checkout@v4
 
         -   name: Setup nix
-            uses: MidAutumnMoon/spheti-action/nix@master
-            with:
-                cachix-url: "https://nuirrce.cachix.org/"
-                cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
-
-        -   name: Update workspace flake
-            run: nix flake update
+            uses: ./.github/actions/nix-pieces
+            with: { cachix_token: '${{ secrets.CACHIX_AUTH_TOKEN }}' }
 
         -   name: Build NixOS
             run: |
+                nix flake update
                 nix run --print-build-logs \
-                    .#nuranScripts.build-driver -- nixos "nuirrce"
+                    .#nuranScripts.build-driver -- nixos
 
 # vim: nowrap:

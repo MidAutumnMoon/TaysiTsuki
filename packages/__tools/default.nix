@@ -18,7 +18,6 @@ in {
 
     build-driver = self.rubyMiner {
         path = ./build-driver.rb;
-        runtimeDeps = with pkgs; [ nix-fast-build ];
     };
 
     nix-update-driver = self.rubyMiner {
