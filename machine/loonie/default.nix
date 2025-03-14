@@ -18,6 +18,10 @@ in {
         direnv.enable = true;
     };
 
+    environment.systemPackages = [
+        pkgs.neovim_teapot
+    ];
+
     home-manager.users.${selfUsername} = import ./home.nix;
 
     wsl = {

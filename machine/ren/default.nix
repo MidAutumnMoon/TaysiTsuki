@@ -8,10 +8,6 @@
         ./services/mihomo.nix
     ];
 
-    environment.systemPackages = with pkgs; [
-        ( neovim_teapot.override { treesitter = false; } )
-    ];
-
     networking = {
         hostName = "ren";
         proxy.default =
