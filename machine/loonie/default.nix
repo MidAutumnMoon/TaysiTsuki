@@ -15,6 +15,7 @@ in {
             enable = true;
             flake = "/home/teapot/Nuran/";
         };
+        direnv.enable = true;
     };
 
     home-manager.users.${selfUsername} = import ./home.nix;
