@@ -13,6 +13,7 @@
         proxy.default =
             "http://127.0.0.1:${toString config.lore.ports.mihomo_listen}";
         useDHCP = true;
+        tempAddresses = "disabled";
     };
 
     documentation = {
