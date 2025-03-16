@@ -28,6 +28,7 @@
             "pipe-operators"
         ];
         use-xdg-base-directories = true;
+        always-allow-substitutes = true;
     };
 
     nix.registry = {
