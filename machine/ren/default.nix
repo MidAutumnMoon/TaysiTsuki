@@ -4,6 +4,7 @@
 
     imports = [
         ./services/adguardhome.nix
+        ./services/btrfs.nix
         ./services/caddy.nix
         ./services/mihomo.nix
     ];
