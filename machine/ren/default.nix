@@ -88,6 +88,8 @@
         };
     };
 
+    services.btrfs.autoScrub.enable = true;
+
     #
     # Hardware configs
     #
