@@ -39,11 +39,12 @@ class Manifest
     @manifest = nil
 
     def initialize( path )
-        @manifest = Pathname.new( path )
-            .then { Manifest.load it }
+        @manifest = Manifest.load path
     end
 
     def self.load( manifest_path )
+        manifest_path = Pathname.new manifest_path
+
         # 1. Ensure it's a file
         raise ArgumentError, %("#{manifest_path}" is not a file) \
             unless manifest_path.file?
@@ -68,7 +69,6 @@ class Manifest
     end
 
     def keys = @manifest.keys
-
     def get( sub ) = @manifest[sub.to_sym]
 end
 
@@ -95,7 +95,6 @@ in "build"
 
     manifest = Manifest.new( ARGV.shift )
     subject = ARGV.shift
-    cachix = ARGV.shift
 
     # turn [ "a", "b" ] into ".#a .#b" for nix cli
     nix_option = manifest.get( subject )
@@ -109,21 +108,21 @@ in "build"
 in "nixos"
     warn "Command: nixos".blue
 
-    eval_driver = <<~NIX
+    eval_hostnames = <<~NIX
         toString #{Dir.pwd}
         |> builtins.getFlake
         |> ( it: it.nixosConfigurations )
         |> builtins.attrNames
     NIX
 
-    eval_driver = eval_driver.then do |text|
+    eval_hostnames = begin
         temp = Tempfile.create
-        temp.write text
+        temp.write eval_hostnames
         temp.flush
-        temp
+        temp.to_path
     end
 
-    build_opts = `nix eval -f #{eval_driver.to_path} --json`
+    build_opts = `nix eval -f #{eval_hostnames} --json`
         .then { JSON.parse it }
         .map { ".#nixosConfigurations.#{it}.config.system.build.toplevel" }
         .join( " " )
