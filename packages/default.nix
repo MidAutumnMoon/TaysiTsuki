@@ -19,10 +19,6 @@ rec {
 
     nuranScripts = callPackage ./__tools {};
 
-    writers = callPackage ./writers {
-        inherit ( prev ) writers;
-    };
-
     /*
      * Web facing services and other network
      * related things.
