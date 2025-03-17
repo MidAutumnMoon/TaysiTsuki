@@ -5,6 +5,7 @@ packages = %w[
     rust-analyzer_teapot
     shadowsocks_teapot
     zhudou-sans
+    metacubexd
 
     fishPlugins.tide
 ]

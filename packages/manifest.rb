@@ -6,6 +6,7 @@
         hentai-home
         unrar
         fastfetch
+        metacubexd
     ],
 
     small_thing2: %w[

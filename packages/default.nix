@@ -106,8 +106,11 @@ rec {
      * falling into.
      */
 
-     prvn-pkgs =
+    prvn-pkgs =
         callPackage ./prvn-pkgs {};
+
+    metacubexd =
+        callPackage ./metacubexd {};
 
     /*
      * Optimization flags. Mostly unused.
