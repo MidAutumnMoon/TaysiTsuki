@@ -33,6 +33,8 @@ in
             bind-address: "*"
             mixed-port: ${toString listenPort}
             allow-lan: true
+            unified-delay: true
+            tcp-concurrent: true
 
             external-controller: "127.0.0.1:${toString apiPort}"
             external-controller-cors:
@@ -42,6 +44,7 @@ in
 
             global-client-fingerprint: chrome
             geodata-loader: standard
+            geo-auto-update: true
 
             ${config.sops.placeholder.conf--mihomo--private}
         '';
