@@ -37,9 +37,14 @@ FILES.each do |file|
             segment.gsub( r, "" )
         end
 
-    rj_number = filename_segments.reverse_each do
-        break it if Integer( it, 10 )
+    rj_number = filename_segments.select do
+        Integer( it, 10 )
     rescue ArgumentError
+        next
+    end.last
+
+    unless rj_number
+        warn "Not a number".blue
         next
     end
 
