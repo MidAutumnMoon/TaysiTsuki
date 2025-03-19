@@ -26,6 +26,7 @@
             "auto-allocate-uids"
             "cgroups"
             "pipe-operators"
+            "impure-derivations"
         ];
         use-xdg-base-directories = true;
         always-allow-substitutes = true;
