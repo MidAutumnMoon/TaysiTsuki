@@ -29,7 +29,6 @@
         prvn-pkgs.pn-ssserver
         prvn-pkgs.pn-hysteria
         prvn-pkgs.pn-dnscrypt
-        prvn-pkgs.pn-doh-server
     ],
 
     # Some heavy rust things
