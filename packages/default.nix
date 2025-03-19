@@ -112,6 +112,9 @@ rec {
     metacubexd =
         callPackage ./metacubexd {};
 
+    makePortableServices =
+        callPackage ./portable-service {};
+
     /*
      * Optimization flags. Mostly unused.
      */
