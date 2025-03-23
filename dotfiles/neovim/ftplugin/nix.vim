@@ -1,5 +1,5 @@
 " Bundled ftplugin/nix.vim is not that good.
-let b:did_ftplugin = 1
+"let b:did_ftplugin = 1
 
 setlocal tabstop=4
 setlocal softtabstop=4

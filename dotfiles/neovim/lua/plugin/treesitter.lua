@@ -22,6 +22,7 @@ require "nvim-treesitter.configs".setup {
         enable = true,
         disable = {
             "ruby",
+            "nix",
         },
     },
 
