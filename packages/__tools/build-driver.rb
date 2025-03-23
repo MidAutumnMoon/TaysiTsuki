@@ -76,7 +76,7 @@ COMMON_NIX_CLI_OPTS = [
     "--print-build-logs",
     "--option narinfo-cache-negative-ttl 0",
     "--option keep-going true",
-    "--option max-jobs 1",
+    "--option max-jobs 4",
 ].join( " " )
 
 case SUBCOMMAND
@@ -128,7 +128,9 @@ in "nixos"
         .join( " " )
 
     system <<~SH or abort "Failed to build"
-        nix build #{build_opts} #{COMMON_NIX_CLI_OPTS}
+        nix build #{build_opts} \
+            --option max-jobs 16 \
+            #{COMMON_NIX_CLI_OPTS}
     SH
 
 else
