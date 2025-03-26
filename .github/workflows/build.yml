@@ -31,7 +31,9 @@ jobs:
 
         -   name: Setup nix
             uses: ./.github/actions/nix-pieces
-            with: { cachix_token: '${{ secrets.CACHIX_AUTH_TOKEN }}' }
+            with:
+                cachix_token: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+                update_flake: false
 
         -   name: Get subjects
             id: get_subjects
@@ -61,7 +63,6 @@ jobs:
 
         -   name: Build Subject
             run: |
-                nix flake update
                 nix run --print-build-logs \
                     .#nuranScripts.build-driver -- build \
                     "packages/manifest.rb" "${{ matrix.subject }}"
@@ -83,7 +84,6 @@ jobs:
 
         -   name: Build NixOS
             run: |
-                nix flake update
                 nix run --print-build-logs \
                     .#nuranScripts.build-driver -- nixos
 
