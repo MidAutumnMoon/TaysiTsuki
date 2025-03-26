@@ -2,17 +2,30 @@ name: Some Nix Things
 
 inputs:
     cachix_token: { required: true }
+    update_flake: { required: false, default: true }
 
 runs:
     using: composite
 
     steps:
 
+    -   name: Mount tmpfs as cache
+        shell: bash
+        run: |
+            mkdir -pv "$HOME/.cache"
+            sudo mount -t tmpfs -o defaults,size=100% none "$HOME/.cache"
+
     -   name: Setup nix
         uses: MidAutumnMoon/spheti-action/nix@master
         with:
             cachix-url: "https://nuirrce.cachix.org/"
             cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
+
+    -   name: Update flake
+        if: ${{ inputs.update_flake }}
+        shell: bash
+        run: |
+            nix flake update
 
     -   name: Setup cachix
         uses: cachix/cachix-action@v16
@@ -22,10 +35,5 @@ runs:
             pushFilter: '(NVIDIA.*\.run)'
             skipAddingSubstituter: true
             authToken: ${{ inputs.cachix_token }}
-
-    -   name: Mount tmpfs as cache
-        shell: bash
-        run: |
-            sudo mount -t tmpfs -o defaults,size=100% none "$HOME/.cache"
 
 # vim: nowrap:
