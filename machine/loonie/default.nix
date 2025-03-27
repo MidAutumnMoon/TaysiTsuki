@@ -27,15 +27,15 @@ in {
     wsl = {
         enable = true;
         defaultUser = selfUsername;
-
         wslConf = {
             user.default = selfUsername;
         };
-
         interop = {
             includePath = false;
         };
     };
+
+    hardware.graphics.enable = lib.mkForce false;
 
     fileSystems."/mnt/z" = {
         device = "Z:";
