@@ -51,6 +51,7 @@ local options = {
     },
     signcolumn = "yes:1",
     nrformats = "hex,bin,unsigned",
+    winborder = "rounded",
 
     list = true,
     listchars = {
