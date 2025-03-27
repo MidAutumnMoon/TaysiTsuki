@@ -9,21 +9,8 @@ local servers = {
     -- denols = {},
 }
 
-local lsp_keymaps = {
-    ["K"] = vim.lsp.buf.hover,
-    ["]d"] = vim.diagnostic.goto_next,
-    ["[d"] = vim.diagnostic.goto_prev,
-    ["gd"] = vim.lsp.buf.definition,
-    ["gi"] = vim.lsp.buf.implementation,
-    ["<F2>"] = vim.lsp.buf.rename,
-}
-
 for server, config in pairs( servers ) do
-    -- set keymaps
     config.on_attach = function ( client, bufnr )
-        for key, action in pairs( lsp_keymaps ) do
-            vim.keymap.set( "n", key, action, { silent = true, buffer = bufnr } )
-        end
         if server == "nixd" then
             client.server_capabilities.completionProvider = false
         end
@@ -63,11 +50,7 @@ vim.diagnostic.config {
     update_in_insert = false,
     underline = true,
     virtual_text = false,
+    virtual_lines = true,
     severity_sort = true,
     float = { border = "rounded" }
 }
-
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-    vim.lsp.handlers.hover,
-    { border = "rounded" }
-)
