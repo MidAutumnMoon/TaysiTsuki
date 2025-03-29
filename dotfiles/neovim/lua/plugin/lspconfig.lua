@@ -7,6 +7,7 @@ local servers = {
     rust_analyzer = {},
     rubocop = { single_file_support = true, },
     -- denols = {},
+    elixirls = { cmd = { "elixir-ls" }, },
 }
 
 for server, config in pairs( servers ) do
