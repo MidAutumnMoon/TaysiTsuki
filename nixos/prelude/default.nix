@@ -11,6 +11,10 @@
             "kernel.sysrq" = 1;
             "net.ipv4.ip_unprivileged_port_start" = 80;
         };
+        kernelParams = [
+            "efi_pstore.pstore_disable=1"
+            "ia32_emulation=0"
+        ];
         tmp.useTmpfs = true;
         tmp.tmpfsSize = "100%";
         bcache.enable = false;
