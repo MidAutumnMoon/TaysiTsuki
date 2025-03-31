@@ -18,8 +18,9 @@ in {
         direnv.enable = true;
     };
 
-    environment.systemPackages = [
-        pkgs.neovim_teapot
+    environment.systemPackages = with pkgs; [
+        neovim_teapot
+        numbat
     ];
 
     home-manager.users.${selfUsername} = import ./home.nix;
