@@ -6,6 +6,7 @@ packages = %w[
     shadowsocks_teapot
     zhudou-sans
     metacubexd
+    mihomo
 
     fishPlugins.tide
 ]
