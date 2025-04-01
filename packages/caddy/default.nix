@@ -2,6 +2,9 @@
     lib,
     buildGoModule,
     fetchFromGitHub,
+
+    stdenvNoCC,
+    installShellFiles,
 }:
 
 let
@@ -46,11 +49,17 @@ buildGoModule rec {
         hash = "sha256-XW1cBW7mk/aO/3IPQK29s4a6ArSKjo7/64koJuzp07I=";
     };
 
-    vendorHash = "sha256-MXe8vWNn/NkswbWvTbLGzWO1sBAq6V+jr5A6SVIo6pY=";
+    # needs proxyVendor since go.sum is modified on the fly
     proxyVendor = true;
-
+    vendorHash = "sha256-FhxmBWU7in8cNaclxVUSWcnroSeFzR8/qcXJgjtRKFA=";
 
     subPackages = [ "cmd/caddy" ];
+
+    doCheck = false;
+    env.GOAMD64 = "v3";
+    env.CGO_ENABLED = 0;
+
+    nativeBuildInputs = [ installShellFiles ];
 
     ldflags = [
         "-s" "-w"
@@ -69,8 +78,17 @@ buildGoModule rec {
         go mod tidy -v
     '';
 
-    env.GOAMD64 = "v3";
-    env.CGO_ENABLED = "0";
+    postInstall = let
+        canExec = stdenvNoCC.buildPlatform.canExecute stdenvNoCC.hostPlatform;
+    in lib.optionalString canExec /* sh */ ''
+        "$out/bin/caddy" manpage --directory "manpages"
+        installManPage "manpages"/*
+
+        installShellCompletion --cmd caddy \
+            --bash <($out/bin/caddy completion bash) \
+            --fish <($out/bin/caddy completion fish) \
+            --zsh <($out/bin/caddy completion zsh)
+    '';
 
     meta = {
         homepage = "https://caddyserver.com";
