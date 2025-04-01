@@ -37,7 +37,7 @@ rec {
         callPackage ./hysteria {};
 
     mihomo =
-        callPackage ./mihomo { inherit ( prev ) mihomo; };
+        callPackage ./mihomo {};
 
     /*
      * Terminals, shells and other things used in
