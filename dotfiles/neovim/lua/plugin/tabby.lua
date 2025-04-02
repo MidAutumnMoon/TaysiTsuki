@@ -5,7 +5,7 @@ vim.o.showtabline = 2
 local theme = {
     fill = 'TabLineFill',
     head = 'TabLine',
-    current_tab = { fg = 'Normal', bg = NONE, style = 'italic' },
+    current_tab = { fg = "fg", bg = "NONE", style = 'italic' },
     tab = 'TabLine',
     win = 'TabLine',
     tail = 'TabLine',
