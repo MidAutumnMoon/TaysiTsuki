@@ -1,31 +1,49 @@
 {
     lib,
-    newScope,
+    buildPackages,
+    runCommandNoCC,
+    buildGoModule,
+
+    shadowsocks_teapot,
+    hysteria_teapot,
+    dnscrypt-proxy,
 }:
 
-lib.makeScope newScope ( self: let
+rec {
 
-    callPackage =
-        self.newScope { inherit lib; };
+    upx-pack = input:
+        assert builtins.isString input;
+        let exename = builtins.baseNameOf input; in
+        runCommandNoCC exename {} ''
+            mkdir -pv "$out/bin"
+            "${lib.getExe buildPackages.upx}" \
+                --lzma --best \
+                "${input}" -o "$out/bin/${exename}"
+        '';
 
-in {
-
-    upx-pack =
-        callPackage ./upx.nix {};
-
-    all = with self; [
-        pn-ssserver
-        pn-hysteria
-        pn-dnscrypt
+    all = [
+        ssserver
+        hysteria
+        dnscrypt
     ];
 
-    pn-ssserver =
-        callPackage ./ssserver.nix {};
+    ssserver =
+        upx-pack ( lib.getExe' shadowsocks_teapot "ssserver" );
 
-    pn-hysteria =
-        callPackage ./hysteria.nix {};
+    hysteria =
+        upx-pack ( lib.getExe hysteria_teapot );
 
-    pn-dnscrypt =
-        callPackage ./dnscrypt.nix {};
+    dnscrypt =
+        # N.B. CGO must be disabled which makes it not depend on ld.so.
+        # Otherwise, upx will try to call ld.so at startup, and also because of
+        # the path is hardcoded then compressed by upx, nix won't be able to
+        # scan for runtime dependencies of the output, i.e. ld.so (glibc)
+        # in this case, the upx-packed executable won't start on environment
+        # where there's no glibc in the store, e.g. systemd portable service :/
+        { env.GOAMD64 = "v3"; env.CGO_ENABLED = 0; }
+        |> ( it: args: buildGoModule <| args // it )
+        |> ( it: dnscrypt-proxy.override { buildGoModule = it; } )
+        |> ( it: upx-pack <| lib.getExe it )
+    ;
 
-} )
+}

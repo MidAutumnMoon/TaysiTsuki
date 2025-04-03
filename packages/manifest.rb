@@ -26,9 +26,9 @@
     prvn_bundle: %w[
         shadowsocks_teapot
         hysteria_teapot
-        prvn-pkgs.pn-ssserver
-        prvn-pkgs.pn-hysteria
-        prvn-pkgs.pn-dnscrypt
+        prvn-pkgs.ssserver
+        prvn-pkgs.hysteria
+        prvn-pkgs.dnscrypt
     ],
 
     # Some heavy rust things
