@@ -17,6 +17,10 @@
         "net.core.rmem_max" = 67108864;
         "net.core.wmem_max" = 67108864;
         "net.ipv4.tcp_mtu_probing" = 1;
+        "net.core.somaxconn" = 16384;
+        # calculated based on 8G ram
+        "net.ipv4.tcp_mem" = "471025 942050 1413075";
+        "net.ipv4.udp_mem" = "471025 942050 1413075";
     };
 
 }
