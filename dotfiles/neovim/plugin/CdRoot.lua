@@ -19,6 +19,7 @@ M.markers = {
 
     "flake.nix",
     "shell.nix",
+    "default.nix",
 
     "Cargo.toml",
 
