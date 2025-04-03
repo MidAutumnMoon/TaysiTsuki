@@ -25,10 +25,11 @@ pkgsStatic.rustTeapot.buildRustPackage rec {
 
     stripAllList = [ "bin" ];
 
-
     RUSTFLAGS = with stdenv;
-        lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3";
+        lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
+    ;
 
+    env.CARGO_PROFILE_RELEASE_LTO = "thin";
 
     buildNoDefaultFeatures = true;
 

@@ -31,17 +31,13 @@ rustTeapot.buildRustPackage rec {
         "jemalloc"
     ];
 
-
-    CFG_RELEASE = version;
-
-    CARGO_PROFILE_RELEASE_LTO = "thin";
-
-    CARGO_PROFILE_RELEASE_STRIP = "debuginfo";
+    env.CFG_RELEASE = version;
+    env.CARGO_PROFILE_RELEASE_LTO = "thin";
+    env.CARGO_PROFILE_RELEASE_STRIP = "debuginfo";
 
     RUSTFLAGS = with stdenv;
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
     ;
-
 
     meta = with lib; {
         homepage = "https://rust-analyzer.github.io";
