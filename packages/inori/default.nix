@@ -6,18 +6,13 @@
     rustTeapot,
 
     libavif,
-    libyuv_teapot,
     libjxl,
 }:
 
 let
 
-    cjxl = "${lib.getBin libjxl}/bin/cjxl";
-
-    avifenc =
-        libavif.override { libyuv = libyuv_teapot; }
-        |> ( p: "${lib.getBin p}/bin/avifenc" )
-    ;
+    cjxl = lib.getExe' libjxl "cjxl";
+    avifenc = lib.getExe' libavif "avifenc";
 
 in
 
@@ -42,14 +37,6 @@ rustTeapot.buildRustPackage {
     RUSTFLAGS = with stdenv;
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
     ;
-
-    postInstall = /* bash */ ''
-        # Remove benchmarking binaries
-        find "$out" \
-            -type f -iname "*_bench" \
-            -exec rm -v "{}" +
-        ln -sv "$out/bin/coruma-reverse" "$out/bin/,?"
-    '';
 
     meta = {
         homepage = "https://github.com/MidAutumnMoon/InOri";

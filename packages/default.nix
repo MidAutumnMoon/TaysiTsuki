@@ -72,13 +72,6 @@ rec {
         callPackage ./gtkgreet {};
 
     /*
-     * Libraries and other hard things
-     */
-
-    libyuv_teapot =
-        callPackage ./libyuv {};
-
-    /*
      * Themes, colors, fonts, styles, etc.
      * colorful and fancy things.
      */
