@@ -21,11 +21,6 @@ packages << {
     unstable: true,
 
 }
-packages << {
-    attr: "libyuv_teapot",
-    unstable: true,
-    pinned: true,
-}
 
 packages << {
     attr: "hysteria_teapot",
