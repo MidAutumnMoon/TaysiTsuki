@@ -4,7 +4,11 @@ local servers = {
     nixd = {
         cmd = { "nixd", "--semantic-tokens=false" },
     },
-    rust_analyzer = {},
+    rust_analyzer = {
+        settings = { ["rust-analyzer"] = {
+            checkOnSave = { command = "clippy" },
+        } },
+    },
     rubocop = { single_file_support = true, },
     -- denols = {},
     elixirls = { cmd = { "elixir-ls" }, },
