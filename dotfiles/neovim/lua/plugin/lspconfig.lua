@@ -7,9 +7,6 @@ local servers = {
     rust_analyzer = {
         settings = { ["rust-analyzer"] = {
             checkOnSave = { command = "clippy" },
-            completion = {
-                callable = { snippets = "add_parentheses" },
-            },
             hover = {
                 show = { traitAssocItems = 2 },
             },
@@ -46,12 +43,6 @@ for server, config in pairs( servers ) do
     if has_cmp then
         config.capabilities = cmp_lsp.default_capabilities()
     end
-
-    -- config.capabilities
-    --     .textDocument
-    --     .completion
-    --     .completionItem
-    --     .snippetSupport = false
 
     lspconfig[server].setup( config )
 end
