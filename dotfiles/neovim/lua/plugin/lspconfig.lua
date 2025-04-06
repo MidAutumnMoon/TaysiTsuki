@@ -13,6 +13,9 @@ local servers = {
             hover = {
                 show = { traitAssocItems = 2 },
             },
+            imports = {
+                granularity = { group = "item" },
+            },
         }, }
     },
     rubocop = { single_file_support = true, },
