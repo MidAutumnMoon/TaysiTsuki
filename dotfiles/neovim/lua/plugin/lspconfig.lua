@@ -7,7 +7,13 @@ local servers = {
     rust_analyzer = {
         settings = { ["rust-analyzer"] = {
             checkOnSave = { command = "clippy" },
-        } },
+            completion = {
+                callable = { snippets = "add_parentheses" },
+            },
+            hover = {
+                show = { traitAssocItems = 2 },
+            },
+        }, }
     },
     rubocop = { single_file_support = true, },
     -- denols = {},
@@ -32,21 +38,17 @@ for server, config in pairs( servers ) do
 
     if has_blink then
         config.capabilities = blink.get_lsp_capabilities( config.capabilities )
-        config.capabilities
-            .textDocument
-            .completion
-            .completionItem
-            .snippetSupport = false
     end
 
     if has_cmp then
         config.capabilities = cmp_lsp.default_capabilities()
-        config.capabilities
-            .textDocument
-            .completion
-            .completionItem
-            .snippetSupport = false
     end
+
+    -- config.capabilities
+    --     .textDocument
+    --     .completion
+    --     .completionItem
+    --     .snippetSupport = false
 
     lspconfig[server].setup( config )
 end

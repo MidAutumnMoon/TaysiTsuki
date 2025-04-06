@@ -6,13 +6,17 @@ local option = {}
 
 option.completion = {
     keyword = { range = "full" },
-    accept = {},
+    accept = { auto_brackets = { enabled = false } },
     trigger = {
-        show_in_snippet = false,
+        show_in_snippet = true,
     },
-    list = {
-        selection = { auto_insert = false },
-    },
+    list = { selection = {} },
+}
+
+option.completion.list.selection = {
+    preselect = function( ctx )
+        return not blink.snippet_active { direction = 1 }
+    end
 }
 
 option.completion.menu = {
@@ -52,7 +56,7 @@ option.keymap = {
     preset = "super-tab",
     -- To exit insert mode directly,
     -- otherwise <Esc> has to be pressed twice :/
-    ["<Esc>"] = { "fallback" },
+    -- ["<Esc>"] = { "fallback" },
 }
 
 option.cmdline = {
