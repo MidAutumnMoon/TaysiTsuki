@@ -19,7 +19,8 @@ local sections = {
                 warn = "W:",
                 info = "I:",
                 hint = "H:",
-            };
+            },
+            first_line_only = true,
         }
     },
     lualine_x = {
