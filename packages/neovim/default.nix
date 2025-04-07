@@ -8,7 +8,7 @@
     vimPlugins,
 
     # Enable all parsers adds about 200MB to the closure.
-    treesitter ? true,
+    withAllTsParsers ? true,
 }:
 
 let
@@ -37,7 +37,7 @@ let
 
     xdgDataDirs = [
         "/run/current-system/sw/share"
-        ( lib.optional treesitter ( toString ts-parsers ) )
+        ( lib.optional withAllTsParsers ( toString ts-parsers ) )
     ]
     |> lib.flatten
     |> lib.concatStringsSep ":"

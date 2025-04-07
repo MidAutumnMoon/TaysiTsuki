@@ -4,7 +4,7 @@
 
     environment.systemPackages = with pkgs; [
         (
-            lib.lowPrio ( neovim_teapot.override { treesitter = false; } )
+            lib.lowPrio ( neovim_teapot.override { withAllTsParsers = false; } )
         )
     ];
 
