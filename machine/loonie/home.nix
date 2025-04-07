@@ -28,6 +28,7 @@ in {
 
         inori
         parinfer-rust # for the dylib
+        skim
     ];
 
     sops.age.keyFile = "${configHome}/sops/age/keys.txt";

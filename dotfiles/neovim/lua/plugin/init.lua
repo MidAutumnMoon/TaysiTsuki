@@ -136,14 +136,10 @@ local __plugins = {
     },
 
     {
-        "nvim-telescope/telescope.nvim",
-        keys = { "<Leader>" },
-        cmd = "Telescope",
-        dependencies = {
-            "nvim-lua/plenary.nvim",
-        },
+        "ibhagwan/fzf-lua",
+        dependencies = { "nvim-tree/nvim-web-devicons" },
         config = function()
-            require "plugin.telescope"
+            require "plugin.fzf"
         end
     },
 
