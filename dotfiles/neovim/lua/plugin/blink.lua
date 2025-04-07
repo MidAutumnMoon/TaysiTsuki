@@ -6,7 +6,11 @@ local option = {}
 
 option.completion = {
     keyword = { range = "full" },
-    accept = { auto_brackets = { enabled = false } },
+    accept = {
+        auto_brackets = {
+            semantic_token_resolution = { timeout_ms = 100 },
+        },
+    },
     trigger = {
         show_in_snippet = true,
     },
@@ -14,23 +18,24 @@ option.completion = {
 }
 
 option.completion.list.selection = {
-    preselect = function( ctx )
-        return not blink.snippet_active { direction = 1 }
-    end
+    -- preselect = function( ctx )
+    --     return not blink.snippet_active { direction = 1 }
+    -- end
+    preselect = true,
 }
 
 option.completion.menu = {
     border = "rounded",
     scrollbar = false,
     draw = {
+        components = {},
         columns = {
             { "label", "label_description", gap = 1 },
             { "kind_icon", "kind", gap = 1, },
         },
+        treesitter = { "lsp" },
     },
 }
-
-option.completion.menu.draw.components = {}
 
 option.completion.menu.draw.components.kind_icon = {
     ellipsis = false,
@@ -53,10 +58,10 @@ option.completion.documentation = {
 }
 
 option.keymap = {
-    preset = "super-tab",
+    preset = "default",
     -- To exit insert mode directly,
     -- otherwise <Esc> has to be pressed twice :/
-    -- ["<Esc>"] = { "fallback" },
+    -- ["<Esc>"] = { "hide", "fallback" },
 }
 
 option.cmdline = {
@@ -65,6 +70,19 @@ option.cmdline = {
 
 option.snippets = {
     preset = "luasnip",
+}
+
+option.fuzzy = {
+    implementation = "rust",
+    sorts = {
+        "exact", "score", "sort_text",
+    }
+}
+
+option.sources = {}
+
+option.sources.providers = {
+    lsp = { timeout_ms = 1000, },
 }
 
 blink.setup( option )

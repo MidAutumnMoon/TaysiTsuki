@@ -1,10 +1,5 @@
 # Declarations
 
-snippet main
-    fn main()$1 {
-        ${0:// something something...}
-    }
-
 snippet fn
     fn ${1:name}($2)$3 {
         ${0:// something something...}
@@ -12,22 +7,16 @@ snippet fn
 
 snippet macro
     macro_rules! ${1:name} {
-        ( ${2:matcher} ) => {$3}
+        ( ${2:matcher} ) => {$0}
     }
 
 # Attributes
-
-snippet #allow
-    #[ allow($1) ]$0
 
 snippet #cfg
     #[ cfg($1) ]$0
 
 snippet #derive
     #[ derive($1) ]$0
-
-snippet #debug
-    #[ derive( Debug$1 ) ]$0
 
 # Common types
 
