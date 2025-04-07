@@ -20,8 +20,15 @@ function M.callback( opt )
         return
     end
     vim.api.nvim_buf_call( buf, function()
-        vim.cmd.wall { mods = { silent = true } }
-        vim.cmd.doautocmd { "BufWritePost", mods = { silent = true } }
+        vim.cmd.bufdo {
+            "write",
+            range = { buf },
+            mods = { silent = true }
+        }
+        vim.cmd.doautocmd {
+            "BufWritePost",
+            mods = { silent = true }
+        }
     end )
 end
 
