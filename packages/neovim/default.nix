@@ -14,7 +14,7 @@
 let
 
     ts-parsers = let
-        paths = vimPlugins.nvim-treesitter.withAllGrammars.dependencies;
+        parsers = vimPlugins.nvim-treesitter.withAllGrammars.dependencies;
         unwanted = [
             "verilog" "gnuplot" "v" "slang" "ssh_config"
             "objc" "nim" "racket" "commonlisp" "scheme"
@@ -23,15 +23,19 @@ let
         declare dest="$out/nvim/site/parser";
         mkdir -pv "$dest"
         ${
-            paths
-            |> map ( drv: '' cp -Lv ${drv}/parser/*.so "$dest" '' )
+            # Generate cp cmds to copy .so
+            parsers
+            |> map ( it: '' cp -Lv ${it}/parser/*.so "$dest" '' )
             |> lib.concatStringsSep "; "
         }
         ${
+            # Generate a find command to remove unwanted parsers' .so files.
             unwanted
             |> map ( name: "-name ${name}.so" )
             |> lib.concatStringsSep " -or "
             |> ( ns: "find $dest -type f \\( ${ns} \\) -exec rm -v '{}' + " )
+            # Why not filter out these parsers when copying?
+            # Because find is tedious to work with if rule gets complex.
         }
     '';
 
@@ -39,8 +43,8 @@ let
         "/run/current-system/sw/share"
         ( lib.optional withAllTsParsers ( toString ts-parsers ) )
     ]
-    |> lib.flatten
-    |> lib.concatStringsSep ":"
+        |> lib.flatten
+        |> lib.concatStringsSep ":"
     ;
 
     xdgConfigDirs = lib.concatStringsSep ":" [
@@ -62,15 +66,11 @@ symlinkJoin {
         makeWrapper
     ];
 
-    postBuild = ''
+    postBuild = /* bash */ ''
         rm -v "$out/bin/nvim"
 
-        # nvim is smart enough to figure out his real
-        # path, so no need to include the runtime in wrapper
-        rm -r "$out/share/nvim"
-
         makeWrapper \
-            "${neovim-unwrapped}/bin/nvim" "$out/bin/nvim" \
+            "${lib.getExe neovim-unwrapped}" "$out/bin/nvim" \
             --inherit-argv0 \
             --set XDG_DATA_DIRS "${xdgDataDirs}" \
             --set XDG_CONFIG_DIRS "${xdgConfigDirs}"
@@ -78,7 +78,6 @@ symlinkJoin {
         ln -s "$out/bin/nvim" "$out/bin/vi"
         ln -s "$out/bin/nvim" "$out/bin/vim"
     '';
-
 
     passthru = {
         inherit

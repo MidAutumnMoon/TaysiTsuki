@@ -1,17 +1,38 @@
---
--- Bootstrap Lazy.nvim
---
-
 (function()
-
     local stdpath = vim.fn.stdpath
     local lazy_path = stdpath( 'data' ) .. "/lazy/lazy.nvim"
-
+    local stat = vim.loop.fs_stat( lazy_path )
+    assert( stat, "lazy.nvim not installed" )
     vim.opt.rtp:prepend( lazy_path )
-
 end)()
 
-local plugins = {
+local lore = {
+    --- @type string Name of current user
+    username = (function()
+        local u = vim.loop.os_getenv( "USER" )
+        assert( u and u ~= "", "Failed to read $USER" )
+        return u
+    end)(),
+}
+
+--- @return string | nil
+--- TODO: fallback to system profile if no user profile
+lore.get_dylib_from_user_profile = function( libname )
+    local profile = "/etc/profiles/per-user/" .. lore.username
+    if not vim.uv.fs_stat( profile ) then
+        return nil
+    end
+    local dylib = profile .. "/lib/" .. libname
+    if not vim.uv.fs_stat( dylib ) then
+        return nil
+    else
+        return dylib
+    end
+end
+
+local lazy = require "lazy"
+
+local __plugins = {
 
     --
     -- Editing
@@ -58,7 +79,6 @@ local plugins = {
 
     {
         "windwp/nvim-autopairs",
-        event = { "InsertEnter" },
         config = function()
             require "plugin.autopairs"
         end
@@ -78,13 +98,10 @@ local plugins = {
             "scheme"
         },
         init = function()
-            local user = vim.loop.os_getenv( "USER" )
-            assert( user and user ~= "", "Can't read $USER" )
-            local profile = "/etc/profiles/per-user/" .. user
-            local dylib = profile .. "/lib/libparinfer_rust.so"
-            local stat = vim.loop.fs_stat( dylib )
-            assert( stat and stat.type == "file", "Dylib not exists" )
-            vim.g.parinfer_dylib_path = dylib
+            local dylib = lore.get_dylib_from_user_profile( "libparinfer_rust.so" )
+            if dylib then
+                vim.g.parinfer_dylib_path = dylib
+            end
         end
     },
 
@@ -122,6 +139,9 @@ local plugins = {
         "nvim-telescope/telescope.nvim",
         keys = { "<Leader>" },
         cmd = "Telescope",
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+        },
         config = function()
             require "plugin.telescope"
         end
@@ -363,26 +383,19 @@ local plugins = {
 
 }
 
-local config = {
-
+local __config = {
     checker = { enabled = false },
-
     lockfile = vim.fn.stdpath('state') .. "/lazy-lock.json",
-
     -- Don't reset runtimepath because treesitter parsers are
     -- externally managed using nix, and is passed to nvim
     -- using $XDG_DATA_DIRS.
     performance = {
         rtp = { reset = false },
     },
-
-    ui = {
-        border = "rounded",
-    },
-
+    ui = { border = "rounded", },
 }
 
-config.performance.rtp.disabled_plugins = {
+__config.performance.rtp.disabled_plugins = {
     "gzip",
     "matchit",
     "matchparen",
@@ -393,7 +406,6 @@ config.performance.rtp.disabled_plugins = {
     "zipPlugin",
 }
 
-require "lazy".setup( plugins, config )
-
+lazy.setup( __plugins, __config )
 
 vim.cmd [[ command! P :Lazy sync ]]

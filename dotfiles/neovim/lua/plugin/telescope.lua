@@ -2,24 +2,17 @@ local telescope = require "telescope"
 local action = require "telescope.actions"
 local builtin = require "telescope.builtin"
 
-telescope.setup { defaults = {
-
-    mappings = {
-        i = {
-            ["<M-j>"] = action.move_selection_next,
-            ["<M-k>"] = action.move_selection_previous,
-            ["<Esc>"] = action.close
-        }
+telescope.setup {
+    defaults = {
+        preview = {
+            filesize_limit = 10, -- MiB
+            treesitter = false
+        },
+        mappings = {
+            i = { ["<Esc>"] = action.close }
+        },
     },
-
-    preview = {
-        filesize_limit = 2,
-        timeout = 120,
-        treesitter = true
-    },
-
-} }
-
+}
 
 local BatchSetKeymaps = require "nus".BatchSetKeymaps
 
