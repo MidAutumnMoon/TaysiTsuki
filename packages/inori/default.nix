@@ -38,6 +38,10 @@ rustTeapot.buildRustPackage {
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
     ;
 
+    postInstall = ''
+        ln -sv "$out/bin/coruma-reverse" "$out/bin/,?"
+    '';
+
     meta = {
         homepage = "https://github.com/MidAutumnMoon/InOri";
         license = lib.licenses.gpl3Plus;
