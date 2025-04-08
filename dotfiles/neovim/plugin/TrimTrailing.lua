@@ -1,4 +1,4 @@
-local ExcludedFiletypes = require "nus".ExcludedFiletypes
+local ExcludedFiletypes = require "lore".ExcludedFiletypes
 
 local config = {
     IgnoredFiles = { }

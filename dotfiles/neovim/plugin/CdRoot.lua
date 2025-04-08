@@ -3,11 +3,6 @@
 -- Note: not using vim.fs.root() because this implementation
 -- is theorically more performant.
 
-
---- @type unknown
-local uv = vim.uv
-
-
 local M = {}
 
 M.markers = {
@@ -32,7 +27,7 @@ M.config = {
     --- How many entries fs_opendir will read.
     OpendirEntries = 2048,
     CdMethod = "tcd",
-    ExcludedFiletypes = require "nus".ExcludedFiletypes,
+    ExcludedFiletypes = require "lore".ExcludedFiletypes,
 }
 
 function M.validate_buffer( bufnr )
@@ -52,7 +47,7 @@ end
 --- @return boolean
 function M.look_for_marker( dir )
     local entries =
-        uv.fs_opendir( dir, nil, M.config.OpendirEntries )
+        vim.uv.fs_opendir( dir, nil, M.config.OpendirEntries )
         :readdir()
     return vim.iter( entries or {} )
         :any( function( et )
