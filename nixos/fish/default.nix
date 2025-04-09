@@ -4,6 +4,9 @@ lib.mkMerge [
 
 {
 
+    # Fish is launched by Bash, this module becomes useless.
+    programs.fish.enable = false;
+
     environment.pathsToLink = [
         "/share/fish/vendor_conf.d"
         "/share/fish/vendor_completions.d"
@@ -51,7 +54,7 @@ in lib.mkIf manCfg.enable {
     ;
 
     environment.etc."fish/generated_completions".source =
-        lib.mkForce config.passthru."fish-completions"
+        config.passthru."fish-completions"
     ;
 
     environment.etc."fish/config.fish".text = /* fish */ ''
