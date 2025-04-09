@@ -19,13 +19,13 @@ in
 rustTeapot.buildRustPackage {
 
     pname = "inori";
-    version = "0-unstable-2025-04-06";
+    version = "0-unstable-2025-04-08";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "InOri";
-        rev = "2c16814a1640d495b797938dd7643f713a2b1a3e";
-        hash = "sha256-kGnpFy1QgSaTBYM0rlhMRDVOo7NqHJJRZTyygIybAVk=";
+        rev = "805d3173b9644b3d192b8a85c54caa51704cab50";
+        hash = "sha256-zn0Z4y2QPVoMRvESx1r+aYGitKjZ+U6ZHtf4gPQ0ZgE=";
     };
 
     cargoHash = "sha256-4vBhJBUoNK+JwECe6yoocuBQmA8ldTQYPU3yIBImMHo=";
