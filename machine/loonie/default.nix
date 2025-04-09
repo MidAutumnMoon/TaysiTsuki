@@ -16,7 +16,6 @@ in {
             flake = "/home/teapot/Nuran/";
         };
         direnv.enable = true;
-        fish.enable = true;
     };
 
     environment.systemPackages = with pkgs; [
