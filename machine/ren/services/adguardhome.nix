@@ -45,9 +45,15 @@ in
             dns.port = 53;
             dns.upstream_dns = [
                 "[/home.lan/]udp://10.0.1.1:53"
-                "quic://dns.alidns.com:853"
+                "https://dns.alidns.com/dns-query"
+                "https://doh.pub/dns-query"
+                "tls://dot.pub"
             ];
-            dns.bootstrap_dns = [ "223.5.5.5" ];
+            dns.bootstrap_dns = [
+                "223.5.5.5"
+                "119.29.29.29"
+                "2402:4e00::"
+            ];
             dns.cache_optimistic = true;
             querylog.ignored = [ ".arpa" ];
             statistics.ignored = [ ".arpa" ];

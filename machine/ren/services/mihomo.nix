@@ -42,7 +42,7 @@ in
                     - '*'
                 allow-private-network: true
 
-            global-client-fingerprint: chrome
+            global-client-fingerprint: random
             geodata-loader: standard
             geo-auto-update: true
 
