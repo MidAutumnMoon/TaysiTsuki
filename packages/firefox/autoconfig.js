@@ -297,3 +297,9 @@ pref( 'accessibility.browsewithcaret_shortcut.enabled', false );
 // Google without AI summary & NCR
 // https://www.google.com/search?q=%s&udm=14&pws=0&gl=us&gws_rd=cr&safe=off
 pref( "browser.urlbar.update2.engineAliasRefresh", true );
+
+// Prevent pinned tabs from autoloading on startup
+pref( "browser.sessionstore.restore_pinned_tabs_on_demand", true );
+
+// Add copy highlight (text fragment) to right click menu
+pref( "dom.text_fragments.create_text_fragment.enabled", true );
