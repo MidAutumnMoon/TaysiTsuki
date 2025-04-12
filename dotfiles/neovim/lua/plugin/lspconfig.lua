@@ -16,7 +16,7 @@ local servers = {
         }, }
     },
     rubocop = { single_file_support = true, },
-    -- denols = {},
+    denols = { single_file_support = true },
     elixirls = { cmd = { "elixir-ls" }, },
 }
 
