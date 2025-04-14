@@ -102,7 +102,7 @@ in "build"
         .join " "
 
     system <<~SH or abort "Failed to build"
-        nix build #{nix_option} #{COMMON_NIX_CLI_OPTS}
+        sudo nix build #{nix_option} #{COMMON_NIX_CLI_OPTS}
     SH
 
 in "nixos"
@@ -128,7 +128,7 @@ in "nixos"
         .join( " " )
 
     system <<~SH or abort "Failed to build"
-        nix build #{build_opts} \
+        sudo nix build #{build_opts} \
             --option max-jobs 16 \
             #{COMMON_NIX_CLI_OPTS}
     SH
