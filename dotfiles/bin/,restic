@@ -4,13 +4,12 @@
 
 require "shellwords"
 
-ENV["RESTIC_REPOSITORY"] = "sftp:rio.home.lan:/Pool/Restic/Main"
+ENV["RESTIC_REPOSITORY"] = "sftp:rio.home.lan:/Pool/Restic/Bucket"
 ENV["RESTIC_PASSWORD"] = "f83d58e0-b7d0-4285-b460-defa583f9e62"
+ENV["RESTIC_PACK_SIZE"] = "128"
 
 BACKUP_DIRS = [
-    "$HOME/.local/bin",
-    "$HOME/.local/share/mkcert",
-    "$HOME/.ssh",
+    "$HOME/Hotaru/Pictures/TopSecret/",
 ].freeze
 
 command = if ARGV.empty?
