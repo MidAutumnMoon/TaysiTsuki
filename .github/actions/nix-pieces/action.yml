@@ -9,12 +9,6 @@ runs:
 
     steps:
 
-    -   name: Mount tmpfs as cache
-        shell: bash
-        run: |
-            mkdir -pv "$HOME/.cache"
-            sudo mount -t tmpfs -o defaults,size=100% none "$HOME/.cache"
-
     -   name: Setup nix
         uses: MidAutumnMoon/spheti-action/nix@master
         with:
