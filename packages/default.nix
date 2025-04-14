@@ -108,6 +108,9 @@ rec {
     makePortableServices =
         callPackage ./portable-service {};
 
+    zram-generator =
+        prev.zram-generator.overrideAttrs { doCheck = false; };
+
     /*
      * Optimization flags. Mostly unused.
      */
