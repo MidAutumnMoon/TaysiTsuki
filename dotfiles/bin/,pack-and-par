@@ -69,7 +69,7 @@ HERE.glob( "*.{7z,tar}" ).each do |archive|
         or abort ":: Failed to move archive".red.to_s
 
     Dir.chdir( containing_dir ) do
-        system "command par2create -r3 -n3 *" \
+        system "command par2create -r3 -n2 *" \
             or abort ":: Failed to par2create".red
 
         puts ":: Checksum"
