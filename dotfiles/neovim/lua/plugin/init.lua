@@ -261,9 +261,6 @@ local __plugins = {
 
     {
         "neovim/nvim-lspconfig",
-        config = function()
-            require "plugin.lspconfig"
-        end
     },
 
     {
