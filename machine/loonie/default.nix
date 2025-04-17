@@ -8,7 +8,6 @@ in {
 
     imports = [
         ./rclone
-        ./fish
     ];
 
     programs = {
@@ -17,6 +16,7 @@ in {
             flake = "/home/teapot/Nuran/";
         };
         direnv.enable = true;
+        fish.enable = true;
     };
 
     environment.systemPackages = with pkgs; [

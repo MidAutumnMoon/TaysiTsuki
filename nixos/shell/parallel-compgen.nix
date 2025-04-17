@@ -17,7 +17,9 @@ let
         manpages = "${mandbCfg.manualPages}/share/man";
     };
 
-in lib.mkIf man.enable {
+    fishCfg = config.programs.fish;
+
+in lib.mkIf ( fishCfg.enable && man.enable ) {
 
     # 1) find
     # - Specify -maxdepth to exclude locale dirs e.g. de/, fr/
