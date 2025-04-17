@@ -8,6 +8,7 @@ in {
 
     imports = [
         ./rclone
+        ./shell.nix
     ];
 
     programs = {
