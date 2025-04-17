@@ -2,9 +2,11 @@
 
 let
 
+    fishCfg = config.programs.fish;
+
     # Python script bundled with fish for generating completion.
     compGenerator =
-        config.programs.fish.package
+        fishCfg.package
         |> ( it: "${it}/share/fish/tools/create_manpage_completions.py" );
 
     pyInterpreter =
@@ -16,8 +18,6 @@ let
         enable = mandbCfg.enable;
         manpages = "${mandbCfg.manualPages}/share/man";
     };
-
-    fishCfg = config.programs.fish;
 
 in lib.mkIf ( fishCfg.enable && man.enable ) {
 
@@ -40,6 +40,8 @@ in lib.mkIf ( fishCfg.enable && man.enable ) {
                 ${pyInterpreter} ${compGenerator} --keep --directory "$out"
         '';
 
+    # N.B. manualPages relies on systemPackages. If the "fish-completion"
+    # package is installed via systemPackages will cause infinite recursion.
     environment.extraSetup = /* bash */ ''
         mkdir -p "$out/etc/fish"
         ln -sf "${config.passthru.fish-completion}" "$out/etc/fish/completions"

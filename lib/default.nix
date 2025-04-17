@@ -46,6 +46,7 @@ rec {
         isModule
         flatMod condMod
         listAllModules
+        rejectUnset
     ;
 
     inherit ( nuran.trivial )
