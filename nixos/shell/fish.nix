@@ -116,7 +116,13 @@
                 ${abbrs}
                 ${fishCfg.interactiveInit}
             end
+
+            # vim: ft=fish:
         '';
+
+        passthru."fish-config" =
+            pkgs.writeText "fish-config"
+            config.environment.etc."fish/config.fish".text;
     };
 
 }
