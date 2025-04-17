@@ -8,6 +8,7 @@ in {
 
     imports = [
         ./rclone
+        ./fish
     ];
 
     programs = {
