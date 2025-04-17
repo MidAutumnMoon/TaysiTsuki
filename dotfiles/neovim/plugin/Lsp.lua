@@ -30,7 +30,6 @@ vim.lsp.enable {
 vim.api.nvim_create_autocmd( 'LspAttach', {
     callback = function( args )
         local keyopts = { buffer = args.buf, silent = true }
-        vim.keymap.set( "n", "D", vim.diagnostic.open_float, keyopts )
         vim.keymap.set( "n", "<F2>", vim.lsp.buf.rename, keyopts )
     end
 } )
