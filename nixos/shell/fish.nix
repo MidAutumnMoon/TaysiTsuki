@@ -6,6 +6,7 @@
 
     imports = [
         ./parallel-compgen.nix
+        ./system-wide-functions.nix
 
         ( lib.mkAliasOptionModule
             [ "programs" "fish" "interactiveShellInit" ]
