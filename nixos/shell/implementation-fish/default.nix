@@ -5,8 +5,6 @@
     disabledModules = [ "programs/fish.nix" ];
 
     imports = [
-        ./parallel-compgen.nix
-
         ( lib.mkAliasOptionModule
             [ "programs" "fish" "interactiveShellInit" ]
             [ "programs" "fish" "interactiveInit" ]
@@ -97,6 +95,20 @@
             |> lib.filterAttrs ( _: v: v != null )
             |> lib.filterAttrs ( n: v: !fishCfg.functions ? ${n} )
             |> lib.mapAttrs ( _: lib.mkDefault );
+
+        programs.fish.init = let
+            compl = import ./parallel-compgen.nix config pkgs;
+        in /* fish */ ''
+            if not contains "${compl}" $fish_complete_path
+                # N.B. "--append" so that auto generated completion
+                # won't override vendored one.
+                # Generated completions are often less featureful than vendored one.
+                # In case of "ssh", the vendored completion can also
+                # complete hostnames, which can not be archived
+                # by the generated one.
+                set --append fish_complete_path "${compl}"
+            end
+        '';
 
         environment = {
             # N.B. on purpose to not set shells
