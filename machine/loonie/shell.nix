@@ -45,6 +45,7 @@
         ".nt" = "nh os test";
         ".nb" = "nh os build";
         ".npl" = "nh os repl";
+        "cm" = "colmena";
     };
 
     programs.fish.functions = {
