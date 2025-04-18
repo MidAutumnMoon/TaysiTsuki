@@ -1,7 +1,7 @@
 # Based on https://github.com/jhillyerd/plugin-git
 
 function git_abbr
-    abbr -ag --command "git" $argv
+    abbr -ag "g$argv[1]" "git $argv[2]"
 end
 
 git_abbr "a" "add"
