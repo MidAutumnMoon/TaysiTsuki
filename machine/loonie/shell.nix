@@ -2,6 +2,32 @@
 
 {
 
+    programs.fish.init = /* fish */ ''
+        # See https://asciinema.org/a/661290
+        #
+        # \e[0;0H : move cursor to 0,0 to reset its position
+        # \e[$LINES;0H : move cursor $LINES down
+        echo -ne "\e[0;0H\e[$LINES;0H"
+
+        # Bind Ctrl+L
+        bind --user \cl '
+            echo -n ( clear | string replace \\e\\[3J "" ) ;
+            commandline -f repaint ;
+            echo -ne "\e[0;0H\e[$LINES;0H" ;
+        '
+    '';
+
+    programs.fish.interactiveInit = /*fish*/ ''
+        ${builtins.readFile ./tide.fish}
+    '';
+
+    environment.shellAliases = {
+        "-" = "cd -";
+        "ldd" = "libtree";
+        "sys" = "systemctl";
+        "ca" = "cargo";
+    };
+
     programs.fish.functions = {
 
         "colmena".body = /* fish */

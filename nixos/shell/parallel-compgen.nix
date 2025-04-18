@@ -31,7 +31,7 @@ in lib.mkIf ( fishCfg.enable && man.enable ) {
     # 3) compGenerator
     # - N.B. --keep so that parallel jobs won't delete each other's works
     passthru."fish-completion" =
-        pkgs.runCommand "generated-completion" {} ''
+        pkgs.runCommand "gen-fish-comp" {} ''
             mkdir -pv "$out"
             find "${man.manpages}" \
                 -maxdepth 2 \

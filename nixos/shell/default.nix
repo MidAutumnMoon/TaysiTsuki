@@ -4,4 +4,8 @@
         ./fish.nix
     ];
 
+    environment.shellAliases = {
+        "ll" = null;
+    };
+
 }

@@ -3,20 +3,16 @@
 {
 
     environment.systemPackages = with pkgs; [
-        (
-            lib.lowPrio ( neovim_teapot.override { withAllTsParsers = false; } )
-        )
+        ( lib.lowPrio ( neovim_teapot.override { withAllTsParsers = false; } ) )
     ];
 
     environment.sessionVariables = {
         EDITOR = "nvim";
     };
 
-    programs = {
-        fish.shellAliases = { "v" = "nvim"; };
-        bash.shellAliases = { "v" = "nvim"; };
+    environment.shellAliases = {
+        "v" = "nvim";
     };
-
 
 }
 

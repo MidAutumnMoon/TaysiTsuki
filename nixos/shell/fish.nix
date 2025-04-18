@@ -17,6 +17,11 @@
             [ "programs" "fish" "promptInit" ]
             [ "programs" "fish" "interactiveInit" ]
         )
+
+        ( lib.mkAliasOptionModule
+            [ "programs" "fish" "shellAliases" ]
+            [ "programs" "fish" "abbrs" ]
+        )
     ];
 
     options.programs.fish = let
@@ -27,34 +32,35 @@
         package = lib.mkPackageOption pkgs "fish" { };
 
         # TODO: fish has a more powerful abbr system
-        # that a simple cannot represent
-        abbrs = lib.mkOption {
+        # which a simple string cannot represent
+        abbrs = mkOption {
             default = { };
-            type = with lib.types; attrsOf str;
-            description = "fish abbreviations";
+            type = with types; attrsOf ( nullOr ( either str path ) );
+            description = "Fish abbreviations";
         };
 
-        functions = lib.mkOption {
+        functions = mkOption {
             type = with types; attrsOf moreopts.fishFunc;
             default = {};
-            description = "fish functions";
+            description = ''
+                Shell functions. Ideas and part of the implementation is
+                copied from home-manager.
+                Due to fish's design, abbrs will have higher priority over
+                functions with the same name in interactive shell.
+            '';
         };
 
-        init = lib.mkOption {
+        init = mkOption {
             default = "";
             description = "fish code to run on init";
             type = lib.types.lines;
         };
 
-        interactiveInit = lib.mkOption {
+        interactiveInit = mkOption {
             default = "";
             description = "fish code to run on interactive init";
             type = lib.types.lines;
         };
-
-        # compatibility
-
-        shellAliases = mkOption { type = types.anything; };
     };
 
     config = let
@@ -88,29 +94,50 @@
             '';
         } ];
 
-        environment.systemPackages = [
-            fishCfg.package
-            config.passthru."fish-functions"
-        ];
+        programs.fish.abbrs = config.environment.shellAliases
+            |> lib.filterAttrs ( _: v: v != null )
+            |> lib.filterAttrs ( n: v: !fishCfg.functions ? ${n} )
+            |> lib.mapAttrs ( _: lib.mkDefault );
 
-        # N.B. on purpose to not set shells
-        environment.shells = [
-            # "/run/current-system/sw/bin/fish"
-            # ( lib.getExe fishCfg.package )
-        ];
+        environment = {
+            # N.B. on purpose to not set shells
+            shells = [ ];
+            systemPackages = [
+                fishCfg.package
+                config.passthru."fish-functions"
+            ];
+            pathsToLink = [
+                "/share/fish/vendor_conf.d"
+                "/share/fish/vendor_completions.d"
+                "/share/fish/vendor_functions.d"
+            ];
+            etc."fish/config.fish".source = config.passthru."fish-config_fish";
+        };
 
-        environment.pathsToLink = [
-            "/share/fish/vendor_conf.d"
-            "/share/fish/vendor_completions.d"
-            "/share/fish/vendor_functions.d"
-        ];
+        #
+        # Warning: pill of mess below!
+        #
 
-        environment.etc."fish/config.fish".text = let
-            abbrs = fishCfg.abbrs
-                |> lib.mapAttrs ( _: v: lib.escapeShellArg v )
-                |> lib.mapAttrsToList ( n: v: "abbr -ag ${n} ${v}" )
-                |> lib.concatStringsSep "\n"
-            ;
+        # /etc/fish/config.fish
+        passthru."fish-config_fish" = pkgs.runCommand "etc-fishcfg" {
+            configText = config.passthru."fish-config-text";
+            passAsFile = [ "configText" ];
+            nativeBuildInputs = with pkgs; [
+                fishCfg.package writableTmpDirAsHomeHook
+            ];
+        } ''
+            fish_indent < "$configTextPath" > "$out"
+        '';
+
+        # The text content of config.fish
+        # Split the two step to make this file a bit cleaner :/
+        passthru."fish-config-text" = let
+            genOneLineCmd = prefix: obj:
+                obj
+                |> lib.filterAttrs ( _: v: v != null )
+                |> lib.mapAttrs ( _: val: lib.escapeShellArg val )
+                |> lib.mapAttrsToList ( nm: val: "${prefix} ${nm} ${val}" )
+                |> lib.concatStringsSep "\n";
         in /* fish */ ''
             # Managed by NixOS
 
@@ -119,16 +146,10 @@
             ${fishCfg.init}
 
             if status is-interactive
-                ${abbrs}
+                ${fishCfg.abbrs |> genOneLineCmd "abbr -ag"}
                 ${fishCfg.interactiveInit}
             end
-
-            # vim: ft=fish:
         '';
-
-        passthru."fish-config" =
-            pkgs.writeText "fish-config"
-            config.environment.etc."fish/config.fish".text;
 
         passthru."fish-functions" = let
             inherit ( lib ) optionalString;
@@ -154,21 +175,17 @@
             funcDefs =
                 lib.attrValues fishCfg.functions
                 |> map rejectUnset
-                |> map ( it: {
+                |> map ( it: rec {
                     name = it.funcname;
-                    value = ''
-                        function ${it.funcname} ${genFuncArgs it}
-                            ${it.body}
-                        end
-                    '';
+                    value = "function ${name} ${genFuncArgs it}\n${it.body}\nend";
                 } );
         in pkgs.runCommand "fish-functions" {
             __structuredAttrs = true;
             functions = funcDefs |> lib.listToAttrs;
-            nativeBuildInputs = [
+            nativeBuildInputs = with pkgs; [
                 fishCfg.package
-                pkgs.writableTmpDirAsHomeHook
-                pkgs.jq
+                writableTmpDirAsHomeHook
+                jq
             ];
         } ''
             # Put functions under vendor_functions.d
