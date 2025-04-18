@@ -43,6 +43,9 @@ in {
         "gallery-dl/config.json".source =
             mkOutOfStoreSymlink "${dotfiles}/gallery-dl/config.json";
 
+        "atuin/config.toml".source =
+            mkOutOfStoreSymlink "${dotfiles}/atuin/config.toml";
+
     };
 
     home.file = {

@@ -2,6 +2,10 @@
 
 {
 
+    environment.systemPackages = with pkgs; [
+        atuin
+    ];
+
     programs.fish.init = /* fish */ ''
         # See https://asciinema.org/a/661290
         #
@@ -26,6 +30,8 @@
             set -q WT_SESSION
             and printf "\e]9;9;%s\e\\" ( wslpath -w "$PWD" )
         end
+
+        atuin init fish | source
     '';
 
     environment.shellAliases = {
