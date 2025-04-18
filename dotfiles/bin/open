@@ -1,4 +1,0 @@
-#!/usr/bin/env -S fish
-
-# This is a fish function
-open $argv
