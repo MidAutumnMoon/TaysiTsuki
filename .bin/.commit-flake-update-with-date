@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+# frozen_string_literal: true
+
+require_relative "lib"
+
+toplevel = repo_toplevel
+date_str = Time.now.strftime "%Y/%b/%d"
+commit_msg = "flake update: #{date_str}"
+
+system <<~SH
+    git commit -m '#{commit_msg}' -- \
+        '#{toplevel.join 'flake.lock'}'
+SH
