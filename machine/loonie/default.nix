@@ -16,8 +16,15 @@ in {
             enable = true;
             flake = "/home/teapot/Nuran/";
         };
-        direnv.enable = true;
         fish.enable = true;
+    };
+
+    programs.direnv = {
+        enable = true;
+        settings = {
+            global.warn_timeout = "10s";
+            global.strict_env = true;
+        };
     };
 
     environment.systemPackages = with pkgs; [
