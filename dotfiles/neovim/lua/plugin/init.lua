@@ -313,17 +313,17 @@ local __plugins = {
     --     config = function() require "plugin.tokyonight" end
     -- },
 
-    -- {
-    --     "catppuccin/nvim",
-    --     name = "catppuccin",
-    --     config = function()
-    --         require "catppuccin".setup {
-    --             flavour = "mocha",
-    --             transparent_background = true,
-    --         }
-    --         vim.cmd.colorscheme "catppuccin"
-    --     end
-    -- },
+    {
+        "catppuccin/nvim",
+        name = "catppuccin",
+        config = function()
+            require "catppuccin".setup {
+                flavour = "macchiato",
+                -- transparent_background = true,
+            }
+            vim.cmd.colorscheme "catppuccin"
+        end
+    },
 
     -- {
     --     "scottmckendry/cyberdream.nvim",
@@ -336,19 +336,19 @@ local __plugins = {
     --     end
     -- },
 
-    {
-        "olimorris/onedarkpro.nvim",
-        config = function()
-            require "onedarkpro" .setup {
-                options = {
-                    cursorline = true,
-                    lualine_transparency = true,
-                    transparency = true,
-                }
-            }
-            vim.cmd "colorscheme onedark_vivid"
-        end
-    },
+    -- {
+    --     "olimorris/onedarkpro.nvim",
+    --     config = function()
+    --         require "onedarkpro" .setup {
+    --             options = {
+    --                 cursorline = true,
+    --                 lualine_transparency = true,
+    --                 transparency = true,
+    --             }
+    --         }
+    --         vim.cmd "colorscheme onedark_vivid"
+    --     end
+    -- },
 
     --
     -- Other things

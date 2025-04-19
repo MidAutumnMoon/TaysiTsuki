@@ -2,11 +2,6 @@ local fzf = require "fzf-lua"
 
 fzf.setup {
     "skim",
-    "hide",
-
-    winopts = {
-        backdrop = 0,
-    },
 }
 
 for key, action in pairs {
@@ -15,7 +10,5 @@ for key, action in pairs {
     ["<Leader>l"] = fzf.blines,
     ["<Leader>d"] = fzf.diagnostics_document,
 } do
-    vim.keymap.set( "n", key, function()
-        return action { resume = true }
-    end, { silent = true } )
+    vim.keymap.set( "n", key, action, { silent = true } )
 end
