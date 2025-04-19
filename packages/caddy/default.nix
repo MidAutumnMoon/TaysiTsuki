@@ -40,18 +40,18 @@ in
 buildGoModule rec {
 
     pname = "caddy";
-    version = "2.9.1";
+    version = "2.10.0";
 
     src = fetchFromGitHub {
         owner = "caddyserver";
         repo = "caddy";
         tag = "v${version}";
-        hash = "sha256-XW1cBW7mk/aO/3IPQK29s4a6ArSKjo7/64koJuzp07I=";
+        hash = "sha256-hzDd2BNTZzjwqhc/STbSAHnNlP7g1cFuMehqU1LumQE=";
     };
 
     # needs proxyVendor since go.sum is modified on the fly
     proxyVendor = true;
-    vendorHash = "sha256-FhxmBWU7in8cNaclxVUSWcnroSeFzR8/qcXJgjtRKFA=";
+    vendorHash = "sha256-iS6oWjoGDRtUNZmHreBxJ0iLchKBQXxzZpfPZpy0+0c=";
 
     subPackages = [ "cmd/caddy" ];
 
