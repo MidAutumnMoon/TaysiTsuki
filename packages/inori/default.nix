@@ -7,12 +7,14 @@
 
     libavif,
     libjxl,
+    imagemagick,
 }:
 
 let
 
     cjxl = lib.getExe' libjxl "cjxl";
     avifenc = lib.getExe' libavif "avifenc";
+    magick = lib.getExe' imagemagick "magick";
 
 in
 
@@ -33,6 +35,7 @@ rustTeapot.buildRustPackage {
 
     env.CFG_CJXL_PATH = cjxl;
     env.CFG_AVIFENC_PATH = avifenc;
+    env.CFG_MAGICK_PATH = magick;
 
     RUSTFLAGS = with stdenv;
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
