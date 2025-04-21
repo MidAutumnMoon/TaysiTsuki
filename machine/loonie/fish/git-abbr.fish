@@ -25,6 +25,7 @@ git_abbr "cherrya" "cherry-pick --abort"
 
 git_abbr "clean" "clean -di"
 git_abbr "clean!" "clean -dix"
+abbr -ag "gclean!!" "git reset --hard && git clean -dfx"
 
 git_abbr "cl" "clone"
 git_abbr "cl!" "clone --depth 1"
@@ -65,14 +66,14 @@ git_abbr "s" "status --short"
 git_abbr "sh" "show"
 
 git_abbr "sta" "stash"
-git_abbr "stap" "stash --pop"
+git_abbr "stap" "stash pop"
 git_abbr "stas" "stash show --text"
 
 git_abbr "sw" "switch"
 git_abbr "swc" "switch --create"
 
 # for fun
-git_abbr count "git shortlog -sn"
+abbr -ag gcount "git shortlog -sn"
 
 functions --erase git_abbr
 
