@@ -1,47 +1,44 @@
+# Not build from source because:
+#
+# 1) Upstream binary now (2025-04-21) are built with PGO
+# 2) rust-analyzer took the longest time to build on CI
+#   2.1) It would take twice the time if build from source with PGO
+
 {
     lib,
+    fetchurl,
     stdenv,
-    fetchFromGitHub,
+    autoPatchelfHook,
 
     rustTeapot,
 }:
 
-rustTeapot.buildRustPackage rec {
+stdenv.mkDerivation rec {
 
     pname = "rust-analyzer";
     version = "2025-04-14";
 
-    src = fetchFromGitHub {
-        owner = "rust-lang";
-        repo = pname;
-        tag = version;
-        hash = "sha256-NPUnfDAwLD69aKetxjC7lV5ysrvs1IKC0Sy4Zai10Mw=";
+    src = fetchurl rec {
+        url = "${meta.homepage}/releases/download/${version}/${passthru.file}";
+        hash = "sha256-ERzHLxusa3JRARK0IjJuJzmNsdDjG6r1clEoWDEjeag=";
+        passthru.file = "rust-analyzer-x86_64-unknown-linux-gnu.gz";
     };
 
-    cargoHash = "sha256-6HKx3zm6RaixTiioij/PI2KvgWGhPFfVQsbECm4LtEc=";
-    useFetchCargoVendor = true;
-
-    doCheck = false;
-
-    cargoBuildFlags = [
-        "--bin=rust-analyzer"
+    nativeBuildInputs = [
+        autoPatchelfHook
     ];
 
-    buildFeatures = [
-        "jemalloc"
-    ];
+    dontUnpack = true;
 
-    env.CFG_RELEASE = version;
-    env.CARGO_PROFILE_RELEASE_LTO = "thin";
-    env.CARGO_PROFILE_RELEASE_STRIP = "debuginfo";
-
-    RUSTFLAGS = with stdenv;
-        lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
-    ;
+    installPhase = ''
+        gunzip -c "${src}" > "${pname}"
+        install -Dm755 "${pname}" "$out/bin/${pname}"
+    '';
 
     meta = with lib; {
-        homepage = "https://rust-analyzer.github.io";
+        homepage = "https://github.com/rust-lang/rust-analyzer";
         license = with licenses; [ mit asl20 ];
         mainProgram = pname;
     };
+
 }
