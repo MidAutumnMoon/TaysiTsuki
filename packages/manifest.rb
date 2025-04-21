@@ -14,6 +14,7 @@
         neovim_teapot
         ruby_teapot.with_preferred_gems
         ruby_teapot.rubocop
+        rust-analyzer_teapot
     ],
 
     # Go programs are typically really fast to build
@@ -32,7 +33,6 @@
     ],
 
     # Some heavy rust things
-    rust_analyzer: %w[rust-analyzer_teapot],
     colmena: %w[colmena],
     inori: %w[inori],
 
