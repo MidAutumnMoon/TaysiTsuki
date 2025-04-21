@@ -8,6 +8,10 @@
         ./services/mihomo.nix
     ];
 
+    environment.systemPackages = with pkgs; [
+        fastfetch
+    ];
+
     networking = {
         hostName = "ren";
         proxy.default =
@@ -109,7 +113,7 @@
         systemd.enable = true;
     };
 
-    boot.loader ={
+    boot.loader = {
         systemd-boot.enable = true;
         efi.canTouchEfiVariables = true;
     };
