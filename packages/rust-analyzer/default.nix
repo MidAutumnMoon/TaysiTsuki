@@ -9,8 +9,6 @@
     fetchurl,
     stdenv,
     autoPatchelfHook,
-
-    rustTeapot,
 }:
 
 stdenv.mkDerivation rec {
@@ -23,6 +21,10 @@ stdenv.mkDerivation rec {
         hash = "sha256-PNRH8SwhlE3e6giyyNC1Ev9vpKL+eYCVFwtsj7jIzCI=";
         passthru.file = "rust-analyzer-x86_64-unknown-linux-gnu.gz";
     };
+
+    buildInputs = [
+        stdenv.cc.cc.lib
+    ];
 
     nativeBuildInputs = [
         autoPatchelfHook
