@@ -80,11 +80,6 @@ rec {
         callPackage ./zhudou-sans {};
 
     /*
-     * Services-ish things, which are neither used
-     * in command line nor have a GUI.
-     */
-
-    /*
      * Languages and their toolchinas>
      */
 
@@ -110,6 +105,14 @@ rec {
 
     zram-generator =
         prev.zram-generator.overrideAttrs { doCheck = false; };
+
+    fastfetchMinimal = prev.fastfetch.override {
+        rpmSupport = false;
+        vulkanSupport = false;
+        waylandSupport = false;
+        x11Support = false;
+        flashfetchSupport = false;
+    };
 
     /*
      * Optimization flags. Mostly unused.
