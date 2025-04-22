@@ -30,6 +30,7 @@ in {
     environment.systemPackages = with pkgs; [
         neovim_teapot
         numbat
+        restic
     ];
 
     home-manager.users.${selfUsername} = import ./home.nix;
