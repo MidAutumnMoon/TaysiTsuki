@@ -53,6 +53,15 @@ in {
         options = [ "defaults" "async" "noatime" "metadata" "nofail" ];
     };
 
+    fileSystems."/home/teapot/Hotaru" = {
+        device = "/mnt/c/Users/Hotaru";
+        fsType = "none";
+        depends = [ "/mnt/c" ];
+        options = [
+            "bind" "nofail"
+        ];
+    };
+
     networking = {
         hostName = "loonie";
         useDHCP = false;
