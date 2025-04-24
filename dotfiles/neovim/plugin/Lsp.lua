@@ -4,7 +4,8 @@ vim.lsp.config( "elixirls", {
 
 vim.lsp.config( "rust_analyzer", {
     settings = { ["rust-analyzer"] = {
-        checkOnSave = { command = "clippy" },
+        checkOnSave = true,
+        check = { command = "clippy" },
         hover = {
             show = { traitAssocItems = 2 },
         },
