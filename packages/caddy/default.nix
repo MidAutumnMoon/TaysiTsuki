@@ -79,7 +79,7 @@ buildGoModule rec {
     '';
 
     postInstall = let
-        canExec = stdenvNoCC.buildPlatform.canExecute stdenvNoCC.hostPlatform;
+        canExec = with stdenvNoCC; buildPlatform.canExecute hostPlatform;
     in lib.optionalString canExec /* sh */ ''
         "$out/bin/caddy" manpage --directory "manpages"
         installManPage "manpages"/*

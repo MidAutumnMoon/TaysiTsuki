@@ -13,13 +13,13 @@
 
 let
 
-    ts-parsers = let
+    parsersBundle = let
         parsers = vimPlugins.nvim-treesitter.withAllGrammars.dependencies;
         unwanted = [
             "verilog" "gnuplot" "v" "slang" "ssh_config"
             "objc" "nim" "racket" "commonlisp" "scheme"
         ];
-    in runCommand "ts-parsers" {} ''
+    in runCommand "treesitter-parser-bundle" {} ''
         declare dest="$out/nvim/site/parser";
         mkdir -pv "$dest"
         ${
@@ -41,7 +41,7 @@ let
 
     xdgDataDirs = [
         "/run/current-system/sw/share"
-        ( lib.optional withAllTsParsers ( toString ts-parsers ) )
+        ( lib.optional withAllTsParsers ( toString parsersBundle ) )
     ]
         |> lib.flatten
         |> lib.concatStringsSep ":"
@@ -81,7 +81,7 @@ symlinkJoin {
 
     passthru = {
         inherit
-            ts-parsers
+            parsersBundle
             neovim-unwrapped
         ;
     };

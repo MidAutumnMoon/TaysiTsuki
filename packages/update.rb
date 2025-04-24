@@ -4,7 +4,6 @@ packages = %w[
     caddy_teapot
     rust-analyzer_teapot
     shadowsocks_teapot
-    zhudou-sans
     metacubexd
     mihomo
 
@@ -26,5 +25,3 @@ packages << {
     attr: "hysteria_teapot",
     regex: %r{app/v(.*)},
 }
-
-packages

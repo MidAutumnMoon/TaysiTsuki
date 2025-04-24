@@ -56,7 +56,6 @@ stdenvNoCC.mkDerivation ( drvSelf: {
             "$out/lib/${drvSelf.pname}"
     '';
 
-
     meta = {
         license = lib.licenses.gpl3;
         homepage = "https://e-hentai.org/";

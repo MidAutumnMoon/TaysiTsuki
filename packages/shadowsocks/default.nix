@@ -44,7 +44,6 @@ pkgsStatic.rustTeapot.buildRustPackage rec {
         "jemalloc"
     ];
 
-
     meta = {
         homepage = "https://github.com/shadowsocks/shadowsocks-rust";
         license = lib.licenses.mit;

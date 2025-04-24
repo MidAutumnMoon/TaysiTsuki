@@ -68,17 +68,6 @@ rec {
     firefox_teapot =
         callPackage ./firefox {};
 
-    gtkgreet_teapot =
-        callPackage ./gtkgreet {};
-
-    /*
-     * Themes, colors, fonts, styles, etc.
-     * colorful and fancy things.
-     */
-
-    zhudou-sans =
-        callPackage ./zhudou-sans {};
-
     /*
      * Languages and their toolchinas>
      */

@@ -10,14 +10,6 @@
     imagemagick,
 }:
 
-let
-
-    cjxl = lib.getExe' libjxl "cjxl";
-    avifenc = lib.getExe' libavif "avifenc";
-    magick = lib.getExe' imagemagick "magick";
-
-in
-
 rustTeapot.buildRustPackage {
 
     pname = "inori";
@@ -33,9 +25,9 @@ rustTeapot.buildRustPackage {
     cargoHash = "sha256-/lzEc9rkD6BozFWLtBnq3knYNKUavhlL/qeJUdv5m1k=";
     useFetchCargoVendor = true;
 
-    env.CFG_CJXL_PATH = cjxl;
-    env.CFG_AVIFENC_PATH = avifenc;
-    env.CFG_MAGICK_PATH = magick;
+    env.CFG_CJXL_PATH = lib.getExe' libjxl "cjxl";
+    env.CFG_AVIFENC_PATH = lib.getExe' libavif "avifenc";
+    env.CFG_MAGICK_PATH = lib.getExe' imagemagick "magick";
 
     RUSTFLAGS = with stdenv;
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"

@@ -8,11 +8,9 @@
     DisablePocket         = true;
     DisableTelemetry      = true;
 
-
     HardwareAcceleration    = true;
     DontCheckDefaultBrowser = true;
     RequestedLocales        = [ "en-US" ];
-
 
     Homepage = {
         StartPage = "previous-session";
@@ -27,7 +25,6 @@
         SponsoredPocket   = false;
         Snippets          = false;
     };
-
 
     SearchBar               = "unified";
     ShowHomeButton          = false;
