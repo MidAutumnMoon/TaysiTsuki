@@ -78,6 +78,10 @@
             device = "phia/srv";
             fsType = "zfs";
         };
+        "/srv/pool" = {
+            device = "phia/srv/pool";
+            fsType = "zfs";
+        };
     };
 
     services.zfs.autoScrub.enable = true;
