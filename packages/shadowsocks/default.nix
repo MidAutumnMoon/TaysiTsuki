@@ -9,16 +9,16 @@
 pkgsStatic.rustTeapot.buildRustPackage rec {
 
     pname = "shadowsocks-rust";
-    version = "1.23.1";
+    version = "1.23.2";
 
     src = fetchFromGitHub {
         owner = "shadowsocks";
         repo = "shadowsocks-rust";
         tag = "v${version}";
-        hash = "sha256-lCm/Y0R4/Ti4Eq06/za4D2YanwQ79IkhCBK2TO9/Yfs=";
+        hash = "sha256-Yt2Zc+b7QpN/yO6MTg9a+7xTw9pHkYFHdq3Sz3Agdi4=";
     };
 
-    cargoHash = "sha256-//cEAeYSpsB429YaWBu+6T4dorV5OZFZuNxLgvqXxR8=";
+    cargoHash = "sha256-eJFXFkevSS/N4A1+tCcwWUQsklA9HUQgLHw40fW5oxM=";
     useFetchCargoVendor = true;
 
     doCheck = false;
