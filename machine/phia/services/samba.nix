@@ -42,6 +42,8 @@ in
             "recycle:repository" = ".recycle";
             "recycle:keeptree" = "yes";
             "recycle:versions" = "yes";
+            "recycle:exclude" = "*.tmp *.temp ~$*";
+            "recycle:touch" = "yes";
         };
     };
 
