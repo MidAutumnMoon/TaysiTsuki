@@ -3,7 +3,7 @@
 let
 
     poolMountpoint =
-        config.fileSystems."/srv/pool".mountpoint;
+        config.fileSystems."/srv/pool".mountPoint;
 
 in
 
@@ -26,6 +26,7 @@ in
             "logging" = "systemd";
             "getwd cache" = "yes";
             "socket options" = "IPTOS_LOWDELAY TCP_NODELAY";
+            "deadtime" = "120";
         };
         "pool" = {
             "path" = poolMountpoint;
@@ -65,6 +66,23 @@ in
         publish.userServices = true;
         nssmdns4 = true;
         nssmdns6 = true;
+    };
+
+    systemd.services."empty-samba-recycle-bin" = {
+        description = "Empty ${poolMountpoint} recycle bin";
+        script = /* bash */ ''
+            echo "Start empty recycle bin"
+            RecycleBin="${poolMountpoint}/.recycle"
+            if [[ -d "$RecycleBin" ]]; then
+                rm -rvf "$RecycleBin"/*
+            fi
+            echo "Finish empty recycle bin"
+        '';
+        startAt = "daily";
+    };
+
+    systemd.timers."empty-samba-recycle-bin" = {
+        timerConfig.Persistent = true;
     };
 
 }
