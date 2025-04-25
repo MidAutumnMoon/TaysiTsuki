@@ -2,6 +2,10 @@
 
 {
 
+    imports = [
+        ./services/samba.nix
+    ];
+
     environment.systemPackages = with pkgs; [
         fastfetchMinimal
         hdparm

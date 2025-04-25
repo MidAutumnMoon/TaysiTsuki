@@ -1,0 +1,63 @@
+{ pkgs, config, ... }:
+
+{
+
+    services.samba = {
+        enable = true;
+        openFirewall = true;
+    };
+
+    services.samba.settings = {
+        "global" = {
+            "workgroup" = "WORKGROUP";
+            "server string" = "Teapot Homelab";
+            "security" = "user";
+            "use sendfile" = "yes";
+            "map to guest" = "bad user";
+            "guest account" = "nobody";
+            "server min protocol" = "SMB3_11";
+            "logging" = "systemd";
+            "getwd cache" = "yes";
+            "socket options" = "IPTOS_LOWDELAY TCP_NODELAY";
+        };
+        "pool" = {
+            "path" = "/srv/pool";
+            "browseable" = "yes";
+            "read only" = "no";
+            "guest ok" = "yes";
+            "create mask" = "0644";
+            "directory mask" = "0755";
+            "writable" = "yes";
+            "force user" = "fileshare";
+            "force group" = "users";
+            "vfs objects" = "recycle";
+            "recycle:repository" = ".recycle";
+            "recycle:keeptree" = "yes";
+            "recycle:versions" = "yes";
+        };
+    };
+
+    # Avoid using nobody
+    users.users."fileshare" = {
+        isNormalUser = true;
+    };
+
+    systemd.tmpfiles.rules = [
+        "d /srv/pool 0755 fileshare users - -"
+    ];
+
+    services.samba-wsdd = {
+        enable = true;
+        openFirewall = true;
+    };
+
+    services.avahi = {
+        enable = true;
+        openFirewall = true;
+        publish.enable = true;
+        publish.userServices = true;
+        nssmdns4 = true;
+        nssmdns6 = true;
+    };
+
+}
