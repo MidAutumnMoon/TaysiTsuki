@@ -2,12 +2,8 @@
 
 {
 
-    sops.secrets."rclone_conf".sopsFile =
-        ./rclone_conf.sops.yml
-    ;
-
     environment.etc."rclone.conf" = {
-        source = config.sops.secrets."rclone_conf".path;
+        source = config.sops.secrets."conf--rclone".path;
         mode = "0444";
     };
 
