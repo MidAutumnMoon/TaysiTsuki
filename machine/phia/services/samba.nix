@@ -27,6 +27,8 @@ in
             "getwd cache" = "yes";
             "socket options" = "IPTOS_LOWDELAY TCP_NODELAY";
             "deadtime" = "120";
+            "min receivefile size" = "16384";
+            "case sensitive" = "yes";
         };
         "pool" = {
             "path" = poolMountpoint;
