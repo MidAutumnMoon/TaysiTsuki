@@ -1,5 +1,12 @@
 { pkgs, config, ... }:
 
+let
+
+    poolMountpoint =
+        config.fileSystems."/srv/pool".mountpoint;
+
+in
+
 {
 
     services.samba = {
@@ -21,7 +28,7 @@
             "socket options" = "IPTOS_LOWDELAY TCP_NODELAY";
         };
         "pool" = {
-            "path" = "/srv/pool";
+            "path" = poolMountpoint;
             "browseable" = "yes";
             "read only" = "no";
             "guest ok" = "yes";
@@ -43,7 +50,7 @@
     };
 
     systemd.tmpfiles.rules = [
-        "d /srv/pool 0755 fileshare users - -"
+        "d ${poolMountpoint} 0755 fileshare users - -"
     ];
 
     services.samba-wsdd = {
