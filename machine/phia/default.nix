@@ -6,15 +6,6 @@
         ./services/samba.nix
     ];
 
-    environment.systemPackages = with pkgs; [
-        fastfetchMinimal
-        hdparm
-        ncdu
-        rclone
-        smartmontools
-        ( callPackage ./packages/rclone.nix {} )
-    ];
-
     networking = {
         hostName = "phia";
         hostId = "0a3e0a19";
@@ -24,14 +15,33 @@
         tempAddresses = "disabled";
     };
 
+    environment.systemPackages = with pkgs; [
+        fastfetchMinimal
+        hdparm
+        ncdu
+        rclone
+        smartmontools
+        ( callPackage ./packages/rclone.nix {} )
+    ];
+
     environment.etc."rclone.conf" = {
         source = config.sops.secrets."conf--rclone".path;
         mode = "0444";
     };
 
-    #
+    security.sudo.wheelNeedsPassword = false;
+
+    # Avoid using nobody
+    users.users."fileshare" = {
+        isNormalUser = true;
+        # better come up with another way to handle samba share
+        # filesystem permission ...
+        extraGroups = [ "wheel" ];
+        openssh.authorizedKeys.keys = [ config.lore.pubkeys.teapot ];
+    };
+
+
     # preservation & sops
-    #
 
     preservation.enable = true;
 

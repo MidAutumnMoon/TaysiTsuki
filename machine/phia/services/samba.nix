@@ -5,6 +5,9 @@ let
     poolMountpoint =
         config.fileSystems."/srv/pool".mountPoint;
 
+    fileshareUser =
+        config.users.users."fileshare".name;
+
 in
 
 {
@@ -38,7 +41,7 @@ in
             "create mask" = "0644";
             "directory mask" = "0755";
             "writable" = "yes";
-            "force user" = "fileshare";
+            "force user" = fileshareUser;
             "force group" = "users";
             "vfs objects" = "recycle";
             "recycle:repository" = ".recycle";
@@ -49,14 +52,8 @@ in
         };
     };
 
-    # Avoid using nobody
-    users.users."fileshare" = {
-        isNormalUser = true;
-        openssh.authorizedKeys.keys = [ config.lore.pubkeys.teapot ];
-    };
-
     systemd.tmpfiles.rules = [
-        "d ${poolMountpoint} 0755 fileshare users - -"
+        "d ${poolMountpoint} 0755 ${fileshareUser} users - -"
     ];
 
     services.samba-wsdd = {
