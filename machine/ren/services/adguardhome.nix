@@ -40,6 +40,12 @@ in
                     name = "AdGuard DNS Filter";
                     id = 102;
                 }
+                {
+                    enabled = true;
+                    url = "https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-adguard.txt";
+                    name = "anti-ad-adguard";
+                    id = 103;
+                }
             ];
             dns.bind_hosts = [ bindAddr ];
             dns.port = 53;
