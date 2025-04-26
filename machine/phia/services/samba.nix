@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ config, ... }:
 
 let
 
@@ -52,6 +52,7 @@ in
     # Avoid using nobody
     users.users."fileshare" = {
         isNormalUser = true;
+        openssh.authorizedKeys.keys = [ config.lore.pubkeys.teapot ];
     };
 
     systemd.tmpfiles.rules = [

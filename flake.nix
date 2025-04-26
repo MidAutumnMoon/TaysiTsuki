@@ -111,7 +111,10 @@
             {
                 meta.nixpkgs = pkgsBrew.pkgsOf "x86_64-linux";
                 ren.deployment.targetHost = "ren.home.lan";
-                phia.deployment.targetHost = "phia.home.lan";
+                phia.deployment = {
+                    targetHost = "phia.home.lan";
+                    targetUser = "root";
+                };
             }
             |> flakes.colmena.lib.makeHive
         ;
