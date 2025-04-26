@@ -11,6 +11,7 @@
         hdparm
         rclone
         smartmontools
+        ( callPackage ./packages/rclone.nix {} )
     ];
 
     networking = {
