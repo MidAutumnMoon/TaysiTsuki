@@ -78,6 +78,10 @@ jobs:
         -   name: Checkout
             uses: actions/checkout@v4
 
+        -   name: Add swap
+            uses: pierotofy/set-swap-space@master
+            with: { swap-size-gb: "20" }
+
         -   name: Setup nix
             uses: ./.github/actions/nix-pieces
             with: { cachix_token: '${{ secrets.CACHIX_AUTH_TOKEN }}' }
