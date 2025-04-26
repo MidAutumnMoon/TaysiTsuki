@@ -9,6 +9,7 @@
     environment.systemPackages = with pkgs; [
         fastfetchMinimal
         hdparm
+        ncdu
         rclone
         smartmontools
         ( callPackage ./packages/rclone.nix {} )
