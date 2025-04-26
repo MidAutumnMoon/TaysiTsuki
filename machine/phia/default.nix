@@ -22,6 +22,11 @@
         tempAddresses = "disabled";
     };
 
+    environment.etc."rclone.conf" = {
+        source = config.sops.secrets."conf--rclone".path;
+        mode = "0444";
+    };
+
     #
     # preservation & sops
     #
