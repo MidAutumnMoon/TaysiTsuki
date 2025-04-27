@@ -35,7 +35,6 @@
     '';
 
     environment.shellAliases = {
-        "-" = "cd -";
         "ldd" = "libtree";
         "sys" = "systemctl";
         "ca" = "cargo";

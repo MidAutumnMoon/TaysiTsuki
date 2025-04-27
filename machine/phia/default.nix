@@ -41,10 +41,6 @@ in
 
     security.sudo.wheelNeedsPassword = false;
 
-    programs = {
-        fish.enable = true;
-    };
-
     # Avoid using nobody
     users.users."fileshare" = {
         isNormalUser = true;
@@ -54,6 +50,15 @@ in
         openssh.authorizedKeys.keys = [ config.lore.pubkeys.teapot ];
     };
 
+    # programs
+
+    programs.fish = {
+        enable = true;
+    };
+
+    environment.shellAliases = {
+        "sys" = "systemctl";
+    };
 
     # preservation & sops
 
