@@ -10,6 +10,8 @@ in
 
     imports = [
         ./services/samba.nix
+        ./services/caddy.nix
+        ./services/torrent.nix
     ];
 
     networking = {
@@ -116,7 +118,20 @@ in
             device = "phia/srv/pool";
             fsType = "zfs";
         };
+        "/srv/torrent" = {
+            device = "phia/srv/torrent";
+            fsType = "zfs";
+        };
     };
+
+    systemd.tmpfiles.rules = let
+        poolMpt = config.fileSystems."/srv/pool".mountPoint;
+        torrentMpt = config.fileSystems."/srv/pool".mountPoint;
+        fileshareUser = config.users.users."fileshare".name;
+    in [
+        "d ${poolMpt} 0755 ${fileshareUser} users - -"
+        "d ${torrentMpt} 0755 ${fileshareUser} users - -"
+    ];
 
     services.zfs.autoScrub.enable = true;
     services.zfs.trim.enable = true;

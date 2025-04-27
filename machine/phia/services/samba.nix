@@ -2,8 +2,11 @@
 
 let
 
-    poolMountpoint =
+    poolMpt =
         config.fileSystems."/srv/pool".mountPoint;
+
+    torrentMpt =
+        config.fileSystems."/srv/torrent".mountPoint;
 
     fileshareUser =
         config.users.users."fileshare".name;
@@ -17,24 +20,8 @@ in
         openFirewall = true;
     };
 
-    services.samba.settings = {
-        "global" = {
-            "workgroup" = "WORKGROUP";
-            "server string" = "Teapot Homelab";
-            "security" = "user";
-            "use sendfile" = "yes";
-            "map to guest" = "bad user";
-            "guest account" = "nobody";
-            "server min protocol" = "SMB3_11";
-            "logging" = "systemd";
-            "getwd cache" = "yes";
-            "socket options" = "IPTOS_LOWDELAY TCP_NODELAY";
-            "deadtime" = "120";
-            "min receivefile size" = "16384";
-            "case sensitive" = "yes";
-        };
-        "pool" = {
-            "path" = poolMountpoint;
+    services.samba.settings = let
+        commonShareOpt = {
             "browseable" = "yes";
             "read only" = "no";
             "guest ok" = "yes";
@@ -50,11 +37,29 @@ in
             "recycle:exclude" = "*.tmp *.temp ~$*";
             "recycle:touch" = "yes";
         };
+    in {
+        "global" = {
+            "workgroup" = "WORKGROUP";
+            "server string" = "Teapot Homelab";
+            "security" = "user";
+            "use sendfile" = "yes";
+            "map to guest" = "bad user";
+            "guest account" = "nobody";
+            "server min protocol" = "SMB3_11";
+            "logging" = "systemd";
+            "getwd cache" = "yes";
+            "socket options" = "IPTOS_LOWDELAY TCP_NODELAY";
+            "deadtime" = "120";
+            "min receivefile size" = "16384";
+            "case sensitive" = "yes";
+        };
+        "pool" = commonShareOpt // {
+            "path" = poolMpt;
+        };
+        "torrent" = commonShareOpt // {
+            "path" = torrentMpt;
+        };
     };
-
-    systemd.tmpfiles.rules = [
-        "d ${poolMountpoint} 0755 ${fileshareUser} users - -"
-    ];
 
     services.samba-wsdd = {
         enable = true;
@@ -71,10 +76,10 @@ in
     };
 
     systemd.services."empty-samba-recycle-bin" = {
-        description = "Empty ${poolMountpoint} recycle bin";
+        description = "Empty ${poolMpt} recycle bin";
         script = /* bash */ ''
             echo "Start empty recycle bin"
-            RecycleBin="${poolMountpoint}/.recycle"
+            RecycleBin="${poolMpt}/.recycle"
             if [[ -d "$RecycleBin" ]]; then
                 rm -rvf "$RecycleBin"/*
             fi
