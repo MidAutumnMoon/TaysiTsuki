@@ -39,6 +39,10 @@ in
 
     security.sudo.wheelNeedsPassword = false;
 
+    programs = {
+        fish.enable = true;
+    };
+
     # Avoid using nobody
     users.users."fileshare" = {
         isNormalUser = true;
