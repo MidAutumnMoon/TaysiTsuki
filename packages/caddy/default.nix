@@ -56,7 +56,7 @@ buildGoModule rec {
     subPackages = [ "cmd/caddy" ];
 
     doCheck = false;
-    env.GOAMD64 = "v3";
+    env.GOAMD64 = "v2";
     env.CGO_ENABLED = 0;
 
     nativeBuildInputs = [ installShellFiles ];
