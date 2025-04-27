@@ -1,5 +1,11 @@
 { lib, config, pkgs, ... }:
 
+let
+
+    phiaSuite = pkgs.callPackage ./packages {};
+
+in
+
 {
 
     imports = [
@@ -21,8 +27,10 @@
         ncdu
         rclone
         smartmontools
-        ( callPackage ./packages/rclone.nix {} )
+        phiaSuite.allSuiteCombined
     ];
+
+    passthru.phiaSuite = phiaSuite;
 
     environment.etc."rclone.conf" = {
         source = config.sops.secrets."conf--rclone".path;
