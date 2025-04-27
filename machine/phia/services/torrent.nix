@@ -44,6 +44,15 @@ in
             '';
             StateDirectory = "qbittorrent";
             WorkingDirectory = "%S/${StateDirectory}";
+            SystemCallFilter = "@system-service";
+            ProtectSystem = "strict";
+            ProtectHome = true;
+            ReadWritePaths = [ torrentDir ];
+            MemoryDenyWriteExecute = true;
+            RestrictSUIDSGID = true;
+            PrivateDevices = true;
+            ProtectProc = "invisible";
+            ProcSubset = "pid";
         };
     };
 
