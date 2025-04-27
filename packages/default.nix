@@ -103,6 +103,8 @@ rec {
         flashfetchSupport = false;
     };
 
+    writers = callPackage ./writers { inherit ( prev ) writers; };
+
     /*
      * Optimization flags. Mostly unused.
      */
