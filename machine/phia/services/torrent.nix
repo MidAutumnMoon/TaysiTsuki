@@ -61,12 +61,28 @@ in
         allowedUDPPorts = [ ports.torrent ];
     };
 
-
     services.caddy.virtualHosts."*.home.lan".extraConfig = ''
         @qbitwebui host qbit.home.lan
         handle @qbitwebui {
             reverse_proxy http://127.0.0.1:${toString ports.qbitwebui}
         }
     '';
+
+    systemd.services."empty-torrent-recycle-bin" = {
+        description = "Empty ${torrentDir} recycle bin";
+        script = /* bash */ ''
+            echo "Start empty recycle bin"
+            RecycleBin="${torrentDir}/.recycle"
+            if [[ -d "$RecycleBin" ]]; then
+                rm -rvf "$RecycleBin"/*
+            fi
+            echo "Finish empty recycle bin"
+        '';
+        startAt = "daily";
+    };
+
+    systemd.timers."empty-torrent-recycle-bin" = {
+        timerConfig.Persistent = true;
+    };
 
 }
