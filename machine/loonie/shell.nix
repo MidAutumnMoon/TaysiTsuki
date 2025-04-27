@@ -65,15 +65,6 @@
 
         "ip".body = /*fish*/ "command ip --color=auto $argv";
 
-        "ls".body = /*fish*/ ''
-            command "${lib.getExe pkgs.eza}" \
-                "--group-directories-first" \
-                "--color=auto" \
-                "--sort=name" \
-                "--smart-group" \
-                $argv
-        '';
-
         "nix".body = /*fish*/ ''
             set -f toplevel "$( command git rev-parse --show-toplevel )"
 
