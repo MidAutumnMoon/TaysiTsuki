@@ -115,6 +115,10 @@ in
             device = "phia/root";
             fsType = "zfs";
         };
+        "/home" = {
+            device = "phia/home";
+            fsType = "zfs";
+        };
         "/srv" = {
             device = "phia/srv";
             fsType = "zfs";
