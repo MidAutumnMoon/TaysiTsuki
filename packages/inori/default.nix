@@ -18,11 +18,11 @@ rustTeapot.buildRustPackage {
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "InOri";
-        rev = "1684de1f2a5b07d8ee59e56bed065b2687ba9d60";
-        hash = "sha256-XA29WvpGRryJB2svhR6YgYGA8QVgd2pjD1Oz5RyiKqY=";
+        rev = "0c167ab2dd08813d2ba83dfd057206c9225588ee";
+        hash = "sha256-Lgqb8f7c1rmDEwL1rPwQxEm2Ubs63/bzAGzUPHOD3EE=";
     };
 
-    cargoHash = "sha256-/lzEc9rkD6BozFWLtBnq3knYNKUavhlL/qeJUdv5m1k=";
+    cargoHash = "sha256-HrkXq7U0QagSS6CmYwwltklyZjb4g0swwT4r7C8oAoo=";
     useFetchCargoVendor = true;
 
     env.CFG_CJXL_PATH = lib.getExe' libjxl "cjxl";
