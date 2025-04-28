@@ -83,6 +83,9 @@ rec {
      * falling into.
      */
 
+    fastfetch_teapot =
+        callPackage ./fastfetch { inherit ( prev ) fastfetch; };
+
     prvn-pkgs =
         callPackage ./prvn-pkgs {};
 
@@ -94,14 +97,6 @@ rec {
 
     zram-generator =
         prev.zram-generator.overrideAttrs { doCheck = false; };
-
-    fastfetchMinimal = prev.fastfetch.override {
-        rpmSupport = false;
-        vulkanSupport = false;
-        waylandSupport = false;
-        x11Support = false;
-        flashfetchSupport = false;
-    };
 
     writers = callPackage ./writers { inherit ( prev ) writers; };
 
