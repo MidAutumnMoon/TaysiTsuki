@@ -9,7 +9,7 @@
     ];
 
     environment.systemPackages = with pkgs; [
-        fastfetchMinimal
+        fastfetch_teapot
     ];
 
     networking = {

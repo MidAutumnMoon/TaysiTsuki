@@ -24,7 +24,7 @@ in
     };
 
     environment.systemPackages = with pkgs; [
-        fastfetchMinimal
+        fastfetch_teapot
         hdparm
         ncdu
         rclone
@@ -34,10 +34,10 @@ in
 
     passthru.phiaSuite = phiaSuite;
 
-    environment.etc."rclone.conf" = {
-        source = config.sops.secrets."conf--rclone".path;
-        mode = "0444";
-    };
+    # environment.etc."rclone.conf" = {
+    #     source = config.sops.secrets."conf--rclone".path;
+    #     mode = "0444";
+    # };
 
     security.sudo.wheelNeedsPassword = false;
 

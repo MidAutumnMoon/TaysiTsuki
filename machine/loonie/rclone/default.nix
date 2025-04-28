@@ -2,10 +2,10 @@
 
 {
 
-    environment.etc."rclone.conf" = {
-        source = config.sops.secrets."conf--rclone".path;
-        mode = "0444";
-    };
+    # environment.etc."rclone.conf" = {
+    #     source = config.sops.secrets."conf--rclone".path;
+    #     mode = "0444";
+    # };
 
     systemd.services."rclone@" = {
         description = "rclone mount for remote %i";

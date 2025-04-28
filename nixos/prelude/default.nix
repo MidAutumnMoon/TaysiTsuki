@@ -18,6 +18,19 @@
         tmp.useTmpfs = true;
         tmp.tmpfsSize = "100%";
         bcache.enable = false;
+        enableContainers = false;
+    };
+
+    boot.initrd = {
+        systemd.enable = true;
+    };
+
+    boot.loader.grub.enable = lib.mkDefault false;
+
+    system = {
+        etc.overlay.enable = true;
+        tools.nixos-generate-config.enable = false;
+        # forbiddenDependenciesRegexes = [ "perl" ];
     };
 
     i18n.defaultLocale = "en_US.UTF-8";
@@ -27,23 +40,24 @@
         command-not-found.enable = false;
     };
 
-    environment.defaultPackages = lib.mkDefault [];
-
-    environment.systemPackages = with pkgs; [
-        fd
-        ripgrep
-        file
-        htop
-        screen
-        mtr
-        rsync
-        strace
-    ];
-
     services = {
         dbus.implementation = "broker";
         vnstat.enable = true;
         userborn.enable = true;
+    };
+
+    environment = {
+        defaultPackages = lib.mkDefault [];
+        systemPackages = with pkgs; [
+            fd
+            ripgrep
+            file
+            htop
+            screen
+            mtr
+            rsync
+            strace
+        ];
     };
 
     # Don't want to manually update it once a while.
