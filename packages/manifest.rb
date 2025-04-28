@@ -6,7 +6,7 @@
         hentai-home
         unrar
         fastfetch
-        fastfetchMinimal
+        fastfetch_teapot
         metacubexd
     ],
 
