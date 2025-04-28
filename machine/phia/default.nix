@@ -34,11 +34,6 @@ in
 
     passthru.phiaSuite = phiaSuite;
 
-    # environment.etc."rclone.conf" = {
-    #     source = config.sops.secrets."conf--rclone".path;
-    #     mode = "0444";
-    # };
-
     security.sudo.wheelNeedsPassword = false;
 
     # Avoid using nobody
@@ -134,12 +129,15 @@ in
     };
 
     systemd.tmpfiles.rules = let
+        inherit ( config.sops ) secrets;
+        inherit ( config.users.users ) fileshare;
         poolMpt = config.fileSystems."/srv/pool".mountPoint;
         torrentMpt = config.fileSystems."/srv/pool".mountPoint;
-        fileshareUser = config.users.users."fileshare".name;
     in [
-        "d ${poolMpt} 0755 ${fileshareUser} users - -"
-        "d ${torrentMpt} 0755 ${fileshareUser} users - -"
+        "d ${poolMpt} 0755 ${fileshare.name} ${fileshare.group} - -"
+        "d ${torrentMpt} 0755 ${fileshare.name} ${fileshare.group} - -"
+        "C /etc/rclone.conf - - - - ${secrets."conf--rclone".path}"
+        "z /etc/rclone.conf 0440 ${fileshare.name} ${fileshare.group} - -"
     ];
 
     services.zfs.autoScrub.enable = true;
