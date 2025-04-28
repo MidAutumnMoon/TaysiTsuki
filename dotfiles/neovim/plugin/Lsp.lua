@@ -17,8 +17,15 @@ vim.lsp.config( "rust_analyzer", {
 
 vim.lsp.config( "nixd", {
     on_init = function( client, result )
-        client.server_capabilities.completionProvider = false
-    end
+        -- client.server_capabilities.completionProvider = false
+    end,
+    settings = { nixd = {
+        nixpkgs = { expr = "null" },
+        options = {
+            nixos = { expr = "null" },
+            home_manager = { expr = "null" },
+        },
+    } }
 } )
 
 vim.lsp.enable {
