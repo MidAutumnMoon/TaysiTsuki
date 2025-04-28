@@ -63,6 +63,8 @@ in {
         ];
     };
 
+    system.etc.overlay.enable = lib.mkForce false;
+
     networking = {
         hostName = "loonie";
         useDHCP = false;
