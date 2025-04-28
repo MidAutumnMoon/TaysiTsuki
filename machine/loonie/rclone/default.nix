@@ -2,10 +2,14 @@
 
 {
 
-    # environment.etc."rclone.conf" = {
-    #     source = config.sops.secrets."conf--rclone".path;
-    #     mode = "0444";
-    # };
+    systemd.tmpfiles.rules = let
+        inherit ( config.sops ) secrets;
+        inherit ( config.users.users ) teapot;
+    in [
+        "C /etc/rclone.conf - - - - ${secrets."conf--rclone".path}"
+        #"z /etc/rclone.conf 0440 ${teapot.name} ${teapot.group} - -"
+        "z /etc/rclone.conf 0440 ${teapot.name} - - -"
+    ];
 
     systemd.services."rclone@" = {
         description = "rclone mount for remote %i";
