@@ -178,7 +178,10 @@ local __plugins = {
         "lukas-reineke/indent-blankline.nvim",
         event = { 'CursorHold', 'CursorMoved' },
         main = "ibl",
-        opts = { },
+        opts = {
+            -- laggy :/
+            scope = { enabled = false }
+        },
     },
 
     {
@@ -220,12 +223,12 @@ local __plugins = {
         opts = {},
     },
 
-    {
-        "folke/snacks.nvim",
-        config = function()
-            require "plugin.snacks"
-        end
-    },
+    -- {
+    --     "folke/snacks.nvim",
+    --     config = function()
+    --         require "plugin.snacks"
+    --     end
+    -- },
 
     --
     -- Completion & LSP
@@ -275,10 +278,10 @@ local __plugins = {
         },
     },
 
-    {
-        "nvim-treesitter/nvim-treesitter-textobjects",
-        after = "nvim-treesitter",
-    },
+    -- {
+    --     "nvim-treesitter/nvim-treesitter-textobjects",
+    --     after = "nvim-treesitter",
+    -- },
 
     {
         "RRethy/nvim-treesitter-endwise",
