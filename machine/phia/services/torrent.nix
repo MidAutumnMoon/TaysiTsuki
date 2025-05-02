@@ -64,7 +64,11 @@ in
     services.caddy.virtualHosts."*.home.lan".extraConfig = ''
         @qbitwebui host qbit.home.lan
         handle @qbitwebui {
-            reverse_proxy http://127.0.0.1:${toString ports.qbitwebui}
+            handle /api* {
+                reverse_proxy http://127.0.0.1:${toString ports.qbitwebui}
+            }
+            root * ${pkgs.vuetorrent_teapot}
+            file_server
         }
     '';
 
