@@ -59,6 +59,7 @@ option.completion.documentation = {
 
 option.keymap = {
     preset = "default",
+    ['<C-\\>'] = { 'select_and_accept' },
     -- To exit insert mode directly,
     -- otherwise <Esc> has to be pressed twice :/
     -- ["<Esc>"] = { "hide", "fallback" },
@@ -66,6 +67,9 @@ option.keymap = {
 
 option.cmdline = {
     completion = { menu = { auto_show = true } },
+    keymap = {
+        preset = "inherit",
+    },
 }
 
 option.snippets = {
