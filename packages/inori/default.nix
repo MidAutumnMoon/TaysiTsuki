@@ -13,16 +13,16 @@
 rustTeapot.buildRustPackage {
 
     pname = "inori";
-    version = "0-unstable-2025-04-28";
+    version = "0-unstable-2025-05-02";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "InOri";
-        rev = "1684de1f2a5b07d8ee59e56bed065b2687ba9d60";
-        hash = "sha256-XA29WvpGRryJB2svhR6YgYGA8QVgd2pjD1Oz5RyiKqY=";
+        rev = "db150871a4d6ae86cf8e9ad7a614197fa402fdbf";
+        hash = "sha256-gLx0hQ6KpV+SSlfuoGrVaHC+ICYlH24C3m9dNg5Jh8Q=";
     };
 
-    cargoHash = "sha256-/lzEc9rkD6BozFWLtBnq3knYNKUavhlL/qeJUdv5m1k=";
+    cargoHash = "sha256-G2pEM7JwzcKEmeF4viPxmtdVOjsPb396O6k0cNRQlNs=";
     useFetchCargoVendor = true;
 
     env.CFG_CJXL_PATH = lib.getExe' libjxl "cjxl";
