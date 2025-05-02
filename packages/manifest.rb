@@ -8,6 +8,7 @@
         fastfetch
         fastfetch_teapot
         metacubexd
+        vuetorrent_teapot
     ],
 
     small_thing2: %w[

@@ -5,6 +5,7 @@ packages = %w[
     rust-analyzer_teapot
     shadowsocks_teapot
     metacubexd
+    vuetorrent_teapot
     mihomo
 
     fishPlugins.tide
