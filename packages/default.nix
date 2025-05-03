@@ -83,9 +83,6 @@ rec {
      * falling into.
      */
 
-    fastfetch_teapot =
-        callPackage ./fastfetch { inherit ( prev ) fastfetch; };
-
     prvn-pkgs =
         callPackage ./prvn-pkgs {};
 

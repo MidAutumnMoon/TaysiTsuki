@@ -5,8 +5,7 @@
     small_thing1: %w[
         hentai-home
         unrar
-        fastfetch
-        fastfetch_teapot
+        fastfetchMinimal
         metacubexd
         vuetorrent_teapot
     ],

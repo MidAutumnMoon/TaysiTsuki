@@ -24,7 +24,7 @@ in
     };
 
     environment.systemPackages = with pkgs; [
-        fastfetch_teapot
+        fastfetchMinimal
         hdparm
         ncdu
         rclone

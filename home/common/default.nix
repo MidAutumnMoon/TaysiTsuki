@@ -10,7 +10,7 @@ in {
 
     home.packages = with pkgs; [
         file
-        ripgrep fd fastfetch_teapot
+        ripgrep fd fastfetchMinimal
 
         libtree
         nix-tree
