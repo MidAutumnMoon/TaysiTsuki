@@ -1,11 +1,10 @@
-# Nuran
+# TäysiTsuki
 
-There is no sanity.
+<sub>P</sub>i<sup>v</sup>o<sub>t </sub>A<sub>w</sub>a<sup>y</sup>
 
 ## Use Nuran's Binary Cache
 
-Nuran's binary cache is provided by [Cachix](https://www.cachix.org/),
-however migrating to [Garnix](https://garnix.io/) is on the roadmap somewhere.
+Nuran's binary cache is hosted using [Cachix](https://www.cachix.org/),
 
 1. Add `https://nuirrce.cachix.org` to substituter list
 2. Add pubkey `nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk=`
