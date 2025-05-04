@@ -13,13 +13,12 @@ packages << %w[
     caddy
     metacubexd
     mihomo
+    rust-analyzer
     shadowsocks
     vuetorrent
 ].tsukify
 
 packages << %w[
-    rust-analyzer_teapot
-
     fishPlugins.tide
 ]
 

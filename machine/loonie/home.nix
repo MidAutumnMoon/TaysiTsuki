@@ -14,7 +14,7 @@ in {
         sops
         rclone
 
-        rust-analyzer_teapot
+        tsuki.rust-analyzer
 
         ruby_teapot.with_preferred_gems
         ruby_teapot.rubocop
