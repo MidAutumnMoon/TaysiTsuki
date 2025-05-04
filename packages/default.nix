@@ -52,16 +52,6 @@ in rec {
         callPackage ./prime-offload {};
 
     /*
-     * Desktop, GUI, graohics etc. things.
-     *
-     * Does terminal emulator belongs to this
-     * category or the previous one? Hmmm...
-     */
-
-    firefox_teapot =
-        callPackage ./firefox {};
-
-    /*
      * Languages and their toolchinas>
      */
 
