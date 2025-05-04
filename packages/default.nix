@@ -48,9 +48,6 @@ in rec {
     neovim_teapot =
         callPackage ./neovim {};
 
-    prime-offload =
-        callPackage ./prime-offload {};
-
     /*
      * Languages and their toolchinas>
      */
