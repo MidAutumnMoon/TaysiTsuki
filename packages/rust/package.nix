@@ -7,23 +7,31 @@
 
 let
 
-    # TODO: generalize this if necessary
-    toolchain =
+    mkToolchain = channel: extensions:
         let inherit ( flakes.rust-overlay.lib ) mkRustBin ; in
-        let rsbin = mkRustBin {} buildPackages; in
-        rsbin.stable.latest.default.override {
-            extensions = [ "rust-src" ];
+        let bin = mkRustBin {} buildPackages; in
+        bin.${channel}.latest.default.override {
+            inherit extensions;
         };
+
+    toolchain = mkToolchain "stable" [];
+
+    toolchainForDev = mkToolchain "stable" [ "rust-src" ];
 
     platform = makeRustPlatform {
         rustc = toolchain;
         cargo = toolchain;
     };
 
-    rust-analyzer = callPackage ./rust-analyzer.nix {};
 
 in
 
-platform
-// { inherit toolchain; }
-// { inherit rust-analyzer; }
+platform // {
+
+    inherit
+        toolchain toolchainForDev
+    ;
+
+    rust-analyzer = callPackage ./rust-analyzer.nix {};
+
+}

@@ -18,7 +18,7 @@ in {
 
         tsuki.ruby.with_preferred_gems
         tsuki.ruby.rubocop
-        tsuki.rust.toolchain
+        tsuki.rust.toolchainForDev
         ( clang.override { inherit ( llvmPackages ) bintools; } )
 
         nixd
