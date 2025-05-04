@@ -13,7 +13,7 @@ in {
     scriptMaker = ./script-maker.nix;
 
     rubyMiner = callPackage self.scriptMaker {
-        shebangProgram = pkgs.ruby_teapot.with_preferred_gems;
+        shebangProgram = pkgs.tsuki.ruby.with_preferred_gems;
     };
 
     build-driver = self.rubyMiner {

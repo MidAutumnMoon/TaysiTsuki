@@ -1,6 +1,6 @@
 {
     lib,
-    ruby_teapot,
+    tsuki,
 
     runCommandNoCC,
 
@@ -9,7 +9,7 @@
 
 let
 
-    ruby = ruby_teapot.override {
+    ruby = tsuki.ruby.override {
         moreGemsConfig = {
             io-event = _: { buildInputs = [ liburing ]; };
         };

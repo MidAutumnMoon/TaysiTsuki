@@ -21,8 +21,8 @@ end
     small_thing2:
         %w[
             neovim
-            ruby_teapot.with_preferred_gems
-            ruby_teapot.rubocop
+            ruby.with_preferred_gems
+            ruby.rubocop
             rust-analyzer
         ].tsukify + %w[
             nixd

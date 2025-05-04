@@ -16,8 +16,8 @@ in {
 
         tsuki.rust-analyzer
 
-        ruby_teapot.with_preferred_gems
-        ruby_teapot.rubocop
+        tsuki.ruby.with_preferred_gems
+        tsuki.ruby.rubocop
         rustToolchainTeapot
         ( clang.override { inherit ( llvmPackages ) bintools; } )
 

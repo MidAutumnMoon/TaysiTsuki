@@ -1,11 +1,11 @@
 {
     lib,
-    writers,
+    tsuki,
     myRclone,
 }:
 
 
-writers.writeRubyBinTeapot ",sync" {} /*ruby*/ ''
+tsuki.writers.writeRubyBin ",sync" {} /*ruby*/ ''
     # frozen_string_literal: true
 
     require "shellwords"

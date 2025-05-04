@@ -36,13 +36,6 @@ in rec {
         callPackage ./fish/plugins { old = prev.fishPlugins; };
 
     /*
-     * Languages and their toolchinas>
-     */
-
-    ruby_teapot =
-        callPackage ./ruby {};
-
-    /*
      * Things that no clear category they are
      * falling into.
      */
@@ -55,8 +48,6 @@ in rec {
 
     zram-generator =
         prev.zram-generator.overrideAttrs { doCheck = false; };
-
-    writers = callPackage ./writers { inherit ( prev ) writers; };
 
     /*
      * Rust toolchains
