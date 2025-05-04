@@ -18,13 +18,15 @@ end
             unrar
         ],
 
-    small_thing2: %w[
-        nixd
-        neovim_teapot
-        ruby_teapot.with_preferred_gems
-        ruby_teapot.rubocop
-        rust-analyzer_teapot
-    ],
+    small_thing2:
+        %w[
+            neovim
+            ruby_teapot.with_preferred_gems
+            ruby_teapot.rubocop
+            rust-analyzer_teapot
+        ].tsukify + %w[
+            nixd
+        ],
 
     # Go programs are typically really fast to build
     go_things:

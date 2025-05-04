@@ -35,9 +35,6 @@ in rec {
     fishPlugins =
         callPackage ./fish/plugins { old = prev.fishPlugins; };
 
-    neovim_teapot =
-        callPackage ./neovim {};
-
     /*
      * Languages and their toolchinas>
      */

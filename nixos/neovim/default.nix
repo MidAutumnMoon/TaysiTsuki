@@ -3,7 +3,7 @@
 {
 
     environment.systemPackages = with pkgs; [
-        ( lib.lowPrio ( neovim_teapot.override { withAllTsParsers = false; } ) )
+        ( lib.lowPrio ( tsuki.neovim.override { withAllTsParsers = false; } ) )
     ];
 
     environment.sessionVariables = {

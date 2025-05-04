@@ -28,7 +28,7 @@ in {
     };
 
     environment.systemPackages = with pkgs; [
-        neovim_teapot
+        tsuki.neovim
         numbat
         restic
     ];
