@@ -35,6 +35,6 @@ packages << {
 }
 
 packages << {
-    attr: "hysteria_teapot",
+    attr: "tsuki.hysteria",
     regex: %r{app/v(.*)},
 }

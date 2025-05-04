@@ -32,9 +32,6 @@ in rec {
         colmena
     ;
 
-    hysteria_teapot =
-        callPackage ./hysteria {};
-
     mihomo =
         callPackage ./mihomo {};
 

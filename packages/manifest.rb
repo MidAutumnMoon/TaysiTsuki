@@ -37,7 +37,7 @@ end
 
     prvn_bundle: %w[
         shadowsocks
-        hysteria_teapot
+        hysteria
         prvn-pkgs.ssserver
         prvn-pkgs.hysteria
         prvn-pkgs.dnscrypt

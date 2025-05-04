@@ -5,7 +5,6 @@
     buildGoModule,
 
     tsuki,
-    hysteria_teapot,
     dnscrypt-proxy,
 }:
 
@@ -31,7 +30,7 @@ rec {
         upx-pack ( lib.getExe' tsuki.shadowsocks "ssserver" );
 
     hysteria =
-        upx-pack ( lib.getExe hysteria_teapot );
+        upx-pack ( lib.getExe tsuki.hysteria );
 
     dnscrypt =
         # N.B. CGO must be disabled which makes it not depend on ld.so.
