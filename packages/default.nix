@@ -32,9 +32,6 @@ in rec {
         colmena
     ;
 
-    mihomo =
-        callPackage ./mihomo {};
-
     /*
      * Terminals, shells and other things used in
      * that environment like CLI/TUI tools or multiplexers.

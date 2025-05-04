@@ -11,6 +11,7 @@ packages = []
 
 packages << %w[
     caddy
+    mihomo
     shadowsocks
 ].tsukify
 
@@ -18,7 +19,6 @@ packages << %w[
     rust-analyzer_teapot
     metacubexd
     vuetorrent_teapot
-    mihomo
 
     fishPlugins.tide
 ]

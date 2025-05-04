@@ -54,6 +54,7 @@ in
     services.mihomo = {
         enable = true;
         configFile = config.sops.templates."conf--mihomo--full".path;
+        package = pkgs.tsuki.mihomo;
     };
 
     systemd.services."mihomo" = {
