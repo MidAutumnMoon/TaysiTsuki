@@ -51,7 +51,7 @@ class Manifest
 
         # 2. Eval the file for manifest content
         # rubocop:disable Security/Eval
-        manifest = eval( manifest_path.read )
+        manifest = eval( manifest_path.read, TOPLEVEL_BINDING )
         # rubocop:enable Security/Eval
         raise ArgumentError, %(Manifest does not contain a hash) \
             if not manifest.is_a? Hash

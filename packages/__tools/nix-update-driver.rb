@@ -47,7 +47,7 @@ end.call
 #
 
 # rubocop:disable Security/Eval
-PACKAGES = eval MANIFEST
+PACKAGES = eval MANIFEST, TOPLEVEL_BINDING
 # rubocop:enable Security/Eval
 
 #
