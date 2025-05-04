@@ -14,7 +14,7 @@ in {
     programs = {
         nh = {
             enable = true;
-            flake = "/home/teapot/Nuran/";
+            flake = "/home/teapot/TaysiTsuki";
         };
         fish.enable = true;
     };
@@ -77,10 +77,6 @@ in {
     };
 
     services.resolved.enable = false;
-
-    nix.nixPath = [
-        "nulib=/home/teapot/Nuran/lib"
-    ];
 
     sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 

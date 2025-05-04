@@ -35,7 +35,7 @@ jobs:
             run: |
                 # idiot bash (eye roll)
                 declare -r REPORT="$( mktemp )"
-                nix run .#nuranScripts.nix-update-driver "packages/update.rb" "$REPORT"
+                nix run .#__tools.nix-update-driver "packages/update.rb" "$REPORT"
                 { echo "REPORT<<EOF"; cat "$REPORT"; echo "EOF"; } >> "$GITHUB_OUTPUT"
 
         -   name: Get Date

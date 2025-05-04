@@ -164,7 +164,7 @@
 
         passthru."fish-functions" = let
             inherit ( lib ) optionalString;
-            inherit ( lib.nuran.module ) rejectUnset;
+            inherit ( lib.tsuki.module ) rejectUnset;
 
             strArg = n: v: ''${n}="${toString v}"'';
             boolArg = n: v: optionalString v "${n}";

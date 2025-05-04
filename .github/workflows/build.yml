@@ -38,7 +38,7 @@ jobs:
         -   name: Get subjects
             id: get_subjects
             run: |
-                out=$( nix run ".#nuranScripts.build-driver" \
+                out=$( nix run ".#__tools.build-driver" \
                     -- subjects "packages/manifest.rb" )
                 echo "subjects=${out}" >> "$GITHUB_OUTPUT"
 
@@ -64,7 +64,7 @@ jobs:
         -   name: Build Subject
             run: |
                 nix run --print-build-logs \
-                    .#nuranScripts.build-driver -- build \
+                    .#__tools.build-driver -- build \
                     "packages/manifest.rb" "${{ matrix.subject }}"
 
     build-nixos:
@@ -96,6 +96,6 @@ jobs:
         -   name: Build NixOS
             run: |
                 nix run --print-build-logs \
-                    .#nuranScripts.build-driver -- nixos
+                    .#__tools.build-driver -- nixos
 
 # vim: nowrap:

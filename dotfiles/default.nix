@@ -7,10 +7,10 @@ let
     ;
 
     inherit ( config.lore )
-        nuranDirPath
+        tsukiObservatory
     ;
 
-    dotfiles = "${nuranDirPath}/dotfiles";
+    dotfiles = "${tsukiObservatory}/dotfiles";
 
 in {
 
@@ -32,7 +32,7 @@ in {
         '';
 
         "rubocop/config.yml".source =
-            mkOutOfStoreSymlink "${nuranDirPath}/.rubocop.yml";
+            mkOutOfStoreSymlink "${tsukiObservatory}/.rubocop.yml";
 
         "nvim".source =
             mkOutOfStoreSymlink "${dotfiles}/neovim";

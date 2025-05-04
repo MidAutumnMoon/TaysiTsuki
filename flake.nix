@@ -1,7 +1,5 @@
 {
 
-    description = "MidAutumnMoon's system collection, aka the Nuran.";
-
     inputs = {
 
         nixpkgs.url =
@@ -79,7 +77,6 @@
 
         packages = self.pkgsBrew lib.id;
 
-
         /*
          * Machines
          */
@@ -133,7 +130,7 @@
                     lib = hmLibWithNulib;
                 };
                 sharedModules =
-                    self.homeModules.nuran
+                    lib.listAllModules ./home
                     ++ [ flakes.sops-nix.homeManagerModules.sops ]
                     ++ [ { home.stateVersion = lib.trivial.release; } ]
                     ++ [ { programs.man.generateCaches = false; } ]
@@ -141,13 +138,9 @@
             }; }
         ;
 
-        homeModules.nuran = lib.listAllModules ./home;
-
-
         /*
          * devShells
          */
-
 
         devShells = lib.brewShells pkgsBrew {
 
@@ -168,13 +161,6 @@
             music = p: with p; [
                 picard
                 shntool cuetools flac
-            ];
-
-            kernel = p: with p; [
-                gcc ncurses
-                flex bison
-                rustToolchainTeapot
-                rust-bindgen
             ];
 
         };

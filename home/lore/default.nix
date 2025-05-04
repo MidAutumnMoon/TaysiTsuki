@@ -9,10 +9,10 @@ let
 in {
 
     options.lore = {
-        nuranDirPath = lib.mkOption {
+        tsukiObservatory = lib.mkOption {
             type = types.path;
             readOnly = true;
-            default = "${config.home.homeDirectory}/Nuran";
+            default = "${config.home.homeDirectory}/TaysiTsuki";
         };
     };
 
