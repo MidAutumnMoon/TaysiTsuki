@@ -11,7 +11,7 @@ let
         elem
     ;
 
-    inherit ( lib.nuran.trivial )
+    inherit ( lib.tsuki.trivial )
         eachSystem
     ;
 

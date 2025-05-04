@@ -7,12 +7,12 @@ let
         filter
     ;
 
-    inherit ( lib.nuran.path )
+    inherit ( lib.tsuki.path )
         isDir
         listAllDirs
     ;
 
-    inherit ( lib.nuran.module )
+    inherit ( lib.tsuki.module )
         isModule
     ;
 

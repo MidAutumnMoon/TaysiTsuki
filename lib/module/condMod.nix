@@ -7,7 +7,7 @@ let
         isAttrs
     ;
 
-    inherit ( lib.nuran.module )
+    inherit ( lib.tsuki.module )
         flatMod
     ;
 

@@ -9,7 +9,7 @@ let
         readDir
     ;
 
-    inherit ( lib.nuran.path )
+    inherit ( lib.tsuki.path )
         isDir
     ;
 

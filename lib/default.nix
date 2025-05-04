@@ -29,33 +29,33 @@ in
 
 rec {
 
-    nuran = {
+    tsuki = {
         path    = activate ./path;
         module  = activate ./module;
         trivial = activate ./trivial;
         nixpkgs = activate ./nixpkgs;
     };
 
-    inherit ( nuran.path )
+    inherit ( tsuki.path )
         isDir
         listAllFiles listAllDirs
         hasExtension
     ;
 
-    inherit ( nuran.module )
+    inherit ( tsuki.module )
         isModule
         flatMod condMod
         listAllModules
         rejectUnset
     ;
 
-    inherit ( nuran.trivial )
+    inherit ( tsuki.trivial )
         doNothing
         nixos2colmena
         eachSystem
     ;
 
-    inherit ( nuran.nixpkgs )
+    inherit ( tsuki.nixpkgs )
         onceride oncerideDrv
         makeApp
         brewNixpkgs
