@@ -8,16 +8,22 @@ let
         inherit lib callPackage ;
     };
 
-in
+    discovered =
+        lib.packagesFromDirectoryRecursive {
+            inherit callPackage;
+            directory = ./.;
+        };
 
-rec {
+    reexported = let
+        pkgsFrom = name: flakes.${name}.packages.${final.system};
+    in {
+        inherit ( pkgsFrom "sops-nix" ) sops-install-secrets;
+        inherit ( pkgsFrom "colmena" ) colmena;
+    };
 
-    /*
-     * Put these above all sections because
-     * I would forget this things otheriwse.
-     */
+in rec {
 
-    __tools = callPackage ./__tools {};
+    tsuki = discovered // reexported // {};
 
     /*
      * Web facing services and other network

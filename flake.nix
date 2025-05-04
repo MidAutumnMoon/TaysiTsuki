@@ -70,9 +70,6 @@
         overlays.nuclage =
             import ./packages { inherit lib flakes; };
 
-        overlays.reexport =
-            import ./packages/reexport.nix { inherit flakes; };
-
         inherit pkgsBrew;
 
         packages = self.pkgsBrew lib.id;
