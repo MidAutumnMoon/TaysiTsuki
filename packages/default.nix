@@ -79,9 +79,6 @@ in rec {
     prvn-pkgs =
         callPackage ./prvn-pkgs {};
 
-    metacubexd =
-        callPackage ./metacubexd {};
-
     makePortableServices =
         callPackage ./portable-service {};
 

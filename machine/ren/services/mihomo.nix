@@ -95,7 +95,7 @@ in
                 handle_path /api* {
                     reverse_proxy 127.0.0.1:${toString apiPort}
                 }
-                root * ${pkgs.metacubexd}
+                root * ${pkgs.tsuki.metacubexd}
                 file_server
             }
         '';
