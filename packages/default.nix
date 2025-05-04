@@ -32,8 +32,7 @@ in rec {
         colmena
     ;
 
-    makePortableServices =
-        callPackage ./portable-service {};
+    makePortableService = discovered.portable-service;
 
     zram-generator =
         prev.zram-generator.overrideAttrs { doCheck = false; };
