@@ -78,27 +78,6 @@ in rec {
     writers = callPackage ./writers { inherit ( prev ) writers; };
 
     /*
-     * Optimization flags. Mostly unused.
-     */
-
-    teapot.march = "x86-64-v3";
-
-    teapot.mtune = "znver2";
-
-    teapot.optimiz = [
-        "-O3"
-        "-march=${teapot.march}"
-        "-mtune=${teapot.mtune}"
-        "-mpclmul"
-        "-pipe"
-    ];
-
-    teapot.RUSTFLAGS = [
-        "-Ctarget-cpu=${teapot.march}"
-    ];
-
-
-    /*
      * Rust toolchains
      */
 
