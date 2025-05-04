@@ -45,6 +45,6 @@ end
 
     # Some heavy rust things
     colmena: %w[colmena],
-    inori: %w[inori],
+    inori: %w[inori].tsukify,
 
 }

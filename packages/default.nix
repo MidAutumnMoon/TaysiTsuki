@@ -32,16 +32,6 @@ in rec {
         colmena
     ;
 
-    /*
-     * Terminals, shells and other things used in
-     * that environment like CLI/TUI tools or multiplexers.
-     *
-     * Basically everything in Linux uh?
-     */
-
-    inori =
-        callPackage ./inori {};
-
     fishPlugins =
         callPackage ./fish/plugins { old = prev.fishPlugins; };
 

@@ -26,7 +26,7 @@ in {
 
         wsl-open
 
-        inori
+        tsuki.inori
         parinfer-rust # for the dylib
         skim
 

@@ -29,7 +29,7 @@ packages << {
 }
 
 packages << {
-    attr: "inori",
+    attr: "tsuki.inori",
     unstable: true,
 
 }
