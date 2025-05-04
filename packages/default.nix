@@ -35,14 +35,6 @@ in rec {
     fishPlugins =
         callPackage ./fish/plugins { old = prev.fishPlugins; };
 
-    /*
-     * Things that no clear category they are
-     * falling into.
-     */
-
-    prvn-pkgs =
-        callPackage ./prvn-pkgs {};
-
     makePortableServices =
         callPackage ./portable-service {};
 
