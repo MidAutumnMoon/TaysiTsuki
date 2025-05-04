@@ -5,7 +5,7 @@ final: prev:
 let
 
     callPackage = final.newScope {
-        inherit lib;
+        inherit lib flakes;
     };
 
     pkgsFrom =
@@ -36,23 +36,6 @@ in rec {
 
     zram-generator =
         prev.zram-generator.overrideAttrs { doCheck = false; };
-
-    /*
-     * Rust toolchains
-     */
-
-    rustToolchainTeapot =
-        let inherit ( flakes.rust-overlay.lib ) mkRustBin ; in
-        let rsbin = mkRustBin {} final.buildPackages; in
-        rsbin.stable.latest.default.override {
-            extensions = [ "rust-src" ];
-        }
-    ;
-
-    rustTeapot = with final; makeRustPlatform rec {
-        rustc = rustToolchainTeapot;
-        cargo = rustc;
-    };
 
     # "mkDerivationFromStdenv" is a function which accepts a stdenv
     # as argument and returns the well-known "mkDerivation" function,

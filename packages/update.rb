@@ -13,7 +13,7 @@ packages << %w[
     caddy
     metacubexd
     mihomo
-    rust-analyzer
+    rust.rust-analyzer
     shadowsocks
     vuetorrent
 ].tsukify

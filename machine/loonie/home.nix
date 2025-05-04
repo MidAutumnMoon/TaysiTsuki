@@ -14,11 +14,11 @@ in {
         sops
         rclone
 
-        tsuki.rust-analyzer
+        tsuki.rust.rust-analyzer
 
         tsuki.ruby.with_preferred_gems
         tsuki.ruby.rubocop
-        rustToolchainTeapot
+        tsuki.rust.toolchain
         ( clang.override { inherit ( llvmPackages ) bintools; } )
 
         nixd

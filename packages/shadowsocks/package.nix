@@ -6,7 +6,7 @@
     fetchFromGitHub,
 }:
 
-pkgsStatic.rustTeapot.buildRustPackage rec {
+pkgsStatic.tsuki.rust.buildRustPackage rec {
 
     pname = "shadowsocks-rust";
     version = "1.23.2";

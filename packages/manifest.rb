@@ -23,7 +23,7 @@ end
             neovim
             ruby.with_preferred_gems
             ruby.rubocop
-            rust-analyzer
+            rust.rust-analyzer
         ].tsukify + %w[
             nixd
         ],

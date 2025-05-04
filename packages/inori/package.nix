@@ -3,14 +3,14 @@
     stdenv,
     fetchFromGitHub,
 
-    rustTeapot,
+    tsuki,
 
     libavif,
     libjxl,
     imagemagick,
 }:
 
-rustTeapot.buildRustPackage {
+tsuki.rust.buildRustPackage {
 
     pname = "inori";
     version = "0-unstable-2025-05-02";
