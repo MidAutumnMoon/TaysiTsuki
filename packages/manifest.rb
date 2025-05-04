@@ -1,14 +1,23 @@
 # frozen_string_literal: true
 
+class Array
+    def tsukify
+        abort "Some item are not String" unless all? { it in String }
+        map { "tsuki.#{it}" }
+    end
+end
+
 {
 
-    small_thing1: %w[
-        hentai-home
-        unrar
-        fastfetchMinimal
-        metacubexd
-        vuetorrent_teapot
-    ],
+    small_thing1:
+        %w[
+            hentai-home
+            fastfetchMinimal
+            metacubexd
+            vuetorrent_teapot
+        ].tsukify + %w[
+            unrar
+        ],
 
     small_thing2: %w[
         nixd
@@ -19,11 +28,13 @@
     ],
 
     # Go programs are typically really fast to build
-    go_things: %w[
-        sops-install-secrets
-        caddy_teapot
-        mihomo
-    ],
+    go_things:
+        %w[
+            caddy
+            mihomo
+        ].tsukify + %w[
+            sops-install-secrets
+        ],
 
     prvn_bundle: %w[
         shadowsocks_teapot

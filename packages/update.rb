@@ -1,7 +1,19 @@
 # frozen_string_literal: true
 
-packages = %w[
-    caddy_teapot
+class Array
+    def tsukify
+        abort "Some item are not String" unless all? { it in String }
+        map { "tsuki.#{it}" }
+    end
+end
+
+packages = []
+
+packages << %w[
+    caddy
+].tsukify
+
+packages << %w[
     rust-analyzer_teapot
     shadowsocks_teapot
     metacubexd

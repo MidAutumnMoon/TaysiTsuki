@@ -5,8 +5,11 @@ final: prev:
 let
 
     callPackage = final.newScope {
-        inherit lib callPackage ;
+        inherit lib;
     };
+
+    pkgsFrom =
+        name: flakes.${name}.packages.${final.system};
 
     discovered =
         lib.packagesFromDirectoryRecursive {
@@ -14,24 +17,25 @@ let
             directory = ./.;
         };
 
-    reexported = let
-        pkgsFrom = name: flakes.${name}.packages.${final.system};
-    in {
-        inherit ( pkgsFrom "sops-nix" ) sops-install-secrets;
-        inherit ( pkgsFrom "colmena" ) colmena;
+    reexported = {
     };
 
 in rec {
 
     tsuki = discovered // reexported // {};
 
+    inherit ( pkgsFrom "sops-nix" )
+        sops-install-secrets
+    ;
+
+    inherit ( pkgsFrom "colmena" )
+        colmena
+    ;
+
     /*
      * Web facing services and other network
      * related things.
      */
-
-    caddy_teapot =
-        callPackage ./caddy {};
 
     hentai-home =
         callPackage ./henati-home {};

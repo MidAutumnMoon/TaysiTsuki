@@ -2,6 +2,6 @@
 
 {
 
-    services.caddy.package = pkgs.caddy_teapot;
+    services.caddy.package = pkgs.tsuki.caddy;
 
 }
