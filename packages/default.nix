@@ -37,9 +37,6 @@ in rec {
      * related things.
      */
 
-    hentai-home =
-        callPackage ./henati-home {};
-
     shadowsocks_teapot =
         callPackage ./shadowsocks {};
 

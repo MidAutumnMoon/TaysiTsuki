@@ -11,7 +11,6 @@ end
 
     small_thing1:
         %w[
-            hentai-home
             fastfetchMinimal
             metacubexd
             vuetorrent_teapot
