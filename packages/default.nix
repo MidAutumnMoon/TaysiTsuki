@@ -20,7 +20,7 @@ let
     reexported = {
     };
 
-in {
+in rec {
 
     tsuki = discovered // reexported // {};
 
@@ -35,6 +35,8 @@ in {
     makePortableService = discovered.portable-service;
 
     zram-generator =
-        prev.zram-generator.overrideAttrs { doCheck = false; };
+        lib.onceride prev.zram-generator
+        { rustPlatform = tsuki.rust; }
+        { doCheck = false; }; # tests fail on github workflow
 
 }
