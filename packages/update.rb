@@ -11,11 +11,11 @@ packages = []
 
 packages << %w[
     caddy
+    shadowsocks
 ].tsukify
 
 packages << %w[
     rust-analyzer_teapot
-    shadowsocks_teapot
     metacubexd
     vuetorrent_teapot
     mihomo

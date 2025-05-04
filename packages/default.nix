@@ -32,14 +32,6 @@ in rec {
         colmena
     ;
 
-    /*
-     * Web facing services and other network
-     * related things.
-     */
-
-    shadowsocks_teapot =
-        callPackage ./shadowsocks {};
-
     hysteria_teapot =
         callPackage ./hysteria {};
 

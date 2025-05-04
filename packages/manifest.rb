@@ -36,12 +36,12 @@ end
         ],
 
     prvn_bundle: %w[
-        shadowsocks_teapot
+        shadowsocks
         hysteria_teapot
         prvn-pkgs.ssserver
         prvn-pkgs.hysteria
         prvn-pkgs.dnscrypt
-    ],
+    ].tsukify,
 
     # Some heavy rust things
     colmena: %w[colmena],

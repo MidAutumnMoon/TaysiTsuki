@@ -4,7 +4,7 @@
     runCommandNoCC,
     buildGoModule,
 
-    shadowsocks_teapot,
+    tsuki,
     hysteria_teapot,
     dnscrypt-proxy,
 }:
@@ -28,7 +28,7 @@ rec {
     ];
 
     ssserver =
-        upx-pack ( lib.getExe' shadowsocks_teapot "ssserver" );
+        upx-pack ( lib.getExe' tsuki.shadowsocks "ssserver" );
 
     hysteria =
         upx-pack ( lib.getExe hysteria_teapot );
