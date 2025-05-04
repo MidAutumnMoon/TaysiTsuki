@@ -18,15 +18,6 @@ packages << %w[
     vuetorrent
 ].tsukify
 
-packages << %w[
-    fishPlugins.tide
-]
-
-packages << {
-    attr: "fishPlugins.puffer-fish",
-    unstable: true,
-}
-
 packages << {
     attr: "tsuki.inori",
     unstable: true,

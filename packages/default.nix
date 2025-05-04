@@ -32,9 +32,6 @@ in rec {
         colmena
     ;
 
-    fishPlugins =
-        callPackage ./fish/plugins { old = prev.fishPlugins; };
-
     makePortableServices =
         callPackage ./portable-service {};
 
