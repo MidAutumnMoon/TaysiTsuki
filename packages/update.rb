@@ -14,11 +14,11 @@ packages << %w[
     metacubexd
     mihomo
     shadowsocks
+    vuetorrent
 ].tsukify
 
 packages << %w[
     rust-analyzer_teapot
-    vuetorrent_teapot
 
     fishPlugins.tide
 ]

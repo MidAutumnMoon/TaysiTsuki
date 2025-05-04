@@ -67,7 +67,7 @@ in
             handle /api* {
                 reverse_proxy http://127.0.0.1:${toString ports.qbitwebui}
             }
-            root * ${pkgs.vuetorrent_teapot}
+            root * ${pkgs.tsuki.vuetorrent}
             file_server
         }
     '';

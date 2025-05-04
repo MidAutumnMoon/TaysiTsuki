@@ -12,7 +12,7 @@ end
     small_thing1:
         %w[
             metacubexd
-            vuetorrent_teapot
+            vuetorrent
         ].tsukify + %w[
             fastfetchMinimal
             unrar

@@ -69,9 +69,6 @@ in rec {
     makePortableServices =
         callPackage ./portable-service {};
 
-    vuetorrent_teapot =
-        callPackage ./vuetorrent {};
-
     zram-generator =
         prev.zram-generator.overrideAttrs { doCheck = false; };
 
