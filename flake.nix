@@ -104,7 +104,10 @@
         colmenaHive = lib.nixos2colmena self.nixosConfigurations
             {
                 meta.nixpkgs = pkgsBrew.pkgsOf "x86_64-linux";
-                ren.deployment.targetHost = "ren.home.lan";
+                ren = {
+                    deployment.targetHost = "ren.home.lan";
+                    deployment.buildOnTarget = true;
+                };
                 phia.deployment = {
                     targetHost = "phia.home.lan";
                     targetUser = "root";
