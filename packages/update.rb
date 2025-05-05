@@ -9,7 +9,7 @@ end
 
 packages = []
 
-packages << %w[
+packages.concat %w[
     caddy
     metacubexd
     mihomo
