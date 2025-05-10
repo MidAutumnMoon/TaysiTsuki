@@ -101,18 +101,19 @@
             phia = nixos "x86_64-linux" [ ./machine/phia ];
         };
 
-        colmenaHive = lib.nixos2colmena self.nixosConfigurations
+        colmenaHive =
             {
                 meta.nixpkgs = pkgsBrew.pkgsOf "x86_64-linux";
-                ren = {
-                    deployment.targetHost = "ren.home.lan";
-                    deployment.buildOnTarget = true;
+                ren.deployment = {
+                    targetHost = "ren.home.lan";
+                    buildOnTarget = true;
                 };
                 phia.deployment = {
                     targetHost = "phia.home.lan";
                     targetUser = "root";
                 };
             }
+            |> lib.nixos2colmena self.nixosConfigurations
             |> flakes.colmena.lib.makeHive
         ;
 
