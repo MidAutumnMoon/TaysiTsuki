@@ -61,6 +61,9 @@ in
         serviceConfig.LoadCredential = [
             "cert--hysteria_ca:${config.sops.secrets.cert--hysteria_ca.path}"
         ];
+        environment = {
+            SKIP_SAFE_PATH_CHECK = "1";
+        };
         # Without this, mihomo might read the outdated config before sops-nix
         # places the new one in place.
         requires = [ "sops-install-secrets.service" ];
