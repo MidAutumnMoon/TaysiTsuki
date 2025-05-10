@@ -49,9 +49,6 @@
 
     programs.fish.functions = {
 
-        "colmena".body = /* fish */
-            "command colmena --experimental-flake-eval $argv";
-
         "git".body = /* fish */ ''
             # if git is invoked with no arguments,
             # jump to the repo's root dir
