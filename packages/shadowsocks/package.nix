@@ -9,16 +9,16 @@
 pkgsStatic.tsuki.rust.buildRustPackage rec {
 
     pname = "shadowsocks-rust";
-    version = "1.23.3";
+    version = "1.23.4";
 
     src = fetchFromGitHub {
         owner = "shadowsocks";
         repo = "shadowsocks-rust";
         tag = "v${version}";
-        hash = "sha256-gUCDHk6Z3w3ajtYV8s0TXXnJCiHhOdMZRcIK4uPnQ2M=";
+        hash = "sha256-YUDPD46EVCJe/FFUaSyDDSXPk87CiGduzFyPtjr2fDI=";
     };
 
-    cargoHash = "sha256-DsdVvYznh9i3d3UdcKOCYRoisP8BAJ6XLV2JbFhEr5M=";
+    cargoHash = "sha256-E4vhgaUtUTNt+tRrLxDNXICMIH8N3EL+mkC9Ga+lI70=";
     useFetchCargoVendor = true;
 
     doCheck = false;
