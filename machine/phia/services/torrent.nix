@@ -75,14 +75,17 @@ in
     systemd.services."empty-torrent-recycle-bin" = {
         description = "Empty ${torrentDir} recycle bin";
         script = /* bash */ ''
+            declare -r RecycleBin="${torrentDir}/.recycle"
+            declare -r EmptyDir="$( mktemp -d )"
             echo "Start empty recycle bin"
-            RecycleBin="${torrentDir}/.recycle"
             if [[ -d "$RecycleBin" ]]; then
-                rm -rvf "$RecycleBin"/*
+                # N.B. / after dirs
+                rsync -rvP --delete "$EmptyDir/" "$RecycleBin/"
             fi
             echo "Finish empty recycle bin"
         '';
         startAt = "daily";
+        path = [ pkgs.rsync ];
     };
 
     systemd.timers."empty-torrent-recycle-bin" = {

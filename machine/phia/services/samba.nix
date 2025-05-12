@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 
 let
 
@@ -78,14 +78,17 @@ in
     systemd.services."empty-samba-recycle-bin" = {
         description = "Empty ${poolMpt} recycle bin";
         script = /* bash */ ''
+            declare -r RecycleBin="${poolMpt}/.recycle"
+            declare -r EmptyDir="$( mktemp -d )"
             echo "Start empty recycle bin"
-            RecycleBin="${poolMpt}/.recycle"
             if [[ -d "$RecycleBin" ]]; then
-                rm -rvf "$RecycleBin"/*
+                # N.B. / after dirs
+                rsync -rvP --delete "$EmptyDir/" "$RecycleBin/"
             fi
             echo "Finish empty recycle bin"
         '';
         startAt = "daily";
+        path = [ pkgs.rsync ];
     };
 
     systemd.timers."empty-samba-recycle-bin" = {
