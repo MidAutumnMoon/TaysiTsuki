@@ -26,9 +26,10 @@
                 $argv
         '';
 
-        # N.B. not use "command ls" on purpose because ls might also
-        # be a function
         "l".body = /*fish*/ "ls --group-directories-first --long --all $argv";
+
+        # N.B. --tree is eza specific
+        "lt".body = "l --tree $argv";
     };
 
     programs.fish.abbrs = {
