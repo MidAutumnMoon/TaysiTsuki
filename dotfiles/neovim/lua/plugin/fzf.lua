@@ -9,6 +9,7 @@ for key, action in pairs {
     ["<Leader>f"] = fzf.files,
     ["<Leader>l"] = fzf.blines,
     ["<Leader>d"] = fzf.diagnostics_document,
+    ["<Leader>b"] = fzf.buffers,
 } do
     vim.keymap.set( "n", key, action, { silent = true } )
 end

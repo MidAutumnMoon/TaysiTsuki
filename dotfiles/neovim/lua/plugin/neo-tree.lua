@@ -68,9 +68,9 @@ setkey( "n", "<Leader><Leader>n", function()
   vim.cmd "Neotree close filesystem left"
 end )
 
-setkey( "n", "<Leader>b", function()
-  vim.cmd( "Neotree focus buffers " .. getcwd() .. " right" )
-end)
+-- setkey( "n", "<Leader>b", function()
+--   vim.cmd( "Neotree focus buffers " .. getcwd() .. " right" )
+-- end)
 
 setkey( "n", "<Leader><Leader>b", function()
   vim.cmd "Neotree close buffers right"
