@@ -86,12 +86,12 @@ jobs:
             uses: ./.github/actions/nix-pieces
             with: { cachix_token: '${{ secrets.CACHIX_AUTH_TOKEN }}' }
 
-        -   name: Free up disk
-            env:
-                ACTION_DEBUG_OUTPUT: ${{ runner.debug }}
-            run: |
-                nix run .#fish -- \
-                    -PN "$GITHUB_WORKSPACE/packages/__tools/cleansing.fish" "light"
+        # -   name: Free up disk
+        #     env:
+        #         ACTION_DEBUG_OUTPUT: ${{ runner.debug }}
+        #     run: |
+        #         nix run .#fish -- \
+        #             -PN "$GITHUB_WORKSPACE/packages/__tools/cleansing.fish" "light"
 
         -   name: Build NixOS
             run: |
