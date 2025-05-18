@@ -5,6 +5,26 @@
         nixpkgs.url =
             "github:NixOS/nixpkgs/nixos-unstable-small";
 
+        # Some modules
+
+        preservation.url = "github:nix-community/preservation";
+
+        sops-nix = {
+            url = "github:Mic92/sops-nix";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
+
+        home-manager = {
+            url = "github:nix-community/home-manager";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
+
+        nixos-wsl = {
+            url = "github:nix-community/NixOS-WSL";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.flake-compat.follows = "flake-compat";
+        };
+
         # Some packages
 
         colmena = {
@@ -24,26 +44,6 @@
         rust-overlay = {
             url = "github:oxalica/rust-overlay";
             inputs.nixpkgs.follows = "nixpkgs";
-        };
-
-        # Some modules
-
-        preservation.url = "github:nix-community/preservation";
-
-        sops-nix = {
-            url = "github:Mic92/sops-nix";
-            inputs.nixpkgs.follows = "nixpkgs";
-        };
-
-        home-manager = {
-            url = "github:nix-community/home-manager";
-            inputs.nixpkgs.follows = "nixpkgs";
-        };
-
-        nixos-wsl = {
-            url = "github:nix-community/NixOS-WSL";
-            inputs.nixpkgs.follows = "nixpkgs";
-            inputs.flake-compat.follows = "flake-compat";
         };
 
         # Follows
