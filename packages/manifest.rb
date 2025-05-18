@@ -45,6 +45,8 @@ end
         prvn-pkgs.dnscrypt
     ].tsukify,
 
+    lix: %w[lix],
+
     # Some heavy rust things
     colmena: %w[colmena],
     inori: %w[inori].tsukify,
