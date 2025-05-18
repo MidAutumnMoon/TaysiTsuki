@@ -11,6 +11,7 @@
             url = "github:zhaofengli/colmena";
             inputs.nixpkgs.follows = "nixpkgs";
             inputs.stable.follows = "nixpkgs";
+            inputs.flake-compat.follows = "flake-compat";
         };
 
         nix-index-database = {
@@ -42,6 +43,14 @@
         nixos-wsl = {
             url = "github:nix-community/NixOS-WSL";
             inputs.nixpkgs.follows = "nixpkgs";
+            inputs.flake-compat.follows = "flake-compat";
+        };
+
+        # Follows
+
+        flake-compat = {
+            url = "github:edolstra/flake-compat";
+            flake = false;
         };
 
     };
