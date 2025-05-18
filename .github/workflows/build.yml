@@ -67,6 +67,10 @@ jobs:
                     .#tsuki.__tools.build-driver -- build \
                     "packages/manifest.rb" "${{ matrix.subject }}"
 
+        -   name: Setup tmate session
+            if: ${{ failure() }}
+            uses: mxschmitt/action-tmate@v3
+
     build-nixos:
         name: Build NixOS
         needs:
