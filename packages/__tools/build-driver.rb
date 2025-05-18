@@ -74,6 +74,7 @@ end
 
 COMMON_NIX_CLI_OPTS = [
     "--print-build-logs",
+    "--keep-failed",
     "--option narinfo-cache-negative-ttl 0",
     "--option keep-going true",
     "--option max-jobs 4",
