@@ -28,11 +28,13 @@ in rec {
         sops-install-secrets
     ;
 
-    inherit ( pkgsFrom "colmena" )
-        colmena
-    ;
-
     makePortableService = discovered.portable-service;
+
+    colmena =
+        lib.onceride ( pkgsFrom "colmena" ).colmena
+        # nix-eval-jobs from lix
+        { nix-eval-jobs = final.nix-eval-jobs; }
+        {};
 
     zram-generator =
         lib.onceride prev.zram-generator
