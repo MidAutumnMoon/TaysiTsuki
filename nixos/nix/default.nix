@@ -22,11 +22,9 @@
         experimental-features = [
             "nix-command"
             "flakes"
-            "ca-derivations"
             "auto-allocate-uids"
             "cgroups"
-            "pipe-operators"
-            "impure-derivations"
+            "pipe-operator"
         ];
         use-xdg-base-directories = true;
         always-allow-substitutes = true;
