@@ -17,12 +17,9 @@ let
             directory = ./.;
         };
 
-    reexported = {
-    };
-
 in rec {
 
-    tsuki = discovered // reexported // {};
+    tsuki = discovered // {};
 
     inherit ( pkgsFrom "sops-nix" )
         sops-install-secrets
@@ -30,15 +27,35 @@ in rec {
 
     makePortableService = discovered.portable-service;
 
-    colmena =
-        lib.onceride ( pkgsFrom "colmena" ).colmena
-        # nix-eval-jobs from lix
-        { nix-eval-jobs = final.nix-eval-jobs; }
-        {};
-
     zram-generator =
         lib.onceride prev.zram-generator
         { rustPlatform = tsuki.rust; }
         { doCheck = false; }; # tests fail on github workflow
+
+    #
+    # Lix overrides
+    #
+
+    lixSet = final.lixPackageSets.latest;
+
+    inherit ( lixSet )
+        # The default "lix" points to old stable version
+        lix
+        nix-eval-jobs
+        nix-direnv
+    ;
+
+    colmena =
+        ( pkgsFrom "colmena" ).colmena.override {
+            nix-eval-jobs = final.nix-eval-jobs;
+            rustPlatform = final.tsuki.rust;
+        };
+
+    nixVersions = prev.nixVersions // {
+        stable = final.lixSet.lix;
+        latest = final.lixSet.lix;
+    };
+
+    nixForLinking = prev.nixVersions.stable;
 
 }

@@ -25,14 +25,6 @@
             inputs.flake-compat.follows = "empty";
         };
 
-        lix-module = {
-            url = "https://git.lix.systems/lix-project/nixos-module/archive/main.tar.gz";
-            inputs.nixpkgs.follows = "nixpkgs";
-            inputs.lix.follows = "lix";
-            inputs.flake-utils.follows = "flake-utils";
-            inputs.flakey-profile.follows = "empty";
-        };
-
         # Some packages
 
         colmena = {
@@ -47,15 +39,6 @@
         nix-index-database = {
             url = "github:nix-community/nix-index-database";
             flake = false;
-        };
-
-        lix = {
-            url = "https://git.lix.systems/lix-project/lix/archive/main.tar.gz";
-            inputs.nixpkgs.follows = "nixpkgs";
-            inputs.flake-compat.follows = "empty";
-            inputs.nixpkgs-regression.follows = "empty";
-            inputs.nix2container.follows = "empty";
-            inputs.pre-commit-hooks.follows = "empty";
         };
 
         # Some toolchains
@@ -83,7 +66,6 @@
             config = { allowUnfree = true; };
             overlays = [
                 self.overlays.nuclage
-                flakes.lix-module.overlays.default
             ];
         };
 
