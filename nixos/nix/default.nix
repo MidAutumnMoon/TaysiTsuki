@@ -25,6 +25,7 @@
             "auto-allocate-uids"
             "cgroups"
             "pipe-operator"
+            "lix-custom-sub-commands"
         ];
         use-xdg-base-directories = true;
         always-allow-substitutes = true;
