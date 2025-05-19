@@ -36,20 +36,13 @@ in rec {
     # Lix overrides
     #
 
-    lixSet = final.lixPackageSets.latest;
+    lixSet = prev.lixPackageSets.latest;
 
     inherit ( lixSet )
         # The default "lix" points to old stable version
         lix
         nix-eval-jobs
-        nix-direnv
     ;
-
-    colmena =
-        ( pkgsFrom "colmena" ).colmena.override {
-            nix-eval-jobs = final.nix-eval-jobs;
-            rustPlatform = final.tsuki.rust;
-        };
 
     nixVersions = prev.nixVersions // {
         stable = final.lixSet.lix;
@@ -57,5 +50,14 @@ in rec {
     };
 
     nixForLinking = prev.nixVersions.stable;
+
+    colmena =
+        ( pkgsFrom "colmena" ).colmena.override {
+            nix-eval-jobs = final.nix-eval-jobs;
+            rustPlatform = final.tsuki.rust;
+        };
+
+    nix-direnv =
+        prev.nix-direnv.override { nix = final.lix; };
 
 }
