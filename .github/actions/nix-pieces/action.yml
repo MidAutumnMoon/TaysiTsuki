@@ -11,6 +11,16 @@ runs:
 
     -   uses: wimpysworld/nothing-but-nix@main
 
+    -   name: Tweak /nix Permission
+        shell: bash
+        run: |
+            # if /nix is here but not writable
+            if [[ -d "/nix" && ! -w "/nix" ]]; then
+                user="$( id --user )"
+                group="$( id --group )"
+                sudo chown -R "$user:$group" "/nix"
+            fi
+
     -   name: Setup nix
         uses: MidAutumnMoon/spheti-action/nix@master
         with:
