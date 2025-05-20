@@ -48,9 +48,6 @@
     # mksquashfs options
     squashfsCompressor ? "zstd",
     squashfsBlockSize ? "1M",
-
-    # Whether enable impure derivations.
-    allowImpure ? false,
 }:
 
 let
@@ -77,8 +74,6 @@ let
     imgFootFs = stdenvNoCC.mkDerivation {
         pname = "root-fs-scaffold";
         inherit version;
-
-        __impure = allowImpure;
 
         buildCommand = /* sh */ ''
             mkdir -pv "$out"
@@ -150,12 +145,9 @@ stdenvNoCC.mkDerivation {
         squashfsTools
     ];
 
-    env.closureInfo =
-        closureInfo { rootPaths = [ imgFootFs ] ++ contents; }
-        |> ( it: it.overrideAttrs { __impure = allowImpure; } )
-    ;
-
-    __impure = allowImpure;
+    env.closureInfo = closureInfo {
+        rootPaths = [ imgFootFs ] ++ contents;
+    };
 
     buildCommand = /* bash */ ''
         mkdir -p "nix/store"
