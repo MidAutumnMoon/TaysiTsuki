@@ -34,7 +34,6 @@ in
             Type = "simple";
             User = fileshareUser;
             Group = "users";
-            AmbientCapabilities = [ "CAP_NET_RAW" ];
             ExecStart = /*bash*/ ''
                 "${lib.getExe pkgs.qbittorrent-nox}" \
                     --confirm-legal-notice \
@@ -44,7 +43,7 @@ in
             '';
             StateDirectory = "qbittorrent";
             WorkingDirectory = "%S/${StateDirectory}";
-            SystemCallFilter = "@system-service";
+            SystemCallFilter = "@system-service ~@privileged";
             ProtectSystem = "strict";
             ProtectHome = true;
             ReadWritePaths = [ torrentDir ];
@@ -53,6 +52,18 @@ in
             PrivateDevices = true;
             ProtectProc = "invisible";
             ProcSubset = "pid";
+            RemoveIPC = true;
+            NoNewPrivileges = true;
+            ProtectClock = true;
+            ProtectControlGroups = true;
+            ProtectKernelLogs = true;
+            ProtectKernelTunables = true;
+            ProtectHostname = true;
+            LockPersonality = true;
+            SystemCallArchitectures = "native";
+            RestrictNamespaces = true;
+            CapabilityBoundingSet = "";
+            AmbientCapabilities = [ "CAP_NET_RAW" ];
         };
     };
 
