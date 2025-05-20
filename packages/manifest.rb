@@ -33,6 +33,7 @@ end
         %w[
             caddy
             mihomo
+            dnscrypt
         ].tsukify + %w[
             sops-install-secrets
         ],

@@ -16,6 +16,7 @@ packages.concat %w[
     rust.rust-analyzer
     shadowsocks
     vuetorrent
+    dnscrypt
 ].tsukify
 
 packages << {
