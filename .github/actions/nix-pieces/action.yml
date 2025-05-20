@@ -9,6 +9,8 @@ runs:
 
     steps:
 
+    -   uses: wimpysworld/nothing-but-nix@main
+
     -   name: Setup nix
         uses: MidAutumnMoon/spheti-action/nix@master
         with:
