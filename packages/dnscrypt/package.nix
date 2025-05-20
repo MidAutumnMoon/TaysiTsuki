@@ -7,13 +7,13 @@
 buildGoModule rec {
 
     pname = "dnscrypt-proxy";
-    version = "2.1.8";
+    version = "2.1.10";
 
     src = fetchFromGitHub {
         owner = "DNSCrypt";
         repo = "dnscrypt-proxy";
         rev = version;
-        sha256 = "sha256-/D5RE8AbI9i9TVdFQCYW8OLPU4TgIIDRsZfWEyXo92g=";
+        sha256 = "sha256-hAw7F1TMjxEJt5U1SWF+A/Bh2yt/8DOdn0infPZF6kk=";
     };
 
     vendorHash = null;
