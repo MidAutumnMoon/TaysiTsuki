@@ -1,6 +1,6 @@
-{ pkgs, ... }:
+{ pkgs, config, lib, ... }:
 
-{
+lib.mkIf config.services.caddy.enable {
 
     services.caddy.package = pkgs.tsuki.caddy;
 
