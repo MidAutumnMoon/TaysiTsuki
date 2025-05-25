@@ -264,8 +264,8 @@ local __plugins = {
 
     {
         "nvim-treesitter/nvim-treesitter",
-        build = ":TSUpdate",
-        name = "treesitter",
+        -- build = ":TSUpdate",
+        branch = "master",
         config = function()
             require "plugin.treesitter"
         end
