@@ -35,6 +35,7 @@ in
             allow-lan: true
             unified-delay: true
             tcp-concurrent: true
+            find-process-mode: "off"
 
             external-controller: "127.0.0.1:${toString apiPort}"
             external-controller-cors:
