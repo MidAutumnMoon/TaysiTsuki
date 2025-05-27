@@ -27,6 +27,8 @@ in rec {
 
     makePortableService = discovered.portable-service;
 
+    dnscrypt-proxy = tsuki.dnscrypt;
+
     zram-generator =
         lib.onceride prev.zram-generator
         { rustPlatform = tsuki.rust; }

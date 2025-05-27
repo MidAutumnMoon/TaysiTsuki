@@ -33,11 +33,11 @@ in {
         };
 
         lore.ports = {
-            adguardhome_webui = 20081;
             mihomo_listen = 7890;
             mihomo_api = 7895;
             torrent = 9094;
             qbitwebui = 9095;
+            dnscryptWebui = 9096;
         };
 
     };

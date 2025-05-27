@@ -3,9 +3,9 @@
 {
 
     imports = [
-        ./services/adguardhome.nix
         ./services/caddy.nix
         ./services/mihomo.nix
+        ./dns.nix
     ];
 
     environment.systemPackages = with pkgs; [
