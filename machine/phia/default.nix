@@ -30,6 +30,7 @@ in
         rclone
         smartmontools
         phiaSuite.allSuiteCombined
+        fuc
     ];
 
     passthru.phiaSuite = phiaSuite;
