@@ -17,6 +17,7 @@ packages.concat %w[
     shadowsocks
     vuetorrent
     dnscrypt
+    adblocklist
 ].tsukify
 
 packages << {

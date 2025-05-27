@@ -13,6 +13,7 @@ end
         %w[
             metacubexd
             vuetorrent
+            adblocklist
         ].tsukify + %w[
             fastfetchMinimal
             unrar
