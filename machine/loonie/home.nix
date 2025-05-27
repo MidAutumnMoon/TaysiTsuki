@@ -31,6 +31,7 @@ in {
         skim
 
         deno
+        fuc
     ];
 
     sops.age.keyFile = "${configHome}/sops/age/keys.txt";
