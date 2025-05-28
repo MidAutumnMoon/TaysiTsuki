@@ -35,6 +35,7 @@ end
             caddy
             mihomo
             dnscrypt
+            sing-box
         ].tsukify + %w[
             sops-install-secrets
         ],

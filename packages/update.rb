@@ -18,6 +18,7 @@ packages.concat %w[
     vuetorrent
     dnscrypt
     adblocklist
+    sing-box
 ].tsukify
 
 packages << {
