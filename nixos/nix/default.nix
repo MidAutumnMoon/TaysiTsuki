@@ -28,7 +28,7 @@
             "lix-custom-sub-commands"
         ];
         use-xdg-base-directories = true;
-        always-allow-substitutes = true;
+        always-allow-substitutes = false;
     };
 
     nix.registry = {
