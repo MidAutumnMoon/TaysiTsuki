@@ -4,8 +4,6 @@
     fetchFromGitHub,
     installShellFiles,
     coreutils,
-    nix-update-script,
-    nixosTests,
 }:
 
 buildGoModule ( drvSelf: {
