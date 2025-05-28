@@ -3,7 +3,7 @@
 {
 
     imports = [
-        ./services/caddy.nix
+        ./caddy.nix
         ./dns.nix
         ./singbox.nix
     ];
