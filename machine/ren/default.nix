@@ -4,8 +4,8 @@
 
     imports = [
         ./services/caddy.nix
-        ./services/mihomo.nix
         ./dns.nix
+        ./singbox.nix
     ];
 
     environment.systemPackages = with pkgs; [
