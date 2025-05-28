@@ -23,7 +23,7 @@ lib.mkIf config.services.caddy.enable {
         LockPersonality = true;
         SystemCallFilter = "@system-service";
         ProtectProc = "invisible";
-        ProcSubset = true;
+        ProcSubset = "pid";
         PrivateMounts = true;
         RestrictAddressFamilies = [
             "AF_UNIX"
