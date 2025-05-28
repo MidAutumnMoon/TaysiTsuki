@@ -18,7 +18,7 @@ in
         hostName = "phia";
         hostId = "0a3e0a19";
         proxy.default =
-            "http://ren.home.lan:${toString config.lore.ports.mihomo_listen}";
+            "http://ren.home.lan:${toString config.lore.ports.proxyPort}";
         useDHCP = true;
         tempAddresses = "disabled";
     };

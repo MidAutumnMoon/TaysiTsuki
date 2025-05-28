@@ -33,9 +33,7 @@ in {
         };
 
         lore.ports = {
-            mihomo_listen = 7890;
             proxyPort = 7890;
-            mihomo_api = 7895;
             torrent = 9094;
             qbitwebui = 9095;
             dnscryptWebui = 9096;

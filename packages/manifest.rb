@@ -33,7 +33,6 @@ end
     go_things:
         %w[
             caddy
-            mihomo
             dnscrypt
             sing-box
         ].tsukify + %w[

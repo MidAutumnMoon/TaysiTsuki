@@ -15,7 +15,7 @@
     networking = {
         hostName = "ren";
         proxy.default =
-            "http://127.0.0.1:${toString config.lore.ports.mihomo_listen}";
+            "http://127.0.0.1:${toString config.lore.ports.proxyPort}";
         useDHCP = true;
         tempAddresses = "disabled";
     };

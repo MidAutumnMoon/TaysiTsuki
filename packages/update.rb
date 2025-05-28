@@ -12,7 +12,6 @@ packages = []
 packages.concat %w[
     caddy
     metacubexd
-    mihomo
     rust.rust-analyzer
     shadowsocks
     vuetorrent
