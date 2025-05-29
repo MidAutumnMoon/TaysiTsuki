@@ -81,8 +81,8 @@ COMMON_NIX_CLI_OPTS = [
 ].join( " " )
 
 def move_builddir_on_disk
-    home = Pathname.new Dir.home
-    builddir = home.join "nixbuild"
+    nixdir = Pathname.new "/nix"
+    builddir = nixdir.join "nixbuild"
     builddir.mkdir
         .then { abort "Failed to mkdir" if it != 0 }
     ENV["TMPDIR"] = builddir.to_s
