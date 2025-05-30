@@ -32,6 +32,8 @@ in {
 
         deno
         fuc
+
+        tsuki.opentofu
     ];
 
     sops.age.keyFile = "${configHome}/sops/age/keys.txt";
