@@ -1,3 +1,7 @@
+provider "cloudflare" {
+    api_token = local.token.cloudflare.api_token
+}
+
 module "namecrane" {
     source = "./modules/namecrane"
 }
