@@ -1,72 +1,42 @@
+module "namecrane" {
+    source = "./modules/namecrane"
+}
+
 locals {
     ttl_auto = 1
 
-    teapot = {
-        domain = nonsensitive( local.token.cloudflare.domain_418_im )
-        zone_id = local.token.cloudflare.zoneid_418_im
+    account_id = local.token.cloudflare.account_id
+
+    # shorter
+    __teapot = nonsensitive( cloudflare_zone.teapot.name )
+    __spider = cloudflare_zone.spider.name
+}
+
+resource "cloudflare_zone" "teapot" {
+    name = local.token.cloudflare.domain_418_im
+    account = {
+        id = local.account_id
     }
+}
 
-    spider = {
-        domain = local.token.cloudflare.domain_spider
-        zone_id = local.token.cloudflare.zoneid_spider
+resource "cloudflare_zone" "spider" {
+    name = local.token.cloudflare.domain_spider
+    account = {
+        id = local.account_id
     }
+}
 
-    __namecrane = [
-        {
-            type = "MX"
-            content = "mx1.mxfilter.net",
-            priority = 10
-        },
-        {
-            type = "MX"
-            content = "mx2.mxfilter.net",
-            priority = 10
-        },
-        {
-            type = "MX"
-            content = "mx3.mxfilter.net",
-            priority = 20
-        },
-        {
-            type = "MX"
-            content = "mx4.mxfilter.net",
-            priority = 20
-        },
-        {
-            type = "TXT",
-            name = "_dmarc"
-            content = "v=DMARC1; p=quarantine;"
-            comment = "DMARC"
-        },
-        {
-            type = "TXT"
-            content = "v=spf1 include:_spf.workspace.org -all"
-            comment = "SPF"
-        },
-        {
-            type = "CNAME"
-            name = "mail"
-            content = "eu1.workspace.org"
-            comment = "Webmail"
-        },
-        {
-            type = "CNAME"
-            name = "autodiscover"
-            content = "eu1.workspace.org"
-            comment = "Auto Configuration"
-        },
-    ]
-
+locals {
     __domains = [
         {
-            display = "418.im"
-            domain = local.teapot.domain
-            zone_id = local.teapot.zone_id
+            display = local.__teapot
+            domain = local.__teapot
+            zone_id = cloudflare_zone.teapot.id
         },
         {
             display = "spiderweb"
-            domain = local.spider.domain
-            zone_id = local.spider.zone_id
+            domain = local.__spider
+            zone_id = cloudflare_zone.spider.id
         },
     ]
 }
@@ -74,7 +44,10 @@ locals {
 resource "cloudflare_dns_record" "namecrane-mail" {
     for_each = {
         for v in [
-            for _x in setproduct( local.__domains, local.__namecrane ):
+            for _x in setproduct(
+                local.__domains,
+                module.namecrane.namecrane_records
+            ):
             merge( _x... )
         ]:
         # e.g. "teapot-TXT-SPF" or "teapot-MX-mx1..."
@@ -96,17 +69,17 @@ resource "cloudflare_dns_record" "namecrane-mail" {
 }
 
 resource "cloudflare_dns_record" "teapot_dkim" {
-    zone_id = local.teapot.zone_id
+    zone_id = cloudflare_zone.teapot.id
     type = "TXT"
-    name = "yq8dd991d8429b4e7._domainkey.${local.teapot.domain}"
+    name = "yq8dd991d8429b4e7._domainkey.${local.__teapot}"
     ttl = local.ttl_auto
     content = trimspace( file( "./secrets/teapot_dkim" ) )
 }
 
 resource "cloudflare_dns_record" "spider_dkim" {
-    zone_id = local.spider.zone_id
+    zone_id = cloudflare_zone.spider.id
     type = "TXT"
-    name = "rk8dd99c9c108fd21._domainkey.${local.spider.domain}"
+    name = "rk8dd99c9c108fd21._domainkey.${local.__spider}"
     ttl = local.ttl_auto
     content = trimspace( file( "./secrets/spider_dkim" ) )
 }
