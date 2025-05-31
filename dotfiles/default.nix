@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, pkgs, nixosConfig, ... }:
 
 let
 
@@ -6,7 +6,7 @@ let
         mkOutOfStoreSymlink
     ;
 
-    inherit ( config.lore )
+    inherit ( nixosConfig.lore )
         tsukiObservatory
     ;
 

@@ -33,7 +33,7 @@ locals {
         tailscale = yamldecode( data.sops_file.token--tailscale.raw )
     }
     sharedWithNix = nonsensitive(
-        jsondecode( file( "../nixos/lore/shared.json" ) )
+        jsondecode( file( "../lore/shared.json" ) )
     )
 }
 
