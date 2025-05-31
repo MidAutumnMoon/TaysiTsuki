@@ -60,7 +60,7 @@
 
     outputs = { self, nixpkgs, ... } @ flakes: let
 
-        lib = nixpkgs.lib.extend ( import ./lib );
+        lib = nixpkgs.lib.extend ( import ./taysilib );
 
         pkgsBrew = lib.brewNixpkgs nixpkgs {
             config = { allowUnfree = true; };
