@@ -102,34 +102,14 @@ resource "cloudflare_dns_record" "spider_dkim" {
 # Tailscale Nodes
 #
 
-locals {
-    # teapot_tailscale_suffix =
-    # "some.ts12.ts.net" = { machine = "...", address = "::::" }
-    __tailscale_nodes = {
-        for dev in data.tailscale_devices.all.devices:
-        dev.name => {
-            name = dev.name
-            # machine name : some.ts12.ts.net => some
-            machine = trimsuffix( dev.name, ".${local.tailnet}" )
-            address = [
-                for addr in dev.addresses:
-                addr if provider::assert::ipv6( addr )
-            ][0]
-        }
-    }
-}
-
 # Referring to this resource:
 # cloudflare_dns_record.teapot_ts["ren"]
 resource "cloudflare_dns_record" "teapot_ts" {
-    for_each = {
-        for name, val in local.__tailscale_nodes:
-        "${val.machine}" => val
-    }
+    for_each = local.ts_devices
     ttl = local.ttl_auto
     zone_id = cloudflare_zone.teapot.id
     type = "AAAA"
-    name = "${each.value.machine}.tailscale.${cloudflare_zone.teapot.name}"
-    content = each.value.address
+    name = "${each.key}.tailscale.${cloudflare_zone.teapot.name}"
+    content = each.value.ipv6
     proxied = false
 }

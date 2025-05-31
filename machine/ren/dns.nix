@@ -2,42 +2,44 @@
 
 let
 
-    # The default "0.0.0.0" causes confliction, and dnscrypt-proxy
-    # doesn't support listening on interface, and I don't want
-    # to hardcode ip addresses in config. This is the ultimate workaround :/
+    # Listening "[::]:53" will cause port conflictions, and the server
+    # doesn't support bind to interface out of the box, plus personal
+    # preference which IP addresses shouldn't be hardcoded.
+    # To solve it with all these constrains, this wicked workaround was born.
     #
-    # In following config, this address is assigned to "lo", so that
-    # it can listen on it, and NAT is used to forward traffic.
-    #
-    # N.B., the loopback "127.0.0.0/8" can't be used for NAT by default
-    # for security reasones. Setting net.ipv4.conf.<if>.route_localnet=1
-    # can disable this security feature.
-    bindAddr = "192.168.20.10";
-    bindAddrv6 = "fd7a:1ca5:11bf::1";
-
-    inherit ( config.lore.ports )
-        dnscryptWebui
-    ;
+    # N.B.
+    # For security reasons, loopback addresses can't be used for dnat by default.
+    # Ref: `net.ipv4.conf.interface.route_localnet`
+    fakeAddr = "192.168.20.10";
+    fkaeAddrV6 = "fd7a:1ca5:11bf::1";
 
     inherit ( config.lore )
+        ports
         domains
     ;
 
+    tailscaleCfg = config.services.tailscale;
+
     forwardingRule =
         pkgs.writeText "dnsfwdrule" ''
-            home.lan 10.0.1.1
             ${domains.internal} 10.0.1.1
+            ip6.arpa 10.0.1.1
+            in-addr.arpa 10.0.1.1
+        '';
+
+    cloakingRule =
+        pkgs.writeText "dnscname" ''
+            abc.com router.${domains.internal}
         '';
 
 in
 
 {
 
-    passthru = { inherit forwardingRule; };
-
     networking.firewall = {
         allowedTCPPorts = [ 53 ];
         allowedUDPPorts = [ 53 ];
+        trustedInterfaces = [ tailscaleCfg.interfaceName ];
     };
 
     services.dnscrypt-proxy2 = {
@@ -50,9 +52,11 @@ in
     in rec {
         # Global Options
         server_names = lib.attrNames static;
+
         listen_addresses = [
-            "${bindAddr}:53"
-            "[${bindAddrv6}]:53"
+            "${fakeAddr}:53"
+            "[${fkaeAddrV6}]:53"
+            "[::]:${toString ports.dns}"
         ];
 
         bootstrap_resolvers = [
@@ -71,8 +75,8 @@ in
         use_syslog = true;
         ignore_system_dns = true;
 
-        # Forwarding Rule
         forwarding_rules = forwardingRule;
+        cloaking_rules = cloakingRule;
 
         # Static Servers
         static."doh-pub".stamp = "sdns://AgcAAAAAAAAAAAAHZG9oLnB1YgovZG5zLXF1ZXJ5";
@@ -92,7 +96,7 @@ in
         # Monitoring UI
         monitoring_ui = {
             enabled = true;
-            listen_address = "127.0.0.1:${toString dnscryptWebui}";
+            listen_address = "127.0.0.1:${toString ports.dnscryptWebui}";
             username = "";
             password = "";
             enable_query_log = true;
@@ -101,7 +105,7 @@ in
     };
 
     networking.nftables.tables."dns-nat" = let
-        interfaces = [ "enp3s0" config.services.tailscale.interfaceName ]
+        interfaces = [ "enp3s0" ]
             |> lib.concatStringsSep ", "
             |> ( it: "{ ${it} }" );
     in {
@@ -111,24 +115,26 @@ in
                 type nat hook prerouting priority dstnat; policy accept
                 iifname ${interfaces} \
                     meta l4proto { tcp, udp } th dport 53 \
-                    dnat ip to ${bindAddr}
+                    dnat ip to ${fakeAddr}
                 iifname ${interfaces} \
                     meta l4proto { tcp, udp } th dport 53 \
-                    dnat ip6 to ${bindAddrv6}
+                    dnat ip6 to ${fkaeAddrV6}
             }
         '';
     };
 
     networking.interfaces."lo" = {
         ipv4.addresses = [
-            { address = bindAddr; prefixLength = 32; }
+            { address = fakeAddr; prefixLength = 32; }
         ];
         ipv6.addresses = [
-            { address = bindAddrv6; prefixLength = 128; }
+            { address = fkaeAddrV6; prefixLength = 128; }
         ];
     };
 
-    networking.nameservers = [ bindAddr ];
+    networking.nameservers = [
+        "127.0.0.1:${toString ports.dns}"
+    ];
 
 
     #
