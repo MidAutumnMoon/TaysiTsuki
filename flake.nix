@@ -120,7 +120,7 @@
             {
                 meta.nixpkgs = pkgsBrew.pkgsOf "x86_64-linux";
                 ren.deployment = {
-                    targetHost = "ren";
+                    targetHost = "ren.in.418.im";
                     buildOnTarget = true;
                 };
                 phia.deployment = {
