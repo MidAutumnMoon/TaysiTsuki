@@ -2,7 +2,7 @@
 
 let
 
-    # The default "0.0.0.0" causes confliction, and dnscrypt-proxy 
+    # The default "0.0.0.0" causes confliction, and dnscrypt-proxy
     # doesn't support listening on interface, and I don't want
     # to hardcode ip addresses in config. This is the ultimate workaround :/
     #
@@ -13,14 +13,16 @@ let
     # for security reasones. Setting net.ipv4.conf.<if>.route_localnet=1
     # can disable this security feature.
     bindAddr = "192.168.20.10";
+    bindAddrv6 = "fd7a:1ca5:11bf::1";
 
     inherit ( config.lore.ports )
         dnscryptWebui
     ;
 
-    forwardingRule = pkgs.writeText "dnsfwdrule" ''
-        home.lan 10.0.1.1
-    '';
+    forwardingRule =
+        pkgs.writeText "dnsfwdrule" ''
+            home.lan 10.0.1.1
+        '';
 
 in
 
@@ -41,7 +43,10 @@ in
     in rec {
         # Global Options
         server_names = lib.attrNames static;
-        listen_addresses = [ "${bindAddr}:53" ];
+        listen_addresses = [
+            "${bindAddr}:53"
+            "[${bindAddrv6}]:53"
+        ];
 
         bootstrap_resolvers = [
             "223.5.5.5:53"
@@ -88,21 +93,33 @@ in
         };
     };
 
-    networking.nftables.tables."dns-nat" = {
-        family = "ip";
+    networking.nftables.tables."dns-nat" = let
+        interfaces = [ "enp3s0" config.services.tailscale.interfaceName ]
+            |> lib.concatStringsSep ", "
+            |> ( it: "{ ${it} }" );
+    in {
+        family = "inet";
         content = ''
             chain pre {
                 type nat hook prerouting priority dstnat; policy accept
-                iifname "enp3s0" \
+                iifname ${interfaces} \
                     meta l4proto { tcp, udp } th dport 53 \
-                    dnat to ${bindAddr}
+                    dnat ip to ${bindAddr}
+                iifname ${interfaces} \
+                    meta l4proto { tcp, udp } th dport 53 \
+                    dnat ip6 to ${bindAddrv6}
             }
         '';
     };
 
-    networking.interfaces."lo".ipv4.addresses = [
-        { address = bindAddr; prefixLength = 32; }
-    ];
+    networking.interfaces."lo" = {
+        ipv4.addresses = [
+            { address = bindAddr; prefixLength = 32; }
+        ];
+        ipv6.addresses = [
+            { address = bindAddrv6; prefixLength = 128; }
+        ];
+    };
 
     networking.nameservers = [ bindAddr ];
 
