@@ -23,6 +23,11 @@ in
         tempAddresses = "disabled";
     };
 
+    services.tailscale = {
+        enable = true;
+        openFirewall = true;
+    };
+
     environment.systemPackages = with pkgs; [
         fastfetchMinimal
         hdparm

@@ -25,6 +25,11 @@
         man.enable = false;
     };
 
+    services.tailscale = {
+        enable = true;
+        openFirewall = true;
+    };
+
     #
     # preservation & sops
     #
