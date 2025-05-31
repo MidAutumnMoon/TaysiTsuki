@@ -4,6 +4,8 @@ let
 
     inherit ( config.lore )
         ports
+        domains
+        homelab
     ;
 
     controllerListen = "127.0.0.1:${toString ports.clashApi}";
@@ -41,6 +43,18 @@ in
             #rulesetDir: "\(#pkg)/share/sing-box/rule-set"
             "\(#rulesetDir)/geosite-\(#name).srs"
         }
+
+        #noproxyDomains:
+            [
+                "${domains.internal}",
+                "${domains.tailscale}",
+                ${
+                    homelab
+                    |> lib.attrValues
+                    |> map ( it: ''"${it.name}"'' ) # quote is important
+                    |> lib.concatStringsSep ", "
+                }
+            ]
 
         experimental: {
             cache_file: enabled: true

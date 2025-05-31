@@ -74,6 +74,9 @@ in {
                 assert teapot_domain == "418.im"; teapot_domain;
             # N.B. manually set on openwrt :(
             internal = "in.${teapot}";
+            # tailscale is the subdomain on 418.im
+            # where tailnet is assigned from Tailscale the service
+            tailscale = "tailscale.${teapot}";
             tailnet = sharedWithTf.tailnet;
         };
 
