@@ -140,20 +140,18 @@ in
         "127.0.0.1:${toString ports.dns}"
     ];
 
-
     #
     # caddy config
     #
 
-    services.caddy.virtualHosts."*.home.lan".extraConfig = let
-        inherit ( config.services.dnscrypt-proxy2 )
-            settings;
-    in ''
-        @dnsmonitor host dns.home.lan
-        handle @dnsmonitor {
-            reverse_proxy http://${settings.monitoring_ui.listen_address}
-        }
-    '';
+    services.caddy.virtualHosts."teapot".extraConfig =
+        let inherit ( config.services.dnscrypt-proxy2 ) settings; in
+        ''
+            @dns_dashboard host ${homelab.dns_dashboard.name}
+            handle @dns_dashboard {
+                reverse_proxy http://${settings.monitoring_ui.listen_address}
+            }
+        '';
 
 }
 

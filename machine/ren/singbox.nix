@@ -127,36 +127,30 @@ in
         after = [ "sops-install-secrets.service" ];
     };
 
-    services.caddy.virtualHosts."*.home.lan" = {
-        extraConfig = ''
-            @clashApi host clash.home.lan
-            handle @clashApi {
+    services.caddy.virtualHosts."teapot".extraConfig =
+        let
+            # TODO: no proxy internal domains
+            wpad = pkgs.writeTextDir "wpad.dat" /*js*/ ''
+                function FindProxyForURL( url, host ) {
+                    return "PROXY ren.${domains.internal}:${toString ports.proxyPort}";
+                }
+            '';
+        in ''
+            @clash_api host ${homelab.clash_dashboard.name}
+            handle @clash_api {
                 handle_path /api* {
                     reverse_proxy http://${controllerListen}
                 }
                 root * ${pkgs.tsuki.metacubexd}
                 file_server
             }
-        '';
-    };
 
-    services.caddy.virtualHosts."http://wpad" =
-        let
-            wpad = pkgs.writeTextDir "wpad.dat" /*js*/ ''
-                function FindProxyForURL( url, host ) {
-                    return "PROXY ren.home.lan:${toString ports.proxyPort}";
-                }
-            '';
-        in {
-            listenAddresses = [ "[::]" ];
-            logFormat = ''
-                output stderr
-            '';
-            extraConfig = ''
+            @wpad host ${homelab.wpad.name}
+            handle @wpad {
                 root * ${wpad}
                 file_server browse
-            '';
-        };
+            }
+        '';
 
     networking.firewall = {
         allowedTCPPorts = [ ports.proxyPort ];

@@ -3,7 +3,6 @@
 {
 
     imports = [
-        ./caddy.nix
         ./dns.nix
         ./singbox.nix
     ];
@@ -29,6 +28,8 @@
         enable = true;
         openFirewall = true;
     };
+
+    services.caddy.enable = true;
 
     #
     # preservation & sops

@@ -2,6 +2,10 @@
 
 let
 
+    inherit ( config )
+        lore
+    ;
+
     caddyCfg = config.services.caddy;
 
     proxyCfg = config.networking.proxy;
@@ -10,10 +14,58 @@ in
 
 lib.mkIf caddyCfg.enable {
 
-    services.caddy.package = pkgs.tsuki.caddy;
+    networking.firewall = {
+        allowedTCPPorts = [ 80 443 ];
+        allowedUDPPorts = [ 443 ];
+    };
+
+    services.caddy = {
+        logFormat = "output stderr";
+        package = pkgs.tsuki.caddy;
+
+        globalConfig = ''
+            email acme@418.im
+            # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+        '';
+
+        extraConfig = ''
+            (tls_cloudflare) {
+                tls {
+                    dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+                    # le doesn't support it
+                    # key_type ed25519
+                }
+            }
+            (common) {
+                encode zstd gzip
+            }
+        '';
+    };
+
+    services.caddy.virtualHosts."teapot" = {
+        listenAddresses = [ "::" ];
+        hostName = "*.${lore.domains.teapot}";
+        extraConfig = lib.mkBefore ''
+            import common
+            import tls_cloudflare
+        '';
+    };
+
+    sops.templates."cf-token-envfile".content = ''
+        CLOUDFLARE_API_TOKEN=${config.sops.placeholder.token--cloudflare}
+    '';
 
     systemd.services.caddy = {
+        requires = [
+            "sops-install-secrets.service"
+        ];
+        after = [
+            "sops-install-secrets.service"
+        ];
         serviceConfig = {
+            EnvironmentFile =
+                config.sops.templates."cf-token-envfile".path;
+            # Hardening
             RemoveIPC = true;
             NoNewPrivileges = true;
             CapabilityBoundingSet = "";

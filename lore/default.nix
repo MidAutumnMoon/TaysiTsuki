@@ -1,5 +1,7 @@
 { lib, config, flakes, ... }:
 
+# TODO: remove the excessive amount of "teapot"
+
 let
 
     inherit ( lib )
