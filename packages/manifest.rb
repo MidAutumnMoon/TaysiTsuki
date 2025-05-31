@@ -35,6 +35,7 @@ end
             caddy
             dnscrypt
             sing-box
+            opentofu
         ].tsukify + %w[
             sops-install-secrets
         ],
