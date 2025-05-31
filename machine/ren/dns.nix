@@ -16,6 +16,7 @@ let
     inherit ( config.lore )
         ports
         domains
+        homelab
     ;
 
     tailscaleCfg = config.services.tailscale;
@@ -27,10 +28,13 @@ let
             in-addr.arpa 10.0.1.1
         '';
 
-    cloakingRule =
-        pkgs.writeText "dnscname" ''
-            abc.com router.${domains.internal}
-        '';
+    # cloak is cname under the hood, plus free cname flattening
+    cloakingRule = pkgs.writeText "dnscnamerule" (
+        homelab
+        |> lib.attrValues
+        |> map ( it: "${it.name} ${it.host}" )
+        |> lib.concatStringsSep "\n"
+    );
 
 in
 

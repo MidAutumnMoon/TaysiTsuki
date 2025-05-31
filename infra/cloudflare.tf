@@ -11,7 +11,7 @@ module "namecrane" {
 }
 
 resource "cloudflare_zone" "teapot" {
-    name = local.token.cloudflare.domain_418_im
+    name = local.sharedWithNix.teapot_domain
     account = {
         id = local.token.cloudflare.account_id
     }

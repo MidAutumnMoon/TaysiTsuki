@@ -1,4 +1,5 @@
 {
     "tailnet": "fin-orfe.ts.net",
-    "dns_port": 9098
+    "dns_port": 9098,
+    "teapot_domain": "418.im"
 }

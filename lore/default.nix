@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, config, flakes, ... }:
 
 let
 
@@ -33,7 +33,7 @@ in {
             readOnly = true;
         };
 
-        services = mkOption {
+        homelab = mkOption {
             type = with types; attrsOf <| submodule {
                 options.name = mkOption { type = str; };
                 options.host = mkOption { type = str; };
@@ -69,17 +69,38 @@ in {
         };
 
         domains = rec {
-            teapot = "418.im";
+            teapot =
+                with sharedWithTf;
+                assert teapot_domain == "418.im"; teapot_domain;
+            # N.B. manually set on openwrt :(
             internal = "in.${teapot}";
             tailnet = sharedWithTf.tailnet;
         };
 
-        services = {
-            router = with domains; {
-                name = "router.${teapot}";
-                host = "router.${internal}";
+        homelab =
+            assert flakes.self.nixosConfigurations ? ren;
+            {
+                router = with domains; {
+                    name = "router.${teapot}";
+                    host = "router.${internal}";
+                };
+                clash_dashboard = with domains; {
+                    name = "clash.${teapot}";
+                    host = "ren.${internal}";
+                };
+                dns_dashboard = with domains; {
+                    name = "dnscrypt.${teapot}";
+                    host = "ren.${internal}";
+                };
+                torrent_dashboard = with domains; {
+                    name = "qbit.${teapot}";
+                    host = "ren.${internal}";
+                };
+                wpad = with domains; {
+                    name = "wpad.${teapot}";
+                    host = "ren.${internal}";
+                };
             };
-        };
 
     };
 
