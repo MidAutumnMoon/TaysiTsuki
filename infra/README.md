@@ -2,7 +2,10 @@
 
 Infrastructure managed using OpenTofu
 
-Shout out to [NickCao/flakes](https://github.com/NickCao/flakes)
+Shout out to
+
+- [NickCao/flakes](https://github.com/NickCao/flakes)
+- [linyinfeng/dotfiles](https://github.com/linyinfeng/dotfiles)
 
 ## Refs:
 
