@@ -19,14 +19,21 @@ let
         dnscryptWebui
     ;
 
+    inherit ( config.lore )
+        domains
+    ;
+
     forwardingRule =
         pkgs.writeText "dnsfwdrule" ''
             home.lan 10.0.1.1
+            ${domains.internal} 10.0.1.1
         '';
 
 in
 
 {
+
+    passthru = { inherit forwardingRule; };
 
     networking.firewall = {
         allowedTCPPorts = [ 53 ];

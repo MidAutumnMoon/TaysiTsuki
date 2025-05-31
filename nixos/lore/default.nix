@@ -2,7 +2,7 @@
 
 let
 
-    inherit (lib)
+    inherit ( lib )
         mkOption
         types
     ;
@@ -24,20 +24,29 @@ in {
             type = types.attrsOf types.port;
             description = "Pre-allocated ports";
         };
+
+        domains = mkOption {
+            type = with types; attrsOf str;
+        };
     };
 
-    config = {
+    config.lore = {
 
-        lore.pubkeys = {
+        pubkeys = {
             teapot = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEyX4qdUuwPEqQa+QaR8/0MubpfB9rHbpGAH+yEM9kxM me@418.im";
         };
 
-        lore.ports = {
+        ports = {
             proxyPort = 7890;
             torrent = 9094;
             qbitwebui = 9095;
             dnscryptWebui = 9096;
             clashApi = 9097;
+        };
+
+        domains = rec {
+            teapot = "418.im";
+            internal = "in.${teapot}";
         };
 
     };

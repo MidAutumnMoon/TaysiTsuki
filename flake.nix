@@ -119,11 +119,11 @@
             {
                 meta.nixpkgs = pkgsBrew.pkgsOf "x86_64-linux";
                 ren.deployment = {
-                    targetHost = "ren.home.lan";
+                    targetHost = "ren";
                     buildOnTarget = true;
                 };
                 phia.deployment = {
-                    targetHost = "phia.home.lan";
+                    targetHost = "phia.in.418.im";
                     targetUser = "root";
                 };
             }

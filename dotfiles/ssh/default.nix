@@ -13,7 +13,10 @@ let
 in {
 
     sops.secrets = {
-        "ssh_config".sopsFile = ./ssh_config.sops.yml;
+        "ssh_config" = {
+            format = "binary";
+            sopsFile = ./ssh_config.sops;
+        };
         "privkey_teapot".sopsFile = ./private_key.sops.yml;
     };
 

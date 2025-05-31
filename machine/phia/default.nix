@@ -4,6 +4,10 @@ let
 
     phiaSuite = pkgs.callPackage ./packages {};
 
+    inherit ( config )
+        lore
+    ;
+
 in
 
 {
@@ -18,7 +22,7 @@ in
         hostName = "phia";
         hostId = "0a3e0a19";
         proxy.default =
-            "http://ren.home.lan:${toString config.lore.ports.proxyPort}";
+            "http://ren.${lore.domains.internal}:${toString lore.ports.proxyPort}";
         useDHCP = true;
         tempAddresses = "disabled";
     };

@@ -1,8 +1,12 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, config, ... }:
 
 let
 
     selfUsername = "teapot";
+
+    inherit ( config )
+        lore
+    ;
 
 in {
 
@@ -73,7 +77,8 @@ in {
         # besides, Windows already has firewall configured anyway.
         firewall.enable = lib.mkForce false;
 
-        proxy.default = "http://ren.home.lan:7890";
+        proxy.default =
+            "http://ren.${lore.domains.internal}:${toString lore.ports.proxyPort}";
     };
 
     services.resolved.enable = false;
