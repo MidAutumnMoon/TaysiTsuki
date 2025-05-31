@@ -1,3 +1,7 @@
+locals {
+    ttl_auto = 1
+}
+
 provider "cloudflare" {
     api_token = local.token.cloudflare.api_token
 }
@@ -6,27 +10,17 @@ module "namecrane" {
     source = "./modules/namecrane"
 }
 
-locals {
-    ttl_auto = 1
-
-    account_id = local.token.cloudflare.account_id
-
-    # shorter
-    __teapot = nonsensitive( cloudflare_zone.teapot.name )
-    __spider = cloudflare_zone.spider.name
-}
-
 resource "cloudflare_zone" "teapot" {
     name = local.token.cloudflare.domain_418_im
     account = {
-        id = local.account_id
+        id = local.token.cloudflare.account_id
     }
 }
 
 resource "cloudflare_zone" "spider" {
     name = local.token.cloudflare.domain_spider
     account = {
-        id = local.account_id
+        id = local.token.cloudflare.account_id
     }
 }
 
@@ -38,7 +32,7 @@ resource "cloudflare_dns_record" "teapot_hidden_message" {
     zone_id = cloudflare_zone.teapot.id
     type = "TXT"
     ttl = local.ttl_auto
-    name = local.__teapot
+    name = cloudflare_zone.teapot.name
     content = "Wish you a delicious day."
 }
 
@@ -47,15 +41,15 @@ resource "cloudflare_dns_record" "teapot_hidden_message" {
 #
 
 locals {
-    __domains = [
+    __domains_to_add_mail = [
         {
-            display = local.__teapot
-            domain = local.__teapot
+            display = "418.im"
+            domain = cloudflare_zone.teapot.name
             zone_id = cloudflare_zone.teapot.id
         },
         {
             display = "spiderweb"
-            domain = local.__spider
+            domain = cloudflare_zone.spider.name
             zone_id = cloudflare_zone.spider.id
         },
     ]
@@ -65,7 +59,7 @@ resource "cloudflare_dns_record" "namecrane-mail" {
     for_each = {
         for v in [
             for _x in setproduct(
-                local.__domains,
+                local.__domains_to_add_mail,
                 module.namecrane.namecrane_records
             ):
             merge( _x... )
@@ -91,7 +85,7 @@ resource "cloudflare_dns_record" "namecrane-mail" {
 resource "cloudflare_dns_record" "teapot_dkim" {
     zone_id = cloudflare_zone.teapot.id
     type = "TXT"
-    name = "yq8dd991d8429b4e7._domainkey.${local.__teapot}"
+    name = "yq8dd991d8429b4e7._domainkey.${cloudflare_zone.teapot.name}"
     ttl = local.ttl_auto
     content = trimspace( file( "./secrets/teapot_dkim" ) )
 }
@@ -99,7 +93,43 @@ resource "cloudflare_dns_record" "teapot_dkim" {
 resource "cloudflare_dns_record" "spider_dkim" {
     zone_id = cloudflare_zone.spider.id
     type = "TXT"
-    name = "rk8dd99c9c108fd21._domainkey.${local.__spider}"
+    name = "rk8dd99c9c108fd21._domainkey.${cloudflare_zone.spider.name}"
     ttl = local.ttl_auto
     content = trimspace( file( "./secrets/spider_dkim" ) )
+}
+
+#
+# Tailscale Nodes
+#
+
+locals {
+    # teapot_tailscale_suffix =
+    # "some.ts12.ts.net" = { machine = "...", address = "::::" }
+    __tailscale_nodes = {
+        for dev in data.tailscale_devices.all.devices:
+        dev.name => {
+            name = dev.name
+            # machine name : some.ts12.ts.net => some
+            machine = trimsuffix( dev.name, ".${local.tailnet}" )
+            address = [
+                for addr in dev.addresses:
+                addr if provider::assert::ipv6( addr )
+            ][0]
+        }
+    }
+}
+
+# Referring to this resource:
+# cloudflare_dns_record.teapot_ts["ren"]
+resource "cloudflare_dns_record" "teapot_ts" {
+    for_each = {
+        for name, val in local.__tailscale_nodes:
+        "${val.machine}" => val
+    }
+    ttl = local.ttl_auto
+    zone_id = cloudflare_zone.teapot.id
+    type = "AAAA"
+    name = "${each.value.machine}.tailscale.${cloudflare_zone.teapot.name}"
+    content = each.value.address
+    proxied = false
 }

@@ -16,3 +16,19 @@ provider "registry.opentofu.org/cloudflare/cloudflare" {
     "h1:sMu5G2AgadNRjoJqb3bv3iop7kREwWlmPQ9tVJSjdFI=",
   ]
 }
+
+provider "registry.opentofu.org/hashicorp/assert" {
+  version     = "0.16.0"
+  constraints = "~> 0.16"
+  hashes = [
+    "h1:7vTNd7tKqkfzqUCpJjDGBb+S09+jfkzvACLkNQf8sSU=",
+  ]
+}
+
+provider "registry.opentofu.org/tailscale/tailscale" {
+  version     = "0.20.0"
+  constraints = "~> 0.20"
+  hashes = [
+    "h1:nKMWoApEdEcyuAOgHeEmcR6asOhwhpWUrGFrZae4onY=",
+  ]
+}
