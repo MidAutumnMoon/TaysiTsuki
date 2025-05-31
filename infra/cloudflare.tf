@@ -30,6 +30,22 @@ resource "cloudflare_zone" "spider" {
     }
 }
 
+#
+# Normal DNS Records
+#
+
+resource "cloudflare_dns_record" "teapot_hidden_message" {
+    zone_id = cloudflare_zone.teapot.id
+    type = "TXT"
+    ttl = local.ttl_auto
+    name = local.__teapot
+    content = "Wish you a delicious day."
+}
+
+#
+# Records for Mail
+#
+
 locals {
     __domains = [
         {

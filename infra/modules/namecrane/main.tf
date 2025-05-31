@@ -1,4 +1,5 @@
 output "namecrane_records" {
+    sensitive = false
     value = [
         {
             type = "MX"
