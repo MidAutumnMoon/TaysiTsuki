@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+
+# frozen_string_literal: true
+
+# Copy necessary credentials onto openwrt router
+# for acme.sh to get and autorenew a certificate.
+#
+# One day, one day(!), NixOS will be used as router.
+
+require_relative "lib"
+require "open3"
+require "reinbow"
+require "English"
+require "json"
+
+using Reinbow
+
+ROUTER = "router"
+
+DOMAIN = "418.im"
+IM_418 = "acme.im_418"
+
+TOPLEVEL = repo_toplevel
+INFRA = TOPLEVEL.join( "infra" )
+
+def uci( command )
+    out, err, status = Open3.capture3 <<~SH
+        ssh #{ROUTER} uci #{command}
+    SH
+
+    if not status.success?
+        warn "uci command failed.".red
+        warn "Stderr: #{err}".italic
+        raise RuntimeError
+    end
+
+    out.strip
+end
+
+puts "Running sanity checks".yellow
+
+puts "Check if #{IM_418} config exists".blue
+
+uci( "get #{IM_418}" )
+
+puts "If it's using DNS challenge and Cloudflare".blue
+
+uci( "get #{IM_418}.validation_method" ) == "dns" \
+    or abort "Not using DNS challenge"
+
+uci( "get #{IM_418}.dns" ) == "dns_cf" \
+    or abort "Not using Cloudflare"
+
+def zone_id_from_infra
+    tf_json = Dir.chdir( INFRA ) do
+        raw_tf_output = `tofu show --json`
+        raise "Failed to call tofu" \
+            unless $CHILD_STATUS.success?
+        JSON.parse( raw_tf_output )
+    end
+    raise "tf output version not support" \
+        if tf_json["format_version"] != "1.0"
+    zone_id = tf_json["values"]["root_module"]["resources"]
+        .select { it["type"] == "cloudflare_zone" }
+        .select { it["values"]["name"] == "418.im" }
+        .map { it["values"]["id"] }
+        .first
+    raise "The id get from tf is empty??" unless zone_id
+    zone_id
+end
+
+def read_token_from_system_secret
+    out, err, status = Open3.capture3 <<~SH
+        sudo bash -c "cat /run/secrets/token--cloudflare"
+    SH
+    if not status.success?
+        warn "Failed to read cloudflare token".red
+        warn "Stderr: #{err}".italic
+        raise RuntimeError
+    end
+    out.strip
+end
+
+zone_id = zone_id_from_infra
+token = read_token_from_system_secret
+
+uci "del #{IM_418}.domains"
+uci %(add_list #{IM_418}.domains="*.#{DOMAIN}")
+
+uci "del #{IM_418}.credentials"
+uci %(add_list #{IM_418}.credentials="CF_Token=#{token}")
+uci %(add_list #{IM_418}.credentials="CF_Zone_ID=#{zone_id}")
+# cloudflare-dns.com is blocked, use this bypass the DNS liveness check
+# TODO: find a better way
+uci %(add_list #{IM_418}.credentials="Le_DNSSleep=20")
+uci "commit"
