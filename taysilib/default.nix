@@ -34,6 +34,7 @@ rec {
         module  = activate ./module;
         trivial = activate ./trivial;
         nixpkgs = activate ./nixpkgs;
+        list    = activate ./list;
     };
 
     inherit ( tsuki.path )
@@ -62,6 +63,10 @@ rec {
         brewShells
         brewNixOS
         libsToCompilerEnvvars
+    ;
+
+    inherit ( tsuki.list )
+        appendElem
     ;
 
 }
