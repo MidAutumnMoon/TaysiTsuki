@@ -8,6 +8,10 @@ let
         lore
     ;
 
+    inherit ( lore.apps )
+        homelab
+    ;
+
 in {
 
     imports = [
@@ -62,9 +66,7 @@ in {
         device = "/mnt/c/Users/Hotaru";
         fsType = "none";
         depends = [ "/mnt/c" ];
-        options = [
-            "bind" "nofail"
-        ];
+        options = [ "bind" "nofail" ];
     };
 
     system.etc.overlay.enable = lib.mkForce false;
@@ -78,7 +80,7 @@ in {
         firewall.enable = lib.mkForce false;
 
         proxy.default =
-            "http://ren.${lore.domains.internal}:${toString lore.ports.proxyPort}";
+            "http://${homelab.proxy.fqdn}:${toString lore.ports.proxyPort}";
     };
 
     services.resolved.enable = false;
