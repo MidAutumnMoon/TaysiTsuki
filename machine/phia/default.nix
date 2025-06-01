@@ -22,7 +22,7 @@ in
         hostName = "phia";
         hostId = "0a3e0a19";
         proxy.default =
-            "http://ren.${lore.domains.internal}:${toString lore.ports.proxyPort}";
+            "http://${lore.apps.homelab.proxy.fqdn}:${toString lore.ports.proxyPort}";
         useDHCP = true;
         tempAddresses = "disabled";
     };
