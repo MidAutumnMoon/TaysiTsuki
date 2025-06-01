@@ -57,7 +57,7 @@
             fd
             ripgrep
             file
-            htop
+            btop
             screen
             mtr
             rsync
