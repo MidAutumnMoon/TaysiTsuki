@@ -14,7 +14,6 @@ in
 
     imports = [
         ./services/samba.nix
-        ./services/caddy.nix
         ./services/torrent.nix
     ];
 
@@ -31,6 +30,8 @@ in
     #     enable = true;
     #     openFirewall = true;
     # };
+
+    services.caddy.enable = true;
 
     environment.systemPackages = with pkgs; [
         fastfetchMinimal

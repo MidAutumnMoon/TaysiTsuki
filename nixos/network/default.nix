@@ -2,11 +2,16 @@
 
 {
 
-    networking ={
+    networking = {
         useNetworkd = true;
     };
 
-    services.resolved.enable = lib.mkDefault true;
+    services.resolved = {
+        enable = lib.mkDefault true;
+        extraConfig = ''
+            Cache = no-negative
+        '';
+    };
 
     boot.kernel.sysctl = {
         "net.core.default_qdisc" = "fq";

@@ -28,6 +28,11 @@ lib.mkIf caddyCfg.enable {
             # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
         '';
 
+        # N.B.
+        # Caddy will do a DNS lookup using raw Cloudflare IPs,
+        # remeber to open firewall on the router for caddy.
+        #
+        # Also, if it failed to obtain certs, check if DNS is poisoned.
         extraConfig = ''
             (tls_cloudflare) {
                 tls {

@@ -11,8 +11,14 @@ let
     fileshareUser =
         config.users.users."fileshare".name;
 
-    ports =
-        config.lore.ports;
+    inherit ( config )
+        lore
+    ;
+
+    inherit ( lore )
+        ports
+        apps
+    ;
 
 in
 
@@ -72,16 +78,18 @@ in
         allowedUDPPorts = [ ports.torrent ];
     };
 
-    services.caddy.virtualHosts."*.home.lan".extraConfig = ''
-        @qbitwebui host qbit.home.lan
-        handle @qbitwebui {
-            handle /api* {
-                reverse_proxy http://127.0.0.1:${toString ports.qbitwebui}
+    services.caddy.virtualHosts."im_418".extraConfig =
+        let inherit ( apps.homelab ) torrent_dashboard; in
+        ''
+            @qbitwebui host ${torrent_dashboard.fqdn}
+            handle @qbitwebui {
+                handle /api* {
+                    reverse_proxy http://localhost:${toString ports.qbitwebui}
+                }
+                root * ${pkgs.tsuki.vuetorrent}
+                file_server
             }
-            root * ${pkgs.tsuki.vuetorrent}
-            file_server
-        }
-    '';
+        '';
 
     systemd.services."empty-torrent-recycle-bin" = {
         description = "Empty ${torrentDir} recycle bin";
