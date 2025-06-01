@@ -1,7 +1,7 @@
 provider "tailscale" {
     oauth_client_id = local.secrets.tailscale.oauth_id
     oauth_client_secret = local.secrets.tailscale.oauth_secret
-    tailnet = local.shared_with_nix.tailnet
+    tailnet = local.shared_nix.tailscale.tailnet
 }
 
 resource "tailscale_acl" "main" {
@@ -21,7 +21,7 @@ resource "tailscale_dns_preferences" "main" {
 resource "tailscale_dns_split_nameservers" "teapot_split_dns" {
     domain = "418.im"
     nameservers = [
-        "[${local.ts_devices.ren.ipv6}]:${local.shared_with_nix.dns_port}"
+        "[${local.ts_devices.ren.ipv6}]:${local.shared_nix.ports.dns}"
     ]
 }
 
@@ -33,7 +33,7 @@ locals {
     ts_devices = {
         for dev in data.tailscale_devices.all.devices:
         # some.ts12.ts.net => some
-        trimsuffix( dev.name, ".${local.shared_with_nix.tailnet}" )
+        trimsuffix( dev.name, ".${local.shared_nix.tailscale.tailnet}" )
         => {
             # The full name with ts.net
             fullname = dev.name

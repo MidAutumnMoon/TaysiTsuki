@@ -5,6 +5,10 @@ let
     inherit ( config.lore )
         ports
         domains
+        apps
+    ;
+
+    inherit ( apps )
         homelab
     ;
 
@@ -27,43 +31,44 @@ in
         };
     };
 
-    # cue > nix lol
-    passthru.sing-pubconf = pkgs.writeText "sing-pubconf.cue" /*cue*/ ''
-        package sing
-        #listenPort: number
-        #listenPort: ${toString ports.proxyPort}
+    # NOTE: actually using nix may be a smarter idea
+    # Pass information from within nixos onto sing-box without
+    # hardcode them in the private config.
+    passthru.sing-pubconf =
+        let
+            inherit ( domains ) im_418;
+            quote = it: ''"${it}"'';
+            noproxy_domains =
+                homelab
+                |> lib.attrValues
+                |> map ( it: it.fqdn )
+                |> lib.appendElem "${im_418.internal_zone}.${im_418.name}"
+                |> lib.appendElem "${im_418.tailscale_zone}.${im_418.name}"
+                |> lib.concatMapStringsSep ", " quote;
+        in
+        pkgs.writeText "sing-pubconf.cue" /*cue*/ ''
+            package sing
+            #listenPort: number & ${toString ports.proxyPort}
+            #hysteriaCert: string @tag( hysteriaCert )
+            #noproxyDomains: [ ${noproxy_domains} ]
 
-        #hysteriaCert: string @tag( hysteriaCert )
-
-        // Some cue dark magic
-        // #geositePath & { _, #name: "ads" } evals to the path :)
-        #geositePath: {
-            #name: string // input
-            #pkg: "${pkgs.sing-geosite}"
-            #rulesetDir: "\(#pkg)/share/sing-box/rule-set"
-            "\(#rulesetDir)/geosite-\(#name).srs"
-        }
-
-        #noproxyDomains:
-            [
-                "${domains.internal}",
-                "${domains.tailscale}",
-                ${
-                    homelab
-                    |> lib.attrValues
-                    |> map ( it: ''"${it.name}"'' ) # quote is important
-                    |> lib.concatStringsSep ", "
-                }
-            ]
-
-        experimental: {
-            cache_file: enabled: true
-            clash_api: {
-                external_controller: "${controllerListen}"
-                secret: ""
+            // Some cue dark magic
+            // #geositePath & { _, #name: "ads" } evals to the path :)
+            #geositePath: {
+                #name: string // input
+                #pkg: "${pkgs.sing-geosite}"
+                #rulesetDir: "\(#pkg)/share/sing-box/rule-set"
+                "\(#rulesetDir)/geosite-\(#name).srs"
             }
-        }
-    '';
+
+            experimental: {
+                cache_file: enabled: true
+                clash_api: {
+                    external_controller: "${controllerListen}"
+                    secret: ""
+                }
+            }
+        '';
 
     systemd.services."sing-box" = let
         # N.B. .cue is essential, other cue won't recognize it
@@ -129,14 +134,13 @@ in
 
     services.caddy.virtualHosts."teapot".extraConfig =
         let
-            # TODO: no proxy internal domains
             wpad = pkgs.writeTextDir "wpad.dat" /*js*/ ''
                 function FindProxyForURL( url, host ) {
-                    return "PROXY ren.${domains.internal}:${toString ports.proxyPort}";
+                    return "PROXY ${homelab.proxy.fqdn}:${toString ports.proxyPort}";
                 }
             '';
         in ''
-            @clash_api host ${homelab.clash_dashboard.name}
+            @clash_api host ${homelab.clash_dashboard.fqdn}
             handle @clash_api {
                 handle_path /api* {
                     reverse_proxy http://${controllerListen}
@@ -145,7 +149,7 @@ in
                 file_server
             }
 
-            @wpad host ${homelab.wpad.name}
+            @wpad host ${homelab.wpad.fqdn}
             handle @wpad {
                 root * ${wpad}
                 file_server browse

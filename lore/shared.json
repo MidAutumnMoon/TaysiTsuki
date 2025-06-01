@@ -1,5 +1,19 @@
 {
-    "tailnet": "fin-orfe.ts.net",
-    "dns_port": 9098,
-    "teapot_domain": "418.im"
+
+    "ports": {
+        "dns": 9098
+    },
+
+    "domains": {
+        "im_418": {
+            "name": "418.im",
+            "tailscale_zone": "tailscale",
+            "internal_zone": "in"
+        }
+    },
+
+    "tailscale": {
+        "tailnet": "fin-orfe.ts.net"
+    }
+
 }

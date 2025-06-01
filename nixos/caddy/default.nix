@@ -42,9 +42,9 @@ lib.mkIf caddyCfg.enable {
         '';
     };
 
-    services.caddy.virtualHosts."teapot" = {
+    services.caddy.virtualHosts."im_418" = {
         listenAddresses = [ "::" ];
-        hostName = "*.${lore.domains.teapot}";
+        hostName = "*.${lore.domains.im_418.name}";
         extraConfig = lib.mkBefore ''
             import common
             import tls_cloudflare
@@ -56,15 +56,10 @@ lib.mkIf caddyCfg.enable {
     '';
 
     systemd.services.caddy = {
-        requires = [
-            "sops-install-secrets.service"
-        ];
-        after = [
-            "sops-install-secrets.service"
-        ];
+        requires = [ "sops-install-secrets.service" ];
+        after = [ "sops-install-secrets.service" ];
         serviceConfig = {
-            EnvironmentFile =
-                config.sops.templates."cf-token-envfile".path;
+            EnvironmentFile = config.sops.templates."cf-token-envfile".path;
             # Hardening
             RemoveIPC = true;
             NoNewPrivileges = true;

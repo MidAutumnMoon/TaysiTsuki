@@ -1,115 +1,74 @@
 { lib, config, flakes, ... }:
 
-# TODO: remove the excessive amount of "teapot"
-
 let
 
-    inherit ( lib )
-        mkOption
-        types
-    ;
+    sharedInfra = lib.importJSON ./shared.json;
 
-    sharedWithTf = lib.importJSON ./shared.json;
+in
 
-in {
+{
 
     imports = [
         ./options.nix
     ];
 
-    options.lore = {
-        pubkeys = mkOption {
-            type = types.attrsOf types.str;
-            readOnly = true;
-        };
-        pubkeyList = mkOption {
-            type = types.listOf types.str;
-            default = builtins.attrValues config.lore.pubkeys;
-            readOnly = true;
-        };
+    assertions = [
+        {
+            assertion = flakes.self.nixosConfigurations ? "ren";
+            message = "`ren` is not here?";
+        }
+    ];
 
-        ports = mkOption {
-            type = types.attrsOf types.port;
-            description = "Pre-allocated ports";
-            readOnly = true;
-        };
+    lore.tsukiObservatory =
+        "${config.users.users.teapot.home}/TaysiTsuki";
 
-        domains = mkOption {
-            type = with types; attrsOf str;
-            readOnly = true;
-        };
-
-        homelab = mkOption {
-            type = with types; attrsOf <| submodule {
-                options.name = mkOption { type = str; };
-                options.host = mkOption { type = str; };
-            };
-            readOnly = true;
-        };
-
-        tsukiObservatory = mkOption {
-            type = types.path;
-            readOnly = true;
-        };
+    lore.pubkeys = {
+        teapot = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEyX4qdUuwPEqQa+QaR8/0MubpfB9rHbpGAH+yEM9kxM me@418.im";
     };
 
-    config.lore = rec {
+    lore.ports = {
+        proxyPort = 7890;
+        torrent = 9094;
+        qbitwebui = 9095;
+        dnscryptWebui = 9096;
+        clashApi = 9097;
+        dns = sharedInfra.ports.dns;
+    };
 
-        tsukiObservatory =
-            "${config.users.users.teapot.home}/TaysiTsuki";
+    lore.domains = {
+        inherit ( sharedInfra.domains )
+            im_418
+        ;
+    };
 
-        pubkeys = {
-            teapot = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEyX4qdUuwPEqQa+QaR8/0MubpfB9rHbpGAH+yEM9kxM me@418.im";
-        };
+    lore.apps = {
 
-        ports = {
-            proxyPort = 7890;
-            torrent = 9094;
-            qbitwebui = 9095;
-            dnscryptWebui = 9096;
-            clashApi = 9097;
-            dns =
-                with sharedWithTf;
-                assert dns_port == 9098; # avoid silly mistakes
-                dns_port;
-        };
-
-        domains = rec {
-            teapot =
-                with sharedWithTf;
-                assert teapot_domain == "418.im"; teapot_domain;
-            # N.B. manually set on openwrt :(
-            internal = "in.${teapot}";
-            # tailscale is the subdomain on 418.im
-            # where tailnet is assigned from Tailscale the service
-            tailscale = "tailscale.${teapot}";
-            tailnet = sharedWithTf.tailnet;
-        };
-
-        homelab =
-            assert flakes.self.nixosConfigurations ? ren;
-            {
-                router = with domains; {
-                    name = "router.${teapot}";
-                    host = "router.${internal}";
-                };
-                clash_dashboard = with domains; {
-                    name = "clash.${teapot}";
-                    host = "ren.${internal}";
-                };
-                dns_dashboard = with domains; {
-                    name = "dnscrypt.${teapot}";
-                    host = "ren.${internal}";
-                };
-                torrent_dashboard = with domains; {
-                    name = "qbit.${teapot}";
-                    host = "ren.${internal}";
-                };
-                wpad = with domains; {
-                    name = "wpad.${teapot}";
-                    host = "ren.${internal}";
-                };
+        # Internal services that only make sense when inside
+        # the home network.
+        homelab = let
+            inherit ( config.lore.domains ) im_418;
+            internalCname = from: to: {
+                fqdn = "${from}.${im_418.name}";
+                cname_target = "${to}.${im_418.internal_zone}.${im_418.name}";
             };
+            onRen = name: internalCname name "ren";
+            onPhia = name: internalCname name "phia";
+        in {
+            # others
+            router = internalCname "router" "router";
+
+            # ren services
+            proxy = onRen "proxy";
+            clash_dashboard = onRen "clash";
+            dns_dashboard = onRen "dnscrypt";
+            wpad = onRen "wpad";
+
+            # phia services
+            torrent_dashboard = onPhia "qbit";
+        };
+
+        # Services that exposed on the tailnet
+        # tailscale = ...
 
     };
 

@@ -1,3 +1,5 @@
+# NOTE: Use a proper DNS server in the future?
+
 { lib, config, pkgs, ... }:
 
 let
@@ -13,26 +15,31 @@ let
     fakeAddr = "192.168.20.10";
     fkaeAddrV6 = "fd7a:1ca5:11bf::1";
 
-    inherit ( config.lore )
+    inherit ( config )
+        lore
+    ;
+
+    inherit ( lore )
         ports
         domains
-        homelab
+        apps
     ;
 
     tailscaleCfg = config.services.tailscale;
 
     forwardingRule =
+        with domains;
         pkgs.writeText "dnsfwdrule" ''
-            ${domains.internal} 10.0.1.1
+            ${im_418.internal_zone}.${im_418.name} 10.0.1.1
             ip6.arpa 10.0.1.1
             in-addr.arpa 10.0.1.1
         '';
 
     # cloak is cname under the hood, plus free cname flattening
     cloakingRule = pkgs.writeText "dnscnamerule" (
-        homelab
+        apps.homelab
         |> lib.attrValues
-        |> map ( it: "${it.name} ${it.host}" )
+        |> map ( it: "${it.fqdn} ${it.cname_target}" )
         |> lib.concatStringsSep "\n"
     );
 
@@ -108,24 +115,23 @@ in
         };
     };
 
-    networking.nftables.tables."dns-nat" = let
-        interfaces = [ "enp3s0" ]
-            |> lib.concatStringsSep ", "
-            |> ( it: "{ ${it} }" );
-    in {
-        family = "inet";
-        content = ''
-            chain pre {
-                type nat hook prerouting priority dstnat; policy accept
-                iifname ${interfaces} \
-                    meta l4proto { tcp, udp } th dport 53 \
-                    dnat ip to ${fakeAddr}
-                iifname ${interfaces} \
-                    meta l4proto { tcp, udp } th dport 53 \
-                    dnat ip6 to ${fkaeAddrV6}
-            }
-        '';
-    };
+    networking.nftables.tables."dns-nat" =
+        let
+            interfaces = [ "enp3s0" ]
+                |> lib.concatStringsSep ", "
+                |> ( it: "{ ${it} }" );
+        in {
+            family = "inet";
+            content = ''
+                chain pre {
+                    type nat hook prerouting priority dstnat; policy accept
+                    iifname ${interfaces} meta l4proto { tcp, udp } th dport 53 \
+                        dnat ip to ${fakeAddr}
+                    iifname ${interfaces} meta l4proto { tcp, udp } th dport 53 \
+                        dnat ip6 to ${fkaeAddrV6}
+                }
+            '';
+        };
 
     networking.interfaces."lo" = {
         ipv4.addresses = [
@@ -144,10 +150,10 @@ in
     # caddy config
     #
 
-    services.caddy.virtualHosts."teapot".extraConfig =
+    services.caddy.virtualHosts."im_418".extraConfig =
         let inherit ( config.services.dnscrypt-proxy2 ) settings; in
         ''
-            @dns_dashboard host ${homelab.dns_dashboard.name}
+            @dns_dashboard host ${apps.homelab.dns_dashboard.fqdn}
             handle @dns_dashboard {
                 reverse_proxy http://${settings.monitoring_ui.listen_address}
             }
