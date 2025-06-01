@@ -33,7 +33,7 @@ locals {
     ts_devices = {
         for dev in data.tailscale_devices.all.devices:
         # some.ts12.ts.net => some
-        "${ trimsuffix( dev.name, ".${local.shared_with_nix.tailnet}" ) }"
+        trimsuffix( dev.name, ".${local.shared_with_nix.tailnet}" )
         => {
             # The full name with ts.net
             fullname = dev.name
