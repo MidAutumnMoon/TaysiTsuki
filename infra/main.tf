@@ -32,7 +32,7 @@ locals {
         cloudflare = yamldecode( data.sops_file.token--cloudflare.raw )
         tailscale = yamldecode( data.sops_file.token--tailscale.raw )
     }
-    sharedWithNix = nonsensitive(
+    shared_with_nix = nonsensitive(
         jsondecode( file( "../lore/shared.json" ) )
     )
 }
