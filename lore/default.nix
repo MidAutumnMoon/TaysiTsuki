@@ -13,6 +13,10 @@ let
 
 in {
 
+    imports = [
+        ./options.nix
+    ];
+
     options.lore = {
         pubkeys = mkOption {
             type = types.attrsOf types.str;

@@ -10,14 +10,16 @@ module "namecrane" {
     source = "./modules/namecrane"
 }
 
-resource "cloudflare_zone" "teapot" {
+resource "cloudflare_zone" "im_418" {
     name = local.shared_with_nix.teapot_domain
     account = {
         id = local.secrets.cloudflare.account_id
     }
 }
 
-resource "cloudflare_zone" "spider" {
+# A embarrassing domain for hosting burner emails which should only be used
+# when the opponent is a jerkhole.
+resource "cloudflare_zone" "shameful" {
     name = local.secrets.cloudflare.domain_spider
     account = {
         id = local.secrets.cloudflare.account_id
@@ -28,11 +30,11 @@ resource "cloudflare_zone" "spider" {
 # Normal DNS Records
 #
 
-resource "cloudflare_dns_record" "teapot_hidden_message" {
-    zone_id = cloudflare_zone.teapot.id
+resource "cloudflare_dns_record" "im_418_hidden_message" {
+    zone_id = cloudflare_zone.im_418.id
     type = "TXT"
     ttl = local.ttl_auto
-    name = cloudflare_zone.teapot.name
+    name = cloudflare_zone.im_418.name
     content = "Wish you a delicious day."
 }
 
@@ -44,13 +46,13 @@ locals {
     __domains_to_add_mail = [
         {
             display = "418.im"
-            domain = cloudflare_zone.teapot.name
-            zone_id = cloudflare_zone.teapot.id
+            domain = cloudflare_zone.im_418.name
+            zone_id = cloudflare_zone.im_418.id
         },
         {
-            display = "spiderweb"
-            domain = cloudflare_zone.spider.name
-            zone_id = cloudflare_zone.spider.id
+            display = "shameful.tld"
+            domain = cloudflare_zone.shameful.name
+            zone_id = cloudflare_zone.shameful.id
         },
     ]
 }
@@ -82,20 +84,26 @@ resource "cloudflare_dns_record" "namecrane-mail" {
     proxied = false
 }
 
-resource "cloudflare_dns_record" "teapot_dkim" {
-    zone_id = cloudflare_zone.teapot.id
-    type = "TXT"
-    name = "yq8dd991d8429b4e7._domainkey.${cloudflare_zone.teapot.name}"
-    ttl = local.ttl_auto
-    content = trimspace( file( "./secrets/teapot_dkim" ) )
+locals {
+    __dkim = nonsensitive(
+        jsondecode( file( "./secrets/dkim.json" ) )
+    )
 }
 
-resource "cloudflare_dns_record" "spider_dkim" {
-    zone_id = cloudflare_zone.spider.id
+resource "cloudflare_dns_record" "im_418_dkim" {
+    zone_id = cloudflare_zone.im_418.id
     type = "TXT"
-    name = "rk8dd99c9c108fd21._domainkey.${cloudflare_zone.spider.name}"
+    name = "yq8dd991d8429b4e7._domainkey.${cloudflare_zone.im_418.name}"
     ttl = local.ttl_auto
-    content = trimspace( file( "./secrets/spider_dkim" ) )
+    content = local.__dkim.im_418
+}
+
+resource "cloudflare_dns_record" "shameful_dkim" {
+    zone_id = cloudflare_zone.shameful.id
+    type = "TXT"
+    name = "rk8dd99c9c108fd21._domainkey.${cloudflare_zone.shameful.name}"
+    ttl = local.ttl_auto
+    content = local.__dkim.shameful
 }
 
 #
@@ -104,12 +112,12 @@ resource "cloudflare_dns_record" "spider_dkim" {
 
 # Referring to this resource:
 # cloudflare_dns_record.teapot_ts["ren"]
-resource "cloudflare_dns_record" "teapot_ts" {
+resource "cloudflare_dns_record" "im_418_ts" {
     for_each = local.ts_devices
     ttl = local.ttl_auto
-    zone_id = cloudflare_zone.teapot.id
+    zone_id = cloudflare_zone.im_418.id
     type = "AAAA"
-    name = "${each.key}.tailscale.${cloudflare_zone.teapot.name}"
+    name = "${each.key}.tailscale.${cloudflare_zone.im_418.name}"
     content = each.value.ipv6
     proxied = false
 }
