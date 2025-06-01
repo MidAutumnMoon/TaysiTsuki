@@ -1,6 +1,6 @@
 provider "tailscale" {
-    oauth_client_id = local.token.tailscale.oauth_id
-    oauth_client_secret = local.token.tailscale.oauth_secret
+    oauth_client_id = local.secrets.tailscale.oauth_id
+    oauth_client_secret = local.secrets.tailscale.oauth_secret
     tailnet = local.shared_with_nix.tailnet
 }
 

@@ -28,7 +28,7 @@ data "sops_file" "token--tailscale" {
 }
 
 locals {
-    token = {
+    secrets = {
         cloudflare = yamldecode( data.sops_file.token--cloudflare.raw )
         tailscale = yamldecode( data.sops_file.token--tailscale.raw )
     }

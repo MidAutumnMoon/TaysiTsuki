@@ -3,7 +3,7 @@ locals {
 }
 
 provider "cloudflare" {
-    api_token = local.token.cloudflare.api_token
+    api_token = local.secrets.cloudflare.api_token
 }
 
 module "namecrane" {
@@ -13,14 +13,14 @@ module "namecrane" {
 resource "cloudflare_zone" "teapot" {
     name = local.shared_with_nix.teapot_domain
     account = {
-        id = local.token.cloudflare.account_id
+        id = local.secrets.cloudflare.account_id
     }
 }
 
 resource "cloudflare_zone" "spider" {
-    name = local.token.cloudflare.domain_spider
+    name = local.secrets.cloudflare.domain_spider
     account = {
-        id = local.token.cloudflare.account_id
+        id = local.secrets.cloudflare.account_id
     }
 }
 
