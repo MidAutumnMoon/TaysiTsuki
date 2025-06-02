@@ -1,28 +1,34 @@
-{ config, pkgs, ... }:
+{ lib, config, pkgs, ... }:
 
 {
 
     imports = [
         ./dns.nix
         ./singbox.nix
+        ./fish
     ];
+
+    #
+    # General
+    #
 
     environment.systemPackages = with pkgs; [
         fastfetchMinimal
+        git
+        tsuki.firefox
     ];
 
     networking = {
         hostName = "ren";
         proxy.default =
-            "http://127.0.0.1:${toString config.lore.ports.proxyPort}";
+            "http://localhost:${toString config.lore.ports.proxyPort}";
         useDHCP = true;
         tempAddresses = "disabled";
     };
 
-    documentation = {
-        enable = false;
-        man.enable = false;
-    };
+    #
+    # Services
+    #
 
     services.tailscale = {
         enable = true;
@@ -31,32 +37,61 @@
 
     services.caddy.enable = true;
 
+
     #
-    # preservation & sops
+    # Users
     #
 
-    preservation.enable = true;
-
-    preservation.preserveAt."/persist" = {
-        files = [
-            { file = "/etc/ssh/ssh_host_ed25519_key"; mode = "0600"; }
-            { file = "/etc/ssh/ssh_host_ed25519_key.pub"; mode = "0644"; }
-            { file = "/etc/ssh/ssh_host_rsa_key"; mode = "0600"; }
-            { file = "/etc/ssh/ssh_host_rsa_key.pub"; mode = "0644"; }
-            { file = "/etc/machine-id"; mode = "0444"; inInitrd = true; }
-        ];
-        directories = [];
+    users.users."teapot" = {
+        isNormalUser = true;
+        extraGroups = [ "wheel" ];
+        password = "Moon";
+        openssh.authorizedKeys.keys = [ config.lore.pubkeys.teapot ];
     };
 
-    systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
+    home-manager.users."teapot" = import ./home.nix;
 
-    sops.age.sshKeyPaths = [ "/persist/etc/ssh/ssh_host_ed25519_key" ];
+    security.sudo.wheelNeedsPassword = false;
+
+    programs.fish.enable = true;
 
     #
-    # filesystems
+    # Desktop
     #
 
-    zramSwap.enable = true;
+    services.displayManager.sddm = {
+        enable = true;
+        wayland.enable = true;
+        settings.General.DisplayServer = "wayland";
+    };
+
+    services.desktopManager.plasma6.enable = true;
+
+    # N.B. single leading space
+    services.udev.extraHwdb = ''
+        # switch caplock and esc (because vim)
+        # switch left meta and ctrl (because vim)
+        evdev:atkbd:*
+        evdev:input:b0003v3151p4015*
+         KEYBOARD_KEY_70039=key_esc
+         KEYBOARD_KEY_70029=key_capslock
+         KEYBOARD_KEY_700e3=key_leftctrl
+         KEYBOARD_KEY_700e0=key_leftmeta
+
+        # map one of the mouse's side button to middle click
+        # (because the middle button is rock hard to press)
+        evdev:input:b0003v30FAp1701*
+         KEYBOARD_KEY_90005=btn_middle
+    '';
+
+    #
+    # Filesystems
+    #
+
+    zramSwap = {
+        enable = true;
+        memoryPercent = 100;
+    };
 
     fileSystems = let
         btrfsDevice = "/dev/disk/by-uuid/dd3d01c1-9010-435a-85d8-a2f0a1815433";
@@ -97,12 +132,37 @@
             fsType = "btrfs";
             options = btrfsOptionFor "root";
         };
+        "/home" = {
+            device = btrfsDevice;
+            fsType = "btrfs";
+            options = btrfsOptionFor "home";
+        };
     };
 
     services.btrfs.autoScrub.enable = true;
 
+    preservation = {
+        enable = true;
+        preserveAt."/persist" = {
+            files = [
+                { file = "/etc/ssh/ssh_host_ed25519_key"; mode = "0600"; }
+                { file = "/etc/ssh/ssh_host_ed25519_key.pub"; mode = "0644"; }
+                { file = "/etc/ssh/ssh_host_rsa_key"; mode = "0600"; }
+                { file = "/etc/ssh/ssh_host_rsa_key.pub"; mode = "0644"; }
+                { file = "/etc/machine-id"; mode = "0444"; inInitrd = true; }
+            ];
+            directories = [];
+        };
+    };
+
+    systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
+
+    sops.age.sshKeyPaths = [
+        "/persist/etc/ssh/ssh_host_ed25519_key"
+    ];
+
     #
-    # Hardware configs
+    # Boot & handware
     #
 
     boot.initrd = {
@@ -131,7 +191,7 @@
 
     boot.kernelParams = [ "amd_pstate=active" ];
 
-    hardware ={
+    hardware = {
         cpu.amd.updateMicrocode = true;
         enableRedistributableFirmware = true;
     };

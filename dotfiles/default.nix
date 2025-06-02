@@ -18,6 +18,7 @@ in {
         _7zz
         par2cmdline-turbo
         jq
+        fish
     ];
 
     xdg.configFile = {

@@ -132,7 +132,7 @@ in
         after = [ "sops-install-secrets.service" ];
     };
 
-    services.caddy.virtualHosts."teapot".extraConfig =
+    services.caddy.virtualHosts."im_418".extraConfig =
         let
             wpad = pkgs.writeTextDir "wpad.dat" /*js*/ ''
                 function FindProxyForURL( url, host ) {
