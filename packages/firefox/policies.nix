@@ -8,7 +8,6 @@
     DisablePocket         = true;
     DisableTelemetry      = true;
 
-    HardwareAcceleration    = true;
     DontCheckDefaultBrowser = true;
     RequestedLocales        = [ "en-US" ];
 
@@ -26,10 +25,6 @@
         Snippets          = false;
     };
 
-    SearchBar               = "unified";
-    ShowHomeButton          = false;
-    DisplayBookmarksToolbar = false;
-
     UserMessaging = {
         WhatsNew                 = false;
         FeatureRecommendations   = false;
@@ -38,15 +33,8 @@
         SkipOnboarding           = true;
     };
 
-
     Proxy = {
-        SOCKSVersion   = 5;
         UseProxyForDNS = true;
-    };
-
-    Cookies = {
-        Behavior                = "reject-foreign";
-        BehaviorPrivateBrowsing = "reject-foreign";
     };
 
     EnableTrackingProtection = {
@@ -63,9 +51,6 @@
             BlockNewRequests = true;
         };
         Location = {
-            BlockNewRequests = true;
-        };
-        Notifications = {
             BlockNewRequests = true;
         };
     };
