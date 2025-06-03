@@ -16,6 +16,7 @@
         fastfetchMinimal
         git
         tsuki.firefox
+        cifs-utils
     ];
 
     networking = {
@@ -49,6 +50,7 @@
     users.users."teapot" = {
         isNormalUser = true;
         extraGroups = [ "wheel" ];
+        uid = 1000;
         password = "Moon";
         openssh.authorizedKeys.keys = [ config.lore.pubkeys.teapot ];
     };
@@ -100,13 +102,24 @@
     };
 
     fileSystems = let
-        btrfsDevice = "/dev/disk/by-uuid/dd3d01c1-9010-435a-85d8-a2f0a1815433";
+        btrfsDevice =
+            "/dev/disk/by-uuid/dd3d01c1-9010-435a-85d8-a2f0a1815433";
         btrfsOptionFor = subvol: [
             "subvol=${subvol}"
             "compress-force=zstd"
             "noatime"
         ];
+        sambaOption = [
+            "x-systemd.automount"
+            "x-systemd.mount-timeout=30s"
+            "_netdev"
+            "user"
+            "users"
+            "uid=${toString config.users.users.teapot.uid}"
+            "gid=${toString config.users.groups.users.gid}"
+        ];
     in {
+
         "/" = {
             device = "none";
             fsType = "tmpfs";
@@ -142,6 +155,18 @@
             device = btrfsDevice;
             fsType = "btrfs";
             options = btrfsOptionFor "home";
+        };
+        "/mnt/pool" = {
+            # TODO: no hardcode hostname and path
+            device = "//phia.local/pool";
+            fsType = "cifs";
+            options = sambaOption ++ [];
+        };
+        "/mnt/torrent" = {
+            # TODO: no hardcode hostname and path
+            device = "//phia.local/torrent";
+            fsType = "cifs";
+            options = sambaOption ++ [];
         };
     };
 
@@ -193,6 +218,7 @@
     boot.kernelModules = [
         "amdgpu"
         "kvm-amd"
+        "cifs"
     ];
 
     boot.kernelParams = [ "amd_pstate=active" ];
