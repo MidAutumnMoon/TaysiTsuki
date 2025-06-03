@@ -6,10 +6,17 @@
         useNetworkd = true;
     };
 
+    networking.firewall = {
+        # mDNS
+        allowedUDPPorts = [ 5353 ];
+    };
+
     services.resolved = {
         enable = lib.mkDefault true;
+        llmnr = "false";
         extraConfig = ''
             Cache = no-negative
+            MulticastDNS = true
         '';
     };
 

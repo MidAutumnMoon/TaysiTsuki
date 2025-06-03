@@ -37,6 +37,10 @@
 
     services.caddy.enable = true;
 
+    systemd.network.networks = {
+        "99-ethernet-default-dhcp".networkConfig.MulticastDNS = true;
+    };
+
 
     #
     # Users
