@@ -17,6 +17,8 @@
         git
         tsuki.firefox
         cifs-utils
+        # sort out mpv later
+        strawberry
     ];
 
     networking = {
