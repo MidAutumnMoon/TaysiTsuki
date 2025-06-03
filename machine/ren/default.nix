@@ -84,6 +84,8 @@
          KEYBOARD_KEY_90005=btn_middle
     '';
 
+    security.rtkit.enable = true;
+
     #
     # Filesystems
     #

@@ -17,26 +17,19 @@ lib.mkIf config.fonts.fontconfig.enable {
         ];
     };
 
-    # fonts.fontconfig = {
-    #     defaultFonts = lib.mkForce {
-    #         sansSerif = [
-    #             "Noto Sans"
-    #             "Zhudou Sans"
-    #             "Source Han Sans SC"
-    #         ];
-    #         serif = [
-    #             "Noto Sans"
-    #             "Zhudou Sans"
-    #             "Source Han Sans SC"
-    #         ];
-    #         monospace = [
-    #             "Hack"
-    #             "Zhudou Sans"
-    #             "Source Han Sans SC"
-    #         ];
-    #     };
-    #     localConf = builtins.readFile ./local.xml;
-    # };
+    fonts.fontconfig = {
+        defaultFonts = {
+            sansSerif = [
+                "Noto Sans"
+                "emoji"
+            ];
+            monospace = [
+                "Iosevka Nerd Font"
+                "Iosevka"
+            ];
+        };
+        localConf = builtins.readFile ./local.xml;
+    };
 
     systemd.user.tmpfiles.rules = [
         "R! %h/.cache/fontconfig - - - 0 -"
