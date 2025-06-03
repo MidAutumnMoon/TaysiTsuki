@@ -19,6 +19,7 @@
         cifs-utils
         # sort out mpv later
         strawberry
+        wl-clipboard
     ];
 
     networking = {
