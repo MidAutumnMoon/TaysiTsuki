@@ -34,6 +34,10 @@ if not string match -rq '^(full|light)$' "$CleansingMode"
     exit ( false )
 end
 
+if not command -q rmz
+    echo "rmz not installed"
+    exit ( false )
+end
 
 set -l BloatedPackagesWithServices \
     '^dotnet.*' \
@@ -55,19 +59,21 @@ set -l BloatedPackagesWithServices \
 set -l BloatedPackages \
     '^.*-icon-theme' \
     'ant' \
-    'apache2' \
+    'apache2.*' \
     '^aspnetcore.*' \
     'azure-cli' \
     '^bcache.*' \
     'bolt' \
     'brotli' \
     'build-essential' \
+    'buildah' \
     'byobu' \
     '^cpp.*' \
     '^clang.*' \
     'crun' \
     '^emacsen.*' \
     '^firebird.*' \
+    'firefox' \
     '^fonts.*' \
     '^freetds.*' \
     'friendly-recovery' \
@@ -83,7 +89,9 @@ set -l BloatedPackages \
     'icu-devtools' \
     '^imagemagick.*' \
     '^java.*' \
+    '^kotlin.*' \
     '^landscape.*' \
+    '^libclang.*' \
     '^lld.*' \
     '^llvm.*' \
     '^mecab.*' \
@@ -107,7 +115,7 @@ set -l BloatedPackages \
     '^secureboot.*' \
     '^session-.*' \
     'shellcheck' \
-    'skopeo' \
+    'skopeo'  \\
     'slirp4netns' \
     'snmp' \
     'subversion' \
@@ -133,11 +141,11 @@ set -l BloatedPackages \
     'zsync'
 
 if test $CleansingMode = "light"
-    sudo apt purge --yes $BloatedPackagesWithServices
+    sudo apt purge --yes $BloatedPackagesWithServices &
 else
     sudo apt purge --yes \
         $BloatedPackages \
-        $BloatedPackagesWithServices
+        $BloatedPackagesWithServices &
 end
 
 sudo apt autopurge --yes
@@ -149,23 +157,20 @@ set -l BloatedPaths \
     '/usr/share/gradle' \
     '/usr/share/sbt' \
     '/usr/local/' \
-    '/opt/ghc' \
-    '/opt/hostedtoolcache' \
-    '/opt/pipx' \
-    '/opt/powershell' \
+    '/opt' \
+    '/snap' \
     '/var/snap' \
     '/var/cache/' \
     '/var/lib/docker' \
     '/var/lib/mysql' \
     '/var/lib/gems' \
-    '/etc/skel'
-
-if [ "$ACTION_DEBUG_OUTPUT" = 1 ]
-    set -f argument "--verbose"
-end
+    '/etc/skel' \
+    "$HOME/.rustup" \
+    "$HOME/.cargo" \
+    "$HOME/.dotnet"
 
 for path in $BloatedPaths
-    sudo rm -fr $argument "$path" &
+    sudo rmz -f "$path" &
 end
 
 wait
