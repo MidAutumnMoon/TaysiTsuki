@@ -19,6 +19,7 @@ in {
         par2cmdline-turbo
         jq
         fish
+        tsuki.neovim
     ];
 
     xdg.configFile = {
