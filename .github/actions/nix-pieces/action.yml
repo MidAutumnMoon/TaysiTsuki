@@ -9,18 +9,6 @@ runs:
 
     steps:
 
-    -   uses: wimpysworld/nothing-but-nix@main
-
-    -   name: Tweak /nix Permission
-        shell: bash
-        run: |
-            # if /nix is here but not writable
-            if [[ -d "/nix" && ! -w "/nix" ]]; then
-                user="$( id --user )"
-                group="$( id --group )"
-                sudo chown -R "$user:$group" "/nix"
-            fi
-
     -   name: Setup nix
         uses: MidAutumnMoon/spheti-action/nix@master
         with:
@@ -32,6 +20,17 @@ runs:
         shell: bash
         run: |
             nix flake update
+
+    -   name: Start cleanup
+        shell: bash
+        run: |
+            echo "Before cleanup"
+            df -h
+            nix shell .#fish .#fuc -c \
+                fish -PN \
+                    '${{ github.workspace }}/packages/__tools/cleansing.fish' full \
+                    1>$HOME/report 2>$HOME/report.err &
+            disown
 
     -   name: Setup cachix
         uses: cachix/cachix-action@v16

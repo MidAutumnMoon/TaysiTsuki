@@ -42,6 +42,11 @@ jobs:
                     -- subjects "packages/manifest.rb" )
                 echo "subjects=${out}" >> "$GITHUB_OUTPUT"
 
+        # -   name: Setup tmate session
+        #     #if: ${{ failure() }}
+        #     uses: mxschmitt/action-tmate@v3
+
+
     build_packages:
         name: Build Packages
         runs-on: ubuntu-latest
@@ -66,10 +71,6 @@ jobs:
                 nix run --print-build-logs \
                     .#tsuki.__tools.build-driver -- build \
                     "packages/manifest.rb" "${{ matrix.subject }}"
-
-        # -   name: Setup tmate session
-        #     if: ${{ failure() }}
-        #     uses: mxschmitt/action-tmate@v3
 
     build-nixos:
         name: Build NixOS

@@ -34,6 +34,10 @@ if not string match -rq '^(full|light)$' "$CleansingMode"
     exit ( false )
 end
 
+if not command -q rmz
+    echo "rmz not installed"
+    exit ( false )
+end
 
 set -l BloatedPackagesWithServices \
     '^dotnet.*' \
@@ -55,19 +59,22 @@ set -l BloatedPackagesWithServices \
 set -l BloatedPackages \
     '^.*-icon-theme' \
     'ant' \
-    'apache2' \
+    'apache2.*' \
     '^aspnetcore.*' \
     'azure-cli' \
     '^bcache.*' \
     'bolt' \
     'brotli' \
     'build-essential' \
+    'buildah' \
     'byobu' \
     '^cpp.*' \
     '^clang.*' \
     'crun' \
+    'containerd.io' \
     '^emacsen.*' \
     '^firebird.*' \
+    'firefox' \
     '^fonts.*' \
     '^freetds.*' \
     'friendly-recovery' \
@@ -83,7 +90,9 @@ set -l BloatedPackages \
     'icu-devtools' \
     '^imagemagick.*' \
     '^java.*' \
+    '^kotlin.*' \
     '^landscape.*' \
+    '^libclang.*' \
     '^lld.*' \
     '^llvm.*' \
     '^mecab.*' \
@@ -132,15 +141,11 @@ set -l BloatedPackages \
     'zerofree' \
     'zsync'
 
-if test $CleansingMode = "light"
-    sudo apt purge --yes $BloatedPackagesWithServices
-else
-    sudo apt purge --yes \
-        $BloatedPackages \
-        $BloatedPackagesWithServices
-end
+sudo apt purge --yes \
+    $BloatedPackages \
+    $BloatedPackagesWithServices
 
-sudo apt autopurge --yes
+sudo apt autopurge --yes &
 
 set -l BloatedPaths \
     '/usr/share/dotnet' \
@@ -149,23 +154,26 @@ set -l BloatedPaths \
     '/usr/share/gradle' \
     '/usr/share/sbt' \
     '/usr/local/' \
-    '/opt/ghc' \
-    '/opt/hostedtoolcache' \
-    '/opt/pipx' \
-    '/opt/powershell' \
+    '/opt' \
+    '/snap' \
     '/var/snap' \
-    '/var/cache/' \
     '/var/lib/docker' \
     '/var/lib/mysql' \
     '/var/lib/gems' \
-    '/etc/skel'
+    '/etc/skel' \
+    '/usr/lib/jvm' \
+    '/usr/lib/google-cloud-sdk' \
+    '/usr/lib/llvm-'* \
+    '/usr/lib/dotnet' \
+    '/usr/lib/firefox' \
+    "$HOME/.rustup" \
+    "$HOME/.cargo" \
+    "$HOME/.dotnet"
 
-if [ "$ACTION_DEBUG_OUTPUT" = 1 ]
-    set -f argument "--verbose"
-end
+set -g rmz_path ( command --search rmz )
 
 for path in $BloatedPaths
-    sudo rm -fr $argument "$path" &
+    sudo "$rmz_path" -f "$path" &
 end
 
 wait
