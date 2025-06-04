@@ -18,6 +18,6 @@ function __moonstep_prompt
 
     __moonstep_printf \
         "$color%s$__color_reset" \
-        "$text$error_text$__prompt_input_text"
+        "$error_text$text$__prompt_input_text"
 
 end
