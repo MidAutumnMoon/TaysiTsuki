@@ -47,8 +47,8 @@ function __moonstep_git --no-scope-shadowing
     command git rev-parse --absolute-git-dir 2>/dev/null \
         | read -f git_dir
 
-    # colored "["
-    printf "$__vcs_git_color""[""$__color_reset"
+    # # colored "["
+    # printf "$__vcs_git_color""[""$__color_reset"
 
     # branch
     begin
@@ -62,8 +62,8 @@ function __moonstep_git --no-scope-shadowing
         and printf " $status_output" # add a spacer
     end
 
-    # closing "]"
-    printf "$__vcs_git_color""]""$__color_reset"
+    # # closing "]"
+    # printf "$__vcs_git_color""]""$__color_reset"
 
 end
 
