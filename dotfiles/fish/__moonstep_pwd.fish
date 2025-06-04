@@ -1,7 +1,8 @@
 # Replace $HOME in path with custom texts
 # /home/asomeone/p -> ~/p
 set -g __pwd_replace_home true
-set -g __pwd_replace_home_text "~"
+
+set -g __pwd_replace_home_text '~'
 
 # /home/abc/def
 #   ^segment
@@ -26,27 +27,42 @@ function __moonstep_pwd
     and set -f is_under_home true
 
     if [ "$__pwd_replace_home" = true ]
-        string replace --regex \
-            "^$HOME" "$__pwd_replace_home_text" "$pwd" \
+        string replace \
+            --regex "^$HOME" \
+            ( string escape --style regex $__pwd_replace_home_text ) \
+            "$pwd" \
             | read --null pwd
     end
 
+    set -f segments \
+        ( string split --no-empty "/" -- "$pwd" )
     set -f colored_segments
 
-    set -f segments ( string split "/" "$pwd" )
+    set -f separator \
+        {$__pwd_separator_color}"/"{$__color_reset}
 
-    for seg in $segments[1..-2]
-        test -z "$seg" && continue
+    set -f head_segs $segments[1..-2]
+    set -f last_seg $segments[-1]
+
+    test ( count $head_segs ) -ne 0
+    and for seg in $head_segs
         set --append colored_segments \
-            "$__pwd_segment_color$seg$(set_color reset)"
+            {$__pwd_segment_color}{$seg}{$__color_reset}
     end
 
-    set --append colored_segments \
-        "$__pwd_last_segment_color$segments[-1]$( set_color reset )"
+    not test -z "$last_seg"
+    and begin
+        set --append colored_segments \
+            {$__pwd_last_segment_color}{$last_seg}{$__color_reset}
+    end
 
-    set -f separator \
-        "$__pwd_separator_color/$(set_color reset)"
+    set -f colored_pwd \
+        ( string join $separator $colored_segments )
 
-    __moonstep_printf ( string join $separator $colored_segments )
+    if [ "$is_under_home" != true ]
+        set colored_pwd "$separator$colored_pwd"
+    end
+
+    __moonstep_printf $colored_pwd
 
 end
