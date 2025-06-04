@@ -59,6 +59,10 @@
         openssh.authorizedKeys.keys = [ config.lore.pubkeys.teapot ];
     };
 
+    nix.settings.trusted-users = [
+        config.users.users."teapot".name
+    ];
+
     home-manager.users."teapot" = import ./home.nix;
 
     security.sudo.wheelNeedsPassword = false;
