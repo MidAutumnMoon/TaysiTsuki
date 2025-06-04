@@ -9,6 +9,14 @@ runs:
 
     steps:
 
+    -   name: Move TMPDIR
+        shell: bash
+        run: |
+            builddir="$(sudo mktemp --directory --tmpdir=/mnt)"
+            sudo chmod 1777 "${builddir}"
+            echo "TMPDIR=${builddir}" >> $GITHUB_ENV
+            echo "TMPDIR set to ${builddir}"
+
     -   name: Setup nix
         uses: MidAutumnMoon/spheti-action/nix@master
         with:

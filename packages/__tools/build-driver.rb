@@ -80,14 +80,6 @@ COMMON_NIX_CLI_OPTS = [
     "--option max-jobs 4",
 ].join( " " )
 
-def move_builddir_on_disk
-    nixdir = Pathname.new "/nix"
-    builddir = nixdir.join "nixbuild"
-    builddir.mkdir
-        .then { abort "Failed to mkdir" if it != 0 }
-    ENV["TMPDIR"] = builddir.to_s
-end
-
 case SUBCOMMAND
 
 in "subjects"
@@ -109,8 +101,6 @@ in "build"
     nix_option = manifest.get( subject )
         .map { ".##{it}" }
         .join " "
-
-    move_builddir_on_disk
 
     system <<~SH or abort "Failed to build"
         nix build #{nix_option} #{COMMON_NIX_CLI_OPTS}
@@ -137,8 +127,6 @@ in "nixos"
         .then { JSON.parse it }
         .map { ".#nixosConfigurations.#{it}.config.system.build.toplevel" }
         .join( " " )
-
-    move_builddir_on_disk
 
     system <<~SH or abort "Failed to build"
         nix build #{build_opts} \
