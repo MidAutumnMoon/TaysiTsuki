@@ -47,6 +47,6 @@ function __moonstep_pwd
     set -f separator \
         "$__pwd_separator_color/$(set_color reset)"
 
-    __moonstep_print ( string join $separator $colored_segments )
+    __moonstep_printf ( string join $separator $colored_segments )
 
 end
