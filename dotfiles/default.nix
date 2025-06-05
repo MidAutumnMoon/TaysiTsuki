@@ -20,6 +20,12 @@ in {
         jq
         fish
         tsuki.neovim
+
+        ghostty
+
+        ( tsuki.kde.drop-down-alike {
+            resource_class = "com.mitchellh.ghostty";
+        } )
     ];
 
     xdg.configFile = {
@@ -47,6 +53,9 @@ in {
 
         "atuin/config.toml".source =
             mkOutOfStoreSymlink "${dotfiles}/atuin/config.toml";
+
+        "ghostty/config".source =
+            mkOutOfStoreSymlink "${dotfiles}/ghostty/config";
 
     };
 
