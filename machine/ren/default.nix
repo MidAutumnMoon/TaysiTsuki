@@ -20,7 +20,6 @@
         # sort out mpv later
         strawberry
         wl-clipboard
-        kdePackages.yakuake
     ];
 
     networking = {
