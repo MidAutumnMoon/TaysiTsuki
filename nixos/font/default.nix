@@ -19,16 +19,22 @@ lib.mkIf config.fonts.fontconfig.enable {
 
     fonts.fontconfig = {
         defaultFonts = {
+            serif = [
+                "Noto Serif"
+                "Noto Color Emoji"
+            ];
             sansSerif = [
                 "Noto Sans"
-                "emoji"
+                "Noto Color Emoji"
             ];
             monospace = [
                 "Iosevka Nerd Font"
                 "Iosevka"
+                "Noto Color Emoji"
             ];
         };
         localConf = builtins.readFile ./local.xml;
+        useEmbeddedBitmaps = true;
     };
 
     systemd.user.tmpfiles.rules = [
