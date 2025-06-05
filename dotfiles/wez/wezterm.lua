@@ -40,7 +40,7 @@ C.font = wez.font_with_fallback {
 C.font_size = 13.5
 -- C.line_height = 1.12
 --
-C.color_scheme = "GitHub Dark"
+C.color_scheme = "Catppuccin Macchiato"
 
 -- C.hide_tab_bar_if_only_one_tab = true
 
