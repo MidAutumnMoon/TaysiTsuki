@@ -21,10 +21,10 @@ in {
         fish
         tsuki.neovim
 
-        ghostty
+        wezterm
 
         ( tsuki.kde.drop-down-alike {
-            resource_class = "com.mitchellh.ghostty";
+            resource_class = "org.wezfurlong.wezterm";
         } )
     ];
 
@@ -54,8 +54,8 @@ in {
         "atuin/config.toml".source =
             mkOutOfStoreSymlink "${dotfiles}/atuin/config.toml";
 
-        "ghostty/config".source =
-            mkOutOfStoreSymlink "${dotfiles}/ghostty/config";
+        "wezterm/wezterm.lua".source =
+            mkOutOfStoreSymlink "${dotfiles}/wez/wezterm.lua";
 
     };
 
