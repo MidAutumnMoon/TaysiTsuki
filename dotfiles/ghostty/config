@@ -16,9 +16,20 @@
 # on Ghostty's website, at https://ghostty.org/docs/config.
 
 font-family = Monaspace Argon
-
 font-size = 13.5
 
+background-opacity = 0.9
+background-blur = true
+
+maximize = true
+
+window-inherit-working-directory = true
 window-decoration = client
+window-theme = ghostty
+
+gtk-adwaita = true
+gtk-wide-tabs = false
+
+auto-update = off
 
 # vim: ft=dosini:
