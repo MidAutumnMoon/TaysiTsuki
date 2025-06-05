@@ -20,6 +20,7 @@
         # sort out mpv later
         strawberry
         wl-clipboard
+        telegram-desktop
     ];
 
     networking = {
