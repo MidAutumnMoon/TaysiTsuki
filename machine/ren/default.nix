@@ -21,6 +21,8 @@
         strawberry
         wl-clipboard
         telegram-desktop
+        mpv
+        obsidian
     ];
 
     networking = {
@@ -80,6 +82,8 @@
     };
 
     services.desktopManager.plasma6.enable = true;
+
+    programs.kde-pim.enable = false;
 
     i18n.inputMethod = {
         enable = true;
@@ -144,6 +148,11 @@
             device = "none";
             fsType = "tmpfs";
             options = [ "defaults,mode=755,nosuid,nodev,size=4G" ];
+        };
+        "/mnt/z" = {
+            device = "none";
+            fsType = "tmpfs";
+            options = [ "defaults,mode=777,size=100%" ];
         };
         "/boot" = {
             device = "/dev/disk/by-uuid/B6AC-C76F";
