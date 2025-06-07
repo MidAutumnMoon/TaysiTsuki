@@ -13,16 +13,16 @@
 tsuki.rust.buildRustPackage {
 
     pname = "inori";
-    version = "0-unstable-2025-06-02";
+    version = "0-unstable-2025-06-07";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "InOri";
-        rev = "601ec11f3a77bafd9c3d9f2c21f65828c42b89e9";
-        hash = "sha256-z272SQc/YKnJ9E6KZ3sSwFlixUUFHNds218OiV7yS/M=";
+        rev = "79f28f2fb1540cf3c8932d793dd403070a53fda0";
+        hash = "sha256-0MCHlMfKr5I3CmKaccwF8tVfHolAT75gWH3VAgrPwf4=";
     };
 
-    cargoHash = "sha256-9/6lIy5ohGFZQwiAgkFj79D/dUuMGA+//VlKG40cIek=";
+    cargoHash = "sha256-WFaG6ThAat1h6R8lsXXQZQFuaxGueFgN0guc9lMJEAA=";
     useFetchCargoVendor = true;
 
     env.CFG_CJXL_PATH = lib.getExe' libjxl "cjxl";
