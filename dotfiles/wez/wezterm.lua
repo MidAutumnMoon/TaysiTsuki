@@ -66,6 +66,7 @@ C.window_frame = {
     font_size = C.font_size - 2,
 }
 
+-- Give tab a padding around its titles
 wez.on( "format-tab-title", function( tab, tabs, _, _, _, max_width )
     local title = ""
 
@@ -123,6 +124,24 @@ C.mouse_bindings = {
         event = { Down = { streak = 1, button = { WheelDown = 1 } } },
         action = wez.action.ScrollByLine( 8 ),
     },
+}
+
+C.keys = {
+    -- open new tab after current one
+    {
+        key = "t",
+        mods = "CTRL|SHIFT",
+        action = wez.action_callback( function( win, pane )
+            local mux_win = win:mux_window()
+            for _, item in ipairs( mux_win:tabs_with_info() ) do
+                if item.is_active then
+                    mux_win:spawn_tab {}
+                    win:perform_action( wez.action.MoveTab( item.index + 1 ), pane )
+                    return
+                end
+            end
+        end )
+    }
 }
 
 return C
