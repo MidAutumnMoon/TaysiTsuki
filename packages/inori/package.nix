@@ -33,8 +33,23 @@ tsuki.rust.buildRustPackage {
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
     ;
 
-    postInstall = ''
+    postFixup = ''
         ln -sv "$out/bin/coruma-reverse" "$out/bin/,?"
+
+        declare LIBEXEC_DIR="$out/libexec/inori"
+        declare DBULUNR="$LIBEXEC_DIR/dbulunr"
+
+        mkdir -p "$LIBEXEC_DIR"
+        mv -v "$out/bin/dbulunr" "$DBULUNR"
+
+        declare -r DBUS_DIR="$out/share/dbus-1/services"
+        mkdir -pv "$DBUS_DIR"
+
+        cat <<-DOSINI > "$DBUS_DIR/im._418.dbulunr.service"
+        [D-BUS Service]
+        Name = im._418.Dbulunr
+        Exec = $DBULUNR
+        DOSINI
     '';
 
     meta = {
