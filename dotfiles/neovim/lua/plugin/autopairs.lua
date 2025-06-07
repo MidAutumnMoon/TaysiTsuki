@@ -81,4 +81,12 @@ autopairs.add_rule(
         :with_move(function(o) return o.char == ">" end )
 )
 
+-- Disable single quote autopair in Rust altogether
+vim.iter( autopairs.get_rules "'" )
+    :each( function( it )
+        it.not_filetypes =
+            vim.list_extend( it.not_filetypes or {}, { "rust" } )
+        -- print( vim.inspect( it ) )
+    end )
+
 -- vim: nowrap:
