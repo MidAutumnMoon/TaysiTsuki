@@ -48,6 +48,17 @@
         "99-ethernet-default-dhcp".networkConfig.MulticastDNS = true;
     };
 
+    #
+    # Programs
+    #
+
+    programs.direnv = {
+        enable = true;
+        settings = {
+            global.warn_timeout = "10s";
+            global.strict_env = true;
+        };
+    };
 
     #
     # Users
