@@ -60,6 +60,7 @@
  * @property {string} resource_class - Capture window with this class
  * @property {string} shortcut - Shortcut to bind on
  * @property {string} command - The command to launch when no window matches
+ * @property {string[]} command_args - Arguments to the command
  */
 
 /**
@@ -77,6 +78,12 @@
 const CONFIG = `@config@` ;
 
 const NAME = "Drop Down Alike";
+
+// Fuck dbus
+const SERVICE = "im._418.Dbulunr";
+const OBJECT_PATH = "/Dbulunr";
+const INTERFACE = "im._418.dbulunr";
+const METHOD = "ExecArgs"
 
 // Prefix program name to log message
 function loggy( msg ) {
@@ -199,9 +206,16 @@ const winops = {
             NAME, `[${NAME}] Toggle`, cfg.shortcut,
             () => {
                 if ( !captured_win ) {
-                    loggy( "No currently captured window" )
-                    // launch terminal here...
-                    // the newly launched window will be captured
+                    loggy( "No currently captured window" );
+                    loggy( "Launching using dbus" );
+                    callDBus(
+                        SERVICE, OBJECT_PATH, INTERFACE, METHOD,
+                        cfg.command, cfg.command_args,
+                        ( resp_data ) => {
+                            const resp = JSON.parese( resp_data );
+                            assertion.cond( resp.ok, resp.err_msg );
+                        }
+                    )
                 } else {
                     if ( captured_win.minimized ) {
                         loggy_win( "Show window", captured_win );

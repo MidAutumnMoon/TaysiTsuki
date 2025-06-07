@@ -7,9 +7,12 @@
 
     resource_class,
     shortcut ? "Meta+`",
+    command,
+    command_args ? [],
 
     __config ? {
         inherit resource_class shortcut;
+        inherit command command_args;
     },
 
     __metadata ? {
@@ -43,6 +46,7 @@ runCommand "drop-down-alike" { } ''
     printf '%s' '${builtins.toJSON __metadata}' > "$metadataDst"
 
     # Appearently kwin script engine doesn't have atob/btoa
+    # Be careful with escaping
     printf '%s' \
         '${builtins.toJSON __config |> lib.escape ["\"" "`"]}' \
         > "$configJson"

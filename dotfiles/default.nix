@@ -25,6 +25,8 @@ in {
 
         ( tsuki.kde.drop-down-alike {
             resource_class = "org.wezfurlong.wezterm";
+            command = lib.getExe pkgs.wezterm;
+            command_args = [ "start" "--cwd" "." "--always-new-process" ];
         } )
     ];
 
