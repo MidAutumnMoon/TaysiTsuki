@@ -40,8 +40,9 @@
             # if git is invoked with no arguments,
             # jump to the repo's root dir
             if test ( count $argv ) -eq 0
-                cd -- "$( command git rev-parse --show-toplevel )"
-                return $status
+                set -f top ( command git rev-parse --show-toplevel 2> /dev/null )
+                test $status = 0
+                and cd -- "$top"
             end
             command git $argv
         '';
@@ -49,8 +50,6 @@
         "ip".body = /*fish*/ "command ip --color=auto $argv";
 
         "nix".body = /*fish*/ ''
-            set -f toplevel "$( command git rev-parse --show-toplevel )"
-
             # Check whether the repo has flake.
             if command nix flake metadata &> /dev/null
                 # if the workspace has flake and git status is dirty
@@ -58,7 +57,6 @@
                     command git add --all --intent-to-add
                 end
             end
-
             command nix $argv
         '';
 
