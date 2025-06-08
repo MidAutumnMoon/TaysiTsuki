@@ -59,6 +59,9 @@ in {
         "wezterm/wezterm.lua".source =
             mkOutOfStoreSymlink "${dotfiles}/wez/wezterm.lua";
 
+        "mpv/mpv.conf".source =
+            mkOutOfStoreSymlink "${dotfiles}/mpv/mpv.conf";
+
     };
 
     home.file = {
