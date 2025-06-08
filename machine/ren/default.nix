@@ -23,6 +23,7 @@
         telegram-desktop
         mpv
         obsidian
+        unrar
     ];
 
     networking = {
