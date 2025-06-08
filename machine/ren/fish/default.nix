@@ -43,6 +43,7 @@
                 set -f top ( command git rev-parse --show-toplevel 2> /dev/null )
                 test $status = 0
                 and cd -- "$top"
+                and return
             end
             command git $argv
         '';
