@@ -44,7 +44,6 @@ rec {
 
     inherit ( tsuki.module )
         isModule
-        flatMod condMod
         listAllModules
         rejectUnset
     ;
