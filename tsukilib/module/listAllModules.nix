@@ -4,17 +4,17 @@ lib:
 let
 
     inherit ( builtins )
+        baseNameOf
         filter
     ;
 
-    inherit ( lib.tsuki.path )
-        isDir
-        listAllDirs
+    inherit ( lib.filesystem )
+        pathIsDirectory
+        listFilesRecursive
     ;
 
-    inherit ( lib.tsuki.module )
-        isModule
-    ;
+    _isModule = path:
+        baseNameOf path == "module.nix";
 
 in
 
@@ -26,7 +26,7 @@ in
     # Alllll the modules.
     #
     listAllModules = entry:
-      assert isDir entry;
-      filter isModule ( listAllDirs entry );
+      assert pathIsDirectory entry;
+      filter _isModule ( listFilesRecursive entry );
 
 }

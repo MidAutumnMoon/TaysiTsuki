@@ -1,6 +1,0 @@
-[
-
-  ./condition.nix
-  ./recursive.nix
-
-]

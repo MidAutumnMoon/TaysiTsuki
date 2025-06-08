@@ -30,17 +30,11 @@ in
 rec {
 
     tsuki = {
-        path    = activate ./path;
         module  = activate ./module;
         trivial = activate ./trivial;
         nixpkgs = activate ./nixpkgs;
         list    = activate ./list;
     };
-
-    inherit ( tsuki.path )
-        isDir
-        listAllFiles listAllDirs
-    ;
 
     inherit ( tsuki.module )
         isModule

@@ -99,7 +99,7 @@
                     sops-nix.nixosModules.default
                     preservation.nixosModules.default
                     home-manager.nixosModules.home-manager
-                    ./lore
+                    ./lore/module.nix
                 ]
                 ++ ( lib.listAllModules ./nixos );
             nixos = lib.brewNixOS {
