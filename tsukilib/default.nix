@@ -40,7 +40,6 @@ rec {
     inherit ( tsuki.path )
         isDir
         listAllFiles listAllDirs
-        hasExtension
     ;
 
     inherit ( tsuki.module )
