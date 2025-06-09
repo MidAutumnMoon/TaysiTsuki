@@ -10,10 +10,10 @@ provider "registry.opentofu.org/carlpett/sops" {
 }
 
 provider "registry.opentofu.org/cloudflare/cloudflare" {
-  version     = "5.4.0"
+  version     = "5.5.0"
   constraints = "~> 5.4"
   hashes = [
-    "h1:sMu5G2AgadNRjoJqb3bv3iop7kREwWlmPQ9tVJSjdFI=",
+    "h1:rI8QNNVFlsSt2uMadd3kMAgcm95Du9IDeUd2h32/flQ=",
   ]
 }
 
