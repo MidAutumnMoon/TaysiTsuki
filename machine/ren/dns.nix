@@ -13,7 +13,7 @@ let
     # For security reasons, loopback addresses can't be used for dnat by default.
     # Ref: `net.ipv4.conf.interface.route_localnet`
     fakeAddr = "192.168.20.10";
-    fkaeAddrV6 = "fd7a:1ca5:11bf::1";
+    fakeAddrV6 = "fd7a:1ca5:11bf::1";
 
     inherit ( config )
         lore
@@ -66,7 +66,7 @@ in
 
         listen_addresses = [
             "${fakeAddr}:53"
-            "[${fkaeAddrV6}]:53"
+            "[${fakeAddrV6}]:53"
             "[::]:${toString ports.dns}"
         ];
 
@@ -128,7 +128,7 @@ in
                     iifname ${interfaces} meta l4proto { tcp, udp } th dport 53 \
                         dnat ip to ${fakeAddr}
                     iifname ${interfaces} meta l4proto { tcp, udp } th dport 53 \
-                        dnat ip6 to ${fkaeAddrV6}
+                        dnat ip6 to ${fakeAddrV6}
                 }
             '';
         };
@@ -138,7 +138,7 @@ in
             { address = fakeAddr; prefixLength = 32; }
         ];
         ipv6.addresses = [
-            { address = fkaeAddrV6; prefixLength = 128; }
+            { address = fakeAddrV6; prefixLength = 128; }
         ];
     };
 
