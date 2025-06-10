@@ -24,6 +24,11 @@ in
 
     lore.pubkeys = sharedInfra.pubkeys;
 
+    lore.machines = {
+        ren = {};
+        phia = {};
+    };
+
     lore.ports = {
         proxyPort = 7890;
         torrent = 9094;

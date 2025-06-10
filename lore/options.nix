@@ -41,6 +41,24 @@ in
             description = "Pool of pubkeys";
         };
 
+        machines = mkOption {
+            readOnly = true;
+            description = "Shared information of NixOS machines";
+            type = types.attrsOf <| types.submodule
+                ( { name, config, ... }: {
+                    options.hostname = mkOption {
+                        type = types.str;
+                        default = name;
+                        description = "Plain hostname";
+                    };
+                    options.mdns = mkOption {
+                        type = types.str;
+                        default = "${config.hostname}.local";
+                        description = "mDNS hostname";
+                    };
+                } );
+        };
+
         ports = mkOption {
             type = types.attrsOf types.port;
             readOnly = true;
