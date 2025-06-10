@@ -24,6 +24,9 @@ buildGoModule rec {
         "man"
     ];
 
+    env.GOAMD64 = "v3";
+    env.CGO_ENABLED = 0;
+
     nativeBuildInputs = [ installShellFiles ];
 
     preBuild = ''
