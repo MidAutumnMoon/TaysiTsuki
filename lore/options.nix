@@ -7,29 +7,6 @@ let
         types
     ;
 
-    appSubmod = types.submodule {
-        options.fqdn = mkOption {
-            type = types.str;
-            readOnly = true;
-            description = "The domain the service is hosted on";
-        };
-        options.cname_target = mkOption {
-            type = with types; nullOr str;
-            default = null;
-            description = "The `fqdn` is CNAME, and this is its target";
-        };
-        # options.ipv4 = ...
-    };
-
-    domainDeclSubmod = types.submodule {
-        freeformType = with types; attrsOf str;
-        options.name = mkOption {
-            type = types.str;
-            readOnly = true;
-            description = "The base domain name";
-        };
-    };
-
 in
 
 {
@@ -58,9 +35,11 @@ in
                     };
                     options.static_ip = mkOption {
                         type = with types; str;
+                        readOnly = true;
                     };
                     options.static_ip6 = mkOption {
                         type = with types; str;
+                        readOnly = true;
                     };
                 } );
         };
@@ -71,15 +50,38 @@ in
             description = "Pre-allocated ports";
         };
 
-        domains = mkOption {
-            type = with types; attrsOf domainDeclSubmod;
-            readOnly = true;
-        };
-
         apps = mkOption {
             readOnly = true;
-            description = "Namespaces of services";
-            type = with types; attrsOf ( attrsOf appSubmod );
+            description = "Services (namespaced)";
+            type = types.attrsOf <| types.attrsOf <| types.submodule
+                ( { config, name, ... }: {
+                    options.name = mkOption {
+                        type = types.str;
+                        default = name;
+                    };
+                    options.fqdn = mkOption {
+                        type = types.str;
+                        readOnly = true;
+                        description = "FQDN of the service";
+                    };
+                    options.port = mkOption {
+                        type = types.port;
+                        readOnly = true;
+                    };
+                    options.fqdn_port = mkOption {
+                        type = types.str;
+                        readOnly = true;
+                        default = "${config.fqdn}:${config.port}";
+                    };
+                    options.cname = mkOption {
+                        type = types.str;
+                        readOnly = true;
+                    };
+                    options.ip = mkOption {
+                        type = types.str;
+                        readOnly = true;
+                    };
+                } );
         };
 
         tsukiObservatory = mkOption {

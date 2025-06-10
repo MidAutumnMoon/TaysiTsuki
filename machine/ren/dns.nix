@@ -1,4 +1,11 @@
-{ lib, config, pkgs, ... }:
+# DNS Architecture
+#
+# coredns -> dnscrypt-proxy
+#
+# coredns is the entry point of all dns request
+# dnscrypt-proxy do the adblocking and general dns resolution
+
+{ lib, config, pkgs, flakes, ... }:
 
 let
 

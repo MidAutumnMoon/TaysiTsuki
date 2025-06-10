@@ -12,13 +12,6 @@ in
         ./options.nix
     ];
 
-    assertions = [
-        {
-            assertion = flakes.self.nixosConfigurations ? "ren";
-            message = "`ren` is not here?";
-        }
-    ];
-
     lore.tsukiObservatory =
         "${config.users.users.teapot.home}/TaysiTsuki";
 
@@ -44,41 +37,31 @@ in
         dns = sharedInfra.ports.dns;
     };
 
-    lore.domains = {
-        inherit ( sharedInfra.domains )
-            im_418
-        ;
-    };
-
-    lore.apps = {
-
-        # Internal services that only make sense when inside
-        # the home network.
-        homelab = let
-            inherit ( config.lore.domains ) im_418;
-            internalCname = from: to: {
-                fqdn = "${from}.${im_418.name}";
-                cname_target = "${to}.${im_418.internal_zone}.${im_418.name}";
-            };
-            onRen = name: internalCname name "ren";
-            onPhia = name: internalCname name "phia";
-        in {
-            # others
-            router = internalCname "router" "router";
-
-            # ren services
-            proxy = onRen "proxy";
-            clash_dashboard = onRen "clash";
-            dns_dashboard = onRen "dnscrypt";
-            wpad = onRen "wpad";
-
-            # phia services
-            torrent_dashboard = onPhia "qbit";
+    # Internal services that only make sense when inside
+    # the home network.
+    lore.apps."homelab" = let
+        inherit ( sharedInfra.domains ) im_418;
+        inherit ( config.lore ) machines;
+        cname = target: from: {
+            fqdn = "${from}.${im_418.name}";
+            cname = target;
+        };
+        onRen = cname machines.ren.mdns;
+        onPhia = cname machines.phia.mdns;
+    in {
+        router = {
+            fqdn = "router.${im_418.name}";
+            ip = machines.router.static_ip;
         };
 
-        # Services that exposed on the tailnet
-        # tailscale = ...
+        # ren services
+        proxy = onRen "proxy";
+        clash_dashboard = onRen "clash";
+        dns_dashboard = onRen "dnscrypt";
+        wpad = onRen "wpad";
 
+        # phia services
+        torrent_dashboard = onPhia "qbit";
     };
 
 }
