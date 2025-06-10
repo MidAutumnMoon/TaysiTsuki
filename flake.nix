@@ -102,16 +102,11 @@
                     ./lore/module.nix
                 ]
                 ++ ( lib.listAllModules ./nixos );
-            nixos = lib.brewNixOS {
+            nixos = lib.brewOS {
                 inherit pkgsBrew modules;
                 arguments = { inherit flakes; };
             };
         in {
-            loonie = nixos "x86_64-linux" [
-                ./machine/loonie
-                flakes.nixos-wsl.nixosModules.default
-            ];
-
             ren = nixos "x86_64-linux" [ ./machine/ren ];
             phia = nixos "x86_64-linux" [ ./machine/phia ];
         };

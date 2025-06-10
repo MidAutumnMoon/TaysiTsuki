@@ -1,11 +1,11 @@
 [
 
-  ./onceride.nix
+    ./onceride.nix
 
-  ./brewNixpkgs.nix
-  ./brewShells.nix
-  ./brewNixOS.nix
+    ./brewNixpkgs.nix
+    ./brewShells.nix
+    ./brewOS.nix
 
-  ./libsToCompilerEnvvars.nix
+    ./libsToCompilerEnvvars.nix
 
 ]

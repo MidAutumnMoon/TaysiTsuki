@@ -52,7 +52,7 @@ rec {
         onceride oncerideDrv
         brewNixpkgs
         brewShells
-        brewNixOS
+        brewOS
         libsToCompilerEnvvars
     ;
 
