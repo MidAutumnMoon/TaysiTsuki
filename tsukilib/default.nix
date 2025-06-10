@@ -50,7 +50,6 @@ rec {
 
     inherit ( tsuki.nixpkgs )
         onceride oncerideDrv
-        makeApp
         brewNixpkgs
         brewShells
         brewNixOS
