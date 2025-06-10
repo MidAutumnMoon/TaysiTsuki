@@ -37,9 +37,21 @@ in
     networking = {
         hostName = lore.machines.ren.hostname;
         proxy.default = "http://localhost:${toString lore.ports.proxyPort}";
-        useDHCP = true;
         tempAddresses = "disabled";
+        useDHCP = false;
     };
+
+    systemd.network.networks = {
+        "10-enp3s0" = {
+            name = "enp3s0";
+            DHCP = "yes";
+            networkConfig.MulticastDNS = "yes";
+        };
+    };
+
+    services.resolved.extraConfig = ''
+        Cache = no
+    '';
 
     #
     # Services
@@ -51,10 +63,6 @@ in
     };
 
     services.caddy.enable = true;
-
-    systemd.network.networks = {
-        "99-ethernet-default-dhcp".networkConfig.MulticastDNS = true;
-    };
 
     #
     # Programs

@@ -1,19 +1,7 @@
-# DNS Architecture
-#
-# coredns -> dnscrypt-proxy
-#
-# coredns is the entry point of all dns request
-# dnscrypt-proxy do the adblocking and general dns resolution
-
 { lib, config, pkgs, flakes, ... }:
 
 let
 
-    # Listening "[::]:53" will cause port conflictions, and the server
-    # doesn't support bind to interface out of the box, plus personal
-    # preference which IP addresses shouldn't be hardcoded.
-    # To solve it with all these constrains, this wicked workaround was born.
-    #
     # N.B.
     # For security reasons, loopback addresses can't be used for dnat by default.
     # Ref: `net.ipv4.conf.interface.route_localnet`
@@ -26,27 +14,10 @@ let
 
     inherit ( lore )
         ports
-        domains
         apps
     ;
 
     tailscaleCfg = config.services.tailscale;
-
-    forwardingRule =
-        with domains;
-        pkgs.writeText "dnsfwdrule" ''
-            ${im_418.internal_zone}.${im_418.name} 10.0.1.1
-            ip6.arpa 10.0.1.1
-            in-addr.arpa 10.0.1.1
-        '';
-
-    # cloak is cname under the hood, plus free cname flattening
-    cloakingRule = pkgs.writeText "dnscnamerule" (
-        apps.homelab
-        |> lib.attrValues
-        |> map ( it: "${it.fqdn} ${it.cname_target}" )
-        |> lib.concatStringsSep "\n"
-    );
 
 in
 
@@ -58,65 +29,65 @@ in
         trustedInterfaces = [ tailscaleCfg.interfaceName ];
     };
 
+    # coredns provides homelab domain resolution
+    services.coredns = {
+        enable = true;
+        package = pkgs.tsuki.coredns;
+        config = ''
+            .:53 {
+                bind ${fakeAddr} ${fakeAddrV6}
+                log
+                file ${
+                    with lore; utils.appToDnsRecords apps.homelab
+                        |> flakes.dns.util.${pkgs.system}.writeZone "418.im"
+                } {
+                    # at least v1.12.2
+                    fallthrough
+                }
+                forward local /etc/resolv.conf
+                forward arpa /etc/resolv.conf
+                forward . [::1]:${toString ports.dnscryptLocal}
+                cache 60 {
+                    disable success local
+                    disable denial local
+                }
+            }
+        '';
+    };
+
+    # dnscrypt-proxy resolves internet names
     services.dnscrypt-proxy2 = {
         enable = true;
         upstreamDefaults = false;
-    };
-
-    services.dnscrypt-proxy2.settings = let
-        stdout = "/dev/stdout";
-    in rec {
-        # Global Options
-        server_names = lib.attrNames static;
-
-        listen_addresses = [
-            "${fakeAddr}:53"
-            "[${fakeAddrV6}]:53"
-            "[::]:${toString ports.dns}"
-        ];
-
-        bootstrap_resolvers = [
-            "223.5.5.5:53"
-            "119.29.29.29:53"
-            "[2402:4e00::]:53"
-        ];
-
-        netprobe_address = "8.8.8.8:53";
-
-        cache = true;
-        block_undelegated = true;
-        block_unqualified = true;
-        block_ipv6 = false;
-        lb_estimator = true;
-        use_syslog = true;
-        ignore_system_dns = true;
-
-        forwarding_rules = forwardingRule;
-        cloaking_rules = cloakingRule;
-
-        # Static Servers
-        static."doh-pub".stamp = "sdns://AgcAAAAAAAAAAAAHZG9oLnB1YgovZG5zLXF1ZXJ5";
-        static."alidns".stamp = "sdns://AgcAAAAAAAAAAAAOZG5zLmFsaWRucy5jb20KL2Rucy1xdWVyeQ";
-
-        # Blocklist
-        blocked_names = {
-            blocked_names_file = pkgs.tsuki.adblocklist;
-            log_file = stdout;
-        };
-
-        # Logging
-
-        query_log.file = stdout;
-        nx_log.file = stdout;
-
-        # Monitoring UI
-        monitoring_ui = {
-            enabled = true;
-            listen_address = "127.0.0.1:${toString ports.dnscryptWebui}";
-            username = "";
-            password = "";
-            enable_query_log = true;
-            privacy_level = 0;
+        settings = rec {
+            # Global Options
+            server_names = lib.attrNames static;
+            listen_addresses = [ "[::]:${toString ports.dnscryptLocal}" ];
+            bootstrap_resolvers = [ "223.5.5.5:53" ];
+            netprobe_address = "8.8.8.8:53";
+            # cache handled by coredns
+            cache = false;
+            ignore_system_dns = true;
+            # Static Servers
+            static."doh-pub".stamp = "sdns://AgcAAAAAAAAAAAAHZG9oLnB1YgovZG5zLXF1ZXJ5";
+            static."alidns".stamp = "sdns://AgcAAAAAAAAAAAAOZG5zLmFsaWRucy5jb20KL2Rucy1xdWVyeQ";
+            # Blocklist
+            blocked_names = {
+                blocked_names_file = pkgs.tsuki.adblocklist;
+                log_file = "/dev/stdout";
+            };
+            # Logging
+            query_log.file = "/dev/stdout";
+            nx_log.file = "/dev/stdout";
+            # Monitoring UI
+            monitoring_ui = {
+                enabled = true;
+                listen_address = "127.0.0.1:${toString ports.dnscryptWebui}";
+                username = "";
+                password = "";
+                enable_query_log = true;
+                privacy_level = 0;
+            };
         };
     };
 
@@ -138,18 +109,17 @@ in
             '';
         };
 
-    networking.interfaces."lo" = {
-        ipv4.addresses = [
-            { address = fakeAddr; prefixLength = 32; }
-        ];
-        ipv6.addresses = [
-            { address = fakeAddrV6; prefixLength = 128; }
-        ];
+    networking = {
+        interfaces."lo" = {
+            ipv4.addresses = [
+                { address = fakeAddr; prefixLength = 32; }
+            ];
+            ipv6.addresses = [
+                { address = fakeAddrV6; prefixLength = 128; }
+            ];
+        };
+        nameservers = [ fakeAddr fakeAddrV6 ];
     };
-
-    networking.nameservers = [
-        "127.0.0.1:${toString ports.dns}"
-    ];
 
     #
     # caddy config

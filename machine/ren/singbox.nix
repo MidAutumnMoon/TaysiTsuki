@@ -42,7 +42,7 @@ in
                 homelab
                 |> lib.attrValues
                 |> map ( it: it.fqdn )
-                |> lib.appendElem "${im_418.internal_zone}.${im_418.name}"
+                |> lib.appendElem "local"
                 |> lib.appendElem "${im_418.tailscale_zone}.${im_418.name}"
                 |> lib.concatMapStringsSep ", " quote;
         in

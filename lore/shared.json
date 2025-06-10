@@ -7,8 +7,7 @@
     "domains": {
         "im_418": {
             "name": "418.im",
-            "tailscale_zone": "tailscale",
-            "internal_zone": "in"
+            "tailscale_zone": "tailscale"
         }
     },
 
