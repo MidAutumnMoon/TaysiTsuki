@@ -45,7 +45,7 @@ in
         "10-enp3s0" = {
             name = "enp3s0";
             DHCP = "yes";
-            networkConfig.MulticastDNS = "yes";
+            networkConfig.MulticastDNS = "resolve";
         };
     };
 
@@ -63,6 +63,16 @@ in
     };
 
     services.caddy.enable = true;
+
+    services.avahi = {
+        enable = true;
+        openFirewall = true;
+        nssmdns4 = true;
+        nssmdns6 = true;
+        publish.enable = true;
+        publish.addresses = true;
+        publish.domain = true;
+    };
 
     #
     # Programs
