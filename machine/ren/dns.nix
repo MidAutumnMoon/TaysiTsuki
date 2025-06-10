@@ -1,5 +1,3 @@
-# NOTE: Use a proper DNS server in the future?
-
 { lib, config, pkgs, ... }:
 
 let
