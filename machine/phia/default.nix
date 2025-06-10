@@ -18,7 +18,7 @@ in
     ];
 
     networking = {
-        hostName = "phia";
+        hostName = lore.machines.phia.hostname;
         hostId = "0a3e0a19";
         proxy.default =
             "http://${lore.apps.homelab.proxy.fqdn}:${toString lore.ports.proxyPort}";

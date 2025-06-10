@@ -56,6 +56,12 @@ in
                         default = "${config.hostname}.local";
                         description = "mDNS hostname";
                     };
+                    options.static_ip = mkOption {
+                        type = with types; str;
+                    };
+                    options.static_ip6 = mkOption {
+                        type = with types; str;
+                    };
                 } );
         };
 
@@ -71,15 +77,9 @@ in
         };
 
         apps = mkOption {
-            type = with types; attrsOf ( attrsOf appSubmod );
             readOnly = true;
             description = "Namespaces of services";
-            example = ''
-                apps.homelab = {
-                    moonbase = { ... };
-                    techbar = { ... };
-                };
-            '';
+            type = with types; attrsOf ( attrsOf appSubmod );
         };
 
         tsukiObservatory = mkOption {

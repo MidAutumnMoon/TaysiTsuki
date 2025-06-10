@@ -1,5 +1,13 @@
 { lib, config, pkgs, ... }:
 
+let
+
+    inherit ( config )
+        lore
+    ;
+
+in
+
 {
 
     imports = [
@@ -27,9 +35,8 @@
     ];
 
     networking = {
-        hostName = "ren";
-        proxy.default =
-            "http://localhost:${toString config.lore.ports.proxyPort}";
+        hostName = lore.machines.ren.hostname;
+        proxy.default = "http://localhost:${toString lore.ports.proxyPort}";
         useDHCP = true;
         tempAddresses = "disabled";
     };

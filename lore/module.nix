@@ -27,6 +27,12 @@ in
     lore.machines = {
         ren = {};
         phia = {};
+
+        # router is in fact openwrt
+        # put it here so that it can be referred elsewhere
+        router = {
+            static_ip = "10.0.1.1";
+        };
     };
 
     lore.ports = {
