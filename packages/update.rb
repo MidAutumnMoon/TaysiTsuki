@@ -18,6 +18,7 @@ packages.concat %w[
     dnscrypt
     adblocklist
     sing-box
+    coredns
 ].tsukify
 
 packages << {

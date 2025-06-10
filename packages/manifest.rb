@@ -36,6 +36,7 @@ end
             dnscrypt
             sing-box
             opentofu
+            coredns
         ].tsukify + %w[
             sops-install-secrets
         ],
