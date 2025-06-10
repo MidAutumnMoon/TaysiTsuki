@@ -22,14 +22,25 @@ in
         hostId = "0a3e0a19";
         proxy.default =
             "http://${lore.apps.homelab.proxy.fqdn}:${toString lore.ports.proxyPort}";
-        useDHCP = true;
+        useDHCP = false;
         tempAddresses = "disabled";
     };
 
-    # services.tailscale = {
-    #     enable = true;
-    #     openFirewall = true;
-    # };
+    systemd.network.networks = {
+        "10-enp2s0" = {
+            name = "enp2s0";
+            DHCP = "yes";
+            networkConfig = {
+                MulticastDNS = "no";
+                DNSSEC = "no";
+            };
+        };
+    };
+
+    services.tailscale = {
+        enable = true;
+        openFirewall = true;
+    };
 
     services.caddy.enable = true;
 

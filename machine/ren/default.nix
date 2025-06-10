@@ -45,7 +45,10 @@ in
         "10-enp3s0" = {
             name = "enp3s0";
             DHCP = "yes";
-            networkConfig.MulticastDNS = "resolve";
+            networkConfig = {
+                MulticastDNS = "resolve";
+                DNSSEC = "no";
+            };
         };
     };
 

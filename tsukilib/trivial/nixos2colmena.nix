@@ -15,10 +15,7 @@ in {
             nodeSpecialArgs = mapAttrs ( _: cfg: cfg._module.specialArgs ) configs;
         } // overrides.meta or {};
         body =
-            # Stupid long hand colmena tries to apply "smart" nixpkgs.config,
-            # however it conflicts with my workflow.
-            let nocfg = [ { nixpkgs.config = lib.mkForce {}; } ]; in
-            let modulesOf = cfg: { imports = cfg._module.args.modules ++ nocfg; }; in
+            let modulesOf = cfg: { imports = cfg._module.args.modules; }; in
             mapAttrs ( _: cfg: modulesOf cfg ) configs
             |> recursiveUpdate ( removeAttrs overrides [ "meta" ] )
         ;
