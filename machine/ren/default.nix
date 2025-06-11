@@ -152,10 +152,10 @@ in
     services.udev.extraHwdb = ''
         # switch caplock and esc (because vim)
         # switch left meta and ctrl (because vim)
+        # esc -> capslock : KEYBOARD_KEY_70029=key_capslock
         evdev:atkbd:*
         evdev:input:b0003v3151p4015*
          KEYBOARD_KEY_70039=key_esc
-         KEYBOARD_KEY_70029=key_capslock
          KEYBOARD_KEY_700e3=key_leftctrl
          KEYBOARD_KEY_700e0=key_leftmeta
 
