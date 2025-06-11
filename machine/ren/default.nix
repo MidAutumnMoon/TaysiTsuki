@@ -77,6 +77,11 @@ in
         publish.domain = true;
     };
 
+    services.scx = {
+        enable = true;
+        scheduler = "scx_bpfland";
+    };
+
     #
     # Programs
     #
