@@ -1,6 +1,7 @@
 local blink = require "blink-cmp"
 local devicons = require "nvim-web-devicons"
 local lspkind = require "lspkind"
+local luasnip = require "luasnip"
 
 local option = {}
 
@@ -64,6 +65,16 @@ option.keymap = {
     -- otherwise <Esc> has to be pressed twice :/
     -- ["<Esc>"] = { "hide", "fallback" },
 }
+
+-- Cancel luasnip when exit insert mode.
+-- Otherwise the next time in insert mode, hitting Tab moves the cursor
+-- to last snippet, which is very annoying.
+vim.api.nvim_create_autocmd( "InsertLeave", {
+    pattern = '*',
+    callback = function()
+        luasnip.unlink_current()
+    end
+} )
 
 option.cmdline = {
     completion = { menu = { auto_show = true } },
