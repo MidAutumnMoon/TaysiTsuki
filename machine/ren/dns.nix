@@ -45,7 +45,6 @@ in
                     fallthrough
                 }
                 forward local /etc/resolv.conf
-                forward arpa /etc/resolv.conf
                 forward . [::1]:${toString ports.dnscryptLocal}
                 cache 60 {
                     disable success local
