@@ -128,6 +128,12 @@ in
 
     services.desktopManager.plasma6.enable = true;
 
+    environment.plasma6.excludePackages =
+        with pkgs.kdePackages; [
+            elisa
+            krdp
+        ];
+
     programs.kde-pim.enable = false;
 
     i18n.inputMethod = {
