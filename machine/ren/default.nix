@@ -14,6 +14,7 @@ in
         ./dns.nix
         ./singbox.nix
         ./fish
+        ./rclone.nix
     ];
 
     #

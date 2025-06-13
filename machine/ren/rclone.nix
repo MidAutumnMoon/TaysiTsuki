@@ -16,7 +16,11 @@
         serviceConfig = {
             Type = "notify";
             RuntimeDirectory = "rclone";
+            ExecSearchPath = "${lib.getBin pkgs.coreutils}/bin";
         };
+        serviceConfig.ExecStartPre = ''
+            mkdir -pv /mnt/%i
+        '';
         serviceConfig.ExecStart = /* bash */ ''
             ${lib.getExe pkgs.rclone} mount \
                 --config "/etc/rclone.conf" \
@@ -35,7 +39,7 @@
                 --umask "022" \
                 --allow-other \
                 --disable-http2 \
-                %i: /mnt/Rclone/%i
+                %i: /mnt/%i
         '';
         serviceConfig.ExecStop = "fusermount -u /mnt/Rclone/%i";
         environment = config.networking.proxy.envVars;
