@@ -31,7 +31,7 @@ in
             name = "enp2s0";
             DHCP = "yes";
             networkConfig = {
-                MulticastDNS = "no";
+                MulticastDNS = "resolve";
                 DNSSEC = "no";
             };
         };
