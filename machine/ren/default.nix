@@ -32,6 +32,8 @@ in
         mpv
         obsidian
         unrar
+        numbat
+        restic
     ];
 
     networking = {
@@ -94,6 +96,13 @@ in
         };
     };
 
+    programs.nh = {
+        enable = true;
+        flake = "/home/teapot/TaysiTsuki";
+    };
+
+    programs.fish.enable = true;
+
     #
     # Users
     #
@@ -113,8 +122,6 @@ in
     home-manager.users."teapot" = import ./home.nix;
 
     security.sudo.wheelNeedsPassword = false;
-
-    programs.fish.enable = true;
 
     #
     # Desktop
