@@ -3,18 +3,14 @@ lib:
 
 let
 
-    inherit ( builtins )
-        baseNameOf
-        filter
-    ;
-
     inherit ( lib.filesystem )
         pathIsDirectory
-        listFilesRecursive
     ;
 
-    _isModule = path:
-        baseNameOf path == "module.nix";
+    inherit ( lib.fileset )
+        fileFilter
+        toList
+    ;
 
 in
 
@@ -27,6 +23,6 @@ in
     #
     listAllModules = entry:
       assert pathIsDirectory entry;
-      filter _isModule ( listFilesRecursive entry );
+      fileFilter ( file: file.name == "module.nix" ) entry |> toList;
 
 }
