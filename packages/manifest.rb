@@ -55,4 +55,12 @@ end
     colmena: %w[colmena],
     inori: %w[inori].tsukify,
 
+    mesa_things: %w[
+        mesa
+        kdePackages.plasma-workspace
+        kdePackages.kwin
+        kdePackages.sddm
+        telegram-desktop
+    ],
+
 }
