@@ -35,6 +35,7 @@ in
         unrar
         numbat
         restic
+        zed-editor
     ];
 
     networking = {
