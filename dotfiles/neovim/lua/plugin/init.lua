@@ -61,7 +61,6 @@ local __plugins = {
 
     {
         "junegunn/vim-after-object",
-        keys = "ca",
         config = function()
             vim.fn["after_object#enable"]( "=", ":", "|", ";", " " )
         end
@@ -93,11 +92,11 @@ local __plugins = {
         end
     },
 
-    {
-        "windwp/nvim-ts-autotag",
-        after = "nvim-treesitter",
-        opts = {},
-    },
+    -- {
+    --     "windwp/nvim-ts-autotag",
+    --     after = "nvim-treesitter",
+    --     opts = {},
+    -- },
 
     {
         "eraserhd/parinfer-rust",
@@ -113,8 +112,6 @@ local __plugins = {
             end
         end
     },
-
-    { "benknoble/vim-racket" },
 
     {
         "lukas-reineke/virt-column.nvim",
@@ -225,12 +222,12 @@ local __plugins = {
         end
     },
 
-    {
-        "HiPhish/rainbow-delimiters.nvim",
-        main = "rainbow-delimiters.setup",
-        submodules = false,
-        opts = {},
-    },
+    -- {
+    --     "HiPhish/rainbow-delimiters.nvim",
+    --     main = "rainbow-delimiters.setup",
+    --     submodules = false,
+    --     opts = {},
+    -- },
 
     -- {
     --     "folke/snacks.nvim",
@@ -238,6 +235,13 @@ local __plugins = {
     --         require "plugin.snacks"
     --     end
     -- },
+
+    {
+        "tzachar/local-highlight.nvim",
+        opts = {
+            animate = { enabled = false },
+        },
+    },
 
     --
     -- Completion & LSP
@@ -311,9 +315,11 @@ local __plugins = {
         ft = { "kdl" }
     },
 
-    {
-        "bellinitte/uxntal.vim"
-    },
+    -- { "benknoble/vim-racket" },
+
+    -- {
+    --     "bellinitte/uxntal.vim"
+    -- },
 
     --
     -- Colorschemes

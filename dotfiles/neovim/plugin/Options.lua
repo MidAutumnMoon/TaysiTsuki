@@ -7,8 +7,8 @@ local options = {
     mouse = "n",
 
     lazyredraw = true,
-    timeoutlen = 300,
-    updatetime = 500,
+    timeoutlen = 500,
+    updatetime = 1000,
 
     laststatus = 3,
 

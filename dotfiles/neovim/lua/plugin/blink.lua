@@ -6,14 +6,11 @@ local luasnip = require "luasnip"
 local option = {}
 
 option.completion = {
-    keyword = { range = "full" },
+    keyword = { range = "prefix" },
     accept = {
         auto_brackets = {
-            semantic_token_resolution = { timeout_ms = 100 },
+            -- semantic_token_resolution = { timeout_ms = 100 },
         },
-    },
-    trigger = {
-        show_in_snippet = true,
     },
     list = { selection = {} },
 }
@@ -34,7 +31,7 @@ option.completion.menu = {
             { "label", "label_description", gap = 1 },
             { "kind_icon", "kind", gap = 1, },
         },
-        treesitter = { "lsp" },
+        -- treesitter = { "lsp" },
     },
 }
 
