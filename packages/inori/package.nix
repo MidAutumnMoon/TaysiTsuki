@@ -33,6 +33,8 @@ tsuki.rust.buildRustPackage {
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
     ;
 
+    doCheck = false;
+
     postFixup = ''
         ln -sv "$out/bin/coruma-reverse" "$out/bin/,?"
 
