@@ -34,6 +34,16 @@
 
 }:
 
+let
+
+    inherit ( tsuki.inori.passthru.busnaguriData )
+        service
+        objectPath
+        interface
+    ;
+
+in
+
 runCommand "drop-down-alike" { } ''
 
     declare -r dest="$out/share/kwin/scripts/${__metadata.KPlugin.Id}"
@@ -53,7 +63,10 @@ runCommand "drop-down-alike" { } ''
         > "$configJson"
 
     substitute "${./main.js}" "$scriptDst" \
-        --subst-var-by "config" "$( < $configJson )"
+        --subst-var-by "config" "$( < $configJson )" \
+        --subst-var-by "service" "${service}" \
+        --subst-var-by "objectPath" "${objectPath}" \
+        --subst-var-by "interface" "${interface}"
 
 ''
 

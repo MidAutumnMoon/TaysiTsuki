@@ -1,4 +1,4 @@
-{ config, pkgs, nixosConfig, ... }:
+{ lib, config, pkgs, nixosConfig, ... }:
 
 let
 
@@ -20,15 +20,17 @@ in {
         jq
         fish
         tsuki.neovim
-
         wezterm
+        tsuki.inori.busnaguri
+        config.passthru.configuredDropDownAlike
+    ];
 
-        ( tsuki.kde.drop-down-alike {
+    passthru.configuredDropDownAlike =
+        pkgs.tsuki.kde.drop-down-alike {
             resource_class = "org.wezfurlong.wezterm";
             command = lib.getExe pkgs.wezterm;
             command_args = [ "start" "--cwd" "." "--always-new-process" ];
-        } )
-    ];
+        };
 
     xdg.configFile = {
 

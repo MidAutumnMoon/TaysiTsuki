@@ -68,9 +68,9 @@ tsuki.rust.buildRustPackage rec {
 
         mv -v "$out/bin/busnaguri" "$BUSN_BIN"
 
-        cat <<-DOSINI > "$BUSN_DBUS_DIR/${passthru.busnaguri.service}.service"
+        cat <<-DOSINI > "$BUSN_DBUS_DIR/${passthru.busnaguriData.service}.service"
         [D-BUS Service]
-        Name = ${passthru.busnaguri.service}
+        Name = ${passthru.busnaguriData.service}
         Exec = $BUSN_BIN
         DOSINI
 
@@ -81,9 +81,9 @@ tsuki.rust.buildRustPackage rec {
     '';
 
     passthru = {
-        busnaguri = {
+        busnaguriData = {
             service = "im._418.Busnaguri";
-            object = "/Naguru";
+            objectPath = "/Naguru";
             interface = "im._418.busnaguri";
         };
     };

@@ -80,9 +80,9 @@ const CONFIG = `@config@` ;
 const NAME = "Drop Down Alike";
 
 // Fuck dbus
-const SERVICE = "im._418.Dbulunr";
-const OBJECT_PATH = "/Dbulunr";
-const INTERFACE = "im._418.dbulunr";
+const SERVICE = "@service@";
+const OBJECT_PATH = "@objectPath@";
+const INTERFACE = "@interface@";
 const METHOD = "ExecArgs"
 
 // Prefix program name to log message
