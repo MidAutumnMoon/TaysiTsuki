@@ -12,7 +12,7 @@
     writableTmpDirAsHomeHook,
 }:
 
-tsuki.rust.buildRustPackage {
+tsuki.rust.buildRustPackage rec {
 
     pname = "inori";
     version = "0-unstable-2025-06-18";
@@ -27,17 +27,15 @@ tsuki.rust.buildRustPackage {
     cargoHash = "sha256-8CnWSZYbFTzgZ02Eu2hKWCdNKjGxfX8WgIKoJbM+x1M=";
     useFetchCargoVendor = true;
 
+    outputs = [
+        "out"
+        "busnaguri"
+        "lny"
+    ];
+
     nativeCheckInputs = [
         writableTmpDirAsHomeHook
     ];
-
-    preCheck = ''
-        export XDG_RUNTIME_DIR="$HOME/rt"
-        export XDG_DATA_HOME="$HOME/data"
-        export XDG_CONFIG_HOME="$HOME/cfg"
-        export XDG_CACHE_HOME="$HOME/cache"
-        export XDG_STATE_HOME="$HOME/st"
-    '';
 
     env.CFG_CJXL_PATH = lib.getExe' libjxl "cjxl";
     env.CFG_AVIFENC_PATH = lib.getExe' libavif "avifenc";
@@ -47,24 +45,48 @@ tsuki.rust.buildRustPackage {
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
     ;
 
-    postFixup = ''
+    preCheck = ''
+        export XDG_RUNTIME_DIR="$HOME/rt"
+        export XDG_DATA_HOME="$HOME/data"
+        export XDG_CONFIG_HOME="$HOME/cfg"
+        export XDG_CACHE_HOME="$HOME/cache"
+        export XDG_STATE_HOME="$HOME/st"
+    '';
+
+    postFixup = /*sh*/ ''
+        # coruma
         ln -sv "$out/bin/coruma-reverse" "$out/bin/,?"
 
-        declare LIBEXEC_DIR="$out/libexec/inori"
-        declare DBULUNR="$LIBEXEC_DIR/dbulunr"
+        # busnaguri
+        declare -r BUSN_LIBEXEC_DIR="$busnaguri/libexec/inori"
+        declare -r BUSN_BIN="$BUSN_LIBEXEC_DIR/busnaguri"
+        declare -r BUSN_DBUS_DIR="$busnaguri/share/dbus-1/services"
 
-        mkdir -p "$LIBEXEC_DIR"
-        mv -v "$out/bin/dbulunr" "$DBULUNR"
+        mkdir -vp "$BUSN_LIBEXEC_DIR"
+        mkdir -pv "$( dirname "$BUSN_BIN" )"
+        mkdir -pv "$BUSN_DBUS_DIR"
 
-        declare -r DBUS_DIR="$out/share/dbus-1/services"
-        mkdir -pv "$DBUS_DIR"
+        mv -v "$out/bin/busnaguri" "$BUSN_BIN"
 
-        cat <<-DOSINI > "$DBUS_DIR/im._418.dbulunr.service"
+        cat <<-DOSINI > "$BUSN_DBUS_DIR/${passthru.busnaguri.service}.service"
         [D-BUS Service]
-        Name = im._418.Dbulunr
-        Exec = $DBULUNR
+        Name = ${passthru.busnaguri.service}
+        Exec = $BUSN_BIN
         DOSINI
+
+        # lny
+        declare -r LNY_BIN_DIR="$lny/bin"
+        mkdir -pv "$LNY_BIN_DIR"
+        mv -v "$out/bin/lny" -t "$LNY_BIN_DIR"
     '';
+
+    passthru = {
+        busnaguri = {
+            service = "im._418.Busnaguri";
+            object = "/Naguru";
+            interface = "im._418.busnaguri";
+        };
+    };
 
     meta = {
         homepage = "https://github.com/MidAutumnMoon/InOri";
