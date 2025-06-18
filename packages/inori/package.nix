@@ -8,6 +8,8 @@
     libavif,
     libjxl,
     imagemagick,
+
+    writableTmpDirAsHomeHook,
 }:
 
 tsuki.rust.buildRustPackage {
@@ -24,6 +26,18 @@ tsuki.rust.buildRustPackage {
 
     cargoHash = "sha256-kVMGlyR3+oVdy9Xp7UOLirWNLyg2T+yBFa62Zj5i07I=";
     useFetchCargoVendor = true;
+
+    nativeCheckInputs = [
+        writableTmpDirAsHomeHook
+    ];
+
+    preCheck = ''
+        export XDG_RUNTIME_DIR="$HOME/rt"
+        export XDG_DATA_HOME="$HOME/data"
+        export XDG_CONFIG_HOME="$HOME/cfg"
+        export XDG_CACHE_HOME="$HOME/cache"
+        export XDG_STATE_HOME="$HOME/st"
+    '';
 
     env.CFG_CJXL_PATH = lib.getExe' libjxl "cjxl";
     env.CFG_AVIFENC_PATH = lib.getExe' libavif "avifenc";
