@@ -29,7 +29,7 @@ in {
         parinfer-rust # for the dylib
         skim
 
-        deno
+        # deno
         fuc
 
         tsuki.opentofu

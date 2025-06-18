@@ -29,7 +29,7 @@ vim.lsp.config( "nixd", {
 } )
 
 vim.lsp.enable {
-    "denols",
+    -- "denols",
     "rubocop",
     "rust_analyzer",
     "nixd",
