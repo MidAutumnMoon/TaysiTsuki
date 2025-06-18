@@ -38,6 +38,7 @@ jobs:
         -   name: Get subjects
             id: get_subjects
             run: |
+                nix build --print-build-logs ".#tsuki.__tools.build-driver"
                 out=$( nix run ".#tsuki.__tools.build-driver" \
                     -- subjects "packages/manifest.rb" )
                 echo "subjects=${out}" >> "$GITHUB_OUTPUT"

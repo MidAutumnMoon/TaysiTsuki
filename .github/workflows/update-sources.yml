@@ -35,6 +35,7 @@ jobs:
             run: |
                 # idiot bash (eye roll)
                 declare -r REPORT="$( mktemp )"
+                nix build --print-build-logs ".#tsuki.__tools.nix-update-driver"
                 nix run .#tsuki.__tools.nix-update-driver "packages/update.rb" "$REPORT"
                 { echo "REPORT<<EOF"; cat "$REPORT"; echo "EOF"; } >> "$GITHUB_OUTPUT"
 
