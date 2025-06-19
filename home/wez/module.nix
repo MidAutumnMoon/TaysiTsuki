@@ -15,7 +15,7 @@ in
 
     packages = with pkgs; [
         wezterm
-        tsuki.inori.busnaguri
+        ( lib.getOutput "busnaguri" pkgs.tsuki.inori )
         configuredDropDownAlike
     ];
 

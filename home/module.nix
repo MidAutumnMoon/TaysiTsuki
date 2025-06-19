@@ -15,7 +15,7 @@
     packages = with pkgs; [
         colmena
         fuc
-        tsuki.inori
+        ( lib.getOutput "out" pkgs.tsuki.inori )
         tsuki.opentofu
         sops
         libtree
