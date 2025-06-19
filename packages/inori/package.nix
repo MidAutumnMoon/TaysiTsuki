@@ -20,11 +20,11 @@ tsuki.rust.buildRustPackage rec {
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "InOri";
-        rev = "e4619931c20885c66ab099f8c86e4d7ae5ae5127";
-        hash = "sha256-fBotkF4aatmGXH0lzJiZgKSz1ebkCtgdU+WEG5Ummgw=";
+        rev = "7f071172de6f31b922e1d5c2dc6476cab7c8f898";
+        hash = "sha256-fWO5XwiWnlE92R7Zv0W+opxX1LwqyLS+eQQiN+Z8otc=";
     };
 
-    cargoHash = "sha256-ANeX5R8MxruBfUu0wLD4jmUdz6Jax+ygABH+4lIViGY=";
+    cargoHash = "sha256-73mH9YOLX15pvXmikyepT8PDcci3knLE+xacDhdKvDM=";
     useFetchCargoVendor = true;
 
     outputs = [
