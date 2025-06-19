@@ -14,11 +14,6 @@
             inputs.nixpkgs.follows = "nixpkgs";
         };
 
-        home-manager = {
-            url = "github:nix-community/home-manager";
-            inputs.nixpkgs.follows = "nixpkgs";
-        };
-
         dns = {
             url = "github:nix-community/dns.nix";
             inputs.nixpkgs.follows = "nixpkgs";
@@ -110,10 +105,8 @@
         nixosConfigurations = let
             modules =
                 with flakes; [
-                    self.nixosModules.homeManagerAdapter
                     sops-nix.nixosModules.default
                     preservation.nixosModules.default
-                    home-manager.nixosModules.home-manager
                     ./lore/module.nix
                 ]
                 ++ ( lib.listAllModules ./nixos )
@@ -141,27 +134,6 @@
             }
             |> lib.nixos2colmena self.nixosConfigurations
             |> flakes.colmena.lib.makeHive
-        ;
-
-        nixosModules.homeManagerAdapter =
-            { lib, ... }: let
-                hmLibWithNulib =
-                    "${flakes.home-manager}/modules/lib/stdlib-extended.nix"
-                    |> ( f: import f lib )
-                ;
-            in { home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-                extraSpecialArgs = {
-                    inherit flakes;
-                    lib = hmLibWithNulib;
-                };
-                sharedModules =
-                    [ flakes.sops-nix.homeManagerModules.sops ]
-                    ++ [ { home.stateVersion = lib.trivial.release; } ]
-                    ++ [ { programs.man.generateCaches = false; } ]
-                ;
-            }; }
         ;
 
         /*
