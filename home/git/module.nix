@@ -1,4 +1,4 @@
-{ lib, nixosConfig, config, pkgs, ... }:
+{ lib, nixosCfg, pkgs, ... }:
 
 # Excellent material for configuring git:
 # https://blog.gitbutler.com/how-git-core-devs-configure-git/
@@ -10,16 +10,14 @@ let
     ;
 
     allowedSigners = writeText "git-allowed-signers" ''
-        me@418.im ${nixosConfig.lore.pubkeys.teapot}
+        me@418.im ${nixosCfg.lore.pubkeys.teapot}
     '';
 
 in {
 
-    home.packages = with pkgs; [ git ];
+    packages = with pkgs; [ git ];
 
-    sops.secrets."git_cred".sopsFile = ./git_cred.sops.yml;
-
-    xdg.configFile."git/config".text = ''
+    xdg_config."git/config".text = ''
         [user]
             email = "me@418.im"
             name = "MidAutumnMoon"
@@ -73,7 +71,8 @@ in {
             # untrackedCache = true
 
         [credential]
-            helper = "store --file=${config.sops.secrets."git_cred".path}"
+            helper = "store --file=${nixosCfg.sops.secrets
+                ."token--github--me".path}"
 
         [gc]
             auto = 0
@@ -109,7 +108,7 @@ in {
         # Signing
 
         [user]
-            signingKey = "${config.sops.secrets."privkey_teapot".path}"
+            signingKey = "${nixosCfg.sops.secrets."key--ssh--teapot".path}"
 
         [gpg]
             format = "ssh"

@@ -35,6 +35,7 @@ let
             Few extra module args are passed
             - pkgs: pkgs
             - nixosCfg: nixos' config
+            - lore: our lore
         '';
     };
 

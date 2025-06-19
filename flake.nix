@@ -116,7 +116,8 @@
                     home-manager.nixosModules.home-manager
                     ./lore/module.nix
                 ]
-                ++ ( lib.listAllModules ./nixos );
+                ++ ( lib.listAllModules ./nixos )
+                ++ ( lib.listAllModules ./secrets );
             nixos = lib.brewOS {
                 inherit pkgsBrew modules;
                 arguments = { inherit flakes; };
@@ -156,8 +157,7 @@
                     lib = hmLibWithNulib;
                 };
                 sharedModules =
-                    lib.listAllModules ./home
-                    ++ [ flakes.sops-nix.homeManagerModules.sops ]
+                    [ flakes.sops-nix.homeManagerModules.sops ]
                     ++ [ { home.stateVersion = lib.trivial.release; } ]
                     ++ [ { programs.man.generateCaches = false; } ]
                 ;
