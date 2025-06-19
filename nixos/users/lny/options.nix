@@ -8,6 +8,8 @@ let
         attrValues
         nameValuePair
         listToAttrs
+        mapAttrsToList
+        concatStringsSep
     ;
 
     fileMod = types.submodule
@@ -89,6 +91,17 @@ in
         '';
     };
 
+    # Environment variable options
+
+    options."envvars" = mkOption {
+        type = with types;
+            attrsOf <| coercedTo anything toString str;
+        default = {};
+        description = ''
+            User environemtn variables. Implemented using `environment.d`
+        '';
+    };
+
     # Support options
 
     options."passthru" = mkOption {
@@ -99,5 +112,13 @@ in
         ( config.home |> withPrefix "{{ home }}" )
         ( config.xdg_config |> withPrefix "{{ config }}" )
     ];
+
+    config.xdg_config."environment.d/10-lny.conf".text =
+        config.envvars
+        |> mapAttrsToList ( n: v: "${n}=${toString v}" )
+        |> concatStringsSep "\n"
+        # otherwise the conf file is considered malformed :\
+        |> ( val: "${val}\n" )
+    ;
 
 }
