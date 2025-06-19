@@ -10,7 +10,8 @@
         "n" = "nix";
         ".ns" = "nh os switch";
         ".nt" = "nh os test";
-        ".nb" = "nh os build";
+        ".nb" = "nh os boot";
+        ".nbd" = "nh os build";
         ".npl" = "nh os repl";
         "cm" = "colmena";
     };
