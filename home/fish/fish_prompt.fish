@@ -1,7 +1,5 @@
 function fish_prompt
 
-    status is-interactive && return
-
     set -g __color_reset ( set_color reset )
 
     # Add a gap between each prompt

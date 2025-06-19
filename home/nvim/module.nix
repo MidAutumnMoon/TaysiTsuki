@@ -8,6 +8,7 @@
         fd
         parinfer-rust
         skim
+        nixd
     ];
 
     xdg_config."nvim".src = dots.get "nvim";

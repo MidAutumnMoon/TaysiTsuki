@@ -115,14 +115,12 @@ in
         uid = 1000;
         password = "Moon";
         openssh.authorizedKeys.keys = [ config.lore.pubkeys.teapot ];
-        lny = { imports = lib.listAllModules ../../homie; };
+        lny = { imports = lib.listAllModules ../../home; };
     };
 
     nix.settings.trusted-users = [
         config.users.users."teapot".name
     ];
-
-    home-manager.users."teapot" = import ./home.nix;
 
     security.sudo.wheelNeedsPassword = false;
 
