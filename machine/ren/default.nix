@@ -198,9 +198,17 @@ in
         memoryPercent = 100;
     };
 
+    boot.initrd.luks.devices = {
+        "rin" = {
+            device = "/dev/disk/by-uuid/b0fb796a-6982-4c87-b261-80159d03946d";
+            allowDiscards = true;
+            bypassWorkqueues = true;
+            crypttabExtraOpts = [ "fido2-device=auto" ];
+        };
+    };
+
     fileSystems = let
-        btrfsDevice =
-            "/dev/disk/by-uuid/dd3d01c1-9010-435a-85d8-a2f0a1815433";
+        btrfsDevice = "/dev/mapper/rin";
         btrfsOptionFor = subvol: [
             "subvol=${subvol}"
             "compress-force=zstd"
@@ -308,7 +316,7 @@ in
             "sd_mod"
             # "rtsx_usb_sdmmc"
         ];
-        includeDefaultModules = false;
+        #includeDefaultModules = false;
         systemd.enable = true;
     };
 
@@ -342,4 +350,3 @@ in
     nixpkgs.hostPlatform = "x86_64-linux";
 
 }
-
