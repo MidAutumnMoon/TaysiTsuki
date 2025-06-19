@@ -5,7 +5,9 @@ let
     inherit ( lib )
         mkOption
         types
-        mapAttrs
+        attrValues
+        nameValuePair
+        listToAttrs
     ;
 
     fileMod = types.submodule
@@ -35,11 +37,22 @@ let
                 );
         } );
 
+    withPrefix = prefix: fileCfg:
+        fileCfg
+        |> attrValues
+        |> map ( val: nameValuePair
+            "${prefix}/${val.dst}"
+            { src = lib.mkDefault val.src; }
+        )
+        |> listToAttrs;
+
 in
 
 {
 
-    options."__raw" = mkOption {
+    # File related options
+
+    options."__rawFiles" = mkOption {
         type = types.attrsOf fileMod;
         default = {};
         description = ''
@@ -57,17 +70,34 @@ in
         '';
     };
 
-    # options."config" = mkOption {};
+    options."xdg_config" = mkOption {
+        type = types.attrsOf fileMod;
+        default = {};
+        description = ''
+            Files to be placed relative to $XDG_CONFIG_HOME.
+            The "{{ config }}" template is automatically applied.
+        '';
+    };
 
-}
+    # Packages options
 
-// {
+    options."packages" = mkOption {
+        type = with types; listOf package;
+        default = [];
+        description = ''
+            Packages to install to user's profile
+        '';
+    };
 
-    config.__raw =
-        config.home
-        |> mapAttrs ( _: val: val // {
-            dst = "{{ home }}/${val.dst}";
-            src = lib.mkForce val.src;
-        } );
+    # Support options
+
+    options."passthru" = mkOption {
+        type = with types; attrsOf anything;
+    };
+
+    config.__rawFiles = lib.mkMerge [
+        ( config.home |> withPrefix "{{ home }}" )
+        ( config.xdg_config |> withPrefix "{{ config }}" )
+    ];
 
 }
