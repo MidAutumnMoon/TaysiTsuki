@@ -1,3 +1,10 @@
+# N.B.
+#
+# 1) This module currently doesn't handle tier down,
+# i.e. when a user completely removed lny by not setting the option,
+# the existing symlinks won't be removed because the systemd service
+# that handles symlink will not be generated in this case.
+
 { lib, config, pkgs, ... } @ outerMost:
 
 let
@@ -12,35 +19,26 @@ let
         nameValuePair
     ;
 
-    lnyBlueprintVersion = 1;
-
-    lnyPrevGenFile = "/run/nixos/lny-prev-gen";
-
-    lnyBin =
-        lib.getOutput "lny" pkgs.tsuki.inori
-        |> ( it: lib.getExe' it "lny" );
-
     lnyMod = lib.types.submoduleWith {
-        specialArgs = { inherit lib; };
-        modules = lib.singleton
-            ( { config, ... }: {
-                imports = [ ./options.nix ];
-                config._module.args = {
-                    inherit pkgs;
-                    nixosCfg = outerMost.config;
-                };
-            } );
+        specialArgs = {
+            inherit lib;
+        };
+        modules = lib.singleton {
+            imports = [ ./options.nix ];
+            config._module.args = {
+                pkgs = outerMost.pkgs;
+                nixosCfg = outerMost.config;
+            };
+        };
+        description = ''
+            The core lny submodule.
+            Few extra module args are passed
+            - pkgs: pkgs
+            - nixosCfg: nixos' config
+        '';
     };
 
-    # raws: lnyMod.options.__raw
-    toBlueprint = lnyCfg:
-        lnyCfg
-        |> ( it: it.__raw )
-        |> attrValues
-        |> map ( val: { inherit ( val ) src dst; } )
-        |> ( it: { version = lnyBlueprintVersion; symlinks = it; } )
-        |> builtins.toJSON
-    ;
+    lnyPrevGenFile = "/run/nixos/lny-prev-gen";
 
     blueprintNameOf =
         username: "lny-blueprint-${username}.json";
@@ -50,19 +48,27 @@ in
 {
 
     options.users.users = mkOption {
-        type = types.attrsOf <| types.submodule <|
-            ( { config, ... }: {
+        type = types.attrsOf <| types.submodule
+            <| ( { config, ... }: {
                 options.lny = mkOption {
                     type = types.nullOr lnyMod;
                     default = null;
                 };
+                config.packages =
+                    lib.mkIf ( config.lny != null ) config.lny.packages;
             } );
     };
 
     # put blueprint into a well known location
-    config.environment.etc =
-    # config.passthru.watchit =
-        config.users.users
+    config.environment.etc = let
+        toBlueprint = lnyCfg:
+            lnyCfg
+            |> ( it: it.__rawFiles )
+            |> attrValues
+            |> map ( val: { inherit ( val ) src dst; } )
+            |> ( it: { version = 1; symlinks = it; } )
+            |> builtins.toJSON;
+    in config.users.users
         # 1. select users which configured lny
         |> filterAttrs ( _: val: val.lny != null )
         # 2. only interested in user's uid and lny
@@ -110,6 +116,9 @@ in
             # treesitter is acting fishy, disable highlight :/
             runner = /*txt*/ let
                 blueprintName = blueprintNameOf val.username;
+                lnyBin =
+                    lib.getOutput "lny" pkgs.tsuki.inori
+                    |> ( it: lib.getExe' it "lny" );
             in ''
                 # derived from home-manager
                 eval "$( XDG_RUNTIME_DIR=''${XDG_RUNTIME_DIR:-/run/user/$UID} \

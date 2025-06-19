@@ -12,27 +12,17 @@ in {
 
     home.packages = with pkgs; [
         atuin
-        sops
         rclone
 
         tsuki.rust.rust-analyzer
 
-        tsuki.ruby.with_preferred_gems
-        tsuki.ruby.rubocop
         tsuki.rust.toolchainForDev
         ( clang.override { inherit ( llvmPackages ) bintools; } )
 
         nixd
         colmena
 
-        tsuki.inori
-        parinfer-rust # for the dylib
-        skim
-
-        # deno
         fuc
-
-        tsuki.opentofu
     ];
 
 

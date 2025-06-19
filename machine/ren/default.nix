@@ -115,6 +115,7 @@ in
         uid = 1000;
         password = "Moon";
         openssh.authorizedKeys.keys = [ config.lore.pubkeys.teapot ];
+        lny = { imports = lib.listAllModules ../../homie; };
     };
 
     nix.settings.trusted-users = [
