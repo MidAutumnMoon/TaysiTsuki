@@ -123,7 +123,20 @@ in
         config.users.users."teapot".name
     ];
 
-    security.sudo.wheelNeedsPassword = false;
+    security.pam.u2f = {
+        enable = true;
+        settings = {
+            # interactive = true;
+            cue = true;
+            origin = "pam://tsuki";
+            authfile = pkgs.copyPathToStore ./secrets/u2f_keys;
+        };
+    };
+
+    security.pam.services = {
+        login.u2fAuth = true;
+        sudo.u2fAuth = true;
+    };
 
     #
     # Desktop
