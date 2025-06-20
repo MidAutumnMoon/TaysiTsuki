@@ -36,6 +36,7 @@ in
         numbat
         restic
         zed-editor
+        qimgv
     ];
 
     networking = {
