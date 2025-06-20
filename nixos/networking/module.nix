@@ -4,15 +4,14 @@
 
     networking = {
         useNetworkd = true;
+        nftables.enable = true;
     };
 
-    services.resolved = {
-        enable = lib.mkDefault true;
-        llmnr = "false";
-        extraConfig = ''
-            MulticastDNS = resolve
-        '';
+    networking.firewall = {
+        enable = true;
+        logRefusedConnections = false;
     };
+
 
     boot.kernel.sysctl = {
         "net.core.default_qdisc" = "fq";
