@@ -101,9 +101,11 @@
                 arguments = { inherit flakes; };
             };
         in {
-            ren = nixos "x86_64-linux" [ ./machine/ren ];
+            ren = nixos "x86_64-linux" <| lib.listAllModules ./machine/ren;
             phia = nixos "x86_64-linux" [ ./machine/phia ];
         };
+
+        x = lib.listAllModules ./machine/ren;
 
         colmenaHive =
             {

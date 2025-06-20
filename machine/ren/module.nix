@@ -13,7 +13,6 @@ in
     imports = [
         ./dns.nix
         ./singbox.nix
-        ./fish
         ./rclone.nix
     ];
 
