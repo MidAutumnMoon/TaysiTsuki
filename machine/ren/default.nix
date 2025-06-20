@@ -261,11 +261,6 @@ in
             options = btrfsOptionFor "persist";
             neededForBoot = true;
         };
-        "/root" = {
-            device = btrfsDevice;
-            fsType = "btrfs";
-            options = btrfsOptionFor "root";
-        };
         "/home" = {
             device = btrfsDevice;
             fsType = "btrfs";
