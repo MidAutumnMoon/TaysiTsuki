@@ -66,21 +66,6 @@
 
     in rec {
 
-        dns = flakes.dns;
-
-        dens = with dns.lib.combinators; {
-            SOA = {
-                nameServer = "ns.418.im";
-                adminEmail = "akn@ma";
-                serial = 2019030800;
-            };
-            subdomains = {
-                wow.CNAME = [ "ren.local" ];
-            };
-        };
-
-        edns = dns.lib.toString "a.com" dens;
-
         /*
          * My cute lib
          */
