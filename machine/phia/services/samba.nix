@@ -55,6 +55,7 @@ in
         };
         "pool" = commonShareOpt // {
             "path" = poolMpt;
+            "strict sync" = "no";
         };
         "torrent" = commonShareOpt // {
             "path" = torrentMpt;
