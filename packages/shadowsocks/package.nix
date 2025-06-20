@@ -41,7 +41,7 @@ pkgsStatic.tsuki.rust.buildRustPackage rec {
         "aead-cipher-2022"
         "logging"
         "security-replay-attack-detect"
-        "jemalloc"
+        "mimalloc"
     ];
 
     meta = {
