@@ -32,10 +32,10 @@
         "lt".body = "l --tree $argv";
     };
 
-    programs.fish.abbrs = {
+    programs.fish = {
+        init = /*fish*/ ''
+            fish_add_path "$HOME/.local/bin"
+        '';
     };
-
-    programs.fish.interactiveInit = /*fish*/ ''
-    '';
 
 }
