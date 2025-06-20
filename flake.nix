@@ -105,8 +105,6 @@
             phia = nixos "x86_64-linux" [ ./machine/phia ];
         };
 
-        x = lib.listAllModules ./machine/ren;
-
         colmenaHive =
             {
                 meta.nixpkgs = pkgsBrew.pkgsOf "x86_64-linux";

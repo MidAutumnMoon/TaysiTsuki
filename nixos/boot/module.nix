@@ -20,11 +20,11 @@
 
     boot.kernelParams = [
         "efi_pstore.pstore_disable=1"
-            "ia32_emulation=0"
-            "init_on_alloc=1"
-            "vsyscall=none"
-            "intel_iommu=on"
-            "amd_iommu=on"
+        "ia32_emulation=0"
+        "init_on_alloc=1"
+        "vsyscall=none"
+        "intel_iommu=on"
+        "amd_iommu=on"
     ];
 
     boot.tmp = {

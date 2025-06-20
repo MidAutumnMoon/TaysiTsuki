@@ -34,7 +34,7 @@
     nix.registry = {
         "short" = {
             from = { id = "p"; type = "indirect"; };
-            to = { type = "path"; path = flakes.nixpkgs; };
+            to = { type = "path"; path = flakes.self; };
         };
     };
 
