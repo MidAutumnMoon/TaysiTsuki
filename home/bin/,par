@@ -65,6 +65,11 @@ def par2( dst )
         checksum_name = "__directory.sha256sum"
     end
 
+    files = files
+        .map { Pathname.new "#{it}.par2" }
+        .then { files.concat it }
+        .map( &:basename ) # N.B. chdir above
+
     system <<~SH or abort "Failed to run sha256sum".red
         sha256sum --binary #{files.shelljoin} | tee "#{checksum_name}"
     SH
