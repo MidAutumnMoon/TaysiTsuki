@@ -198,7 +198,8 @@ in
         };
         extraConfig.client."10-hires" = {
             "stream.properties" = {
-                "resample.quality" = 10;
+                #"resample.quality" = 10;
+                "resample.disable" = true;
             };
         };
     };
