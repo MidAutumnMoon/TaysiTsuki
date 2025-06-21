@@ -127,20 +127,6 @@
 
         devShells = lib.brewShells pkgsBrew {
 
-            rust = p: with p; [
-                rustc
-                cargo
-                cargo-bloat
-                cargo-nextest
-                cargo-outdated
-                cargo-edit
-                clippy
-                rustfmt
-                rust-analyzer
-                stdenvTeapot.cc
-                pkg-config
-            ];
-
             music = p: with p; [
                 picard
                 shntool cuetools flac

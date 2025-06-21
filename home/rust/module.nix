@@ -7,6 +7,8 @@
         tsuki.rust.toolchainForDev
         # for lld
         ( clang.override { inherit ( llvmPackages ) bintools; } )
+        cargo-bloat
+        cargo-outdated
     ];
 
     envvars = {
