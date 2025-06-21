@@ -123,4 +123,17 @@ resource "cloudflare_dns_record" "im_418_ts" {
     proxied = false
 }
 
+#
+# Services on tailscale
+#
+
+resource "cloudflare_dns_record" "im_418_music" {
+    ttl = local.ttl_auto
+    zone_id = cloudflare_zone.im_418.id
+    type = "CNAME"
+    name = "music.${cloudflare_zone.im_418.name}"
+    content = cloudflare_dns_record.im_418_ts["ren"].name
+    proxied = false
+}
+
 # vim: nowrap:
