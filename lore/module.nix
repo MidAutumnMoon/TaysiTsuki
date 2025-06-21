@@ -36,6 +36,7 @@ in
         clashApi = 9097;
         dns = sharedInfra.ports.dns; # 9098
         dnscryptLocal = 9099;
+        navidrome = 9100;
     };
 
     lore.domains = sharedInfra.domains;
@@ -62,7 +63,7 @@ in
         clash_dashboard = onRen "clash";
         dns_dashboard = onRen "dnscrypt";
         wpad = onRen "wpad";
-        # music = onRen "music" // { tailscale = true; };
+        navidrome = onRen "music";
 
         # phia services
         torrent_dashboard = onPhia "qbit";
