@@ -37,10 +37,10 @@ in
         };
     };
 
-    services.tailscale = {
-        enable = true;
-        openFirewall = true;
-    };
+    # services.tailscale = {
+    #     enable = true;
+    #     openFirewall = true;
+    # };
 
     services.caddy.enable = true;
 
