@@ -47,7 +47,7 @@ def par2( dst )
 
             # only the volume data is enough
             par2main = Pathname.new "#{basename}.par2"
-            par2volume = Pathname.glob( "#{basename}.vol*.par2" )
+            par2volume = Pathname.glob( "#{basename.to_s.shellescape}.vol*.par2" )
                 .tap { abort "Par2 vol file not found" if it.empty? }
                 .tap { abort "Found multiple par2 vol files" if it.size > 1 }
                 .then( &:pop )
