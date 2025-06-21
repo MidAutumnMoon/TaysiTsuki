@@ -58,6 +58,9 @@ Metrics/MethodLength:
 Metrics/ModuleLength:
     CountAsOne: [ "array", "hash", "heredoc", "method_call" ]
 
+Metrics/PerceivedComplexity:
+  Enabled: false
+
 Style/ClassAndModuleChildren:
     Enabled: false
 
