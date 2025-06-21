@@ -70,16 +70,7 @@ in
     };
 
     services.caddy.enable = true;
-
-    services.avahi = {
-        enable = true;
-        openFirewall = true;
-        nssmdns4 = true;
-        nssmdns6 = true;
-        publish.enable = true;
-        publish.addresses = true;
-        publish.domain = true;
-    };
+    services.avahi.enable = true;
 
     services.scx = {
         enable = true;

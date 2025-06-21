@@ -67,15 +67,7 @@ in
         openFirewall = true;
     };
 
-    services.avahi = {
-        enable = true;
-        openFirewall = true;
-        publish.enable = true;
-        publish.userServices = true;
-        publish.domain = true;
-        nssmdns4 = true;
-        nssmdns6 = true;
-    };
+    services.avahi.enable = true;
 
     systemd.services."empty-samba-recycle-bin" = {
         description = "Empty ${poolMpt} recycle bin";
