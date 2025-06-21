@@ -72,10 +72,10 @@ in
     services.caddy.enable = true;
     services.avahi.enable = true;
 
-    services.scx = {
-        enable = true;
-        scheduler = "scx_bpfland";
-    };
+    # services.scx = {
+    #     enable = true;
+    #     scheduler = "scx_bpfland";
+    # };
 
     #
     # Programs
