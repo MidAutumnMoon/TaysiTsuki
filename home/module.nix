@@ -17,8 +17,9 @@
         fuc
         ( lib.getOutput "out" pkgs.tsuki.inori )
         tsuki.opentofu
-        sops
         libtree
+        picard
+        sops
     ];
 
     envvars = {
