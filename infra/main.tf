@@ -20,7 +20,7 @@ terraform {
 }
 
 data "sops_file" "token--cloudflare" {
-    source_file = "../nixos/secrets/token--cloudflare.sops.yml"
+    source_file = "../nixos/sops/token--cloudflare.sops.yml"
 }
 
 data "sops_file" "token--tailscale" {
