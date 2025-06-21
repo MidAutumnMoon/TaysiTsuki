@@ -38,16 +38,18 @@ def par2( dst )
     files.each do |f|
         warn %(par2-ing "#{f}").blue
         Dir.chdir( f.dirname ) do
+            basename = f.basename
             # -n1 : one redundency file
             # -r5 : 5% of redundency
             system <<~SH or abort "Failed to run par2".red
-                par2 create -n1 -r5 -q #{f.to_s.shellescape}
+                par2 create -n1 -r5 -q #{basename.to_s.shellescape}
             SH
 
             # only the volume data is enough
-            par2main = Pathname.new "#{f}.par2"
-            par2volume = Pathname.glob( "#{f}.vol*.par2" )
-                .tap { abort "Found multiple par2 vol files" if it.size != 1 }
+            par2main = Pathname.new "#{basename}.par2"
+            par2volume = Pathname.glob( "#{basename}.vol*.par2" )
+                .tap { abort "Par2 vol file not found" if it.empty? }
+                .tap { abort "Found multiple par2 vol files" if it.size > 1 }
                 .then( &:pop )
 
             par2main.delete
