@@ -20,11 +20,13 @@ abort ":: Input and output filename shouldn't be empty".red.to_s \
     if ARGV.any?( &:empty? )
 
 INPUT = Pathname.new( ARGV.first )
-OUTPUT = if ARGV.size == 2
-             Pathname.new( ARGV[1] )
-         else
-             Pathname.new( "#{INPUT.basename}.7z" )
-         end
+
+OUTPUT =
+    if ARGV.size == 2
+        Pathname.new( ARGV[1] )
+    else
+        Pathname.new( "#{INPUT.basename}.7z" )
+    end
 
 abort %(:: Output "#{OUTPUT}" already exist).red.to_s \
     if OUTPUT.exist?

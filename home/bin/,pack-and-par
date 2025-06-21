@@ -40,7 +40,7 @@ INPUTS.each do |input|
     archive = "#{input.basename}.7z"
 
     system <<~CMD or abort ":: Failed to compress".red.to_s
-        command ,7z-pack #{input.to_path.shellescape} #{archive.shellescape}
+        command ,7z #{input.to_path.shellescape} #{archive.shellescape}
     CMD
 
     puts ":: Archive original dir".blue
