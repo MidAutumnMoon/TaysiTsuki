@@ -21,14 +21,23 @@ BACKUP_DIR.mkdir
 
 warn %(BACKUP_DIR is "#{BACKUP_DIR}").yellow
 
-warn "Glob pwd for directories to be archived".yellow
-warn "However files are ignored".yellow
+if ARGV.empty?
+    warn "Glob pwd for directories to be archived".yellow
+    warn "However files are ignored".yellow
+    INPUTS = Pathname.pwd
+        .glob( "*" )
+        .select( &:directory? )
+else
+    INPUTS = ARGV
+        .map { Pathname.new it }
+        .map( &:realpath )
+        .tap do
+            abort "All arguments must be directory" \
+                unless it.all?( &:directory? )
+        end
+end
 
-Pathname.pwd
-    .glob( "*" )
-    .select( &:directory? )
-    .each \
-do |input|
+INPUTS.each do |input|
 
     puts %(Archiving "#{input.basename}").blue
 
