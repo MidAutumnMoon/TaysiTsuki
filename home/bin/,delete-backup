@@ -1,0 +1,8 @@
+#!/usr/bin/env fish
+
+fd \
+    --type directory \
+    --no-ignore \
+    --hidden \
+    '.backup|original' \
+    -x rm -rvf
