@@ -178,23 +178,6 @@ in
          KEYBOARD_KEY_90005=btn_middle
     '';
 
-    security.rtkit.enable = true;
-
-    services.pipewire = {
-        extraConfig.pipewire."10-hires" = {
-            "context.properties" = {
-                "default.clock.allowed-rates" = [ 44100 48000 96000 192000 ];
-                "default.clock.min-quantum" = 16;
-            };
-        };
-        extraConfig.client."10-hires" = {
-            "stream.properties" = {
-                #"resample.quality" = 10;
-                "resample.disable" = true;
-            };
-        };
-    };
-
     #
     # Filesystems
     #
