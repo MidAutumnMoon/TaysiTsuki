@@ -1,12 +1,13 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, utils, ... }:
 
 let
 
+    inherit ( config ) lore;
+
     poolMnt = config.fileSystems."/mnt/pool".mountPoint;
 
-    inherit ( config )
-        lore
-    ;
+    poolMntUnit =
+        "${utils.escapeSystemdPath poolMnt}.mount";
 
 in
 
@@ -24,6 +25,11 @@ in
             Jukebox.Enabled = true;
             MPVPath = lib.getExe pkgs.mpv;
         };
+    };
+
+    systemd.services.navidrome = {
+        after = [ poolMntUnit ];
+        wants = [ poolMntUnit ];
     };
 
     services.caddy.virtualHosts."im_418".extraConfig =
