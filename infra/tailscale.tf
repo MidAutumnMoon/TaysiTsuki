@@ -29,9 +29,7 @@ resource "tailscale_dns_preferences" "main" {
 data "tailscale_devices" "all" { }
 
 locals {
-    # teapot_tailscale_suffix =
-    # "some.ts12.ts.net" = { machine = "...", address = "::::" }
-    ts_devices = {
+    __tailscale_devices = {
         for dev in data.tailscale_devices.all.devices:
         # some.ts12.ts.net => some
         trimsuffix( dev.name, ".${local.shared_nix.tailscale.tailnet}" )

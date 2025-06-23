@@ -39,6 +39,43 @@ resource "cloudflare_dns_record" "im_418_hidden_message" {
 }
 
 #
+# Tailscale Nodes
+#
+
+# Referring to this resource:
+# cloudflare_dns_record.teapot_ts["ren"]
+resource "cloudflare_dns_record" "im_418_ts" {
+    for_each = local.__tailscale_devices
+    ttl = local.ttl_auto
+    zone_id = cloudflare_zone.im_418.id
+    type = "AAAA"
+    # should look like "host.tailscale.418.im" if not changed in the future
+    name = "${each.key}.${local.shared_nix.domains.im_418.tailscale_zone}.${cloudflare_zone.im_418.name}"
+    content = each.value.ipv6
+    proxied = false
+}
+
+#
+# Services on tailscale
+#
+
+locals {
+    __im_418_ts_services = {
+        "music" = "ren",
+    }
+}
+
+resource "cloudflare_dns_record" "im_418_ts_services" {
+    for_each = local.__im_418_ts_services
+    ttl = local.ttl_auto
+    zone_id = cloudflare_zone.im_418.id
+    type = "CNAME"
+    name = "${each.key}.${cloudflare_zone.im_418.name}"
+    content = cloudflare_dns_record.im_418_ts[each.value].name
+    proxied = false
+}
+
+#
 # Records for Mail
 #
 
@@ -104,36 +141,6 @@ resource "cloudflare_dns_record" "shameful_dkim" {
     name = "rk8dd99c9c108fd21._domainkey.${cloudflare_zone.shameful.name}"
     ttl = local.ttl_auto
     content = local.__dkim.shameful
-}
-
-#
-# Tailscale Nodes
-#
-
-# Referring to this resource:
-# cloudflare_dns_record.teapot_ts["ren"]
-resource "cloudflare_dns_record" "im_418_ts" {
-    for_each = local.ts_devices
-    ttl = local.ttl_auto
-    zone_id = cloudflare_zone.im_418.id
-    type = "AAAA"
-    # should look like "host.tailscale.418.im" if not changed in the future
-    name = "${each.key}.${local.shared_nix.domains.im_418.tailscale_zone}.${cloudflare_zone.im_418.name}"
-    content = each.value.ipv6
-    proxied = false
-}
-
-#
-# Services on tailscale
-#
-
-resource "cloudflare_dns_record" "im_418_music" {
-    ttl = local.ttl_auto
-    zone_id = cloudflare_zone.im_418.id
-    type = "CNAME"
-    name = "music.${cloudflare_zone.im_418.name}"
-    content = cloudflare_dns_record.im_418_ts["ren"].name
-    proxied = false
 }
 
 # vim: nowrap:
