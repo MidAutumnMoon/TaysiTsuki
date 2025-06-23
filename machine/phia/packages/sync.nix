@@ -34,6 +34,7 @@ tsuki.writers.writeRubyBin ",sync" {} /*ruby*/ ''
             /.zfs/
             /.recycle/
             /__Income__/
+            __AnimeMusic__/
         ]
             .flat_map { [ "--exclude", it ] }
             .freeze

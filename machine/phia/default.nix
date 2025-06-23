@@ -148,6 +148,14 @@ in
             device = "phia/srv/torrent";
             fsType = "zfs";
         };
+        # Workaround for navidrome not supporting multiple music libraries.
+        # Expect it to gain the support the next major release.
+        "/srv/pool/Music/__AnimeMusic__" = {
+            depends = [ "/srv/pool" ];
+            device = "/srv/pool/Sakuhin";
+            fsType = "none";
+            options = [ "bind" "ro" ];
+        };
     };
 
     systemd.tmpfiles.rules = let
