@@ -37,7 +37,6 @@ rec {
     };
 
     inherit ( tsuki.module )
-        isModule
         listAllModules
         rejectUnset
     ;
