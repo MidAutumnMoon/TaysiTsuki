@@ -296,10 +296,10 @@ local __plugins = {
     --     after = "nvim-treesitter",
     -- },
 
-    -- {
-    --     "RRethy/nvim-treesitter-endwise",
-    --     after = "nvim-treesitter",
-    -- },
+    {
+        "RRethy/nvim-treesitter-endwise",
+        after = "nvim-treesitter",
+    },
 
     --
     -- Languages
