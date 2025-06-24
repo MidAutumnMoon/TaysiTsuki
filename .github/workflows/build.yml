@@ -8,7 +8,6 @@ on:
         - 'packages/**'
         - "machine/**"
         - "nixos/**"
-        - "home/**"
     schedule:
         #- cron: "0 */4 * * *"
         - cron: "0 0 */2 * *"
