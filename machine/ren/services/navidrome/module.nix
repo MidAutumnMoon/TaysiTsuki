@@ -22,8 +22,8 @@ in
             Address = "127.0.0.1";
             Port = lore.ports.navidrome;
             MusicFolder = "${poolMnt}/Music";
-            Jukebox.Enabled = true;
-            MPVPath = lib.getExe pkgs.mpv;
+            # default but without "albumartistid"
+            PID.Album = "musicbrainz_albumid|album,albumversion,releasedate";
         };
     };
 
