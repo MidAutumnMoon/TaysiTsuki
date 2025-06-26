@@ -61,6 +61,8 @@ end
         kdePackages.kwin
         kdePackages.sddm
         telegram-desktop
+        kdePackages.dolphin
+        kdePackages.plasma-pa
     ],
 
 }
