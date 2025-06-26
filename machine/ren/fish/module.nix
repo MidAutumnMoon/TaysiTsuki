@@ -30,7 +30,6 @@
     '';
 
     programs.fish.interactiveInit = /*fish*/ ''
-        ${builtins.readFile ./tide.fish}
         ${builtins.readFile ./git-abbr.fish}
         atuin init fish | source
     '';
