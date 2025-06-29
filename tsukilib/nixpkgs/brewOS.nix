@@ -29,7 +29,11 @@ in
             assert isList machineModules;
             let
                 cfgMod = {
-                    nixpkgs = pkgsBrew.__options // { inherit system; };
+                    nixpkgs = pkgsBrew.__options // {
+                        inherit system;
+                        flake.setNixPath = false;
+                        flake.setFlakeRegistry = false;
+                    };
                     _module.args = arguments;
                 };
             in
