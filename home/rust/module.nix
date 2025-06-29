@@ -9,6 +9,7 @@
         ( clang.override { inherit ( llvmPackages ) bintools; } )
         cargo-bloat
         cargo-outdated
+        cargo-llvm-cov
     ];
 
     envvars = {
