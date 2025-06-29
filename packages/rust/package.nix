@@ -16,7 +16,11 @@ let
 
     toolchain = mkToolchain "stable" [];
 
-    toolchainForDev = mkToolchain "stable" [ "rust-src" ];
+    toolchainForDev =
+        mkToolchain "stable" [
+            "rust-src"
+            "llvm-tools-preview"
+        ];
 
     platform = makeRustPlatform {
         rustc = toolchain;
