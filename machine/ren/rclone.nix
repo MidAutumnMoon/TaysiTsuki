@@ -25,10 +25,10 @@ in
         serviceConfig.ExecStartPre = ''
             mkdir -pv /mnt/%i
         '';
-        # N.B. log to /dev/null because 1.70 regression. Either --log-systemd
-        # or not setting log file will cause rclone to hang until service
-        # timeout and fail. /dev/stdout is not found when set log-file to it,
-        # this might be a hint of the bug?
+        # N.B. log to systemd in version 1.70.0 and 1.70.1 will deadlock
+        # and fail the startup, and had been fixed in 1.70.2
+        # (ref com. fa3b44434142), but tbh the log doesn't matter
+        # so the "/dev/null" workaround is left unchanged.
         serviceConfig.ExecStart = /* bash */ ''
             ${lib.getExe pkgs.rclone} mount \
                 --config "/etc/rclone.conf" \
