@@ -9,11 +9,11 @@
 stdenvNoCC.mkDerivation rec {
 
     pname = "vuetorrent";
-    version = "2.26.0";
+    version = "2.27.0";
 
     src = fetchzip rec {
         url = "${passthru.repo}/releases/download/v${version}/${pname}.zip";
-        hash = "sha256-EFVzsr/OZ/QMJ+NN3kDkmIk6FCCnqgK6DgsLWNonspU=";
+        hash = "sha256-HGvYQlLzME3V8LbGAuTmeWvc/xjjiSaAeki+kxfiA7M=";
         passthru.repo = "https://github.com/VueTorrent/VueTorrent";
     };
 
