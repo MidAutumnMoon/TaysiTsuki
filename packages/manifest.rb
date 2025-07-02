@@ -39,11 +39,16 @@ end
             caddy
             dnscrypt
             sing-box
-            opentofu
             coredns
         ].tsukify + %w[
             sops-install-secrets
         ],
+
+    # ...but some are not
+    go_things2:
+        %w[
+            opentofu
+        ].tsukify,
 
     prvn_bundle: %w[
         shadowsocks
@@ -58,20 +63,25 @@ end
     # Some heavy rust things
     colmena: %w[colmena],
     inori: %w[inori].tsukify,
+    wezterm: %w[wezterm],
 
     kde_things1:
         %w[
             mesa
             telegram-desktop
         ] + %w[
-            plasma-workspace kwin sddm plasma-pa systemsettings
-            drkonqi kscreen kde-cli-tools
+            kwin sddm plasma-pa systemsettings drkonqi kscreen kde-cli-tools
         ].kde_package,
 
     kde_things2:
         %w[mesa] + %w[
             spectacle okular kinfocenter powerdevil
             dolphin xdg-desktop-portal-kde
+        ].kde_package,
+
+    kde_things3:
+        %w[mesa] + %w[
+            plasma-workspace plasma-desktop kdeplasma-addons
         ].kde_package,
 
 }
