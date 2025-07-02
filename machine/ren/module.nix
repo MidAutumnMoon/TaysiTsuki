@@ -145,6 +145,11 @@ in
         with pkgs.kdePackages; [
             elisa
             krdp
+            kwin-x11
+            khelpcenter
+            discover
+            gwenview
+            ( lib.getBin qttools )
         ];
 
     programs.kde-pim.enable = false;
