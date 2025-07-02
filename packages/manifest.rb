@@ -5,6 +5,10 @@ class Array
         abort "Some item are not String" unless all? { it in String }
         map { "tsuki.#{it}" }
     end
+    def kde_package
+        abort "Some item are not String" unless all? { it in String }
+        map { "kdePackages.#{it}" }
+    end
 end
 
 {
@@ -55,14 +59,19 @@ end
     colmena: %w[colmena],
     inori: %w[inori].tsukify,
 
-    mesa_things: %w[
-        mesa
-        kdePackages.plasma-workspace
-        kdePackages.kwin
-        kdePackages.sddm
-        telegram-desktop
-        kdePackages.dolphin
-        kdePackages.plasma-pa
-    ],
+    kde_things1:
+        %w[
+            mesa
+            telegram-desktop
+        ] + %w[
+            plasma-workspace kwin sddm plasma-pa systemsettings
+            drkonqi kscreen kde-cli-tools
+        ].kde_package,
+
+    kde_things2:
+        %w[mesa] + %w[
+            spectacle okular kinfocenter powerdevil
+            dolphin xdg-desktop-portal-kde
+        ].kde_package,
 
 }
