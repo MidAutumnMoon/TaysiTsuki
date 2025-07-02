@@ -154,7 +154,13 @@ in
             depends = [ "/srv/pool" ];
             device = "/srv/pool/Sakuhin";
             fsType = "none";
-            options = [ "bind" "ro" ];
+            options = [ "bind" ];
+        };
+        "/srv/pool/Music/__AnimeMusicAgain__" = {
+            depends = [ "/srv/pool" ];
+            device = "/srv/pool/Sakuhin with Anime";
+            fsType = "none";
+            options = [ "bind" ];
         };
     };
 
