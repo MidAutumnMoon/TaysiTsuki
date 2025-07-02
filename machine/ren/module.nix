@@ -35,7 +35,7 @@ in
         numbat
         restic
         zed-editor
-        qimgv
+        tsuki.qimgv
     ];
 
     networking = {

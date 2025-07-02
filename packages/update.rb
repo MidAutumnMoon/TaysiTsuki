@@ -19,6 +19,7 @@ packages.concat %w[
     adblocklist
     sing-box
     coredns
+    qimgv
 ].tsukify
 
 packages << {

@@ -69,6 +69,7 @@ end
         %w[
             mesa
             telegram-desktop
+            tsuki.qimgv
         ] + %w[
             kwin sddm plasma-pa systemsettings drkonqi kscreen kde-cli-tools
         ].kde_package,
