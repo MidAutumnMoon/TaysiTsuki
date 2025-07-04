@@ -23,20 +23,20 @@ pkgsStatic.tsuki.rust.buildRustPackage rec {
 
     doCheck = false;
 
-    stripAllList = [ "bin" ];
-
     RUSTFLAGS = with stdenv;
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
     ;
 
     env.CARGO_PROFILE_RELEASE_LTO = "thin";
+    env.CARGO_PROFILE_RELEASE_CODEGEN_UNITS = "16";
 
     buildNoDefaultFeatures = true;
 
     buildFeatures = [
-        "service"
-        "hickory-dns"
-        "local-http"
+        # "service"
+        "server"
+        # "hickory-dns"
+        # "local-http"
         "multi-threaded"
         "aead-cipher-2022"
         "logging"
