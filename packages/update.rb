@@ -14,7 +14,6 @@ packages.concat %w[
     metacubexd
     rust.rust-analyzer
     shadowsocks
-    vuetorrent
     dnscrypt
     adblocklist
     sing-box

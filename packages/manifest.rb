@@ -16,7 +16,6 @@ end
     small_thing1:
         %w[
             metacubexd
-            vuetorrent
             adblocklist
         ].tsukify + %w[
             fastfetchMinimal
