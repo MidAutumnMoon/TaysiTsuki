@@ -11,7 +11,7 @@
 stdenv.mkDerivation rec {
 
     pname = "qimgv";
-    version = "unstable";
+    version = "latest-dev";
 
     src = fetchFromGitHub {
         owner = "easymodo";
