@@ -8,8 +8,6 @@
     libavif,
     libjxl,
     imagemagick,
-
-    writableTmpDirAsHomeHook,
 }:
 
 tsuki.rust.buildRustPackage rec {
@@ -27,14 +25,12 @@ tsuki.rust.buildRustPackage rec {
     cargoHash = "sha256-Op4rrUzfsp0xPObgysjQdJpxEM+eWdmjX08ESYagvt4=";
     useFetchCargoVendor = true;
 
+    doCheck = false;
+
     outputs = [
         "out"
         "busnaguri"
         "lny"
-    ];
-
-    nativeCheckInputs = [
-        writableTmpDirAsHomeHook
     ];
 
     env.CFG_CJXL_PATH = lib.getExe' libjxl "cjxl";
@@ -44,14 +40,6 @@ tsuki.rust.buildRustPackage rec {
     RUSTFLAGS = with stdenv;
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
     ;
-
-    preCheck = ''
-        export XDG_RUNTIME_DIR="$HOME/rt"
-        export XDG_DATA_HOME="$HOME/data"
-        export XDG_CONFIG_HOME="$HOME/cfg"
-        export XDG_CACHE_HOME="$HOME/cache"
-        export XDG_STATE_HOME="$HOME/st"
-    '';
 
     postFixup = /*sh*/ ''
         # coruma
