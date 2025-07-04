@@ -102,7 +102,7 @@
             };
         in {
             ren = nixos "x86_64-linux" <| lib.listAllModules ./machine/ren;
-            phia = nixos "x86_64-linux" [ ./machine/phia ];
+            phia = nixos "x86_64-linux" <| lib.listAllModules ./machine/phia;
         };
 
         colmenaHive =

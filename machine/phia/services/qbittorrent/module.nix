@@ -83,11 +83,7 @@ in
         ''
             @qbitwebui host ${torrent_dashboard.fqdn}
             handle @qbitwebui {
-                handle /api* {
-                    reverse_proxy http://localhost:${toString ports.qbitwebui}
-                }
-                root * ${pkgs.tsuki.vuetorrent}
-                file_server
+                reverse_proxy http://localhost:${toString ports.qbitwebui}
             }
         '';
 

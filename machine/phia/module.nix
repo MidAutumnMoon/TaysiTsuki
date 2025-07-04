@@ -14,7 +14,6 @@ in
 
     imports = [
         ./services/samba.nix
-        ./services/torrent.nix
     ];
 
     networking = {
