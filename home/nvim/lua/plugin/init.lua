@@ -92,11 +92,11 @@ local __plugins = {
         end
     },
 
-    -- {
-    --     "windwp/nvim-ts-autotag",
-    --     after = "nvim-treesitter",
-    --     opts = {},
-    -- },
+    {
+        "windwp/nvim-ts-autotag",
+        after = "nvim-treesitter",
+        opts = {},
+    },
 
     {
         "eraserhd/parinfer-rust",
