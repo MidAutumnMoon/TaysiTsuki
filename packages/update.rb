@@ -19,13 +19,16 @@ packages.concat %w[
     adblocklist
     sing-box
     coredns
-    qimgv
 ].tsukify
 
 packages << {
     attr: "tsuki.inori",
     unstable: true,
+}
 
+packages << {
+    attr: "tsuki.qimgv",
+    unstable: true,
 }
 
 packages << {
