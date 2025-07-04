@@ -13,122 +13,40 @@
         </rejectfont>
     </selectfont>
 
-    <!--
-        CJK aliases
-    -->
+    <match target="pattern">
+        <test name="lang" compare="eq">
+            <string>zh-cn</string>
+        </test>
+        <test name="family">
+            <string>sans-serif</string>
+        </test>
+        <edit name="family" mode="prepend" binding="strong">
+            <string>Noto Sans CJK SC</string>
+        </edit>
+    </match>
 
-    <!-- SC -->
-    <alias>
-        <family>SimSun</family>
-        <accept> <family>Source Han Sans SC</family> </accept>
-    </alias>
-    <alias>
-        <family>NSimSun</family>
-        <accept> <family>Source Han Sans SC</family> </accept>
-    </alias>
-    <alias>
-        <family>宋体</family>
-        <accept> <family>Source Han Sans SC</family> </accept>
-    </alias>
-    <alias>
-        <family>新宋体</family>
-        <accept> <family>Source Han Sans SC</family> </accept>
-    </alias>
-    <alias>
-        <family>AR MingtiM GB</family>
-        <accept> <family>Source Han Sans SC</family> </accept>
-    </alias>
-    <alias>
-        <family>楷体</family>
-        <accept> <family>Source Han Sans SC</family> </accept>
-    </alias>
-    <alias>
-        <family>Microsoft YaHei</family>
-        <accept> <family>Source Han Sans SC</family> </accept>
-    </alias>
-    <alias>
-        <family>微软雅黑</family>
-        <accept> <family>Source Han Sans SC</family> </accept>
-    </alias>
+    <match target="pattern">
+        <test name="lang" compare="eq">
+            <string>ja</string>
+        </test>
+        <test name="family">
+            <string>sans-serif</string>
+        </test>
+        <edit name="family" mode="prepend" binding="strong">
+            <string>Noto Sans CJK JP</string>
+        </edit>
+    </match>
 
-    <!-- TC -->
-    <alias>
-        <family>細明體</family>
-        <accept> <family>Source Han Sans TC</family> </accept>
-    </alias>
-    <alias>
-        <family>PMingLiU</family>
-        <accept> <family>Source Han Sans TC</family> </accept>
-    </alias>
-    <alias>
-        <family>新細明體</family>
-        <accept> <family>Source Han Sans TC</family> </accept>
-    </alias>
-    <alias>
-        <family>AR MingtiM BIG-5</family>
-        <accept> <family>Source Han Sans TC</family> </accept>
-    </alias>
-    <alias>
-        <family>標楷體</family>
-        <accept> <family>Source Han Sans TC</family> </accept>
-    </alias>
-    <alias>
-        <family>Microsoft JhengHei</family>
-        <accept> <family>Source Han Sans TC</family> </accept>
-    </alias>
-    <alias>
-        <family>微軟正黑體</family>
-        <accept> <family>Source Han Sans TC</family> </accept>
-    </alias>
-
-    <!-- JP -->
-    <alias>
-        <family>MS Gothic</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
-    <alias>
-        <family>ＭＳ ゴシック</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
-    <alias>
-        <family>MS PGothic</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
-    <alias>
-        <family>ＭＳ Ｐゴシック</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
-    <alias>
-        <family>MS UIGothic</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
-    <alias>
-        <family>Meiryo UI</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
-    <alias>
-        <family>MS Mincho</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
-    <alias>
-        <family>ＭＳ 明朝</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
-    <alias>
-        <family>AR MinchoL JIS</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
-    <alias>
-        <family>MS PMincho</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
-    <alias>
-        <family>ＭＳ Ｐ明朝</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
-    <alias>
-        <family>メイリオ</family>
-        <accept> <family>Source Han Sans</family> </accept>
-    </alias>
+    <match target="pattern">
+        <test name="lang" compare="eq">
+            <string>zh-tw</string>
+        </test>
+        <test name="family">
+            <string>sans-serif</string>
+        </test>
+        <edit name="family" mode="prepend" binding="strong">
+            <string>Noto Sans CJK TC</string>
+        </edit>
+    </match>
 
 </fontconfig>
