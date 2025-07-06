@@ -3,28 +3,19 @@ local devicons = require "nvim-web-devicons"
 local lspkind = require "lspkind"
 local luasnip = require "luasnip"
 
-local option = {}
+local o = {}
 
-option.completion = {
+o.completion = {
     keyword = { range = "prefix" },
-    accept = {
-        auto_brackets = {
-            -- semantic_token_resolution = { timeout_ms = 100 },
-        },
-    },
     list = { selection = {} },
+    trigger = {
+        show_on_keyword = false,
+        show_on_trigger_character = false,
+    },
 }
 
-option.completion.list.selection = {
-    -- preselect = function( ctx )
-    --     return not blink.snippet_active { direction = 1 }
-    -- end
-    preselect = true,
-}
-
-option.completion.menu = {
+o.completion.menu = {
     border = "rounded",
-    scrollbar = false,
     draw = {
         components = {},
         columns = {
@@ -35,7 +26,7 @@ option.completion.menu = {
     },
 }
 
-option.completion.menu.draw.components.kind_icon = {
+o.completion.menu.draw.components.kind_icon = {
     ellipsis = false,
     text = function ( ctx )
         local icon = ctx.kind_icon
@@ -49,18 +40,24 @@ option.completion.menu.draw.components.kind_icon = {
     end
 }
 
-option.completion.documentation = {
+o.completion.documentation = {
     auto_show = true,
     auto_show_delay_ms = 0,
     window = { border = "rounded" },
 }
 
-option.keymap = {
+o.keymap = {
     preset = "default",
-    ['<C-\\>'] = { 'select_and_accept' },
-    -- To exit insert mode directly,
-    -- otherwise <Esc> has to be pressed twice :/
-    -- ["<Esc>"] = { "hide", "fallback" },
+
+    ['<C-space>'] = {
+        function( cmp )
+            if cmp.is_visible() then
+                cmp.select_and_accept()
+            else
+                cmp.show()
+            end
+        end
+    },
 }
 
 -- Cancel luasnip when exit insert mode.
@@ -73,18 +70,16 @@ vim.api.nvim_create_autocmd( "InsertLeave", {
     end
 } )
 
-option.cmdline = {
+o.cmdline = {
     completion = { menu = { auto_show = true } },
-    keymap = {
-        preset = "inherit",
-    },
+    keymap = { preset = "inherit", },
 }
 
-option.snippets = {
+o.snippets = {
     preset = "luasnip",
 }
 
-option.fuzzy = {
+o.fuzzy = {
     implementation = "rust",
     sorts = {
         -- sort items with auto-imports below imported ones
@@ -119,10 +114,10 @@ option.fuzzy = {
     end,
 }
 
-option.sources = {
+o.sources = {
     providers = {
         lsp = { timeout_ms = 1000, },
     }
 }
 
-blink.setup( option )
+blink.setup( o )
