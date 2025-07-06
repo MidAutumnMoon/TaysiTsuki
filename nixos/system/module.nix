@@ -10,7 +10,6 @@
         etc.overlay.enable = true;
         tools.nixos-generate-config.enable = false;
         # forbiddenDependenciesRegexes = [ "perl" ];
-        rebuild.enableNg = true;
     };
 
     # Don't want to manually update it once a while.
