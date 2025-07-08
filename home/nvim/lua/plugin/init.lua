@@ -94,8 +94,9 @@ local __plugins = {
 
     {
         "windwp/nvim-ts-autotag",
-        after = "nvim-treesitter",
-        opts = {},
+        config = function()
+            require "nvim-ts-autotag".setup { }
+        end,
     },
 
     {

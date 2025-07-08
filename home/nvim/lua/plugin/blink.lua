@@ -7,7 +7,9 @@ local o = {}
 
 o.completion = {
     keyword = { range = "prefix" },
-    list = { selection = {} },
+    list = {
+        selection = { preselect = true, auto_insert = true, },
+    },
     trigger = {
         show_on_keyword = false,
         show_on_trigger_character = false,
@@ -54,7 +56,8 @@ o.keymap = {
             if cmp.is_visible() then
                 cmp.select_and_accept()
             else
-                cmp.show()
+                -- cmp.show()
+                cmp.show_and_insert()
             end
         end
     },
