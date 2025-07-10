@@ -210,10 +210,14 @@ in
         ];
         sambaOption = [
             "x-systemd.automount"
-            "x-systemd.mount-timeout=30s"
+            "x-systemd.mount-timeout=10s"
             "_netdev"
+            "noauto"
             "user"
             "users"
+            "vers=3.1.1"
+            "iocharset=utf8"
+            "echo_interval=30"
             "uid=${toString config.users.users.teapot.uid}"
             "gid=${toString config.users.groups.users.gid}"
         ];

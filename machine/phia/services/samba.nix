@@ -46,6 +46,7 @@ in
             "map to guest" = "bad user";
             "guest account" = "nobody";
             "server min protocol" = "SMB3_11";
+            "server smb encrypt" = "no";
             "logging" = "systemd";
             "getwd cache" = "yes";
             "socket options" = "IPTOS_LOWDELAY TCP_NODELAY";
