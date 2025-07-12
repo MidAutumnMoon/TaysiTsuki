@@ -50,27 +50,10 @@ in
             StateDirectory = "qbittorrent";
             WorkingDirectory = "%S/${StateDirectory}";
             SystemCallFilter = "@system-service ~@privileged";
-            ProtectSystem = "strict";
-            ProtectHome = true;
-            ReadWritePaths = [ torrentDir ];
-            MemoryDenyWriteExecute = true;
-            RestrictSUIDSGID = true;
-            PrivateDevices = true;
-            ProtectProc = "invisible";
-            ProcSubset = "pid";
-            RemoveIPC = true;
-            NoNewPrivileges = true;
-            ProtectClock = true;
-            ProtectControlGroups = true;
-            ProtectKernelLogs = true;
-            ProtectKernelTunables = true;
-            ProtectHostname = true;
-            LockPersonality = true;
-            SystemCallArchitectures = "native";
-            RestrictNamespaces = true;
-            CapabilityBoundingSet = "";
             AmbientCapabilities = [ "CAP_NET_RAW" ];
+            ReadWritePaths = [ torrentDir ];
         };
+        useHardening = true;
     };
 
     networking.firewall = {
