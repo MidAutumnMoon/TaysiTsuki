@@ -12,84 +12,70 @@ let
         homelab
     ;
 
-    controllerListen = "127.0.0.1:${toString ports.clashApi}";
+    clashApiAddr = "127.0.0.1:${toString ports.clashApi}";
 
 in
 
 {
 
-    sops.secrets = rec {
-        conf--sing = {
-            sopsFile = ./secrets/conf--sing.cue.sops;
-            format = "binary";
-            restartUnits = [ "sing-box.service" ];
+    sops.secrets =
+        let singService = config.systemd.services."sing-box".name; in
+        {
+            conf--sing = {
+                sopsFile = ./conf--sing.nix.sops;
+                format = "binary";
+                restartUnits = [ singService ];
+            };
+            cert--sing = {
+                key = "ca";
+                sopsFile = ./cert--sing.yml;
+                restartUnits = [ singService ];
+            };
         };
-        cert--hysteria = {
-            key = "ca";
-            sopsFile = ./secrets/cert--hysteria.yml;
-            restartUnits = conf--sing.restartUnits;
-        };
-    };
 
-    # NOTE: actually using nix may be a smarter idea
-    # Pass information from within nixos onto sing-box without
-    # hardcode them in the private config.
-    passthru.sing-pubconf =
+    passthru.singboxLore =
         let
-            inherit ( domains ) im_418;
-            quote = it: ''"${it}"'';
-            noproxy_domains =
-                homelab
-                |> lib.attrValues
-                |> map ( it: it.fqdn )
-                |> lib.appendElem "local"
-                |> lib.appendElem "${im_418.tailscale_zone}.${im_418.name}"
-                |> lib.concatMapStringsSep ", " quote;
+            noproxy = with lib; with domains;
+                apps.homelab
+                |> attrValues |> map ( val: val.fqdn )
+                |> appendElem "local"
+                |> appendElem "${im_418.tailscale_zone}.${im_418.name}"
+                |> concatMapStringsSep " " ( v: "\"${v}\"" )
+                |> ( v: "[ ${v} ]" );
         in
-        pkgs.writeText "sing-pubconf.cue" /*cue*/ ''
-            package sing
-            #listenPort: number & ${toString ports.proxy}
-            #hysteriaCert: string @tag( hysteriaCert )
-            #noproxyDomains: [ ${noproxy_domains} ]
+        pkgs.writeText "sing-box-lore.nix"
+        /*nix*/ ''
+            {
+                listenPort = ${toString ports.proxy};
+                noproxyDomains = ${noproxy};
+                clashApiAddr = "${clashApiAddr}";
 
-            // Some cue dark magic
-            // #geositePath & { _, #name: "ads" } evals to the path :)
-            #geositePath: {
-                #name: string // input
-                #pkg: "${pkgs.sing-geosite}"
-                #rulesetDir: "\(#pkg)/share/sing-box/rule-set"
-                "\(#rulesetDir)/geosite-\(#name).srs"
+                # :: string -> path
+                # Return the path of geosite data of $name
+                geositeDataOf = name:
+                    let pkg = "${pkgs.sing-geosite}"; in
+                    let dir = "''${pkg}/share/sing-box/rule-set"; in
+                    "''${dir}/geosite-''${name}.srs";
             }
-
-            experimental: {
-                cache_file: enabled: true
-                clash_api: {
-                    external_controller: "${controllerListen}"
-                    secret: ""
-                }
-            }
+            # vim: ft=nix:
         '';
 
-    systemd.services."sing-box" = let
-        # N.B. .cue is essential, other cue won't recognize it
-        sing_cue = "conf--sing.cue";
-        cert = "cert--hysteria";
-    in {
+    systemd.services."sing-box" = {
         path = with pkgs; [
-            cue
+            config.nix.package
             tsuki.sing-box
         ];
         script = /* sh */ ''
-            export HOME="$CACHE_DIRECTORY"
-            CONFIG="$RUNTIME_DIRECTORY/config.json"
-            cue export --out json \
-                '${config.passthru.sing-pubconf}' \
-                "$CREDENTIALS_DIRECTORY/${sing_cue}" \
-                --inject hysteriaCert="$CREDENTIALS_DIRECTORY/${cert}" \
-                --force --outfile "$CONFIG"
-            sing-box run \
+            conf="$RUNTIME_DIRECTORY/config.json"
+            nix-instantiate \
+                --eval --strict --json \
+                --arg "loreFile" "${config.passthru.singboxLore}" \
+                --argstr "certPath" "$CREDENTIALS_DIRECTORY/cert" \
+                "$CREDENTIALS_DIRECTORY/private_config" \
+            > "$conf"
+            exec sing-box run \
                 --directory "$STATE_DIRECTORY" \
-                --config "$CONFIG"
+                --config "$conf"
         '';
         serviceConfig = {
             StateDirectory = "sing-box";
@@ -98,8 +84,8 @@ in
             LoadCredential =
                 let inherit ( config.sops ) secrets; in
                 [
-                    "${sing_cue}:${secrets.conf--sing.path}"
-                    "${cert}:${secrets.cert--hysteria.path}"
+                    "private_config:${secrets.conf--sing.path}"
+                    "cert:${secrets.cert--sing.path}"
                 ];
             DynamicUser = true;
             RemoveIPC = true;
@@ -143,7 +129,7 @@ in
             @clash_api host ${homelab.clash_dashboard.fqdn}
             handle @clash_api {
                 handle_path /api* {
-                    reverse_proxy http://${controllerListen}
+                    reverse_proxy http://${clashApiAddr}
                 }
                 root * ${pkgs.tsuki.metacubexd}
                 file_server
