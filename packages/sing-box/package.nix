@@ -27,6 +27,7 @@ buildGoModule ( drvSelf: {
     tags = [
         "with_quic"
         "with_clash_api"
+        "with_utls"
     ];
 
     ldflags = [
