@@ -16,9 +16,9 @@ packages.concat %w[
     shadowsocks
     dnscrypt
     adblocklist
-    sing-box
     coredns
 ].tsukify
+# sing-box
 
 packages << {
     attr: "tsuki.inori",
