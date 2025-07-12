@@ -9,16 +9,16 @@
 buildGoModule ( drvSelf: {
 
     pname = "sing-box";
-    version = "1.12.0-beta.33-unstable-2025-07-12";
+    version = "1.12.0-beta.31";
 
     src = fetchFromGitHub {
         owner = "SagerNet";
         repo = "sing-box";
-        rev = "b3c11109e0ba11ea849f2fc7f30b768727d7a722";
-        hash = "sha256-ocEJrZrRth6Yb3YOAgI2JGNGukneaXYeuGcescjpZg4=";
+        rev = "989034b8f7f6672e2dde060649b17cc29fceff91";
+        hash = "sha256-WwwZePdEokhLIOMJLSZV5oIEuufr+1hPaiONYaz+Nzk=";
     };
 
-    vendorHash = "sha256-Hle1Jdn3iXPtT+vV3qkoWyEjvj00NMdGnG7HkpeXFaM=";
+    vendorHash = "sha256-t76QBdgTprVM5g6ytl0nG+daO6WEnI1Q5gA3bPMRR9Y=";
 
     subPackages = [
         "cmd/sing-box"
