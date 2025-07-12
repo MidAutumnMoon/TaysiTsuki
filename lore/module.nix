@@ -29,7 +29,7 @@ in
     };
 
     lore.ports = {
-        proxyPort = 7890;
+        proxy = 7890;
         torrent = 9094;
         qbitwebui = 9095;
         dnscryptWebui = 9096;

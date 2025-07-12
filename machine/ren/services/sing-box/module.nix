@@ -48,7 +48,7 @@ in
         in
         pkgs.writeText "sing-pubconf.cue" /*cue*/ ''
             package sing
-            #listenPort: number & ${toString ports.proxyPort}
+            #listenPort: number & ${toString ports.proxy}
             #hysteriaCert: string @tag( hysteriaCert )
             #noproxyDomains: [ ${noproxy_domains} ]
 
@@ -136,7 +136,7 @@ in
         let
             wpad = pkgs.writeTextDir "wpad.dat" /*js*/ ''
                 function FindProxyForURL( url, host ) {
-                    return "PROXY ${homelab.proxy.fqdn}:${toString ports.proxyPort}";
+                    return "PROXY ${homelab.proxy.fqdn}:${toString ports.proxy}";
                 }
             '';
         in ''
@@ -157,8 +157,8 @@ in
         '';
 
     networking.firewall = {
-        allowedTCPPorts = [ ports.proxyPort ];
-        allowedUDPPorts = [ ports.proxyPort ];
+        allowedTCPPorts = [ ports.proxy ];
+        allowedUDPPorts = [ ports.proxy ];
     };
 
     boot.kernel.sysctl = {

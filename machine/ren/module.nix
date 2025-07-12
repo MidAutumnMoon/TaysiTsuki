@@ -39,7 +39,7 @@ in
 
     networking = {
         hostName = lore.machines.ren.hostname;
-        proxy.default = "http://localhost:${toString lore.ports.proxyPort}";
+        proxy.default = "http://localhost:${toString lore.ports.proxy}";
         tempAddresses = "disabled";
         useDHCP = false;
     };
