@@ -63,34 +63,9 @@ lib.mkIf caddyCfg.enable {
     systemd.services.caddy = {
         requires = [ "sops-install-secrets.service" ];
         after = [ "sops-install-secrets.service" ];
+        useHardening = true;
         serviceConfig = {
             EnvironmentFile = config.sops.templates."cf-token-envfile".path;
-            # Hardening
-            RemoveIPC = true;
-            NoNewPrivileges = true;
-            CapabilityBoundingSet = "";
-            ProtectClock = true;
-            ProtectKernelLogs = true;
-            ProtectControlGroups = true;
-            ProtectKernelModules = true;
-            ProtectHostname = true;
-            ProtectKernelTunables = true;
-            ProtectSystem = "strict";
-            SystemCallArchitectures = "native";
-            MemoryDenyWriteExecute = true;
-            RestrictNamespaces = true;
-            RestrictSUIDSGID = true;
-            RestrictRealtime = true;
-            LockPersonality = true;
-            SystemCallFilter = "@system-service";
-            ProtectProc = "invisible";
-            ProcSubset = "pid";
-            PrivateMounts = true;
-            RestrictAddressFamilies = [
-                "AF_UNIX"
-                "AF_INET"
-                "AF_INET6"
-            ];
         };
         environment =
             with proxyCfg;

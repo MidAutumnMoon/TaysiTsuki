@@ -15,8 +15,4 @@
     # Don't want to manually update it once a while.
     system.stateVersion = lib.trivial.release;
 
-    systemd.extraConfig = ''
-        DefaultTimeoutStopSec = 20s
-    '';
-
 }
