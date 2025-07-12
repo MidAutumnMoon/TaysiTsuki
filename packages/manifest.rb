@@ -37,7 +37,6 @@ end
         %w[
             caddy
             dnscrypt
-            sing-box
             coredns
         ].tsukify + %w[
             sops-install-secrets

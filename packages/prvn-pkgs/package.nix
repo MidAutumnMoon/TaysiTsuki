@@ -2,10 +2,7 @@
     lib,
     buildPackages,
     runCommandNoCC,
-    buildGoModule,
-
     tsuki,
-    dnscrypt-proxy,
 }:
 
 rec {
@@ -24,6 +21,7 @@ rec {
         ssserver
         hysteria
         dnscrypt
+        sing-box
     ];
 
     ssserver =
@@ -31,6 +29,9 @@ rec {
 
     hysteria =
         upx-pack ( lib.getExe tsuki.hysteria );
+
+    sing-box =
+        upx-pack ( lib.getExe tsuki.sing-box );
 
     # N.B. CGO must be disabled which makes it not depend on ld.so.
     # Otherwise, upx will try to call ld.so at startup, and also because of
