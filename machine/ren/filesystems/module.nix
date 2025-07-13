@@ -14,6 +14,7 @@ let
         "_netdev"
         "noauto"
         "noatime"
+        "noserverino"
         "user"
         "users"
         "vers=3.1.1"
