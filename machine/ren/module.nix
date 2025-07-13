@@ -35,6 +35,7 @@ in
         restic
         zed-editor
         tsuki.qimgv
+        nix-tree
     ];
 
     networking = {
