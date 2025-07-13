@@ -25,6 +25,8 @@
         "vsyscall=none"
         "intel_iommu=on"
         "amd_iommu=on"
+        "transparent_hugepage=always"
+        "nmi_watchdog=0"
     ];
 
     boot.tmp = {
@@ -37,5 +39,22 @@
         enableContainers = false;
     };
 
+    # ref: https://github.com/CachyOS/CachyOS-Settings/
+    systemd.tmpfiles.settings."10-hugepages" =
+        let thp = "/sys/kernel/mm/transparent_hugepage"; in
+        {
+            "${thp}/enabled".w = {
+                argument = "always";
+            };
+            "${thp}/defrag".w = {
+                argument = "defer+madvise";
+            };
+            "${thp}/shmem_enabled".w = {
+                argument = "advise";
+            };
+            "${thp}/khugepaged/max_ptes_none".w = {
+                argument = "400";
+            };
+        };
 
 }

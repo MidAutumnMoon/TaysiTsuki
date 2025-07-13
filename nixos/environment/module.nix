@@ -26,7 +26,11 @@ in
             strace
         ];
 
-    environment.variables = xdg_vars;
+    environment.variables =
+        xdg_vars
+        // {
+            GLIBC_TUNABLES = "glibc.elision.enable=1:glibc.malloc.hugetlb=1";
+        };
 
     environment.etc = {
         "pam/environment".text =
