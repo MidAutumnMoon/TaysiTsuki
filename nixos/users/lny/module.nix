@@ -39,7 +39,7 @@ let
         '';
     };
 
-    lnyPrevGenFile = "/run/nixos/lny-prev-gen";
+    lnyPrevGenFile = "/var/lib/lny-prev-gen";
 
     blueprintNameOf =
         username: "lny-blueprint-${username}.json";
