@@ -25,7 +25,7 @@ in
         tsuki.firefox
         cifs-utils
         # sort out mpv later
-        strawberry
+        tsuki.strawberry
         wl-clipboard
         telegram-desktop
         mpv

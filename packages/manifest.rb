@@ -84,4 +84,6 @@ end
             plasma-workspace plasma-desktop kdeplasma-addons
         ].kde_package,
 
+    strawberry: %w[tsuki.strawberry],
+
 }
