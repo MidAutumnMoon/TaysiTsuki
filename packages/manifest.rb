@@ -54,6 +54,7 @@ end
         prvn-pkgs.ssserver
         prvn-pkgs.hysteria
         prvn-pkgs.dnscrypt
+        prvn-pkgs.sing-box
     ].tsukify,
 
     lix: %w[lix],
