@@ -1,0 +1,20 @@
+{
+    "nodeModulesDir": "auto",
+    "imports": {
+        "@rsbuild/core": "npm:@rsbuild/core@^1.4.6",
+        "@rspack/cli": "npm:@rspack/cli@^1.4.6",
+        "@types/mpv-script": "npm:@types/mpv-script@^0.32.8",
+        "esbuild": "npm:esbuild@^0.25.6",
+        "esbuild-register": "npm:esbuild-register@^3.6.0",
+        "rspack-deno-plugin": "npm:rspack-deno-plugin@^1.0.3"
+    },
+    "tasks": {
+        "build": "deno run -A @rsbuild/core build --watch"
+    },
+    "compilerOptions": {
+        "types": [
+            "@types/mpv-script"
+        ],
+        "lib": [ "ES2022", "DOM", "DOM.Iterable" ]
+    }
+}

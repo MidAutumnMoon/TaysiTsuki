@@ -36,6 +36,7 @@ in
         zed-editor
         tsuki.qimgv
         nix-tree
+        deno
     ];
 
     networking = {

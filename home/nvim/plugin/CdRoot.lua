@@ -17,6 +17,7 @@ M.markers = {
     "default.nix",
 
     "Cargo.toml",
+    "deno.json",
 
     -- Manually mark the root
     ".root",
