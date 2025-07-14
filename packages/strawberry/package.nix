@@ -1,6 +1,7 @@
 {
     lib,
     strawberry,
+    gst_all_1,
 }:
 
 lib.onceride strawberry
@@ -16,6 +17,11 @@ lib.onceride strawberry
     libselinux = null;
     libsepol = null;
     p11-kit = null;
+    gst_all_1 = gst_all_1 // {
+        gst-libav = null;
+        gst-plugins-bad = null;
+        gst-plugins-ugly = null;
+    };
 }
 
 ( old: {
