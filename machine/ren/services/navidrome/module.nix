@@ -1,13 +1,10 @@
-{ lib, config, pkgs, utils, ... }:
+{ config, ... }:
 
 let
 
     inherit ( config ) lore;
 
     poolMnt = config.fileSystems."/mnt/pool".mountPoint;
-
-    poolMntUnit =
-        "${utils.escapeSystemdPath poolMnt}.mount";
 
 in
 
@@ -28,8 +25,7 @@ in
     };
 
     systemd.services.navidrome = {
-        after = [ poolMntUnit ];
-        wants = [ poolMntUnit ];
+        unitConfig.RequiresMountsFor = [ poolMnt ];
     };
 
     services.caddy.virtualHosts."im_418".extraConfig =
