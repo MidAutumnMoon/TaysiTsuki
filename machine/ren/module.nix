@@ -22,7 +22,6 @@ in
     environment.systemPackages = with pkgs; [
         fastfetchMinimal
         git
-        tsuki.firefox
         cifs-utils
         # sort out mpv later
         tsuki.strawberry

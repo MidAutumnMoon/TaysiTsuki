@@ -2,7 +2,7 @@
 
 {
 
-    time.timeZone = lib.mkDefault "Asia/Shanghai";
+    time.timeZone = lib.mkDefault "Asia/Taipei";
 
     i18n.defaultLocale = "en_US.UTF-8";
 

@@ -51,22 +51,13 @@ in
 {
 
     options.systemd.services =
-        let
-            # Ref: https://github.com/NixOS/nixpkgs/issues/377827
-            # Clever priority trick to allow the hardening config
-            # to override the option defaults, but doesn't prevent
-            # users from setting the options manually.
-            betweenDefaultAndAssign = lib.mkOverride 999;
-        in
         lib.mkOption {
             type = with types; attrsOf <| types.submodule
                 ( { config, ... }: {
                     options.useHardening =
                         lib.mkEnableOption "Systemd service sandbox";
                     config = lib.mkIf config.useHardening {
-                        serviceConfig =
-                            lib.mapAttrs ( _n: betweenDefaultAndAssign )
-                            hardeningOptions;
+                        serviceConfig = hardeningOptions;
                     };
                 } );
         };
