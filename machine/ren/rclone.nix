@@ -43,12 +43,12 @@ in
                 --dir-cache-time "2m" \
                 --poll-interval "1m" \
                 --multi-thread-cutoff "128M" \
-                --multi-thread-streams "4" \
+                --multi-thread-streams "8" \
                 --umask "022" \
+                --disable-http2 \
                 --allow-other \
                 %i: /mnt/%i
         '';
-        # --disable-http2 \
         # serviceConfig.ExecStop = "fusermount -u /mnt/%i";
         environment =
             config.networking.proxy.envVars
