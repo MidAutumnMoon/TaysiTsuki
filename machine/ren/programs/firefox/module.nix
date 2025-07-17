@@ -171,7 +171,6 @@
 
         lockPref( "extensions.getAddons.showPane", false );
         lockPref( "findbar.highlightAll", true );
-        lockPref( "mousewheel.autodir.enabled", true );
 
         lockPref( "privacy.spoof_english", 2 );
         lockPref( "privacy.donottrackheader.enabled", false );
