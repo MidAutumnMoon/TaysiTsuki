@@ -23,6 +23,7 @@ stdenv.mkDerivation rec {
     cmakeFlags = with lib; [
         ( cmakeBool "VIDEO_SUPPORT" false )
         ( cmakeBool "EXIV2" false )
+        ( cmakeBool "USE_QT5" false )
     ];
 
     nativeBuildInputs = [
