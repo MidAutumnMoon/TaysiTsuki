@@ -19,25 +19,6 @@ in
     # General
     #
 
-    environment.systemPackages = with pkgs; [
-        fastfetchMinimal
-        git
-        cifs-utils
-        # sort out mpv later
-        tsuki.strawberry
-        wl-clipboard
-        telegram-desktop
-        mpv
-        obsidian
-        unrar
-        numbat
-        restic
-        zed-editor
-        tsuki.qimgv
-        nix-tree
-        deno
-    ];
-
     networking = {
         hostName = lore.machines.ren.hostname;
         proxy.default = "http://localhost:${toString lore.ports.proxy}";
