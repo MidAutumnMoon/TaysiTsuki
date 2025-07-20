@@ -97,8 +97,8 @@ in
                 # this script runs before "/run/current-system" getting relinked,
                 # and in the persepct of the next system generation, this becomes
                 # the old one.
-                currSysRealPath="$( readlink -f "/run/current-system" )"
-                echo "$currSysRealPath" > '${lnyPrevGenFile}'
+                printf "%s" "$( readlink -f '/run/current-system' )" \
+                    > '${lnyPrevGenFile}'
             fi
         '';
     };
