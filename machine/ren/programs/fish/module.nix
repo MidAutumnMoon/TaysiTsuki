@@ -2,6 +2,8 @@
 
 {
 
+    programs.fish.enable = true;
+
     environment.shellAliases = {
         "ldd" = "libtree";
         "sys" = "systemctl";

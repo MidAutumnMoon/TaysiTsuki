@@ -63,7 +63,7 @@ git_abbr "rst!" "reset --hard"
 
 git_abbr "s" "status --short"
 
-git_abbr "sh" "show"
+git_abbr "sh" "show --ext-diff"
 
 git_abbr "sta" "stash"
 git_abbr "stap" "stash pop"

@@ -94,8 +94,6 @@ in
         flake = "/home/teapot/TaysiTsuki";
     };
 
-    programs.fish.enable = true;
-
     #
     # Users
     #
