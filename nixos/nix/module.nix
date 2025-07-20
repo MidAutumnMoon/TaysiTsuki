@@ -29,6 +29,10 @@
         ];
         use-xdg-base-directories = true;
         always-allow-substitutes = false;
+
+        temp-dir = "/tmp";
+        # insecure, but well enough
+        build-dir = "/tmp";
     };
 
     nix.registry = {
