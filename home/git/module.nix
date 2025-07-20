@@ -30,6 +30,7 @@ in {
             renames = true
             algorithm = histogram
             colorMoved = plain
+            external = "${lib.getExe pkgs.difftastic}"
 
         [branch]
             sort = -committerdate
@@ -39,7 +40,6 @@ in {
 
         [pull]
             rebase = true
-
 
         [push]
             default = simple
@@ -67,7 +67,6 @@ in {
         [core]
             quotePath = false
             pager = "${lib.getExe pkgs.delta}"
-            # fsmonitor = "{lib.getExe pkgs.rs-git-fsmonitor}"
             # untrackedCache = true
 
         [credential]
@@ -76,9 +75,6 @@ in {
 
         [gc]
             auto = 0
-
-        [interactive]
-            diffFilter = delta --color-only
 
         [delta]
             navigate = true
@@ -98,12 +94,10 @@ in {
             enabled = true
             autoupdate = true
 
-
         # Alias
 
         [alias]
             kill-reflog = "reflog expire --all --expire=now --expire-unreachable=now"
-
 
         # Signing
 
