@@ -9,31 +9,31 @@
 
 let
 
-    # Explain of The Dark Art
+    # Explaination of The Dark Art
     #
-    # caddy's "main.go" file looks like this:
+    # Caddy's "main.go" roughly has following structure, and
+    # plugins are added by appending urls into the import block.
     #
     #   package main
     #
     #   import (
-    #       caddycmd "url..."
-    #       _ "url"
+    #       caddycmd "<dep>"
+    #       _ "<dep>"
     #   )
     #
-    #   func main
+    #   func main()
     #
-    # Upon closer observation, we can notice that the closing ")"
-    # of "import" statment is on its own line, which means by prepending
-    # to the closing ")", content can be placed right inside the "import" statment.
+    # Upon closer observation, as the closing ")" is on its own line,
+    # prepending contents to ")" will be inside the import block.
     #
-    # This part is done by using some sed magics: '/<reg>/i<content>'
-    #                                                     ^ this flag
-    plugins = [
-        "github.com/caddy-dns/cloudflare"
-    ]
-    |> map ( name: '' sed -i '/^)$/i_ "${name}"' "cmd/caddy/main.go" '' )
-    |> lib.concatStringsSep "\n"
-    ;
+    # This is done using sed magic: "/<reg>/i<content>"
+    #                                       ^ prepend
+    addPluginsCmd =
+        [
+            "github.com/caddy-dns/cloudflare"
+        ]
+        |> map ( name: '' sed -i '/^)$/i_ "${name}"' "cmd/caddy/main.go" '' )
+        |> lib.concatStringsSep "\n";
 
 in
 
@@ -74,21 +74,20 @@ buildGoModule rec {
     ];
 
     preBuild = ''
-        ${plugins}
+        ${addPluginsCmd}
         go mod tidy -v
     '';
 
-    postInstall = let
-        canExec = with stdenvNoCC; buildPlatform.canExecute hostPlatform;
-    in lib.optionalString canExec /* sh */ ''
-        "$out/bin/caddy" manpage --directory "manpages"
-        installManPage "manpages"/*
-
-        installShellCompletion --cmd caddy \
-            --bash <($out/bin/caddy completion bash) \
-            --fish <($out/bin/caddy completion fish) \
-            --zsh <($out/bin/caddy completion zsh)
-    '';
+    postInstall =
+        with stdenvNoCC;
+        lib.optionalString ( buildPlatform.canExecute hostPlatform ) /* sh */ ''
+            "$out/bin/caddy" manpage --directory "manpages"
+            installManPage "manpages"/*
+            installShellCompletion --cmd caddy \
+                --bash <($out/bin/caddy completion bash) \
+                --fish <($out/bin/caddy completion fish) \
+                --zsh <($out/bin/caddy completion zsh)
+        '';
 
     meta = {
         homepage = "https://caddyserver.com";
