@@ -5,15 +5,15 @@ provider "registry.opentofu.org/carlpett/sops" {
   version     = "1.2.0"
   constraints = "~> 1.2"
   hashes = [
-    "h1:wKjTxjd5n1AIsHkh1jAuafla11Sm9yi4HNMwmicLBLE=",
+    "h1:FJNscnFInt5raZjEeJVcqo6posJnRwWBHm8KTXiqmeQ=",
   ]
 }
 
 provider "registry.opentofu.org/cloudflare/cloudflare" {
-  version     = "5.5.0"
+  version     = "5.6.0"
   constraints = "~> 5.4"
   hashes = [
-    "h1:/QR4ZjsRgSTyJnqkuHJZwn6hJYOwrITo6J4REiVHxTY=",
+    "h1:kpMaCuxYhrC1fTmPKMk0tWSNr1se8m4dtqPih8PhDjI=",
   ]
 }
 
@@ -21,14 +21,14 @@ provider "registry.opentofu.org/hashicorp/assert" {
   version     = "0.16.0"
   constraints = "~> 0.16"
   hashes = [
-    "h1:l4BZ5dE1GzpIQW1rQqbdAAvHG542CBE6NhgnG/jIJaM=",
+    "h1:2UTRKOtw5RN/4JZfl33pvhGE4GFx43bQaUYdfZ4Wq34=",
   ]
 }
 
 provider "registry.opentofu.org/tailscale/tailscale" {
-  version     = "0.20.0"
+  version     = "0.21.1"
   constraints = "~> 0.20"
   hashes = [
-    "h1:OEQ+SbZCEW83jcJpYFT+zBghGWdF/gruApqbgawFcUw=",
+    "h1:NWvtoE3Kbwp7BIrYJrl3KAKM+ZeD9rq07Ii++6gBD5g=",
   ]
 }
