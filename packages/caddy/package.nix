@@ -53,6 +53,11 @@ buildGoModule rec {
     proxyVendor = true;
     vendorHash = "sha256-iS6oWjoGDRtUNZmHreBxJ0iLchKBQXxzZpfPZpy0+0c=";
 
+    outputs = [
+        "out"
+        "man"
+    ];
+
     subPackages = [ "cmd/caddy" ];
 
     doCheck = false;
