@@ -41,11 +41,6 @@ buildGoModule ( drvSelf: {
 
     postInstall = ''
         installShellCompletion release/completions/sing-box.{bash,fish,zsh}
-
-        substituteInPlace release/config/sing-box{,@}.service \
-            --replace-fail "/usr/bin/sing-box" "$out/bin/sing-box" \
-            --replace-fail "/bin/kill" "${coreutils}/bin/kill"
-            install -Dm444 -t "$out/lib/systemd/system/" release/config/sing-box{,@}.service
     '';
 
     meta = {
