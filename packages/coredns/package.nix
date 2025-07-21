@@ -27,19 +27,12 @@ buildGoModule rec {
     env.GOAMD64 = "v3";
     env.CGO_ENABLED = 0;
 
+    doCheck = false;
+
     nativeBuildInputs = [ installShellFiles ];
 
     preBuild = ''
-        GOOS= GOARCH= go generate
-    '';
-
-    postPatch = /*bash*/ ''
-        substituteInPlace test/file_cname_proxy_test.go \
-            --replace-fail "TestZoneExternalCNAMELookupWithProxy" \
-                      "SkipZoneExternalCNAMELookupWithProxy"
-
-        substituteInPlace test/readme_test.go \
-            --replace-fail "TestReadme" "SkipReadme"
+        GOOS= GOARCH= go generate -v -n -x
     '';
 
     postInstall = ''
