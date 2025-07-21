@@ -11,13 +11,13 @@
 stdenv.mkDerivation rec {
 
     pname = "qimgv";
-    version = "latest-dev-unstable-2025-07-16";
+    version = "latest-dev-unstable-2025-07-21";
 
     src = fetchFromGitHub {
         owner = "easymodo";
         repo = pname;
-        rev = "dfa2c87d5ff91faf9d086cd14053b58918edef10";
-        sha256 = "sha256-6l2+j8NQwmEfYeEstDab6+s+QiVjeLHsKJPXo7flgPo=";
+        rev = "a8e335b75b0767fd2ea2e1c9145f89a866d002b2";
+        sha256 = "sha256-JOfHFgdSvEMvCTzUwfVMnasBHZfRFFDq2W2s9KeRAxU=";
     };
 
     cmakeFlags = with lib; [
