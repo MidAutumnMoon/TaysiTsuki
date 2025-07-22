@@ -35,6 +35,8 @@
             Pocket = false;
             SponsoredPocket = false;
             Snippets = false;
+            Stories = false;
+            SponsoredStories = false;
         };
 
         FirefoxSuggest = {
