@@ -23,7 +23,6 @@ tsuki.rust.buildRustPackage rec {
     };
 
     cargoHash = "sha256-t3Okfe9tBYIHaBp+CIoxjAn9dlhIUlS8iFtM19CTiOk=";
-    useFetchCargoVendor = true;
 
     doCheck = false;
 

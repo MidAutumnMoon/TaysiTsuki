@@ -19,7 +19,6 @@ pkgsStatic.tsuki.rust.buildRustPackage rec {
     };
 
     cargoHash = "sha256-I+qHJ5w4aJOZCNhoMJpqOjrcmiHI+Mjfy5d8rl6L+Hw=";
-    useFetchCargoVendor = true;
 
     doCheck = false;
 
