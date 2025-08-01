@@ -2,19 +2,19 @@ terraform {
     required_providers {
         sops = {
             source = "carlpett/sops"
-            version = "~> 1.2"
+            version = "~> 1"
         }
         cloudflare = {
             source = "cloudflare/cloudflare"
-            version = "~> 5.4"
+            version = "~> 5"
         }
         tailscale = {
             source = "tailscale/tailscale"
-            version = "~> 0.20"
+            version = "~> 0"
         }
         assert = {
             source = "hashicorp/assert"
-            version = "~> 0.16"
+            version = "~> 0"
         }
     }
 }
