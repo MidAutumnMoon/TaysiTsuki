@@ -26,6 +26,8 @@ in
 
     systemd.services.navidrome = {
         unitConfig.RequiresMountsFor = [ poolMnt ];
+        # Bind the whole samba share to use multiple libraries
+        serviceConfig.BindReadOnlyPaths = [ poolMnt ];
     };
 
     services.caddy.virtualHosts."im_418".extraConfig =
