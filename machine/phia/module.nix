@@ -97,72 +97,6 @@ in
         "systemd-machine-id-commit.service"
     ];
 
-    #
-    # filesystems
-    #
-
-    zramSwap.enable = true;
-
-    fileSystems = {
-        "/" = {
-            device = "none";
-            fsType = "tmpfs";
-            options = [ "defaults" "mode=755" "nosuid" "nodev" "size=8G" ];
-        };
-        "/boot" = {
-            device = "/dev/disk/by-uuid/3C67-B074";
-            fsType = "vfat";
-            options = [ "fmask=0022" "dmask=0022" ];
-        };
-        "/nix" = {
-            device = "phia/nix";
-            fsType = "zfs";
-        };
-        "/var" = {
-            device = "phia/var";
-            fsType = "zfs";
-        };
-        "/persist" = {
-            device = "phia/persist";
-            fsType = "zfs";
-            neededForBoot = true;
-        };
-        "/root" = {
-            device = "phia/root";
-            fsType = "zfs";
-        };
-        "/home" = {
-            device = "phia/home";
-            fsType = "zfs";
-        };
-        "/srv" = {
-            device = "phia/srv";
-            fsType = "zfs";
-        };
-        "/srv/pool" = {
-            device = "phia/srv/pool";
-            fsType = "zfs";
-        };
-        "/srv/torrent" = {
-            device = "phia/srv/torrent";
-            fsType = "zfs";
-        };
-        # Workaround for navidrome not supporting multiple music libraries.
-        # Expect it to gain the support the next major release.
-        "/srv/pool/Music/__AnimeMusic__" = {
-            depends = [ "/srv/pool" ];
-            device = "/srv/pool/Sakuhin";
-            fsType = "none";
-            options = [ "bind" ];
-        };
-        "/srv/pool/Music/__AnimeMusicAgain__" = {
-            depends = [ "/srv/pool" ];
-            device = "/srv/pool/Sakuhin with Anime";
-            fsType = "none";
-            options = [ "bind" ];
-        };
-    };
-
     systemd.tmpfiles.rules = let
         inherit ( config.sops ) secrets;
         inherit ( config.users.users ) fileshare;
@@ -174,9 +108,6 @@ in
         "C /etc/rclone.conf - - - - ${secrets."conf--rclone".path}"
         "z /etc/rclone.conf 0440 ${fileshare.name} ${fileshare.group} - -"
     ];
-
-    services.zfs.autoScrub.enable = true;
-    services.zfs.trim.enable = true;
 
     #
     # Hardware configs
