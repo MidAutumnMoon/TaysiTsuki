@@ -1,7 +1,3 @@
-vim.lsp.config( "elixirls", {
-    cmd = { "elixir-ls" },
-} )
-
 vim.lsp.config( "rust_analyzer", {
     settings = { ["rust-analyzer"] = {
         checkOnSave = true,
@@ -27,6 +23,17 @@ vim.lsp.config( "nixd", {
         },
     } }
 } )
+
+-- avoid ambiguous syntax
+;
+
+(function()
+    local lsp_path = vim.fn.exepath( "elixir-ls" )
+    if lsp_path ~= "" then
+        vim.lsp.config( "elixirls", { cmd = { lsp_path } } )
+        vim.lsp.enable { "elixirls" }
+    end
+end)()
 
 vim.lsp.enable {
     "denols",
