@@ -16,6 +16,7 @@
         ".nbd" = "nh os build";
         ".npl" = "nh os repl";
         "cm" = "colmena";
+        "m" = "mix";
     };
 
     programs.fish.init = /* fish */ ''
