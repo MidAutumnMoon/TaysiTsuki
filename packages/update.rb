@@ -17,14 +17,8 @@ packages.concat %w[
     dnscrypt
     adblocklist
     coredns
+    sing-box
 ].tsukify
-
-# 2025.07.12: beta.33 ssl bad mac regeression
-packages << {
-    attr: "tsuki.sing-box",
-    unstable: true,
-    pinned: true,
-}
 
 packages << {
     attr: "tsuki.inori",
