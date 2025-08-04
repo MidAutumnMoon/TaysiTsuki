@@ -322,6 +322,8 @@ local __plugins = {
     --     "bellinitte/uxntal.vim"
     -- },
 
+    { "https://github.com/elixir-editors/vim-elixir" },
+
     --
     -- Colorschemes
     --

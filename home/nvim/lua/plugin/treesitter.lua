@@ -23,6 +23,7 @@ require "nvim-treesitter.configs".setup {
         disable = {
             "ruby",
             "nix",
+            "elixir", "heex",
         },
     },
 
