@@ -92,27 +92,27 @@ local __plugins = {
         end
     },
 
-    {
-        "windwp/nvim-ts-autotag",
-        config = function()
-            require "nvim-ts-autotag".setup { }
-        end,
-    },
+    -- {
+    --     "windwp/nvim-ts-autotag",
+    --     config = function()
+    --         require "nvim-ts-autotag".setup { }
+    --     end,
+    -- },
 
-    {
-        "eraserhd/parinfer-rust",
-        ft = {
-            "racket",
-            "lisp",
-            "scheme"
-        },
-        init = function()
-            local dylib = lore.get_dylib_from_user_profile( "libparinfer_rust.so" )
-            if dylib then
-                vim.g.parinfer_dylib_path = dylib
-            end
-        end
-    },
+    -- {
+    --     "eraserhd/parinfer-rust",
+    --     ft = {
+    --         "racket",
+    --         "lisp",
+    --         "scheme"
+    --     },
+    --     init = function()
+    --         local dylib = lore.get_dylib_from_user_profile( "libparinfer_rust.so" )
+    --         if dylib then
+    --             vim.g.parinfer_dylib_path = dylib
+    --         end
+    --     end
+    -- },
 
     {
         "lukas-reineke/virt-column.nvim",
@@ -150,24 +150,24 @@ local __plugins = {
         end
     },
 
-    {
-        "nvim-neo-tree/neo-tree.nvim",
-        branch = "v3.x",
-        dependencies = {
-            "nvim-lua/plenary.nvim",
-            "MunifTanjim/nui.nvim",
-            "nvim-tree/nvim-web-devicons"
-        },
-        cmd = "Neotree",
-        event = { "CursorMoved", "CursorHold" },
-        config = function()
-            require "plugin.neo-tree"
-        end
-    },
+    -- {
+    --     "nvim-neo-tree/neo-tree.nvim",
+    --     branch = "v3.x",
+    --     dependencies = {
+    --         "nvim-lua/plenary.nvim",
+    --         "MunifTanjim/nui.nvim",
+    --         "nvim-tree/nvim-web-devicons"
+    --     },
+    --     cmd = "Neotree",
+    --     event = { "CursorMoved", "CursorHold" },
+    --     config = function()
+    --         require "plugin.neo-tree"
+    --     end
+    -- },
 
     {
         "andymass/vim-matchup",
-        after = "nvim-treesitter",
+        -- after = "nvim-treesitter",
         init = function()
             vim.g.matchup_matchparen_deferred = 1
         end
@@ -191,18 +191,16 @@ local __plugins = {
         },
     },
 
-    {
-        "lewis6991/gitsigns.nvim",
-        name = "gitsigns",
-        event = { "CursorHold", "CursorMoved" },
-        opts = {
-            signs = {
-                add = { text = "+" },
-                change = { text = '~' },
-                delete = { text = '-' }
-            }
-        },
-    },
+    -- {
+    --     "lewis6991/gitsigns.nvim",
+    --     opts = {
+    --         signs = {
+    --             add = { text = "+" },
+    --             change = { text = '~' },
+    --             delete = { text = '-' }
+    --         },
+    --     },
+    -- },
 
     {
         "nvim-lualine/lualine.nvim",
@@ -276,31 +274,31 @@ local __plugins = {
     -- Treesitter
     --
 
-    {
-        "nvim-treesitter/nvim-treesitter",
-        -- build = ":TSUpdate",
-        branch = "master",
-        config = function()
-            require "plugin.treesitter"
-        end
-    },
+    -- {
+    --     "nvim-treesitter/nvim-treesitter",
+    --     branch = "main",
+    --     config = function()
+    --         require "plugin.treesitter"
+    --     end
+    -- },
 
-    {
-        "nvim-treesitter/nvim-treesitter-context",
-        opts = {
-            max_lines = 3,
-        },
-    },
+    -- {
+    --     "nvim-treesitter/nvim-treesitter-context",
+    --     opts = {
+    --         max_lines = 3,
+    --     },
+    -- },
 
     -- {
     --     "nvim-treesitter/nvim-treesitter-textobjects",
     --     after = "nvim-treesitter",
     -- },
 
-    {
-        "RRethy/nvim-treesitter-endwise",
-        after = "nvim-treesitter",
-    },
+    -- {
+    --     --"RRethy/nvim-treesitter-endwise",
+    --     "AbaoFromCUG/nvim-treesitter-endwise",
+    --     branch = "main",
+    -- },
 
     --
     -- Languages
@@ -311,10 +309,10 @@ local __plugins = {
         ft = { "caddyfile" },
     },
 
-    {
-        "imsnif/kdl.vim",
-        ft = { "kdl" }
-    },
+    -- {
+    --     "imsnif/kdl.vim",
+    --     ft = { "kdl" }
+    -- },
 
     -- { "benknoble/vim-racket" },
 

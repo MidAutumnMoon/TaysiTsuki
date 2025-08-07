@@ -1,39 +1,23 @@
-require "nvim-treesitter.configs".setup {
+require "nvim-treesitter".setup {
 
-    highlight = {
-        enable = true,
-        disable = {
-            -- Broken
-            "ssh_config",
-        },
-    },
+    -- highlight = {
+    --     enable = true,
+    --     disable = {
+    --         -- Broken
+    --         "ssh_config",
+    --     },
+    -- },
 
---     #incremental_selection = {
---         enable = true,
---         keymaps = {
---             init_selection = "<C-space>",
---             node_incremental = "<C-space>",
---             scope_incremental = true,
---             node_decremental = "<bs>",
---         },
---     },
+    -- indent = {
+    --     enable = true,
+    --     disable = {
+    --         "ruby",
+    --         "nix",
+    --         "elixir", "heex",
+    --     },
+    -- },
 
-    indent = {
-        enable = true,
-        disable = {
-            "ruby",
-            "nix",
-            "elixir", "heex",
-        },
-    },
-
-    matchup = {
-        enable = true
-    },
-
-    endwise = {
-        enable = true
-    },
+    install_dir = "/home/teapot/wow"
 
 }
 
