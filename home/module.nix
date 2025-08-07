@@ -20,6 +20,7 @@
         libtree
         picard
         sops
+        zed-editor
     ];
 
     envvars = {
