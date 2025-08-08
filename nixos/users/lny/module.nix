@@ -92,12 +92,12 @@ in
     config.system.activationScripts."lny-prev-generation" = {
         deps = [ "etc" ];
         text = /*bash*/ ''
-            if [[ -d "$( dirname '${lnyPrevGenFile}' )" ]]
-            then
-                # this script runs before "/run/current-system" getting relinked,
-                # and in the persepct of the next system generation, this becomes
-                # the old one.
-                printf "%s" "$( readlink -f '/run/current-system' )" \
+            cursysPath="/run/current-system"
+            if [[ 
+                -d "$( dirname '${lnyPrevGenFile}' )" \
+                && -L "$cursysPath"
+            ]]; then
+                printf "%s" "$( readlink -f $cursysPath )" \
                     > '${lnyPrevGenFile}'
             fi
         '';
@@ -114,8 +114,7 @@ in
         |> attrValues
         # 3. generate systemd service
         |> map ( val: val // rec {
-            # treesitter is acting fishy, disable highlight :/
-            runner = /*txt*/ let
+            runner = let
                 blueprintName = blueprintNameOf val.username;
                 lnyBin =
                     lib.getOutput "lny" pkgs.tsuki.inori
@@ -135,8 +134,6 @@ in
                         echo "prevGen file is empty"
                         exit 1
                     fi
-                else
-                    echo "Can't locate previous generation, ignored"
                 fi
 
                 newBlueprint="${config.environment.etc.${blueprintName}.source}"
@@ -146,8 +143,7 @@ in
                         --new-blueprint "$newBlueprint" \
                         --old-blueprint "$oldBlueprint"
                 else
-                    '${lnyBin}' \
-                        --new-blueprint "$newBlueprint"
+                    '${lnyBin}' --new-blueprint "$newBlueprint"
                 fi
             '';
             service = {
