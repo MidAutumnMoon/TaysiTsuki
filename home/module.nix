@@ -21,6 +21,7 @@
         picard
         sops
         zed-editor
+        yacreader
     ];
 
     envvars = {
