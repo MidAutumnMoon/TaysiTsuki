@@ -23,6 +23,7 @@ packages.concat %w[
 packages << {
     attr: "tsuki.inori",
     unstable: true,
+    pinned: true,
 }
 
 packages << {
