@@ -12,7 +12,9 @@ runs:
     -   name: Move TMPDIR
         shell: bash
         run: |
+            sh -c 'uuidgen > /mnt/touchit' &
             builddir="$(sudo mktemp --directory --tmpdir=/mnt)"
+            mkdir -p "$builddir"
             sudo chmod 1777 "${builddir}"
             echo "TMPDIR=${builddir}" >> $GITHUB_ENV
             echo "TMPDIR set to ${builddir}"
