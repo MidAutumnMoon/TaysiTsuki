@@ -22,6 +22,7 @@
         sops
         zed-editor
         yacreader
+        imagemagick
     ];
 
     envvars = {
