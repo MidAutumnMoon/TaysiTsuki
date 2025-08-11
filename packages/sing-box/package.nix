@@ -13,7 +13,7 @@ buildGoModule ( drvSelf: {
     src = fetchFromGitHub {
         owner = "SagerNet";
         repo = "sing-box";
-        rev = "2dcb86941f5db01bbe296acae555a3b1f38c0441";
+        tag = "v${drvSelf.version}";
         hash = "sha256-pDwGJZYxhKdjMWl4DB4zcPJKL8qDqbXnJeHjmBhB7rY=";
     };
 
