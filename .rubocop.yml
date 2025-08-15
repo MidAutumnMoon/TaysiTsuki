@@ -37,12 +37,6 @@ Layout/IndentationWidth:
 Layout/MultilineMethodCallIndentation:
     EnforcedStyle: indented
 
-Layout/SpaceInsideArrayLiteralBrackets:
-    EnforcedStyle: space
-
-Layout/SpaceInsideParens:
-    EnforcedStyle: space
-
 Metrics/AbcSize:
     Enabled: false
 
