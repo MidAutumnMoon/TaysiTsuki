@@ -17,13 +17,18 @@ packages.concat %w[
     dnscrypt
     adblocklist
     coredns
-    sing-box
 ].tsukify
 
 packages << {
     attr: "tsuki.inori",
     unstable: true,
     pinned: true,
+}
+
+packages << {
+    attr: "tsuki.sing-box",
+    unstable: true,
+    preview: true,
 }
 
 packages << {

@@ -5,6 +5,7 @@ class Array
         abort "Some item are not String" unless all? { it in String }
         map { "tsuki.#{it}" }
     end
+
     def kde_package
         abort "Some item are not String" unless all? { it in String }
         map { "kdePackages.#{it}" }

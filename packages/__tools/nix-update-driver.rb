@@ -84,6 +84,9 @@ Sync do
         in { attr:, regex: }
             attribute = attr
             extra_opts << %(--version-regex="#{regex}")
+        in { attr:, preview: true }
+            attribute = attr
+            extra_opts << %(--version=unstable)
         else
             abort "Unknown manifest format"
         end
