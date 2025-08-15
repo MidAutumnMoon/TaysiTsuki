@@ -83,6 +83,7 @@ end
     kde_things3:
         %w[mesa] + %w[
             plasma-workspace plasma-desktop kdeplasma-addons
+            kwalletmanager konsole kate plasma-browser-integration
         ].kde_package,
 
 }
