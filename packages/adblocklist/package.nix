@@ -7,11 +7,11 @@
 stdenvNoCC.mkDerivation rec {
 
     pname = "adblocklist";
-    version = "2025-08-08.025808";
+    version = "2025-08-15.024716";
 
     src = fetchurl {
         url = "${meta.homepage}/releases/download/${version}/dnscrypt-blocklist.txt.zstd";
-        hash = "sha256-sXWiz93nAvR1X7oODQHeJjXf7o5xiqGc59k4WlhCzRQ=";
+        hash = "sha256-YSraVwO8rbTHsY4kjVgGLHe+C5rId5IjpaLnUJQQuV4=";
     };
 
     dontUnpack = true;
