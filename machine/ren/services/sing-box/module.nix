@@ -18,6 +18,8 @@ in
 
 {
 
+    disabledModules = [ "services/networking/sing-box.nix" ];
+
     sops.secrets =
         let singService = config.systemd.services."sing-box".name; in
         {
@@ -61,9 +63,9 @@ in
         '';
 
     systemd.services."sing-box" = {
-        path = with pkgs; [
+        path = [
             config.nix.package
-            tsuki.sing-box
+            pkgs.tsuki.sing-box
         ];
         script = /* sh */ ''
             conf="$RUNTIME_DIRECTORY/config.json"
