@@ -4,7 +4,7 @@
 
 require "shellwords"
 
-ENV["RESTIC_REPOSITORY"] = "sftp:rio.home.lan:/Pool/Restic/Bucket"
+ENV["RESTIC_REPOSITORY"] = "/mnt/pool/Restic/Bucket"
 ENV["RESTIC_PASSWORD"] = "f83d58e0-b7d0-4285-b460-defa583f9e62"
 ENV["RESTIC_PACK_SIZE"] = "128"
 

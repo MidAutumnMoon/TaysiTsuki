@@ -47,7 +47,7 @@ tsuki.writers.writeRubyBin ",sync" {} /*ruby*/ ''
         end
 
     system <<~SH or abort "Failed to run rclone!".red
-        "${lib.getExe myRclone}" sync \
+        "${lib.getExe myRclone}" sync --refresh-times \
             #{EXCLUDE_PATTERNS.shelljoin} \
             #{RCLONE_DIR_ARGS.shelljoin}
     SH
