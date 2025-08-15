@@ -95,6 +95,9 @@ in
         wantedBy = [ "multi-user.target" ];
         requires = [ "sops-install-secrets.service" ];
         after = [ "sops-install-secrets.service" ];
+        environment = {
+            GC_NPROCS = "1";
+        };
     };
 
     services.caddy.virtualHosts."im_418".extraConfig =

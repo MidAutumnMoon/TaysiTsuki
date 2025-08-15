@@ -1,11 +1,11 @@
 {
     lib,
-    buildGoModule,
+    buildGoLatestModule,
     fetchFromGitHub,
     installShellFiles,
 }:
 
-buildGoModule ( drvSelf: {
+buildGoLatestModule ( drvSelf: {
 
     pname = "sing-box";
     version = "1.13.0-alpha.1-unstable-2025-08-15";
@@ -35,6 +35,7 @@ buildGoModule ( drvSelf: {
 
     env.GOAMD64 = "v3";
     env.CGO_ENABLED = 0;
+    env.GOEXPERIMENT = "greenteagc";
 
     nativeBuildInputs = [ installShellFiles ];
 
