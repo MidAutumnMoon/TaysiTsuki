@@ -22,7 +22,10 @@
         sops
         zed-editor
         yacreader
+        # TODO: remove
         imagemagick
+        # TODO: remove
+        restic
     ];
 
     envvars = {
