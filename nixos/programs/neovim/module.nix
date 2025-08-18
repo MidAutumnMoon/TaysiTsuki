@@ -1,10 +1,8 @@
-{ lib, pkgs, config, ... }:
+{ pkgs, ... }:
 
 {
 
-    environment.systemPackages = with pkgs; [
-        ( lib.lowPrio ( tsuki.neovim.override { withAllTsParsers = false; } ) )
-    ];
+    environment.systemPackages = with pkgs; [ tsuki.neovim ];
 
     environment.sessionVariables = {
         EDITOR = "nvim";
