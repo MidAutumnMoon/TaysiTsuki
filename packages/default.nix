@@ -25,8 +25,6 @@ in rec {
         sops-install-secrets
     ;
 
-    makePortableService = discovered.portable-service;
-
     dnscrypt-proxy = tsuki.dnscrypt;
 
     zram-generator =
