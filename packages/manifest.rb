@@ -47,18 +47,14 @@ end
     go_things2:
         %w[
             opentofu
+            hysteria
         ].tsukify,
 
-    prvn_bundle: %w[
-        shadowsocks
-        hysteria
-        prvn-pkgs.ssserver
-        prvn-pkgs.hysteria
-        prvn-pkgs.dnscrypt
-        prvn-pkgs.sing-box
-    ].tsukify,
-
     lix: %w[lix],
+
+    rust_things: %w[
+        tsuki.shadowsocks
+    ],
 
     # Some heavy rust things
     colmena: %w[colmena],
