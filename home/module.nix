@@ -26,6 +26,7 @@
         imagemagick
         # TODO: remove
         restic
+        rsgain
     ];
 
     envvars = {
