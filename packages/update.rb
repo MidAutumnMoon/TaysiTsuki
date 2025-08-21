@@ -18,6 +18,7 @@ packages.concat %w[
     adblocklist
     coredns
     monaspace
+    peerbanhelper
 ].tsukify
 
 packages << {

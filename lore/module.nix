@@ -37,6 +37,7 @@ in
         dns = sharedInfra.ports.dns; # 9098
         dnscryptLocal = 9099;
         navidrome = 9100;
+        peerbanhelper = 9101;
     };
 
     lore.domains = sharedInfra.domains;
@@ -64,6 +65,7 @@ in
         dns_dashboard = onRen "dnscrypt";
         wpad = onRen "wpad";
         navidrome = onRen "music";
+        peerban = onRen "peerban";
 
         # phia services
         torrent_dashboard = onPhia "qbit";

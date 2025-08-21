@@ -19,6 +19,7 @@ end
             metacubexd
             adblocklist
             monaspace
+            peerbanhelper
         ].tsukify + %w[
             fastfetchMinimal
             unrar
