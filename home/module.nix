@@ -27,6 +27,7 @@
         # TODO: remove
         restic
         rsgain
+        harper
     ];
 
     envvars = {
