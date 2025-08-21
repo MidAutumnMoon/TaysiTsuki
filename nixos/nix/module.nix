@@ -5,7 +5,7 @@
     nix.package = pkgs.nixVersions.stable;
 
     nix.settings = {
-        auto-optimise-store = true;
+        auto-optimise-store = false;
         keep-going = true;
         narinfo-cache-negative-ttl = 60;
 
