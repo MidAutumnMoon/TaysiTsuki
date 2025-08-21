@@ -30,8 +30,7 @@ lib.mkIf config.fonts.fontconfig.enable {
                 "Noto Color Emoji"
             ];
             monospace = [
-                "Iosevka Nerd Font"
-                "Iosevka"
+                "Monaspace Argon"
                 "Noto Color Emoji"
             ];
         };
