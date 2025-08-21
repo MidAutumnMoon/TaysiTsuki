@@ -18,6 +18,7 @@ end
         %w[
             metacubexd
             adblocklist
+            monaspace
         ].tsukify + %w[
             fastfetchMinimal
             unrar

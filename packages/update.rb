@@ -17,6 +17,7 @@ packages.concat %w[
     dnscrypt
     adblocklist
     coredns
+    monaspace
 ].tsukify
 
 packages << {

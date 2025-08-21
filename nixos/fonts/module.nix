@@ -12,10 +12,10 @@ lib.mkIf config.fonts.fontconfig.enable {
             noto-fonts
             noto-fonts-cjk-sans
             noto-fonts-color-emoji
-            nerd-fonts.iosevka
+            # iosevka
             # Monaspace 1.200+ contains nerdfonts natively
             # nerd-fonts.monospace is named "Monaspice" due to legal reasons
-            monaspace
+            tsuki.monaspace
         ];
     };
 
