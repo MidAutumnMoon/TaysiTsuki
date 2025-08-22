@@ -23,7 +23,9 @@
         "light": "Catppuccin Latte - No Italics",
         "dark": "Catppuccin Frappé - No Italics"
     },
-    "autosave": "on_focus_change",
+    "autosave": {
+        "after_delay": { "milliseconds": 300 }
+    },
     "auto_update": false,
     "indent_guides": {
         "enabled": true,
@@ -90,5 +92,8 @@
     },
     "diagnostics": {
         "inline": { "enabled": true }
+    },
+    "edit_predictions": {
+        "mode": "subtle"
     }
 }
