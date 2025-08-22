@@ -15,7 +15,6 @@
         numbat
         tsuki.qimgv
         nix-tree
-        deno
     ];
 
 }
