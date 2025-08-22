@@ -50,6 +50,7 @@ end
         %w[
             opentofu
             hysteria
+            sing-box
         ].tsukify,
 
     lix: %w[lix],
