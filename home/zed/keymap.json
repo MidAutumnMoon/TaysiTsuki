@@ -20,10 +20,12 @@
         }
     },
     {
-        "context": "vim_mode == insert",
+        "context": "vim_mode == insert && !menu",
         "bindings": {
             "ctrl-space": "editor::ShowCompletions",
-            "alt-a": "vim::EndOfLine"
+            "alt-a": "vim::EndOfLine",
+            // autosave-ish
+            "escape": ["workspace::SendKeystrokes", "ctrl-c ctrl-s"]
         }
     },
     {

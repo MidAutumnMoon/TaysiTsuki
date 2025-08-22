@@ -23,17 +23,20 @@
         "light": "Catppuccin Latte - No Italics",
         "dark": "Catppuccin Frappé - No Italics"
     },
-    "inlay_hints": {
-        "enabled": true
-    },
-    "autosave": {
-        "after_delay": { "milliseconds": 500 }
-    },
+    "autosave": "on_focus_change",
     "auto_update": false,
     "indent_guides": {
         "enabled": true,
         "coloring": "indent_aware"
     },
+    "tabs": {
+        "git_status": true,
+        "file_icons": true
+    },
+    "file_finder": {
+        "modal_max_width": "medium"
+    },
+    "soft_wrap": "editor_width",
     "git": {
         "inline_blame": { "enabled": false }
     },
@@ -43,9 +46,6 @@
     "load_direnv": "shell_hook",
     "show_completions_on_input": false,
     "relative_line_numbers": true,
-    "diagnostics": {
-        "inline": { "enabled": true }
-    },
     "completions": {
         "words": "enabled"
     },
@@ -59,21 +59,36 @@
         "JSONC": { "tab_size": 4 },
         "JSON": { "tab_size": 4 }
     },
+    "inlay_hints": { "enabled": true },
     "lsp": {
         "rust-analyzer": {
             "initialization_options": {
-                "check": {"command": "clippy"},
-                "imports": { "granularity": {"group": "item"} }
+                "check": { "command": "clippy" },
+                "imports": {
+                    "granularity": { "group": "item", "enforce": true }
+                },
+                "diagnostics": { "experimental": { "enable": true } },
+                "inlayHints": {
+                    "maxLength": null,
+                    "lifetimeElisionHints": {
+                        "enable": "skip_trivial",
+                        "useParameterNames": true
+                    },
+                    "closureReturnTypeHints": { "enable": "always" }
+                }
             }
         },
         "nixd": {
             "initialization_options": {
-                "nixpkgs": {"expr": "null"},
+                "nixpkgs": { "expr": "null" },
                 "options": {
-                    "nixos": {"expr": "null"},
-                    "home_manager": {"expr": "null"}
+                    "nixos": { "expr": "null" },
+                    "home_manager": { "expr": "null" }
                 }
             }
         }
+    },
+    "diagnostics": {
+        "inline": { "enabled": true }
     }
 }
