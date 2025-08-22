@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
 
     src = fetchurl rec {
         url = "${meta.homepage}/releases/download/${version}/${passthru.file}";
-        hash = "sha256-5Gr9cctBmdyynJmea59yzHe2xOATOWImWKyvTj+PMS8=";
+        hash = "sha256-UbkGd9c6ekmc5nICeeYQvkH/dZglqWJtw9bjK+WYO/c=";
         passthru.file = "rust-analyzer-x86_64-unknown-linux-gnu.gz";
     };
 
