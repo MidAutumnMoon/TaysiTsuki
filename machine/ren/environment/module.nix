@@ -13,8 +13,6 @@
         obsidian
         unrar
         numbat
-        # restic
-        # zed-editor
         tsuki.qimgv
         nix-tree
         deno

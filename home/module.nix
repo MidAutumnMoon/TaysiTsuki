@@ -20,7 +20,6 @@
         libtree
         picard
         sops
-        zed-editor
         yacreader
         # TODO: remove
         imagemagick

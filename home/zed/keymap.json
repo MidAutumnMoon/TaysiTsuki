@@ -1,0 +1,68 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+    {
+        "context": "Workspace",
+        "bindings": {}
+    },
+    {
+        "context": "Editor",
+        "bindings": {
+            "alt-left": "editor::MoveToBeginningOfLine",
+            "alt-right": "editor::MoveToEndOfLine",
+            "ctrl-enter": "editor::NewlineBelow",
+            "ctrl-shift-enter": "editor::NewlineAbove"
+        }
+    },
+    {
+        "context": "vim_mode == insert",
+        "bindings": {
+            "ctrl-space": "editor::ShowCompletions",
+            "alt-a": "vim::EndOfLine"
+        }
+    },
+    {
+        "context": "vim_mode == insert && showing_completions",
+        "bindings": {
+            "ctrl-space": "editor::ConfirmCompletion"
+        }
+    },
+    {
+        "context": "VimControl && !menu",
+        "bindings": {
+            "enter": "vim::Matching",
+            "alt-]": "pane::ActivateNextItem",
+            "alt-[": "pane::ActivatePreviousItem",
+            "alt-o": ["workspace::SendKeystrokes", "o escape"],
+            "alt-O": ["workspace::SendKeystrokes", "O escape"],
+            // shift current line left and right
+            "alt-h": ["workspace::SendKeystrokes", "I backspace escape"],
+            "alt-l": ["workspace::SendKeystrokes", "I tab escape"],
+            "s": "vim::PushSneak",
+            "shift-s": "vim::PushSneakBackward"
+        }
+    },
+    {
+        "context": "VimControl || !Editor && !Terminal",
+        "bindings": {
+            // use tab to cycle through panes
+            "tab": "workspace::ActivateNextPane",
+            "shift-tab": "workspace::ActivatePreviousPane",
+            "alt-k": "editor::MoveLineUp",
+            "alt-j": "editor::MoveLineDown",
+            "alt-a": "vim::EndOfLine"
+        }
+    },
+    {
+        "context": "Terminal",
+        "bindings": {
+            "ctrl-p": ["workspace::SendKeystrokes", "up"],
+            "ctrl-n": ["workspace::SendKeystrokes", "down"]
+        }
+    }
+]

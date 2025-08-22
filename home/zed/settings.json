@@ -1,0 +1,79 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+    "vim_mode": true,
+    "vim": {
+        "use_system_clipboard": "on_yank",
+        "use_smartcase_find": true
+    },
+    "pane_split_direction_vertical": "right",
+    "ui_font_size": 18,
+    "ui_font_weight": 400,
+    "buffer_font_size": 15.6,
+    "buffer_font_family": "Monaspace Argon",
+    "buffer_font_weight": 400,
+    "theme": {
+        "mode": "dark",
+        "light": "Catppuccin Latte - No Italics",
+        "dark": "Catppuccin Frappé - No Italics"
+    },
+    "inlay_hints": {
+        "enabled": true
+    },
+    "autosave": {
+        "after_delay": { "milliseconds": 500 }
+    },
+    "auto_update": false,
+    "indent_guides": {
+        "enabled": true,
+        "coloring": "indent_aware"
+    },
+    "git": {
+        "inline_blame": { "enabled": false }
+    },
+    "git_panel": {
+        "dock": "right"
+    },
+    "load_direnv": "shell_hook",
+    "show_completions_on_input": false,
+    "relative_line_numbers": true,
+    "diagnostics": {
+        "inline": { "enabled": true }
+    },
+    "completions": {
+        "words": "enabled"
+    },
+    "languages": {
+        "Ruby": {
+            "language_servers": ["rubocop", "!solargraph", "!ruby-lsp"]
+        },
+        "Nix": {
+            "language_servers": ["nixd", "!nil"]
+        },
+        "JSONC": { "tab_size": 4 },
+        "JSON": { "tab_size": 4 }
+    },
+    "lsp": {
+        "rust-analyzer": {
+            "initialization_options": {
+                "check": {"command": "clippy"},
+                "imports": { "granularity": {"group": "item"} }
+            }
+        },
+        "nixd": {
+            "initialization_options": {
+                "nixpkgs": {"expr": "null"},
+                "options": {
+                    "nixos": {"expr": "null"},
+                    "home_manager": {"expr": "null"}
+                }
+            }
+        }
+    }
+}
