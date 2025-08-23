@@ -71,6 +71,7 @@ def par2( dst )
         .map { Pathname.new "#{it}.par2" }
         .then { files.concat it }
         .map( &:basename ) # N.B. chdir above
+        .sort
 
     system <<~SH or abort "Failed to run sha256sum".red
         sha256sum --binary #{files.shelljoin} | tee "#{checksum_name}"
