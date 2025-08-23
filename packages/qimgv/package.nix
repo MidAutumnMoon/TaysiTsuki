@@ -5,7 +5,6 @@
     cmake,
     pkg-config,
     qt6,
-    opencv4,
 }:
 
 stdenv.mkDerivation rec {
@@ -24,6 +23,7 @@ stdenv.mkDerivation rec {
         ( cmakeBool "VIDEO_SUPPORT" false )
         ( cmakeBool "EXIV2" false )
         ( cmakeBool "USE_QT5" false )
+        ( cmakeBool "OPENCV_SUPPORT" false )
     ];
 
     nativeBuildInputs = [
@@ -33,7 +33,6 @@ stdenv.mkDerivation rec {
     ];
 
     buildInputs = [
-        opencv4.cxxdev
         qt6.qtbase
         qt6.qtimageformats
         qt6.qtsvg
