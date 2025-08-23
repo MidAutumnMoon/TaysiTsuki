@@ -66,6 +66,8 @@ in
         openssh.authorizedKeys.keys = [ config.lore.pubkeys.teapot ];
     };
 
+    fonts.fontconfig.enable = false;
+
     # programs
 
     programs.fish = {
