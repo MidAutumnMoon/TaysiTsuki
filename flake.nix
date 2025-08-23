@@ -120,19 +120,6 @@
             |> lib.nixos2colmena self.nixosConfigurations
             |> flakes.colmena.lib.makeHive
         ;
-
-        /*
-         * devShells
-         */
-
-        devShells = lib.brewShells pkgsBrew {
-
-            music = p: with p; [
-                picard
-                shntool cuetools flac
-            ];
-
-        };
     };
 
 }

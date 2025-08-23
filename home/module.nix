@@ -18,7 +18,7 @@
         ( lib.getOutput "out" pkgs.tsuki.inori )
         tsuki.opentofu
         libtree
-        picard
+        # picard
         sops
         yacreader
         # TODO: remove
