@@ -38,7 +38,7 @@
     "file_finder": {
         "modal_max_width": "medium"
     },
-    "soft_wrap": "editor_width",
+    "soft_wrap": "bounded",
     "git": {
         "inline_blame": { "enabled": false }
     },
@@ -49,7 +49,7 @@
     "show_completions_on_input": false,
     "relative_line_numbers": true,
     "completions": {
-        "words": "enabled"
+        "words": "fallback"
     },
     "languages": {
         "Ruby": {
@@ -61,22 +61,21 @@
         "JSONC": { "tab_size": 4 },
         "JSON": { "tab_size": 4 }
     },
-    "inlay_hints": { "enabled": true },
+    "inlay_hints": {
+        // toggle inlay hint with ctrl-:
+        "enabled": false,
+        "toggle_on_modifiers_press": {
+            // hold alt-shift to have a peek at inlay hints
+            "shift": true,
+            "alt": true
+        }
+    },
     "lsp": {
         "rust-analyzer": {
             "initialization_options": {
                 "check": { "command": "clippy" },
                 "imports": {
                     "granularity": { "group": "item", "enforce": true }
-                },
-                "diagnostics": { "experimental": { "enable": true } },
-                "inlayHints": {
-                    "maxLength": null,
-                    "lifetimeElisionHints": {
-                        "enable": "skip_trivial",
-                        "useParameterNames": true
-                    },
-                    "closureReturnTypeHints": { "enable": "always" }
                 }
             }
         },
