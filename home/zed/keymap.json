@@ -35,7 +35,7 @@
         }
     },
     {
-        "context": "VimControl && !menu",
+        "context": "VimControl && !menu && vim_operator == none",
         "bindings": {
             "enter": "vim::Matching",
             "alt-]": "pane::ActivateNextItem",
