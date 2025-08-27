@@ -12,7 +12,6 @@ in
 
     imports = [
         ./dns.nix
-        ./rclone.nix
     ];
 
     #

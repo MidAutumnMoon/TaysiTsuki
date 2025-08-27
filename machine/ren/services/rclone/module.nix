@@ -25,15 +25,11 @@ in
         serviceConfig.ExecStartPre = ''
             mkdir -pv /mnt/%i
         '';
-        # N.B. log to systemd in version 1.70.0 and 1.70.1 will deadlock
-        # and fail the startup, and had been fixed in 1.70.2
-        # (ref com. fa3b44434142), but tbh the log doesn't matter
-        # so the "/dev/null" workaround is left unchanged.
         serviceConfig.ExecStart = /* bash */ ''
             ${lib.getExe pkgs.rclone} mount \
                 --config "/etc/rclone.conf" \
                 --log-level "DEBUG" \
-                --log-file "/dev/null" \
+                --log-systemd \
                 --human-readable \
                 --use-mmap \
                 --cache-dir "%T/rclone_%i" \
