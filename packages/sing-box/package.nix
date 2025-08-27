@@ -13,11 +13,11 @@ buildGoLatestModule ( drvSelf: {
     src = fetchFromGitHub {
         owner = "SagerNet";
         repo = "sing-box";
-        rev = "abf69fefbacf6b1234350cd2662d10c7c1af5415";
-        hash = "sha256-nBf3cWiKdcZBy/Za1pXN6swgGZkYUbsqLSlhrFFhwL8=";
+        rev = "51c1629da23753751796ca3666a6120d4112b49f";
+        hash = "sha256-b9yr8S/XA+uRh6V4RlIOQPWG2TV0U7kUuSRXLo8i2b4=";
     };
 
-    vendorHash = "sha256-rq1TjPCXdWyw6xYAqxRveA1RIfjjFplLdS71ylVuhbs=";
+    vendorHash = "sha256-nSGrKVG45GB4E7LqdEAqt7jSdJeYd+CHgP5Qrz1sFWE=";
 
     subPackages = [
         "cmd/sing-box"
