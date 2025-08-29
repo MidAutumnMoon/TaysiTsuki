@@ -62,7 +62,6 @@ end
     # Some heavy rust things
     colmena: %w[colmena],
     inori: %w[inori].tsukify,
-    wezterm: %w[wezterm],
 
     kde_things1:
         %w[
