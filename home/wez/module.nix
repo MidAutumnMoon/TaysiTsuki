@@ -15,11 +15,10 @@ in
 
     packages = with pkgs; [
         wezterm
-        ( lib.getOutput "busnaguri" pkgs.tsuki.inori )
-        configuredDropDownAlike
+        # ( lib.getOutput "busnaguri" pkgs.tsuki.inori )
+        # configuredDropDownAlike
     ];
 
-    xdg_config."wezterm/wezterm.lua".src =
-        dots.get "wez/wezterm.lua";
+    xdg_config."wezterm/wezterm.lua".src = dots.get "wez/wezterm.lua";
 
 }
