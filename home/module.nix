@@ -27,6 +27,7 @@
         restic
         rsgain
         harper
+        mtr
     ];
 
     envvars = {

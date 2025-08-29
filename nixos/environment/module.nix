@@ -19,9 +19,7 @@ in
             fd
             ripgrep
             file
-            btop
-            screen
-            mtr
+            htop
             rsync
             strace
         ];
