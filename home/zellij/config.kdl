@@ -299,7 +299,7 @@ default_mode "locked"
 //   - true (default)
 //   - false
 //
-// mouse_mode false
+mouse_mode false
 
 // Toggle having pane frames around the panes
 // Options:
@@ -358,7 +358,7 @@ default_mode "locked"
 // Enable automatic copying (and clearing) of selection when releasing mouse
 // Default: true
 //
-copy_on_select false
+copy_on_select true
 
 // Path to the default editor to use to edit pane scrollbuffer
 // Default: $EDITOR or $VISUAL
