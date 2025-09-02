@@ -87,6 +87,16 @@
                     "home_manager": { "expr": "null" }
                 }
             }
+        },
+        "harper-ls": {
+            "settings": {
+                "harper-ls": {
+                    "linters": {
+                        "ToDoHyphen": false,
+                        "Dashes": false
+                    }
+                }
+            }
         }
     },
     "diagnostics": {
