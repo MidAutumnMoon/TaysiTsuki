@@ -57,6 +57,7 @@ end
 
     rust_things: %w[
         tsuki.shadowsocks
+        tsuki.mimic-cloud-init
     ],
 
     # Some heavy rust things
