@@ -56,7 +56,8 @@
             "language_servers": ["rubocop", "!solargraph", "!ruby-lsp"]
         },
         "Nix": {
-            "language_servers": ["nixd", "!nil"]
+            "language_servers": ["nixd", "!nil"],
+            "tab_size": 4
         },
         "JSONC": { "tab_size": 4 },
         "JSON": { "tab_size": 4 }
