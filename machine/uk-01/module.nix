@@ -4,7 +4,7 @@
 
     imports = [
         (modulesPath + "/profiles/qemu-guest.nix")
-        ./disko.nix
+        ./filesystem.nix
     ];
 
     boot = {
