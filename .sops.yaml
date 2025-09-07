@@ -1,10 +1,10 @@
 ---
 keys:
     - &me "age17lvnmh99feams2pvfljw34k5s705uk89x6g26r4ml85yu0h2q9uswpmjm6"
-    - &loonie "age1dend9rhhcujf9nspxn8yawz742fc8w6z3k4cvfptehtqus94rgvqkfvf24"
     - &ren "age1q0djhewgd46stjzkszzfcqallry9kd7sd6xvr94geur8ls4wz9zs6f7877"
     - &phia "age1zu5wnkx3k3dsylnft2vf5xx97wfemvaw40wyaajxhkrqy7lt2yeqwxj6xm"
+    - &uk-01 "age1068nwpttaggue0f2tstmaufl7rmvxscysg53r792862tvatdcvhs0vlmhz"
 
 creation_rules:
     - key_groups:
-        - age: [ *me, *loonie, *ren, *phia ]
+        - age: [ *me, *ren, *phia, *uk-01 ]

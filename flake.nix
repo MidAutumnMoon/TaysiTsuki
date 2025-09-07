@@ -20,6 +20,11 @@
             inputs.flake-utils.follows = "flake-utils";
         };
 
+        disko = {
+            url = "github:nix-community/disko";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
+
         # Some packages
 
         colmena = {
@@ -103,6 +108,10 @@
         in {
             ren = nixos "x86_64-linux" <| lib.listAllModules ./machine/ren;
             phia = nixos "x86_64-linux" <| lib.listAllModules ./machine/phia;
+            uk-01 = nixos "x86_64-linux" <| (
+                lib.listAllModules ./machine/uk-01
+                ++ [ flakes.disko.nixosModules.default ]
+            );
         };
 
         colmenaHive =
@@ -116,11 +125,13 @@
                     targetHost = "phia.local";
                     targetUser = "root";
                 };
+                uk-01.deployment = {
+                    targetHost = "uk-01";
+                    targetUser = "root";
+                };
             }
             |> lib.nixos2colmena self.nixosConfigurations
-            |> flakes.colmena.lib.makeHive
-        ;
+            |> flakes.colmena.lib.makeHive;
     };
 
 }
-

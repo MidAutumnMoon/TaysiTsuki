@@ -1,0 +1,6 @@
+# imports_layout = "Vertical"
+max_width = 75
+merge_derives = false
+# imports_granularity = "Item"
+# normalize_comments = true
+# group_imports = "StdExternalCrate"
