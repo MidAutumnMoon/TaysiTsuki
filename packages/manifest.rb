@@ -77,13 +77,13 @@ end
     kde_things2:
         %w[mesa] + %w[
             spectacle okular kinfocenter powerdevil
-            dolphin xdg-desktop-portal-kde
+            xdg-desktop-portal-kde
         ].kde_package,
 
     kde_things3:
         %w[mesa] + %w[
             plasma-workspace plasma-desktop kdeplasma-addons
-            kwalletmanager konsole kate plasma-browser-integration
+            dolphin kwalletmanager konsole kate plasma-browser-integration
         ].kde_package,
 
 }
