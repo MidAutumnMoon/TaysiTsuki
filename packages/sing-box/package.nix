@@ -26,11 +26,13 @@ buildGoLatestModule ( drvSelf: {
     tags = [
         "with_quic"
         "with_clash_api"
+        "with_utls"
     ];
 
     ldflags = [
         "-s"
         "-X=github.com/sagernet/sing-box/constant.Version=${drvSelf.version}"
+        "-checklinkname=0"
     ];
 
     env.GOAMD64 = "v3";
