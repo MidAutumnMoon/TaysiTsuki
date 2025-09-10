@@ -55,7 +55,7 @@ in
     };
 
     # dnscrypt-proxy resolves internet names
-    services.dnscrypt-proxy2 = {
+    services.dnscrypt-proxy = {
         enable = true;
         upstreamDefaults = false;
         settings = rec {
@@ -125,7 +125,7 @@ in
     #
 
     services.caddy.virtualHosts."im_418".extraConfig =
-        let inherit ( config.services.dnscrypt-proxy2 ) settings; in
+        let inherit ( config.services.dnscrypt-proxy ) settings; in
         ''
             @dns_dashboard host ${apps.homelab.dns_dashboard.fqdn}
             handle @dns_dashboard {

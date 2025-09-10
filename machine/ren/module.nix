@@ -10,10 +10,6 @@ in
 
 {
 
-    imports = [
-        ./dns.nix
-    ];
-
     #
     # General
     #
