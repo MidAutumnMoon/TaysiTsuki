@@ -35,5 +35,6 @@ locals {
     shared_nix = nonsensitive(
         jsondecode( file( "../lore/shared.json" ) )
     )
+    tailnet = "fin-orfe.ts.net"
 }
 

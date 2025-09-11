@@ -1,7 +1,7 @@
 provider "tailscale" {
     oauth_client_id = local.secrets.tailscale.oauth_id
     oauth_client_secret = local.secrets.tailscale.oauth_secret
-    tailnet = local.shared_nix.tailscale.tailnet
+    tailnet = local.tailnet
 }
 
 resource "tailscale_acl" "main" {
@@ -29,12 +29,15 @@ resource "tailscale_dns_preferences" "main" {
 data "tailscale_devices" "all" { }
 
 locals {
+    # Transform the list of tailscale devices into a map of
+    # hostname to ip address.
     __tailscale_devices = {
         for dev in data.tailscale_devices.all.devices:
-        # some.ts12.ts.net => some
-        trimsuffix( dev.name, ".${local.shared_nix.tailscale.tailnet}" )
+        # `name` returned by api is "hostname.ts.net", trmming the tailnet
+        # to get the hostname.
+        trimsuffix( dev.name, ".${local.tailnet}" )
         => {
-            # The full name with ts.net
+            # Store the full name in case.
             fullname = dev.name
             ipv6 = [
                 for addr in dev.addresses:
@@ -47,4 +50,3 @@ locals {
         }
     }
 }
-
