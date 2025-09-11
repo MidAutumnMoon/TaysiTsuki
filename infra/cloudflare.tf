@@ -11,7 +11,7 @@ module "namecrane" {
 }
 
 resource "cloudflare_zone" "im_418" {
-    name = local.shared_nix.domains.im_418.name
+    name = local.im_418
     account = {
         id = local.secrets.cloudflare.account_id
     }
@@ -50,7 +50,7 @@ resource "cloudflare_dns_record" "im_418_ts" {
     zone_id = cloudflare_zone.im_418.id
     type = "AAAA"
     # should look like "host.tailscale.418.im" if not changed in the future
-    name = "${each.key}.${local.shared_nix.domains.im_418.tailscale_zone}.${cloudflare_zone.im_418.name}"
+    name = "${each.key}.tailscale.${cloudflare_zone.im_418.name}"
     content = each.value.ipv6
     proxied = false
 }

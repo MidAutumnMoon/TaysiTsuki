@@ -32,9 +32,6 @@ locals {
         cloudflare = yamldecode( data.sops_file.token--cloudflare.raw )
         tailscale = yamldecode( data.sops_file.token--tailscale.raw )
     }
-    shared_nix = nonsensitive(
-        jsondecode( file( "../lore/shared.json" ) )
-    )
     tailnet = "fin-orfe.ts.net"
+    im_418 = "418.im"
 }
-

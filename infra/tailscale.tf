@@ -18,14 +18,6 @@ resource "tailscale_dns_preferences" "main" {
     magic_dns = true
 }
 
-# resource "tailscale_dns_split_nameservers" "teapot_split_dns" {
-#     domain = "418.im"
-#     nameservers = [
-#         # "[${local.ts_devices.ren.ipv6}]:${local.shared_nix.ports.dns}"
-#         "${local.ts_devices.ren.ipv6}"
-#     ]
-# }
-
 data "tailscale_devices" "all" { }
 
 locals {

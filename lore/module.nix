@@ -1,12 +1,6 @@
 { lib, config, flakes, ... }:
 
-let
-
-    sharedInfra = lib.importJSON ./shared.json;
-
-in
-
-{
+rec {
 
     imports = [
         ./options.nix
@@ -15,7 +9,7 @@ in
     lore.tsukiObservatory =
         "${config.users.users.teapot.home}/TaysiTsuki";
 
-    lore.pubkeys = sharedInfra.pubkeys;
+    lore.pubkeys = lib.importJSON ./pubkeys.json;
 
     lore.machines = {
         ren = {};
@@ -34,20 +28,23 @@ in
         qbitwebui = 9095;
         dnscryptWebui = 9096;
         clashApi = 9097;
-        dns = sharedInfra.ports.dns; # 9098
+        dns = 9098;
         dnscryptLocal = 9099;
         navidrome = 9100;
         peerbanhelper = 9101;
     };
 
-    lore.domains = sharedInfra.domains;
+    lore.domains = rec {
+        "im_418" = "418.im";
+        "im_418_ts" = "tailscale.${im_418}";
+    };
 
     lore.apps."homelab" = let
-        inherit ( sharedInfra.domains ) im_418;
-        inherit ( config.lore ) machines;
+        inherit (lore) machines;
+        inherit (lore.domains) im_418;
         cname = target: subdomain: {
             inherit subdomain;
-            domain = im_418.name;
+            domain = im_418;
             cname = target;
         };
         onRen = cname machines.ren.mdns;
@@ -55,7 +52,7 @@ in
     in {
         router = {
             subdomain = "router";
-            domain = im_418.name;
+            domain = im_418;
             ip = machines.router.static_ip;
         };
 

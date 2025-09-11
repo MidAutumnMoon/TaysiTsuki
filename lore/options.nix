@@ -51,20 +51,14 @@ in
 
     domains = mkOption {
         readOnly = true;
-        type = with types; attrsOf ( submodule {
-            freeformType = attrsOf str;
-            options.name = mkOption {
-                type = str;
-                readOnly = true;
-            };
-        } );
+        type = with types; attrsOf str;
     };
 
     apps = mkOption {
         readOnly = true;
         description = "Services (namespaced)";
         type = types.attrsOf <| types.attrsOf <| types.submodule
-            ( { config, name, ... }: {
+            ( { config, ... }: {
                 options.subdomain = mkOption {
                     type = types.str;
                     readOnly = true;
