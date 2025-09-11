@@ -38,9 +38,14 @@ in
     passthru.singboxLore =
         let
             noproxy = with lib;
-                (apps.homelab // apps.tailnet)
+                apps.homelab
                 |> attrValues |> map ( val: val.fqdn )
                 |> appendElem "local"
+                |> concatMapStringsSep " " ( v: "\"${v}\"" )
+                |> ( v: "[ ${v} ]" );
+            tailnetDomains = with lib;
+                apps.tailnet
+                |> attrValues |> map ( val: val.fqdn )
                 |> appendElem domains.im_418_ts
                 |> concatMapStringsSep " " ( v: "\"${v}\"" )
                 |> ( v: "[ ${v} ]" );
@@ -50,6 +55,8 @@ in
             {
                 listenPort = ${toString ports.proxy};
                 noproxyDomains = ${noproxy};
+                # N.B. bind_interface to tailscale0
+                tailnetDomains = ${tailnetDomains};
                 clashApiAddr = "${clashApiAddr}";
 
                 # :: string -> path

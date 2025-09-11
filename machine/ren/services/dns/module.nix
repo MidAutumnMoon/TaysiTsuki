@@ -39,11 +39,10 @@ in
                 .:53 {
                     bind ${fakeAddr} ${fakeAddrV6}
                     log
-                    file ${appToZone apps.homelab} {
+                    # N.B. multiple directives cause later one
+                    # to override previous ones
+                    file ${appToZone <| apps.homelab // apps.tailnet} {
                         # at least v1.12.2
-                        fallthrough
-                    }
-                    file ${appToZone apps.tailnet} {
                         fallthrough
                     }
                     forward local /etc/resolv.conf
