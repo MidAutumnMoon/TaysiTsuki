@@ -39,34 +39,47 @@
         "im_418_ts" = "tailscale.${im_418}";
     };
 
-    lore.apps."homelab" = let
-        inherit (config.lore) machines;
-        inherit (config.lore.domains) im_418;
-        cname = target: subdomain: {
-            inherit subdomain;
-            domain = im_418;
-            cname = target;
-        };
-        onRen = cname machines.ren.mdns;
-        onPhia = cname machines.phia.mdns;
-    in {
-        router = {
-            subdomain = "router";
-            domain = im_418;
-            ip = machines.router.static_ip;
+    lore.apps."homelab" =
+        let
+            inherit (config.lore) machines;
+            inherit (config.lore.domains) im_418;
+            cname = target: subdomain: {
+                inherit subdomain;
+                domain = im_418;
+                cname = target;
+            };
+            onRen = cname machines.ren.mdns;
+            onPhia = cname machines.phia.mdns;
+        in {
+            router = {
+                subdomain = "router";
+                domain = im_418;
+                ip = machines.router.static_ip;
+            };
+
+            # ren services
+            proxy = onRen "proxy";
+            clash_dashboard = onRen "clash";
+            dns_dashboard = onRen "dnscrypt";
+            wpad = onRen "wpad";
+            navidrome = onRen "music";
+            peerban = onRen "peerban";
+
+            # phia services
+            torrent_dashboard = onPhia "qbit";
         };
 
-        # ren services
-        proxy = onRen "proxy";
-        clash_dashboard = onRen "clash";
-        dns_dashboard = onRen "dnscrypt";
-        wpad = onRen "wpad";
-        navidrome = onRen "music";
-        peerban = onRen "peerban";
-
-        # phia services
-        torrent_dashboard = onPhia "qbit";
-    };
+    lore.apps."tailnet" =
+        let
+            inherit (config.lore.domains) im_418;
+            on = node: subdomain: {
+                inherit subdomain;
+                domain = im_418;
+                cname = "${node}.tailscale.${im_418}";
+            };
+        in {
+            downloader_dashboard = on "uk-01" "2qbit";
+        };
 
     # soaRecord imposed by dns.nix
     lore.utils."appToDnsRecords" = appsDef:

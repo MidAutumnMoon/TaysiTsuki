@@ -38,7 +38,7 @@ in
     passthru.singboxLore =
         let
             noproxy = with lib;
-                apps.homelab
+                (apps.homelab // apps.tailnet)
                 |> attrValues |> map ( val: val.fqdn )
                 |> appendElem "local"
                 |> appendElem domains.im_418_ts

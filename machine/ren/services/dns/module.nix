@@ -17,8 +17,6 @@ let
         apps
     ;
 
-    tailscaleCfg = config.services.tailscale;
-
 in
 
 {
@@ -26,32 +24,36 @@ in
     networking.firewall = {
         allowedTCPPorts = [ 53 ];
         allowedUDPPorts = [ 53 ];
-        trustedInterfaces = [ tailscaleCfg.interfaceName ];
     };
 
     # coredns provides homelab domain resolution
     services.coredns = {
         enable = true;
         package = pkgs.tsuki.coredns;
-        config = ''
-            .:53 {
-                bind ${fakeAddr} ${fakeAddrV6}
-                log
-                file ${
-                    with lore; utils.appToDnsRecords apps.homelab
-                        |> flakes.dns.util.${pkgs.system}.writeZone "418.im"
-                } {
-                    # at least v1.12.2
-                    fallthrough
+        config =
+            let
+                inherit (flakes.dns.util.${pkgs.system}) writeZone;
+                appToZone = app:
+                    lore.utils.appToDnsRecords app |> writeZone "418.im";
+            in ''
+                .:53 {
+                    bind ${fakeAddr} ${fakeAddrV6}
+                    log
+                    file ${appToZone apps.homelab} {
+                        # at least v1.12.2
+                        fallthrough
+                    }
+                    file ${appToZone apps.tailnet} {
+                        fallthrough
+                    }
+                    forward local /etc/resolv.conf
+                    forward . [::1]:${toString ports.dnscryptLocal}
+                    cache 60 {
+                        disable success local
+                        disable denial local
+                    }
                 }
-                forward local /etc/resolv.conf
-                forward . [::1]:${toString ports.dnscryptLocal}
-                cache 60 {
-                    disable success local
-                    disable denial local
-                }
-            }
-        '';
+            '';
     };
 
     # dnscrypt-proxy resolves internet names
