@@ -81,6 +81,15 @@
             downloader_dashboard = on "uk-01" "2qbit";
         };
 
+    lore.apps."public" =
+        let inherit (config.lore.domains) im_418; in
+        {
+            torrent_download = {
+                subdomain = "td";
+                domain = im_418;
+            };
+        };
+
     # soaRecord imposed by dns.nix
     lore.utils."appToDnsRecords" = appsDef:
         let dnslib = flakes.dns.lib; in

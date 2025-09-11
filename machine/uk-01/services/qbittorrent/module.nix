@@ -62,6 +62,7 @@ in {
             SystemCallFilter = "@system-service ~@privileged";
             AmbientCapabilities = [ "CAP_NET_RAW" ];
             ReadWritePaths = [ downloadDir ];
+            UMask = lib.mkForce "0007";
         };
         useHardening = true;
     };
@@ -72,12 +73,50 @@ in {
     };
 
     services.caddy.virtualHosts."im_418".extraConfig =
-        let inherit (apps.tailnet) downloader_dashboard; in
+        let
+            inherit (apps.tailnet) downloader_dashboard;
+            inherit (apps.public) torrent_download;
+        in
         ''
             @qbitwebui host ${downloader_dashboard.fqdn}
             handle @qbitwebui {
                 reverse_proxy http://localhost:${toString ports.qbitwebui}
             }
+
+            @torrent_download host ${torrent_download.fqdn}
+            handle @torrent_download {
+                basic_auth {
+                    {env.DOWNLOAD_AUTH_NAME} {env.DOWNLOAD_AUTH_PASSWD}
+                }
+                root * ${downloadDir}
+                file_server {
+                    browse {
+                        sort size desc
+                    }
+                }
+            }
         '';
 
+    sops.secrets = {
+        "basicauth_name".sopsFile = ./cred--basicauth.sops.yml;
+        "basicauth_passwd".sopsFile = ./cred--basicauth.sops.yml;
+    };
+
+    sops.templates."download-auth-creds".content =
+        let
+            inherit (config.sops.placeholder)
+                basicauth_name basicauth_passwd;
+        in
+        ''
+            DOWNLOAD_AUTH_NAME=${basicauth_name}
+            DOWNLOAD_AUTH_PASSWD=${basicauth_passwd}
+        '';
+
+    systemd.services.caddy = {
+        serviceConfig = {
+            EnvironmentFile =
+                config.sops.templates."download-auth-creds".path;
+            SupplementaryGroups = [ groupsCfg.qbit.name ];
+        };
+    };
 }

@@ -38,6 +38,15 @@ resource "cloudflare_dns_record" "im_418_hidden_message" {
     content = "Wish you a delicious day."
 }
 
+resource "cloudflare_dns_record" "im_418_torrent_download" {
+    zone_id = cloudflare_zone.im_418.id
+    ttl = local.ttl_auto
+    type = "AAAA"
+    name = "td.${cloudflare_zone.im_418.name}"
+    content = local.ip_addrs["uk-01"]["ip6"]
+    proxied = true
+}
+
 #
 # Tailscale Nodes
 #
