@@ -8,8 +8,6 @@ let
 
     caddyCfg = config.services.caddy;
 
-    proxyCfg = config.networking.proxy;
-
 in
 
 lib.mkIf caddyCfg.enable {
@@ -49,7 +47,7 @@ lib.mkIf caddyCfg.enable {
 
     services.caddy.virtualHosts."im_418" = {
         listenAddresses = [ "::" ];
-        hostName = "*.${lore.domains.im_418.name}";
+        hostName = "*.${lore.domains.im_418}";
         extraConfig = lib.mkBefore ''
             import common
             import tls_cloudflare
@@ -68,7 +66,7 @@ lib.mkIf caddyCfg.enable {
             EnvironmentFile = config.sops.templates."cf-token-envfile".path;
         };
         environment =
-            with proxyCfg;
+            with config.networking.proxy;
             lib.mkIf ( envVars != {} ) envVars;
     };
 

@@ -1,6 +1,6 @@
 { lib, config, flakes, ... }:
 
-rec {
+{
 
     imports = [
         ./options.nix
@@ -40,8 +40,8 @@ rec {
     };
 
     lore.apps."homelab" = let
-        inherit (lore) machines;
-        inherit (lore.domains) im_418;
+        inherit (config.lore) machines;
+        inherit (config.lore.domains) im_418;
         cname = target: subdomain: {
             inherit subdomain;
             domain = im_418;

@@ -37,11 +37,11 @@ in
 
     passthru.singboxLore =
         let
-            noproxy = with lib; with domains;
+            noproxy = with lib;
                 apps.homelab
                 |> attrValues |> map ( val: val.fqdn )
                 |> appendElem "local"
-                |> appendElem "${im_418.tailscale_zone}.${im_418.name}"
+                |> appendElem domains.im_418_ts
                 |> concatMapStringsSep " " ( v: "\"${v}\"" )
                 |> ( v: "[ ${v} ]" );
         in
