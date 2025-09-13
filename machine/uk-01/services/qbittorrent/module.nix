@@ -59,7 +59,7 @@ in {
             '';
             StateDirectory = "qbittorrent";
             WorkingDirectory = "%S/${StateDirectory}";
-            SystemCallFilter = "@system-service ~@privileged";
+            SystemCallFilter = "@system-service";
             AmbientCapabilities = [ "CAP_NET_RAW" ];
             ReadWritePaths = [ downloadDir ];
             UMask = lib.mkForce "0007";
@@ -78,7 +78,10 @@ in {
             inherit (apps.public) torrent_download;
         in
         ''
-            @qbitwebui host ${downloader_dashboard.fqdn}
+            @qbitwebui {
+                host ${downloader_dashboard.fqdn}
+                client_ip private_ranges
+            }
             handle @qbitwebui {
                 reverse_proxy http://localhost:${toString ports.qbitwebui}
             }
