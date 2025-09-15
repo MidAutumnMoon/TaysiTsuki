@@ -1,0 +1,11 @@
+{
+    "frozen_string_literal": {
+        "prefix": "frozen",
+        "description": "Add frozen_string_literal",
+        "body": [
+            "# frozen_string_literal: true",
+            "",
+            "$0"
+        ]
+    }
+}
