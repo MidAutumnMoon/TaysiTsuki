@@ -28,6 +28,7 @@
         rsgain
         harper
         mtr
+        ncdu
     ];
 
     envvars = {
