@@ -27,6 +27,7 @@ TOPLEVEL.glob( "*.jpg" ).each do |pic|
     system <<~SH or abort "Failed to run magick"
         magick -verbose \
             #{pic.to_s.shellescape} \
+            -strip \
             -unsharp 0x2+1+0.4 \
             -threshold 55% \
             -depth 1 -colors 2 \
