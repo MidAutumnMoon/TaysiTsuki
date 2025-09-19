@@ -176,25 +176,63 @@ vim.api.nvim_create_autocmd(
 --  Auto save
 --
 
+local M = {}
+
+--- @param buf integer
+--- @return boolean
+function M.buf_legible(buf)
+    local bo = vim.bo[buf]
+    return bo.modifiable
+        and bo.modified
+        and not bo.readonly
+        and vim.api.nvim_buf_get_name(buf) ~= ""
+end
+
+--- @param buf integer
+function M.save_buf(buf)
+    vim.cmd.bufdo {
+        "write | doautocmd BufWritePost",
+        range = { buf },
+        mods = { silent = true }
+    }
+end
+
 vim.api.nvim_create_autocmd(
     { "InsertLeave", "TextChanged", "BufLeave" },
     {
         pattern = "*",
         callback = function(opts)
-            local bo = vim.bo[opts.buf]
-            if bo.modified
-                and bo.modifiable
-                and not bo.readonly
-                and vim.api.nvim_buf_get_name(opts.buf) ~= ""
-            then
-                vim.cmd.bufdo {
-                    "write | doautocmd BufWritePost",
-                    range = { opts.buf },
-                    mods = { silent = true }
-                }
-            end
+            local buf = opts.buf
+            if M.buf_legible(buf) then M.save_buf(buf) end
         end
     }
+)
+
+--
+-- Better ESC
+--
+
+--- @diagnostic disable-next-line
+local M = {}
+
+function M.close_floating()
+    for _, winid in ipairs( vim.api.nvim_list_wins() ) do
+        local winconf = vim.api.nvim_win_get_config( winid )
+        if winconf.relative ~= "" then
+            vim.api.nvim_win_close( winid, false )
+        end
+    end
+end
+
+vim.keymap.set(
+    "n", "<Esc>",
+    function()
+        -- 1. close floating windows
+        M.close_floating()
+        -- 2. clear highlights
+        vim.lsp.buf.clear_references()
+        vim.cmd "nohlsearch"
+    end
 )
 
 --

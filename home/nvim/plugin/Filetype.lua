@@ -5,12 +5,9 @@ vim.filetype.add {
         target = "systemd",
         path = "systemd",
         timer = "systemd",
-
         opml = "xml",
         mobileconfig = "xml",
-
         mdx = "markdown",
-
         pro = "prolog",
     },
 

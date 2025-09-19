@@ -150,21 +150,6 @@ local __plugins = {
         end
     },
 
-    -- {
-    --     "nvim-neo-tree/neo-tree.nvim",
-    --     branch = "v3.x",
-    --     dependencies = {
-    --         "nvim-lua/plenary.nvim",
-    --         "MunifTanjim/nui.nvim",
-    --         "nvim-tree/nvim-web-devicons"
-    --     },
-    --     cmd = "Neotree",
-    --     event = { "CursorMoved", "CursorHold" },
-    --     config = function()
-    --         require "plugin.neo-tree"
-    --     end
-    -- },
-
     {
         "andymass/vim-matchup",
         -- after = "nvim-treesitter",
@@ -269,36 +254,6 @@ local __plugins = {
             require( "luasnip.loaders.from_snipmate" ).lazy_load { }
         end
     },
-
-    --
-    -- Treesitter
-    --
-
-    -- {
-    --     "nvim-treesitter/nvim-treesitter",
-    --     branch = "main",
-    --     config = function()
-    --         require "plugin.treesitter"
-    --     end
-    -- },
-
-    -- {
-    --     "nvim-treesitter/nvim-treesitter-context",
-    --     opts = {
-    --         max_lines = 3,
-    --     },
-    -- },
-
-    -- {
-    --     "nvim-treesitter/nvim-treesitter-textobjects",
-    --     after = "nvim-treesitter",
-    -- },
-
-    -- {
-    --     --"RRethy/nvim-treesitter-endwise",
-    --     "AbaoFromCUG/nvim-treesitter-endwise",
-    --     branch = "main",
-    -- },
 
     --
     -- Languages
