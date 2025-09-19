@@ -27,6 +27,7 @@ buildGoLatestModule ( drvSelf: {
         "with_quic"
         "with_clash_api"
         "with_utls"
+        "badlinkname"
     ];
 
     ldflags = [
