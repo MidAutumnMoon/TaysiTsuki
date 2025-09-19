@@ -17,8 +17,7 @@ local function build_tab_devicon( tab )
     local icon, color = devicons.get_icon_color_by_filetype( ftype )
     local hl = nil
     if icon == nil then
-        local text_icon = devicons.get_icon_by_filetype( "txt" )
-        icon = text_icon
+        icon = "?"
     end
     if tab.is_current() and color ~= nil then
         hl = { fg = color }

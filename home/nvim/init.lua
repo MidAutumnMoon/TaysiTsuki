@@ -239,4 +239,6 @@ vim.keymap.set(
 -- Plugins
 --
 
-require "plugin.init"
+if vim.fn.exists("$DESKTOP_SESSION") then
+    require "plugin.init"
+end
