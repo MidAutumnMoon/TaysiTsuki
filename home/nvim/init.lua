@@ -142,6 +142,17 @@ vim.opt.wildmenu = true
 vim.opt.wildmode = "full:lastused"
 
 --
+-- Flash yanked area
+--
+
+vim.api.nvim_create_autocmd( "TextYankPost", {
+    pattern = "*",
+    callback = function()
+        vim.hl.on_yank()
+    end
+} )
+
+--
 -- Plugins
 --
 
