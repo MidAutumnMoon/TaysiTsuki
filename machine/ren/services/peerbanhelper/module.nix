@@ -3,16 +3,19 @@
 let
 
     inherit (config.lore) ports apps;
-    
+
     addr = "127.0.0.1";
-    
+
 in
 
 {
-    
+
     systemd.services."peerbanhelper" = {
         wantedBy = [ "multi-user.target" ];
-        after = [ "network-online.target" ];
+        after = [
+            "network-online.target"
+            "tailscaled.service"
+        ];
         wants = [ "network-online.target" ];
         script = ''
             touch "disable-update-check.txt"
@@ -41,12 +44,12 @@ in
         description = "PeerBanHelper";
         environment = config.networking.proxy.envVars;
     };
-    
+
     services.caddy.virtualHosts."im_418".extraConfig = ''
         @peerban host ${apps.homelab.peerban.fqdn}
         handle @peerban {
             reverse_proxy http://${addr}:${toString ports.peerbanhelper}
         }
     '';
-    
+
 }
