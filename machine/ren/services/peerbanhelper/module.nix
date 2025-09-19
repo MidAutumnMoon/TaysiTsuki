@@ -20,8 +20,10 @@ in
         script = ''
             touch "disable-update-check.txt"
             exec "${lib.getExe pkgs.jre_headless}" \
-                -Xmx256M \
-                -XX:+UseG1GC -XX:+UseStringDeduplication \
+                -XX:SoftMaxHeapSize=512M \
+                -XX:ZUncommitDelay=30 \
+                -XX:+UseZGC -XX:+ZGenerational \
+                -XX:+UseStringDeduplication \
                 -Dpbh.release="nixos" \
                 -Dpbh.serverAddress="${addr}" \
                 -Dpbh.port="${toString ports.peerbanhelper}" \
