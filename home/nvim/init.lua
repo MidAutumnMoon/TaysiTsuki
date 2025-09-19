@@ -71,8 +71,8 @@ for num = 1, 9 do
 end
 
 -- Cycle through splits
-vim.keymap.set("n", "<Tab>", ":wincmd w<CR>")
-vim.keymap.set("n", "<S-Tab>", ":wincmd W<CR>")
+vim.keymap.set("n", "<Tab>", ":wincmd w<CR>", {silent = true})
+vim.keymap.set("n", "<S-Tab>", ":wincmd W<CR>", {silent = true})
 
 --
 -- Options
