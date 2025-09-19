@@ -70,6 +70,10 @@ for num = 1, 9 do
     vim.keymap.set("n", key, cmd)
 end
 
+-- Cycle through splits
+vim.keymap.set("n", "<Tab>", ":wincmd w<CR>")
+vim.keymap.set("n", "<S-Tab>", ":wincmd W<CR>")
+
 --
 -- Options
 --
@@ -151,6 +155,47 @@ vim.api.nvim_create_autocmd( "TextYankPost", {
         vim.hl.on_yank()
     end
 } )
+
+--
+-- Restore cursor position
+--
+
+vim.api.nvim_create_autocmd(
+    "BufReadPost",
+    {
+        desc = "Restore cursor position",
+        callback = function (opts)
+            local pos = vim.api.nvim_buf_get_mark(opts.buf, "\"")
+            local win = vim.fn.bufwinid(opts.buf)
+            pcall(vim.api.nvim_win_set_cursor, win, pos)
+        end
+    }
+)
+
+--
+--  Auto save
+--
+
+vim.api.nvim_create_autocmd(
+    { "InsertLeave", "TextChanged", "BufLeave" },
+    {
+        pattern = "*",
+        callback = function(opts)
+            local bo = vim.bo[opts.buf]
+            if bo.modified
+                and bo.modifiable
+                and not bo.readonly
+                and vim.api.nvim_buf_get_name(opts.buf) ~= ""
+            then
+                vim.cmd.bufdo {
+                    "write | doautocmd BufWritePost",
+                    range = { opts.buf },
+                    mods = { silent = true }
+                }
+            end
+        end
+    }
+)
 
 --
 -- Plugins

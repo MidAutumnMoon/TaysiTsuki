@@ -1,16 +1,3 @@
-vim.lsp.config( "rust_analyzer", {
-    settings = { ["rust-analyzer"] = {
-        checkOnSave = true,
-        check = { command = "clippy" },
-        hover = {
-            show = { traitAssocItems = 2 },
-        },
-        imports = {
-            granularity = { group = "item" },
-        },
-    }, }
-} )
-
 vim.lsp.config( "nixd", {
     on_init = function( client, result )
         -- client.server_capabilities.completionProvider = false
@@ -24,21 +11,9 @@ vim.lsp.config( "nixd", {
     } }
 } )
 
--- avoid ambiguous syntax
-;
-
-(function()
-    local lsp_path = vim.fn.exepath( "elixir-ls" )
-    if lsp_path ~= "" then
-        vim.lsp.config( "elixirls", { cmd = { lsp_path } } )
-        vim.lsp.enable { "elixirls" }
-    end
-end)()
-
 vim.lsp.enable {
     "denols",
     "rubocop",
-    "rust_analyzer",
     "nixd",
 }
 
