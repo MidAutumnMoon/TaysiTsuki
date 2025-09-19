@@ -9,6 +9,7 @@
         parinfer-rust
         skim
         nixd
+        lua-language-server
     ];
 
     xdg_config."nvim".src = dots.get "nvim";

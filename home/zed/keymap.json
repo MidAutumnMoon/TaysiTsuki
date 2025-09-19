@@ -6,19 +6,7 @@
 // To see the default key bindings run `zed: open default keymap`
 // from the command palette.
 [
-    {
-        "context": "Workspace",
-        "bindings": {}
-    },
-    {
-        "context": "Editor",
-        "bindings": {
-            "alt-left": "editor::MoveToBeginningOfLine",
-            "alt-right": "editor::MoveToEndOfLine",
-            "ctrl-enter": "editor::NewlineBelow",
-            "ctrl-shift-enter": "editor::NewlineAbove"
-        }
-    },
+    // insert mode
     {
         "context": "vim_mode == insert && !menu",
         "bindings": {
@@ -34,19 +22,26 @@
             "ctrl-space": "editor::ConfirmCompletion"
         }
     },
+    // normal mode
     {
         "context": "VimControl && !menu && vim_operator == none",
         "bindings": {
             "enter": "vim::Matching",
             "alt-]": "pane::ActivateNextItem",
             "alt-[": "pane::ActivatePreviousItem",
+            // Close current tab
+            "alt-w": ["pane::CloseActiveItem", { "save_intent": "save_all" }],
             "alt-o": ["workspace::SendKeystrokes", "o escape"],
             "alt-O": ["workspace::SendKeystrokes", "O escape"],
             // shift current line left and right
             "alt-h": ["workspace::SendKeystrokes", "I backspace escape"],
             "alt-l": ["workspace::SendKeystrokes", "I tab escape"],
             "s": "vim::PushSneak",
-            "shift-s": "vim::PushSneakBackward"
+            "shift-s": "vim::PushSneakBackward",
+            "space A": "editor::SelectAll",
+            // Map j/k to gj/gk
+            "j": ["vim::Down", { "display_lines": true }],
+            "k": ["vim::Up", { "display_lines": true }]
         }
     },
     {
@@ -60,6 +55,7 @@
             "alt-a": "vim::EndOfLine"
         }
     },
+    // Terminal keymaps
     {
         "context": "Terminal",
         "bindings": {
