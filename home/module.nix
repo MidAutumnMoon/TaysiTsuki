@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, tsukiObservatory, ... }:
 
 {
 
@@ -37,4 +37,6 @@
         GTK2_RC_FILES = "$XDG_CONFIG_HOME/gtk-2.0/gtkrc";
     };
 
+    xdg_config."harper-ls/dictionary.txt".src =
+        "${tsukiObservatory}/.harper-dictionary.txt";
 }
