@@ -12,6 +12,7 @@
         "use_system_clipboard": "on_yank",
         "use_smartcase_find": true
     },
+    "vertical_scroll_margin": 10,
     "pane_split_direction_vertical": "right",
     "ui_font_size": 18,
     "ui_font_weight": 400,

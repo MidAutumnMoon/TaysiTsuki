@@ -9,8 +9,6 @@ vim.g.loaded_node_provider = 0
 vim.g.loaded_python3_provider = 0
 vim.g.loaded_ruby_provide = 0
 
-require "plugin.init"
-
 --
 -- Keymaps
 --
@@ -71,3 +69,80 @@ for num = 1, 9 do
     local cmd = string.format("%dgt", num)
     vim.keymap.set("n", key, cmd)
 end
+
+--
+-- Options
+--
+
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.mouse = "n"
+vim.opt.lazyredraw = true
+vim.opt.timeoutlen = 300
+vim.opt.updatetime = 1000
+vim.opt.laststatus = 3
+vim.opt.scrolloff = 10
+vim.opt.smoothscroll = true
+vim.opt.shell = "/bin/sh"
+
+vim.opt.autoread = true
+vim.opt.autowrite = true
+vim.opt.autowriteall = true
+
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 0
+vim.opt.smarttab = true
+vim.opt.expandtab = true
+vim.opt.autoindent = true
+
+vim.opt.list = true
+vim.opt.listchars = {
+    tab = "▷ ",
+    trail = "·",
+    extends = "◣",
+}
+
+do
+    local state_dir = vim.fn.stdpath "state"
+    vim.opt.swapfile = true
+    vim.opt.directory = state_dir .. "/swap//"
+    vim.opt.writebackup = true
+    vim.opt.backup = false
+    vim.opt.backupdir = state_dir .. "/backup//"
+    vim.opt.undofile = true
+    vim.opt.undodir = state_dir .. "/undo//"
+end
+
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.hlsearch = true
+vim.opt.incsearch = true
+vim.opt.shortmess:append( "Imr" )
+vim.opt.formatoptions:append("1,j")
+vim.opt.virtualedit = "block"
+vim.opt.whichwrap = "b,s,<,>,[,]"
+
+vim.opt.completeopt = "menuone,preview,longest"
+vim.opt.showbreak = "↳ "
+vim.opt.breakindent = true
+vim.opt.breakindentopt = "sbr"
+
+vim.opt.termguicolors = true
+vim.opt.cursorline = true
+vim.opt.visualbell = true
+vim.opt.fillchars = {
+    eob = " "
+    -- vert = " "
+}
+vim.opt.signcolumn = "yes:1"
+vim.opt.nrformats = "hex,bin,unsigned"
+vim.opt.winborder = "rounded"
+vim.opt.wildmenu = true
+vim.opt.wildmode = "full:lastused"
+
+--
+-- Plugins
+--
+
+require "plugin.init"
