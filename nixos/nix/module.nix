@@ -33,8 +33,6 @@
         temp-dir = "/tmp";
         # insecure, but well enough
         build-dir = "/tmp";
-        # insecure, but it seems to break proxy?
-        pasta-path = "";
     };
 
     nix.registry = {
