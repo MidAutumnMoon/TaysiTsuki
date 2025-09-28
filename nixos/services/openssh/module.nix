@@ -1,6 +1,9 @@
+{ pkgs, ... }:
+
 {
 
     services.openssh.enable = true;
+    services.openssh.package = pkgs.openssh_hpn;
 
     services.openssh.settings = rec {
         PermitRootLogin = "prohibit-password";

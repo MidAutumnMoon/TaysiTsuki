@@ -4,15 +4,16 @@
 
     programs.ssh =
         let
-            sshdCfg = config.services.openssh.settings;
+            sshdCfg = config.services.openssh;
+            sshdSettings = sshdCfg.settings;
         in rec {
-            macs = sshdCfg.Macs;
-            ciphers = sshdCfg.Ciphers;
+            package = sshdCfg.package;
+            macs = sshdSettings.Macs;
+            ciphers = sshdSettings.Ciphers;
             hostKeyAlgorithms =
-                sshdCfg.HostKeyAlgorithms |> lib.splitString ",";
+                sshdSettings.HostKeyAlgorithms |> lib.splitString ",";
             pubkeyAcceptedKeyTypes = hostKeyAlgorithms;
-            kexAlgorithms = sshdCfg.KexAlgorithms;
+            kexAlgorithms = sshdSettings.KexAlgorithms;
         };
 
 }
-
