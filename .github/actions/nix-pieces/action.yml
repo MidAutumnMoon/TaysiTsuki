@@ -7,6 +7,19 @@ runs:
     using: composite
 
     steps:
+        - name: Mount swap
+          shell: bash
+          run: |
+              {
+                F="/mnt/swapf"
+                sudo swapoff --all
+                sudo dd if=/dev/zero of=$F bs=1M count=20480
+                sudo chmod 600 $F
+                sudo mkswap $F
+                sudo swapon $F
+              } &
+              disown
+
         - name: Move TMPDIR
           shell: bash
           run: |
