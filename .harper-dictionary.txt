@@ -1,4 +1,3 @@
-cidata
 AOM
 AVIF
 CQ
@@ -10,11 +9,13 @@ N.B.
 OS
 PWD
 TODO
+TaysiTsuki
 TäysiTsuki
 YUV
 avifenc
 basename
 bootloader
+cidata
 cjxl
 cli
 darwin
