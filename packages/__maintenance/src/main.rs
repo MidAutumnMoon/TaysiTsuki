@@ -8,6 +8,8 @@ use tap::Pipe;
 use tracing::debug;
 
 use crate::manifest::Manifest;
+use crate::nixos::build_nixos;
+use crate::nixos::eval_hostnames;
 use crate::package::build_packages;
 
 mod manifest;
@@ -25,7 +27,7 @@ struct CommonOpts {
     working_dir: Option<PathBuf>,
 }
 
-/// Do some maintenance work for TaysiTsuki.
+/// Do some maintenance work for `TaysiTsuki`.
 #[derive(clap::Parser)]
 enum App {
     /// Update packages.
@@ -50,12 +52,18 @@ enum App {
         common: CommonOpts,
     },
 
-    /// Build NixOS system.
-    #[command(name = "nixos-build")]
-    BuildNixOS {
-        /// List all
+    /// Build `NixOS` system.
+    #[command(name = "nixos")]
+    NixOS {
+        /// List all hosts from nixos config in flake.
+        /// The output is also a JSON array.
         #[arg(long, short)]
         list_hostnames: bool,
+
+        /// Build the `NixOS` with the hostname.
+        #[arg(long, short = 'n')]
+        hostname: Option<String>,
+
         #[command(flatten)]
         common: CommonOpts,
     },
@@ -64,9 +72,9 @@ enum App {
 impl App {
     fn manifest(&self) -> &Path {
         match self {
-            Self::Update { common } => &common.manifest,
-            Self::Build { common, .. } => &common.manifest,
-            Self::BuildNixOS { common, .. } => &common.manifest,
+            Self::Update { common }
+            | Self::Build { common, .. }
+            | Self::NixOS { common, .. } => &common.manifest,
         }
     }
 }
@@ -86,7 +94,9 @@ fn main() -> Result<()> {
 
     match app {
         App::Build {
-            list_groups, group, ..
+            list_groups,
+            group,
+            common: _,
         } => {
             if list_groups {
                 debug!("Print group names in JSON");
@@ -99,20 +109,32 @@ fn main() -> Result<()> {
             }
             if let Some(group) = group {
                 debug!("Build packages from group {group}");
-                manifest
+                return manifest
                     .packages_from_group(&group)
                     .pipe(build_packages)
-                    .context("Failed building")?;
-                return Ok(());
+                    .context("Failed building");
             }
             bail!("Nothing to do");
         }
 
-        App::BuildNixOS {
+        App::NixOS {
             list_hostnames,
-            common,
+            hostname,
+            common: _,
         } => {
-            todo!()
+            if list_hostnames {
+                debug!("List hostnames");
+                eval_hostnames()
+                    .context("Failed to eval hostnames")?
+                    .pipe(|j| println!("{j}"));
+                return Ok(());
+            }
+            if let Some(hostname) = hostname {
+                debug!("Build NixOS {hostname}");
+                return build_nixos(&hostname)
+                    .context("Failed building NixOS");
+            }
+            bail!("Nothing to do");
         }
 
         App::Update { common } => {
