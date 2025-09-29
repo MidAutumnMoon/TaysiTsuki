@@ -63,20 +63,7 @@ enum App {
         /// Build the `NixOS` with the hostname.
         #[arg(long, short = 'n')]
         hostname: Option<String>,
-
-        #[command(flatten)]
-        common: CommonOpts,
     },
-}
-
-impl App {
-    fn manifest(&self) -> &Path {
-        match self {
-            Self::Update { common }
-            | Self::Build { common, .. }
-            | Self::NixOS { common, .. } => &common.manifest,
-        }
-    }
 }
 
 fn main() -> Result<()> {
@@ -84,20 +71,19 @@ fn main() -> Result<()> {
 
     let app = <App as clap::Parser>::parse();
 
-    let manifest = app
-        .manifest()
-        // TODO: Check extension
-        .pipe(Manifest::from_eval_nix)
-        .context("Failed to load manifest")?;
-
-    debug!(?manifest);
-
     match app {
         App::Build {
             list_groups,
             group,
-            common: _,
+            common,
         } => {
+            let manifest = common
+                .manifest
+                // TODO: Check extension
+                .pipe_as_ref(Manifest::from_eval_nix)
+                .context("Failed to load manifest")?;
+            debug!(?manifest);
+
             if list_groups {
                 debug!("Print group names in JSON");
                 manifest
@@ -120,7 +106,6 @@ fn main() -> Result<()> {
         App::NixOS {
             list_hostnames,
             hostname,
-            common: _,
         } => {
             if list_hostnames {
                 debug!("List hostnames");
@@ -138,6 +123,12 @@ fn main() -> Result<()> {
         }
 
         App::Update { common } => {
+            let manifest = common
+                .manifest
+                // TODO: Check extension
+                .pipe_as_ref(Manifest::from_eval_nix)
+                .context("Failed to load manifest")?;
+            debug!(?manifest);
             todo!()
         }
     }
