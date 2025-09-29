@@ -17,6 +17,7 @@ pub static NIX_BUILD_OPTS: &[&str] = &[
     "--no-link",
     "--print-build-logs",
     "--keep-failed",
+    "--show-trace",
     "--option", "narinfo-cache-negative-ttl", "0",
     "--option", "keep-going", "true",
     "--option", "max-jobs", "1",

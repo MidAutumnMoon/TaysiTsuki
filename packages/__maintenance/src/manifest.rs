@@ -5,6 +5,7 @@ use std::str::FromStr;
 use anyhow::Context;
 use anyhow::Result;
 use anyhow::bail;
+use itertools::Itertools;
 use serde::Deserialize;
 use tap::Pipe;
 use tap::Tap;
@@ -55,7 +56,11 @@ impl Manifest {
     }
 
     pub fn list_groups(&self) -> impl Iterator<Item = &str> {
-        self.packages.iter().map(|p| p.group.as_str())
+        self.packages
+            .iter()
+            .map(|p| p.group.as_str())
+            .unique()
+            .sorted()
     }
 
     pub fn packages_from_group(
