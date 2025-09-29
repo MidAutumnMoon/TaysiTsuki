@@ -25,7 +25,7 @@
         "dark": "Catppuccin Frappé - No Italics"
     },
     "autosave": {
-        "after_delay": { "milliseconds": 300 }
+        "after_delay": { "milliseconds": 1000 }
     },
     "auto_update": false,
     "indent_guides": {

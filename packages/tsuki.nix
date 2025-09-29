@@ -35,10 +35,13 @@ let
 
 in
 
-withValidate [
+withValidate <|
+
+[
     {
         attr = tsuki "hysteria";
         group = gs.go1;
+        update.version_regex = "app/v(.*)";
     }
 ]
 

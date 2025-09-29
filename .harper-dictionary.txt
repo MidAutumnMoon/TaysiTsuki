@@ -11,6 +11,7 @@ PWD
 TODO
 TaysiTsuki
 TäysiTsuki
+Vec
 YUV
 avifenc
 basename
