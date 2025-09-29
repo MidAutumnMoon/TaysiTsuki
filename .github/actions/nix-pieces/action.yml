@@ -2,53 +2,44 @@ name: Some Nix Things
 
 inputs:
     cachix_token: { required: true }
-    update_flake: { required: false, default: true }
 
 runs:
     using: composite
 
     steps:
+        - name: Move TMPDIR
+          shell: bash
+          run: |
+              sh -c 'uuidgen > /mnt/touchit' &
+              builddir="$(sudo mktemp --directory --tmpdir=/mnt)"
+              mkdir -p "$builddir"
+              sudo chmod 1777 "${builddir}"
+              echo "TMPDIR=${builddir}" >> $GITHUB_ENV
+              echo "TMPDIR set to ${builddir}"
 
-    -   name: Move TMPDIR
-        shell: bash
-        run: |
-            sh -c 'uuidgen > /mnt/touchit' &
-            builddir="$(sudo mktemp --directory --tmpdir=/mnt)"
-            mkdir -p "$builddir"
-            sudo chmod 1777 "${builddir}"
-            echo "TMPDIR=${builddir}" >> $GITHUB_ENV
-            echo "TMPDIR set to ${builddir}"
+        - name: Setup nix
+          uses: MidAutumnMoon/spheti-action/nix@master
+          with:
+              cachix-url: "https://nuirrce.cachix.org/"
+              cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
 
-    -   name: Setup nix
-        uses: MidAutumnMoon/spheti-action/nix@master
-        with:
-            cachix-url: "https://nuirrce.cachix.org/"
-            cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
+        - name: Start cleanup
+          shell: bash
+          run: |
+              echo "Before cleanup"
+              df -h
+              nix shell .#fish .#fuc -c \
+                  fish -PN \
+                      '${{ github.workspace }}/packages/__tools/cleansing.fish' full \
+                      1>$HOME/report 2>$HOME/report.err &
+              disown
 
-    -   name: Update flake
-        if: ${{ inputs.update_flake }}
-        shell: bash
-        run: |
-            nix flake update
-
-    -   name: Start cleanup
-        shell: bash
-        run: |
-            echo "Before cleanup"
-            df -h
-            nix shell .#fish .#fuc -c \
-                fish -PN \
-                    '${{ github.workspace }}/packages/__tools/cleansing.fish' full \
-                    1>$HOME/report 2>$HOME/report.err &
-            disown
-
-    -   name: Setup cachix
-        uses: cachix/cachix-action@v16
-        with:
-            installCommand: "nix profile install .#cachix"
-            name: "nuirrce"
-            pushFilter: '(NVIDIA.*\.run)'
-            skipAddingSubstituter: true
-            authToken: ${{ inputs.cachix_token }}
-
+        - name: Setup cachix
+          uses: cachix/cachix-action@v16
+          with:
+              installCommand: "nix profile install .#cachix"
+              name: "nuirrce"
+              pushFilter: '(NVIDIA.*\.run)'
+              skipAddingSubstituter: true
+              authToken: ${{ inputs.cachix_token }}
 # vim: nowrap:

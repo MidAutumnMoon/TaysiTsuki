@@ -98,7 +98,7 @@ allUnique <| withValidate <|
         update = {};
     }
     {
-        attr = "dnscrypt";
+        attr = tsuki "dnscrypt";
         group = gs.go_1;
         update = {};
     }
@@ -172,7 +172,7 @@ allUnique <| withValidate <|
                 "xdg-desktop-portal-kde" "dolphin"
             ];
             "KDE_3" = kde [
-                "plasma-workspace" "plasma-desktop" "konsole"
+                "plasma-desktop" "konsole"
                 "kate" "kwalletmanager"
             ];
         }

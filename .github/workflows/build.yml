@@ -4,10 +4,10 @@ on:
     workflow_dispatch:
     push:
         paths:
-        - 'flake.*'
-        - 'packages/**'
-        - "machine/**"
-        - "nixos/**"
+            - "flake.*"
+            - "packages/**"
+            - "machine/**"
+            - "nixos/**"
     schedule:
         #- cron: "0 */4 * * *"
         - cron: "0 0 */2 * *"
@@ -16,36 +16,30 @@ env:
     CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
 jobs:
-
-    all_subjects:
-        name: Get Subjects to Build
+    list_groups:
+        name: List package groups
         runs-on: ubuntu-latest
         defaults:
             run: { shell: bash }
         outputs:
-            subjects: ${{ steps.get_subjects.outputs.subjects }}
+            groups: ${{ steps.list_groups_step.outputs.groups }}
         steps:
-        -   name: Checkout
-            uses: actions/checkout@v5
+            - name: Checkout
+              uses: actions/checkout@v5
 
-        -   name: Setup nix
-            uses: ./.github/actions/nix-pieces
-            with:
-                cachix_token: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-                update_flake: false
+            - name: Setup nix
+              uses: ./.github/actions/nix-pieces
+              with:
+                  cachix_token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-        -   name: Get subjects
-            id: get_subjects
-            run: |
-                nix build --print-build-logs ".#tsuki.__tools.build-driver"
-                out=$( nix run ".#tsuki.__tools.build-driver" \
-                    -- subjects "packages/manifest.rb" )
-                echo "subjects=${out}" >> "$GITHUB_OUTPUT"
-
-        # -   name: Setup tmate session
-        #     #if: ${{ failure() }}
-        #     uses: mxschmitt/action-tmate@v3
-
+            - name: Get subjects
+              id: list_groups_step
+              run: |
+                  TOOL=".#tsuki.__maintenance"
+                  nix build --print-build-logs "$TOOL"
+                  OUT=$( nix run "$TOOL" \
+                      -- build -m "packages/tsuki.nix" -l )
+                  echo "groups=${OUT}" >> "$GITHUB_OUTPUT"
 
     build_packages:
         name: Build Packages
@@ -53,54 +47,45 @@ jobs:
         defaults:
             run: { shell: bash }
         needs:
-            - all_subjects
+            - list_groups
         strategy:
             matrix:
-                subject: ${{ fromJSON( needs.all_subjects.outputs.subjects ) }}
+                group: ${{ fromJSON(needs.list_groups.outputs.groups) }}
             fail-fast: false
         steps:
-        -   name: Checkout
-            uses: actions/checkout@v5
+            - name: Checkout
+              uses: actions/checkout@v5
 
-        -   name: Setup nix
-            uses: ./.github/actions/nix-pieces
-            with: { cachix_token: '${{ secrets.CACHIX_AUTH_TOKEN }}' }
+            - name: Setup nix
+              uses: ./.github/actions/nix-pieces
+              with: { cachix_token: "${{ secrets.CACHIX_AUTH_TOKEN }}" }
 
-        -   name: Build Subject
-            run: |
-                nix run --print-build-logs \
-                    .#tsuki.__tools.build-driver -- build \
-                    "packages/manifest.rb" "${{ matrix.subject }}"
+            - name: Build Packages from Group
+              run: |
+                  TOOL=".#tsuki.__maintenance"
+                  nix flake update
+                  nix run "$TOOL" -- build \
+                      -m "packages/tsuki.nix" \
+                      -g "${{ matrix.group }}"
 
-    build-nixos:
-        name: Build NixOS
-        needs:
-            - build_packages
-        runs-on: ubuntu-latest
-        defaults:
-            run: { shell: bash }
-        steps:
-        -   name: Checkout
-            uses: actions/checkout@v5
+    # build-nixos:
+    #     name: Build NixOS
+    #     needs:
+    #         - build_packages
+    #     runs-on: ubuntu-latest
+    #     defaults:
+    #         run: { shell: bash }
+    #     steps:
+    #         - name: Checkout
+    #           uses: actions/checkout@v5
 
-        # -   name: Add swap
-        #     uses: pierotofy/set-swap-space@master
-        #     with: { swap-size-gb: "20" }
+    #         - name: Setup nix
+    #           uses: ./.github/actions/nix-pieces
+    #           with: { cachix_token: "${{ secrets.CACHIX_AUTH_TOKEN }}" }
 
-        -   name: Setup nix
-            uses: ./.github/actions/nix-pieces
-            with: { cachix_token: '${{ secrets.CACHIX_AUTH_TOKEN }}' }
-
-        # -   name: Free up disk
-        #     env:
-        #         ACTION_DEBUG_OUTPUT: ${{ runner.debug }}
-        #     run: |
-        #         nix run .#fish -- \
-        #             -PN "$GITHUB_WORKSPACE/packages/__tools/cleansing.fish" "light"
-
-        -   name: Build NixOS
-            run: |
-                nix run --print-build-logs \
-                    .#tsuki.__tools.build-driver -- nixos
+    #         - name: Build NixOS
+    #           run: |
+    #               nix run --print-build-logs \
+    #                   .#tsuki.__tools.build-driver -- nixos
 
 # vim: nowrap:

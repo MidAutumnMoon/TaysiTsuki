@@ -12,3 +12,12 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
 tap = "1.0.1"
 tracing = "0.1.41"
+
+[profile.release]
+lto = "thin"
+strip = "debuginfo"
+
+[lints.clippy]
+all = { priority = -1, level = "warn" }
+pedantic = { priority = -1, level = "warn" }
+nursery = { priority = -1, level = "warn" }
