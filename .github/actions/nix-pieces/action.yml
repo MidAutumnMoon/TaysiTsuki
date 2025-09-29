@@ -10,9 +10,9 @@ runs:
         - name: Move TMPDIR
           shell: bash
           run: |
-              sh -c 'uuidgen > /mnt/touchit' &
+              sudo sh -c 'uuidgen > /mnt/touchit' &
               builddir="$(sudo mktemp --directory --tmpdir=/mnt)"
-              mkdir -p "$builddir"
+              sudo mkdir -p "$builddir"
               sudo chmod 1777 "${builddir}"
               echo "TMPDIR=${builddir}" >> $GITHUB_ENV
               echo "TMPDIR set to ${builddir}"
@@ -22,17 +22,6 @@ runs:
           with:
               cachix-url: "https://nuirrce.cachix.org/"
               cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
-
-        - name: Start cleanup
-          shell: bash
-          run: |
-              echo "Before cleanup"
-              df -h
-              nix shell .#fish .#fuc -c \
-                  fish -PN \
-                      '${{ github.workspace }}/packages/__tools/cleansing.fish' full \
-                      1>$HOME/report 2>$HOME/report.err &
-              disown
 
         - name: Setup cachix
           uses: cachix/cachix-action@v16

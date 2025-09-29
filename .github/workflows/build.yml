@@ -91,8 +91,7 @@ jobs:
               run: |
                   TOOL=".#tsuki.__maintenance"
                   nix build --print-build-logs "$TOOL"
-                  OUT=$( nix run "$TOOL" \
-                      -- nixos -m "packages/tsuki.nix" -l )
+                  OUT=$( nix run "$TOOL" -- nixos -l )
                   echo "hostnames=${OUT}" >> "$GITHUB_OUTPUT"
 
     build_nixos:
@@ -119,6 +118,4 @@ jobs:
                   TOOL=".#tsuki.__maintenance"
                   nix flake update
                   nix build --print-build-logs "$TOOL"
-                  nix run "$TOOL" -- nixos \
-                      -m "packages/tsuki.nix" \
-                      -n "${{ matrix.hostname }}"
+                  nix run "$TOOL" -- nixos -n "${{ matrix.hostname }}"
