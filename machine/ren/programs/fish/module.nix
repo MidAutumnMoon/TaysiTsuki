@@ -25,7 +25,7 @@
         # \e[0;0H : move cursor to 0,0 to reset its position
         # \e[$LINES;0H : move cursor $LINES down
         echo -ne "\e[0;0H\e[$LINES;0H"
-        bind --user \cl '
+        bind --user ctrl-l '
             echo -n ( clear | string replace \\e\\[3J "" ) ;
             commandline -f repaint ;
             echo -ne "\e[0;0H\e[$LINES;0H" ;
