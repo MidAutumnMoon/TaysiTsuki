@@ -12,6 +12,8 @@ use tap::Tap;
 use tracing::debug;
 use tracing::instrument;
 
+use crate::cmd::capture_cmd_output;
+
 #[derive(Debug)]
 pub struct Manifest {
     packages: Vec<Package>,
@@ -31,28 +33,19 @@ impl Manifest {
     #[instrument]
     pub fn from_eval_nix(nix_file: &Path) -> Result<Self> {
         debug!("Try to eval nix file");
-        let output = Command::new("nix")
-            .arg("eval")
-            .args(["--extra-experimental-features", "pipe-operator"])
-            .arg("--json")
-            .arg("--file")
-            .arg(nix_file)
-            .output()
-            .context("Failed to run nix command")?;
-        if !output.status.success() {
-            debug!("Nix command error");
-            eprintln!(
-                "Nix command stderr: {}",
-                output.stderr.pipe_as_ref(String::from_utf8_lossy)
-            );
-            bail!("Nix command error")
-        }
-        output
-            .stdout
-            .pipe(String::from_utf8)
-            .context("Nix output isn't valid UTF-8")?
-            .tap(|v| debug!(v, "eval output"))
-            .pipe_as_ref(Self::from_str)
+        capture_cmd_output(
+            "nix",
+            &[
+                "eval",
+                "--extra-experimental-features",
+                "pipe-operator",
+                "--json",
+                "--file",
+                &nix_file.to_string_lossy(),
+            ],
+        )
+        .context("Failed to eval manifest nix")?
+        .pipe_as_ref(Self::from_str)
     }
 
     pub fn list_groups(&self) -> impl Iterator<Item = &str> {

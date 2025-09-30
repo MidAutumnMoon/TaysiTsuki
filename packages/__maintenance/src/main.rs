@@ -1,4 +1,3 @@
-use std::path::Path;
 use std::path::PathBuf;
 
 use anyhow::Context;
@@ -12,6 +11,7 @@ use crate::nixos::build_nixos;
 use crate::nixos::eval_hostnames;
 use crate::package::build_packages;
 
+mod cmd;
 mod manifest;
 mod nixos;
 mod package;

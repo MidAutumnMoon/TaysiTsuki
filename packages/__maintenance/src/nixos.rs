@@ -10,36 +10,23 @@ use indoc::formatdoc;
 use tap::Pipe;
 use tracing::debug;
 
+use crate::cmd::capture_cmd_output;
 use crate::package::NIX_BUILD_OPTS;
 
 // TODO: dedup the command pattern
 pub fn eval_hostnames() -> Result<String> {
-    let toplevel = git_toplevel()?;
+    let toplevel =
+        capture_cmd_output("git", &["rev-parse", "--show-toplevel"])?;
     let driver = formatdoc! {r#"
         with builtins;
         let flake = getFlake (toString {toplevel}); in
         assert hasAttr "nixosConfigurations" flake;
         attrNames flake.nixosConfigurations
     "#};
-    let output = Command::new("nix")
-        .arg("eval")
-        .arg("--impure")
-        .arg("--json")
-        .args(["--expr", &driver])
-        .output()
-        .context("Failed to run nix command")?;
-    if !output.status.success() {
-        debug!("Nix command error");
-        eprintln!(
-            "Nix command stderr: {}",
-            output.stderr.pipe_as_ref(String::from_utf8_lossy)
-        );
-        bail!("Nix command error")
-    }
-    output
-        .stdout
-        .pipe(String::from_utf8)
-        .context("Nix output isn't valid UTF-8")
+    capture_cmd_output(
+        "nix",
+        &["eval", "--impure", "--json", "--expr", &driver],
+    )
 }
 
 pub fn build_nixos(hostname: &str) -> Result<()> {
@@ -59,23 +46,4 @@ pub fn build_nixos(hostname: &str) -> Result<()> {
 
     ensure!(status.success(), "Nix build failed");
     Ok(())
-}
-
-fn git_toplevel() -> Result<String> {
-    let output = Command::new("git")
-        .arg("rev-parse")
-        .arg("--show-toplevel")
-        .output()
-        .context("Failed to run git command")?;
-    if !output.status.success() {
-        eprintln!(
-            "Git stderr: {}",
-            output.stderr.pipe_as_ref(String::from_utf8_lossy)
-        );
-        bail!("git command failed");
-    }
-    output
-        .stdout
-        .pipe(String::from_utf8)
-        .context("Git output isn't valid UTF-8")
 }
