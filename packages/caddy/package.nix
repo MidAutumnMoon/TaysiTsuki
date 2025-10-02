@@ -1,6 +1,6 @@
 {
     lib,
-    buildGoLatestModule,
+    buildGoModule,
     fetchFromGitHub,
 
     stdenvNoCC,
@@ -37,7 +37,7 @@ let
 
 in
 
-buildGoLatestModule rec {
+buildGoModule rec {
 
     pname = "caddy";
     version = "2.10.2";
@@ -63,7 +63,6 @@ buildGoLatestModule rec {
     doCheck = false;
     env.GOAMD64 = "v2";
     env.CGO_ENABLED = 0;
-    env.GOEXPERIMENT = "greenteagc";
 
     nativeBuildInputs = [ installShellFiles ];
 

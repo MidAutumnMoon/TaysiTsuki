@@ -3,10 +3,10 @@
     fetchFromGitHub,
 
     go,
-    buildGoLatestModule,
+    buildGoModule,
 }:
 
-buildGoLatestModule rec {
+buildGoModule rec {
 
     pname = "hysteria";
     version = "2.6.4";
@@ -27,7 +27,6 @@ buildGoLatestModule rec {
     env.GOWORK = "off";
     env.GOAMD64 = "v3";
     env.CGO_ENABLED = 0;
-    env.GOEXPERIMENT = "greenteagc";
 
     doCheck = false;
 
