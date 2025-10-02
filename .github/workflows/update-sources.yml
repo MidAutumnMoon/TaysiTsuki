@@ -1,4 +1,4 @@
-name: "Update sources"
+name: Update Packages
 
 on:
     workflow_dispatch:
@@ -6,51 +6,52 @@ on:
         - cron: "0 6 * * 1"
     push:
         paths:
-        - "flake.lock"
+            - "flake.lock"
 
 jobs:
-
     update-sources:
-
         runs-on: ubuntu-latest
 
         defaults:
             run: { shell: bash }
 
         steps:
+            - name: Checkout
+              uses: actions/checkout@v5
 
-        -   name: Checkout
-            uses: actions/checkout@v5
+            - name: Setup nix
+              uses: ./.github/actions/nix-pieces
+              with:
+                  cachix_token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-        -   name: Setup nix
-            uses: MidAutumnMoon/spheti-action/nix@master
-            with:
-                cachix-url: "https://nuirrce.cachix.org/"
-                cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
+            - name: Run nix-update
+              id: nix_update
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  F="$(mktemp)"
+                  TOOL=".#tsuki.__maintenance"
+                  nix build --print-build-logs "$TOOL"
+                  RUST_LOG=trace nix shell .#nix-update -c \
+                    nix run "$TOOL" -- update -m "packages/tsuki.nix" -w "$F"
+                  # idiot bash (eye roll)
+                  {
+                    echo "update_summary<<F6EAA0BA8653"
+                    cat "$F"
+                    echo "F6EAA0BA8653"
+                  } >> "$GITHUB_OUTPUT"
 
-        -   name: Run nix-update
-            id: nix_update
-            env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            run: |
-                # idiot bash (eye roll)
-                declare -r REPORT="$( mktemp )"
-                nix build --print-build-logs ".#tsuki.__tools.nix-update-driver"
-                nix run .#tsuki.__tools.nix-update-driver "packages/update.rb" "$REPORT"
-                { echo "REPORT<<EOF"; cat "$REPORT"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+            - name: Get Date
+              id: commit_date
+              run: |
+                  echo "date=$( date '+%Y-%b-%d' )" >> "$GITHUB_OUTPUT"
 
-        -   name: Get Date
-            run: |
-                echo "THE_DATE=$( date '+%Y/%b/%d' )" >> "$GITHUB_ENV"
-
-        -   name: Open PR
-            uses: peter-evans/create-pull-request@v7
-            with:
-                sign-commits: true
-                add-paths: "packages"
-                title: "pkgs: update ${{ env.THE_DATE }}"
-                body: ${{ steps.nix_update.outputs.REPORT }}
-                commit-message: |
-                    pkgs: update ${{ env.THE_DATE }}
-
-                    ${{ steps.nix_update.outputs.REPORT }}
+            - name: Open PR
+              uses: peter-evans/create-pull-request@v7
+              with:
+                  sign-commits: true
+                  add-paths: "packages"
+                  title: "pkgs: ${{ steps.commit_date.outputs.date }}"
+                  body: ${{ steps.nix_update.outputs.update_summary }}
+                  commit-message: |
+                      ${{ steps.nix_update.outputs.update_summary }}

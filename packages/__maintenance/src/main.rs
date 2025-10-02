@@ -10,6 +10,7 @@ use crate::manifest::Manifest;
 use crate::nixos::build_nixos;
 use crate::nixos::eval_hostnames;
 use crate::package::build_packages;
+use crate::package::update_all_packages;
 
 mod cmd;
 mod manifest;
@@ -23,8 +24,6 @@ struct CommonOpts {
     /// The manifest for what packages to build and update.
     #[arg(long, short)]
     manifest: PathBuf,
-    #[arg(long, short)]
-    working_dir: Option<PathBuf>,
 }
 
 /// Do some maintenance work for `TaysiTsuki`.
@@ -32,6 +31,10 @@ struct CommonOpts {
 enum App {
     /// Update packages.
     Update {
+        /// Write update summary to file.
+        #[arg(long, short)]
+        write_update_summary: Option<PathBuf>,
+
         #[command(flatten)]
         common: CommonOpts,
     },
@@ -122,14 +125,27 @@ fn main() -> Result<()> {
             bail!("Nothing to do");
         }
 
-        App::Update { common } => {
+        App::Update {
+            common,
+            write_update_summary,
+        } => {
             let manifest = common
                 .manifest
                 // TODO: Check extension
                 .pipe_as_ref(Manifest::from_eval_nix)
                 .context("Failed to load manifest")?;
             debug!(?manifest);
-            todo!()
+            let summary = manifest
+                .package_need_update()
+                .pipe(update_all_packages)
+                .context("Failed to update package")?;
+            if let Some(report) = write_update_summary {
+                std::fs::write(&report, &summary)
+                    .context("Failed to write update summary to file")?;
+            } else {
+                println!("{summary}");
+            }
+            Ok(())
         }
     }
 }

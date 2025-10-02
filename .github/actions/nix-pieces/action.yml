@@ -24,7 +24,7 @@ runs:
           shell: bash
           run: |
               sudo sh -c 'uuidgen > /mnt/touchit' &
-              builddir="$(sudo mktemp --directory --tmpdir=/mnt)"
+              builddir="/mnt/$(uuidgen)"
               sudo mkdir -p "$builddir"
               sudo chmod 1777 "${builddir}"
               echo "TMPDIR=${builddir}" >> $GITHUB_ENV
