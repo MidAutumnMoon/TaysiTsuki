@@ -54,4 +54,5 @@ jobs:
                   title: "pkgs: ${{ steps.commit_date.outputs.date }}"
                   body: ${{ steps.nix_update.outputs.update_summary }}
                   commit-message: |
+                      pkgs: ${{ steps.commit_date.outputs.date }}
                       ${{ steps.nix_update.outputs.update_summary }}
