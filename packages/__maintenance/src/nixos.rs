@@ -4,10 +4,8 @@ use std::process::Command;
 
 use anyhow::Context;
 use anyhow::Result;
-use anyhow::bail;
 use anyhow::ensure;
 use indoc::formatdoc;
-use tap::Pipe;
 use tracing::debug;
 
 use crate::cmd::capture_cmd_output;

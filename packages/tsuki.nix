@@ -83,6 +83,11 @@ allUnique <| withValidate <|
         group = gs.small_1;
         update = {};
     }
+    {
+        attr = tsuki "rust.rust-analyzer";
+        group = gs.small_1;
+        update = {};
+    }
 
     #
     # go 1
@@ -122,7 +127,9 @@ allUnique <| withValidate <|
     {
         attr = tsuki "sing-box";
         group = gs.go_2;
-        # update = {};
+        update = {
+            preview_release = true;
+        };
     }
 
     #
@@ -137,6 +144,26 @@ allUnique <| withValidate <|
         attr = tsuki "mimic-cloud-init";
         group = gs.rust_1;
     }
+    {
+        attr = tsuki "inori";
+        group = "Inori";
+        update = {
+            pinned = true;
+            unstable_branch = true;
+        };
+    }
+
+    #
+    # something something
+    #
+
+    {
+        attr = tsuki "qimgv";
+        group = "Qimgv";
+        update = {
+            unstable_branch = true;
+        };
+    }
 
     #
     # others to make sure being cached
@@ -144,7 +171,6 @@ allUnique <| withValidate <|
     { attr = "nixd"; group = "Nixd"; }
     { attr = "lix"; group = "Lix"; }
     { attr = "colmena"; group = "Colmena"; }
-    { attr = tsuki "inori"; group = "Inori"; }
     { attr = "zellij"; group = "Zellij"; }
 ]
 
@@ -164,7 +190,7 @@ allUnique <| withValidate <|
     in
         gen {
             "KDE_1" =
-                ["telegram-desktop" "tsuki.qimgv"] ++ kde [
+                ["telegram-desktop"] ++ kde [
                     "kwin" "sddm" "systemsettings"
                 ];
             "KDE_2" = kde [
