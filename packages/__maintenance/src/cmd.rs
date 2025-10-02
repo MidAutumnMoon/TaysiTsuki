@@ -30,4 +30,5 @@ where
     ret.stdout
         .pipe(String::from_utf8)
         .context("Command output isn't valid UTF-8")
+        .pipe(|v| v.map(|s| s.trim().into()))
 }

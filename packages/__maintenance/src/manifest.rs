@@ -1,14 +1,11 @@
 use std::path::Path;
-use std::process::Command;
 use std::str::FromStr;
 
 use anyhow::Context;
 use anyhow::Result;
-use anyhow::bail;
 use itertools::Itertools;
 use serde::Deserialize;
 use tap::Pipe;
-use tap::Tap;
 use tracing::debug;
 use tracing::instrument;
 
@@ -79,9 +76,36 @@ pub struct Package {
 #[derive(Debug)]
 #[derive(Deserialize)]
 pub struct Update {
+    /// Custom nix-update version extract regex.
     pub version_regex: Option<String>,
+
+    /// Update source from unstable development branch.
     pub unstable_branch: Option<bool>,
+
+    /// Update to pre-release versions.
     pub preview_release: Option<bool>,
+
+    /// Skip the update.
     pub pinned: Option<bool>,
     // subpackages: Vec<Self>,
+}
+
+impl Update {
+    #[inline]
+    #[allow(clippy::option_if_let_else)]
+    pub fn as_nix_update_args(&self) -> Vec<String> {
+        if let Some(r) = &self.version_regex {
+            vec!["--version-regex".into(), r.into()]
+        } else if let Some(b) = &self.unstable_branch
+            && *b
+        {
+            vec!["--version".into(), "branch".into()]
+        } else if let Some(b) = &self.preview_release
+            && *b
+        {
+            vec!["--version".into(), "unstable".into()]
+        } else {
+            vec![]
+        }
+    }
 }
