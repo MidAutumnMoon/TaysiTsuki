@@ -14,7 +14,7 @@
         },
         "inline_assistant_model": {
             "provider": "openrouter",
-            "model": "x-ai/grok-code-fast-1"
+            "model": "qwen/qwen3-235b-a22b-2507"
         }
     },
     "vim_mode": true,

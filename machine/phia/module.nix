@@ -2,8 +2,6 @@
 
 let
 
-    phiaSuite = pkgs.callPackage ./packages {};
-
     inherit ( config )
         lore
     ;
@@ -36,11 +34,6 @@ in
         };
     };
 
-    # services.tailscale = {
-    #     enable = true;
-    #     openFirewall = true;
-    # };
-
     services.caddy.enable = true;
 
     environment.systemPackages = with pkgs; [
@@ -49,11 +42,8 @@ in
         ncdu
         rclone
         smartmontools
-        phiaSuite.allSuiteCombined
         fuc
     ];
-
-    passthru.phiaSuite = phiaSuite;
 
     security.sudo.wheelNeedsPassword = false;
 

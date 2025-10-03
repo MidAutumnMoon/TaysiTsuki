@@ -1,0 +1,15 @@
+[package]
+name = "maintenance"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+
+[dependencies]
+anyhow = "1.0.100"
+strum = { version = "0.27.2", features = ["derive"] }
+
+[lints.clippy]
+all = { priority = -1, level = "warn" }
+pedantic = { priority = -1, level = "warn" }
+nursery = { priority = -1, level = "warn" }

@@ -39,6 +39,7 @@ ng
 nixos
 nixosConfigurations
 nixpkgs
+rclone
 repl
 repls
 semver
