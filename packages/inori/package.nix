@@ -37,7 +37,7 @@ tsuki.rust.buildRustPackage rec {
     env.CFG_MAGICK_PATH = lib.getExe' imagemagick "magick";
 
     RUSTFLAGS = with stdenv;
-        lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
+        lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v2"
     ;
 
     postFixup = /*sh*/ ''
