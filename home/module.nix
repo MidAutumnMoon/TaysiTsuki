@@ -29,6 +29,8 @@
         harper
         mtr
         ncdu
+        shellcheck
+        bash-language-server
     ];
 
     envvars = {
