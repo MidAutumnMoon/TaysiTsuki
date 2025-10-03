@@ -15,7 +15,6 @@ HERE = Pathname.new __dir__
 GEMFILE = <<~GEM
     source "https://rubygems.org"
     gem "amazing_print"
-    gem "async"
     gem "reinbow"
     gem "irb"
 GEM
