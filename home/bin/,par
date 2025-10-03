@@ -5,75 +5,72 @@
 require "pathname"
 require "English"
 require "shellwords"
-require "reinbow"
-
-using Reinbow
 
 if ARGV.empty?
-    warn "No argument given, glob current directory".yellow
-    INPUTS = Pathname.pwd.glob( "*" )
+    warn "No argument given, glob current directory"
+    INPUTS = Pathname.pwd.glob("*")
 else
     INPUTS = ARGV
         .map { Pathname.new it }
-        .map( &:realpath )
+        .map(&:realpath)
 end
 
-def par2( dst )
+def par2(dst)
     files = []
 
     if dst.file?
-        warn "It is file".yellow
+        warn "It is file"
         files.push dst
     elsif dst.directory?
-        warn "It is directory".yellow
-        dst.glob( "*" )
-            .select( &:file? )
+        warn "It is directory"
+        dst.glob("*")
+            .select(&:file?)
             .then { files.concat it }
     else
-        abort "The argument is neither file nor directory".red
+        abort "The argument is neither file nor directory"
     end
 
-    puts "Generate parchive".yellow
+    puts "Generate parchive"
 
     files.each do |f|
-        warn %(par2-ing "#{f}").blue
-        Dir.chdir( f.dirname ) do
+        warn %(par2-ing "#{f}")
+        Dir.chdir(f.dirname) do
             basename = f.basename
             # -n1 : one redundency file
             # -r5 : 5% of redundency
-            system <<~SH or abort "Failed to run par2".red
+            system <<~SH or abort "Failed to run par2"
                 par2 create -n1 -r5 -q #{basename.to_s.shellescape}
             SH
 
             # only the volume data is enough
             par2main = Pathname.new "#{basename}.par2"
-            par2volume = Pathname.glob( "#{basename.to_s.shellescape}.vol*.par2" )
+            par2volume = Pathname.glob("#{basename.to_s.shellescape}.vol*.par2")
                 .tap { abort "Par2 vol file not found" if it.empty? }
                 .tap { abort "Found multiple par2 vol files" if it.size > 1 }
-                .then( &:pop )
+                .then(&:pop)
 
             par2main.delete
-            par2volume.rename( par2main.to_s )
+            par2volume.rename(par2main.to_s)
         end
     end
 
-    puts "Generate checksum".yellow
+    puts "Generate checksum"
 
     if dst.file?
-        Dir.chdir( dst.dirname )
+        Dir.chdir(dst.dirname)
         checksum_name = "#{dst.basename}.sha256sum"
     elsif dst.directory?
-        Dir.chdir( dst )
+        Dir.chdir(dst)
         checksum_name = "__directory.sha256sum"
     end
 
     files = files
         .map { Pathname.new "#{it}.par2" }
         .then { files.concat it }
-        .map( &:basename ) # N.B. chdir above
+        .map(&:basename) # N.B. chdir above
         .sort
 
-    system <<~SH or abort "Failed to run sha256sum".red
+    system <<~SH or abort "Failed to run sha256sum"
         sha256sum --binary #{files.shelljoin} | tee "#{checksum_name}"
     SH
 end

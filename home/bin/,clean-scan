@@ -4,24 +4,21 @@
 
 require "pathname"
 require "shellwords"
-require "reinbow"
 
-using Reinbow
-
-TOPLEVEL = ( ARGV.shift or abort "Not argument" )
+TOPLEVEL = (ARGV.shift or abort "Not argument")
     .then { Pathname.new it }
-    .then( &:realpath )
+    .then(&:realpath)
 
-BACKUP_DIR = ( TOPLEVEL.join ".backup" )
+BACKUP_DIR = (TOPLEVEL.join ".backup")
     .tap do |dir|
         dir.exist? and abort "Backup dir exists"
         dir.mkpath
     end
 
-TOPLEVEL.glob( "*.jpg" ).each do |pic|
-    puts "Process #{pic}".blue
+TOPLEVEL.glob("*.jpg").each do |pic|
+    puts "Process #{pic}"
 
-    out = pic.sub_ext( ".png" )
+    out = pic.sub_ext(".png")
     backup = pic.basename.then { BACKUP_DIR.join it }
 
     system <<~SH or abort "Failed to run magick"
@@ -34,5 +31,5 @@ TOPLEVEL.glob( "*.jpg" ).each do |pic|
             #{out.to_s.shellescape}
     SH
 
-    pic.rename( backup )
+    pic.rename(backup)
 end

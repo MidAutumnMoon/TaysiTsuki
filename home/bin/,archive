@@ -2,44 +2,41 @@
 
 # frozen_string_literal: true
 
-require "reinbow"
 require "pathname"
 require "shellwords"
-
-using Reinbow
 
 BACKUP_DIR = Pathname.pwd.join ".backup"
 
 # TODO: coordinate rename original to .backup
-abort "Leaftover backup folder found".red \
-    if not Pathname.pwd.glob( "./**/original" ).empty?
+abort "Leaftover backup folder found" \
+    if not Pathname.pwd.glob("./**/original").empty?
 
-abort %("#{BACKUP_DIR}" exists).red \
+abort %("#{BACKUP_DIR}" exists) \
     if BACKUP_DIR.exist?
 
 BACKUP_DIR.mkdir
 
-warn %(BACKUP_DIR is "#{BACKUP_DIR}").yellow
+warn %(BACKUP_DIR is "#{BACKUP_DIR}")
 
 if ARGV.empty?
-    warn "Glob pwd for directories to be archived".yellow
-    warn "However files are ignored".yellow
+    warn "Glob pwd for directories to be archived"
+    warn "However files are ignored"
     INPUTS = Pathname.pwd
-        .glob( "*" )
-        .select( &:directory? )
+        .glob("*")
+        .select(&:directory?)
 else
     INPUTS = ARGV
         .map { Pathname.new it }
-        .map( &:realpath )
+        .map(&:realpath)
         .tap do
             abort "All arguments must be directory" \
-                unless it.all?( &:directory? )
+                unless it.all?(&:directory?)
         end
 end
 
 INPUTS.each do |input|
 
-    puts %(Archiving "#{input.basename}").blue
+    puts %(Archiving "#{input.basename}")
 
     archive_name = Pathname.new "#{input}.7z"
 
@@ -48,7 +45,7 @@ INPUTS.each do |input|
     # solid block 16GB
     # dictionary 3840MB
     # large pages
-    system <<~SH or abort "Failed to run 7z".red
+    system <<~SH or abort "Failed to run 7z"
         command 7zz a \
             -slp -ssp \
             -sas -t7z \
@@ -61,14 +58,14 @@ INPUTS.each do |input|
             #{input.to_s.shellescape}
     SH
 
-    warn "Move to backup".blue
+    warn "Move to backup"
 
-    BACKUP_DIR.join( input.basename )
+    BACKUP_DIR.join(input.basename)
         .then { input.rename it }
 
-    warn "Generate parchive".blue
+    warn "Generate parchive"
 
-    system <<~SH or abort "Failed to par".red
+    system <<~SH or abort "Failed to par"
         ,par #{archive_name.to_s.shellescape}
     SH
 
