@@ -10,11 +10,11 @@
     "agent": {
         "default_model": {
             "provider": "openrouter",
-            "model": "qwen/qwen3-235b-a22b-2507"
+            "model": "qwen/qwen3-235b-a22b-thinking-2507"
         },
         "inline_assistant_model": {
             "provider": "openrouter",
-            "model": "qwen/qwen3-235b-a22b-2507"
+            "model": "moonshotai/kimi-k2-0905"
         }
     },
     "vim_mode": true,
