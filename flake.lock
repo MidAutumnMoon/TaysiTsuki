@@ -77,11 +77,11 @@
     },
     "empty": {
       "locked": {
-        "lastModified": 1747543660,
-        "narHash": "sha256-q0s+gyIrmsPon3evDh6I4uiHHUVMYibJ73flfRu3xmU=",
+        "lastModified": 1759502707,
+        "narHash": "sha256-ML60zVlqK+R0R6EH2aWhWJh9CYPj2XuaRya9AuMl/GY=",
         "owner": "MidAutumnMoon",
         "repo": "empty-flake",
-        "rev": "3dd78d3aafc8b8ab778627342bcc653d7afb76d0",
+        "rev": "3b830d637cf569096d7442e57fd221ecb887feda",
         "type": "github"
       },
       "original": {
@@ -105,6 +105,29 @@
       "original": {
         "owner": "numtide",
         "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "jovian": {
+      "inputs": {
+        "nix-github-actions": [
+          "empty"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1759217228,
+        "narHash": "sha256-P13ExJlhMVkrc5LxZLNkIJZhjNYo3LLXnxDsUNrdnMQ=",
+        "owner": "Jovian-Experiments",
+        "repo": "Jovian-NixOS",
+        "rev": "e52c15ab25f7dc68dde527c8df5bfa9d80d8e64f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Jovian-Experiments",
+        "repo": "Jovian-NixOS",
         "type": "github"
       }
     },
@@ -148,9 +171,7 @@
         "home-manager": [
           "empty"
         ],
-        "jovian": [
-          "empty"
-        ],
+        "jovian": "jovian",
         "nixpkgs": [
           "nixpkgs"
         ],

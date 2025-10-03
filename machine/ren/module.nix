@@ -177,37 +177,6 @@ in
         "/persist/etc/ssh/ssh_host_ed25519_key"
     ];
 
-    #
-    # Boot & handware
-    #
-
-    boot.initrd = {
-        availableKernelModules = [
-            "nvme"
-            "xhci_pci"
-            "ahci"
-            "usbhid"
-            "usb_storage"
-            "sd_mod"
-            # "rtsx_usb_sdmmc"
-        ];
-        #includeDefaultModules = false;
-        systemd.enable = true;
-    };
-
-    boot.loader = {
-        systemd-boot.enable = true;
-        efi.canTouchEfiVariables = true;
-    };
-
-    boot.kernelModules = [
-        "amdgpu"
-        "kvm-amd"
-        "cifs"
-    ];
-
-    boot.kernelParams = [ "amd_pstate=active" ];
-
     hardware = {
         cpu.amd.updateMicrocode = true;
         enableRedistributableFirmware = true;

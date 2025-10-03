@@ -1,0 +1,30 @@
+{ lib, pkgs, ... }:
+
+{
+
+    boot.loader = {
+        systemd-boot.enable = true;
+        efi.canTouchEfiVariables = true;
+    };
+
+    boot.initrd.availableKernelModules = [
+        "nvme"
+        "xhci_pci"
+        "ahci"
+        "usbhid"
+        "usb_storage"
+        "sd_mod"
+    ];
+
+    boot.kernelModules = [
+        "amdgpu"
+        "kvm-amd"
+        "cifs"
+    ];
+
+    boot.kernelParams = [ "amd_pstate=active" ];
+
+    boot.kernelPackages =
+        lib.mkForce pkgs.linuxPackages_cachyos;
+
+}

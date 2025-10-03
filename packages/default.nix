@@ -11,6 +11,9 @@ let
     pkgsFrom =
         name: flakes.${name}.packages.${final.system};
 
+    legacyFrom =
+        name: flakes.${name}.legacyPackages.${final.system};
+
     discovered =
         lib.packagesFromDirectoryRecursive {
             inherit callPackage;
@@ -23,6 +26,11 @@ in rec {
 
     inherit ( pkgsFrom "sops-nix" )
         sops-install-secrets
+    ;
+
+    inherit (legacyFrom "nyx")
+        linuxPackages_cachyos
+        linuxPackages_cachyos-server
     ;
 
     dnscrypt-proxy = tsuki.dnscrypt;

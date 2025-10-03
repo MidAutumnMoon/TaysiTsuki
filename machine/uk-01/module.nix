@@ -7,10 +7,6 @@
         ./filesystem.nix
     ];
 
-    boot = {
-        loader.grub.enable = true;
-    };
-
     fonts.fontconfig.enable = false;
     documentation.man.enable = false;
 

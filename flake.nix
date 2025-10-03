@@ -45,7 +45,10 @@
             url = "github:chaotic-cx/nyx";
             inputs.nixpkgs.follows = "nixpkgs";
             inputs.home-manager.follows = "empty";
-            inputs.jovian.follows = "empty";
+            inputs.jovian = {
+                inputs.nixpkgs.follows = "nixpkgs";
+                inputs.nix-github-actions.follows = "empty";
+            };
             inputs.flake-schemas.follows = "empty";
             inputs.rust-overlay.follows = "rust-overlay";
         };
@@ -84,7 +87,7 @@
          * My cute lib
          */
 
-        inherit lib;
+        inherit lib flakes;
 
         /*
          * Overlays & packages
@@ -115,13 +118,31 @@
                 arguments = { inherit flakes; };
             };
         in {
-            ren = nixos "x86_64-linux" <| lib.listAllModules ./machine/ren;
+            ren = nixos "x86_64-linux" <| (
+                lib.listAllModules ./machine/ren
+                ++ [ self.nixosModules.only-nyx-cache ]
+            );
             phia = nixos "x86_64-linux" <| lib.listAllModules ./machine/phia;
             uk-01 = nixos "x86_64-linux" <| (
                 lib.listAllModules ./machine/uk-01
                 ++ [ flakes.disko.nixosModules.default ]
             );
         };
+
+        # Remove nix-community cache and future ones.
+        nixosModules.only-nyx-cache = { lib, ... }:
+            let
+                isChaotic = lib.strings.hasInfix "chaotic-nyx";
+                substrs = flakes.nyx.nixConfig.extra-substituters;
+                keys = flakes.nyx.nixConfig.extra-trusted-public-keys;
+            in {
+                nix.settings = {
+                    substituters =
+                        lib.mkAfter <| lib.filter isChaotic substrs;
+                    trusted-public-keys =
+                        lib.mkAfter <| lib.filter isChaotic keys;
+                };
+            };
 
         colmenaHive =
             {
