@@ -7,6 +7,12 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+    "agent": {
+        "inline_assistant_model": {
+            "provider": "openrouter",
+            "model": "x-ai/grok-code-fast-1"
+        }
+    },
     "vim_mode": true,
     "vim": {
         "use_system_clipboard": "on_yank",
