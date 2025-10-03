@@ -29,6 +29,10 @@
         "nmi_watchdog=0"
     ];
 
+    boot.blacklistedKernelModules = [
+        "sp5100_tco" "iTCO_wdt"
+    ];
+
     boot.tmp = {
         useTmpfs = true;
         tmpfsSize = "100%";
