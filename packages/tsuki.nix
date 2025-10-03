@@ -153,6 +153,10 @@ allUnique <| withValidate <|
             unstable_branch = true;
         };
     }
+    {
+        attr = "zram-generator";
+        group = gs.rust_1;
+    }
 
     #
     # something something
