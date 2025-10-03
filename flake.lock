@@ -140,6 +140,38 @@
         "type": "github"
       }
     },
+    "nyx": {
+      "inputs": {
+        "flake-schemas": [
+          "empty"
+        ],
+        "home-manager": [
+          "empty"
+        ],
+        "jovian": [
+          "empty"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "rust-overlay": [
+          "rust-overlay"
+        ]
+      },
+      "locked": {
+        "lastModified": 1759348172,
+        "narHash": "sha256-ZPUJX2ZA0ndcHndIA/S/nRESIJV0rifPr91SUpzJtEM=",
+        "owner": "chaotic-cx",
+        "repo": "nyx",
+        "rev": "dd1af56ad79c965ee20c236ba6adbb2135ac02af",
+        "type": "github"
+      },
+      "original": {
+        "owner": "chaotic-cx",
+        "repo": "nyx",
+        "type": "github"
+      }
+    },
     "preservation": {
       "locked": {
         "lastModified": 1757436102,
@@ -164,6 +196,7 @@
         "flake-utils": "flake-utils",
         "nix-index-database": "nix-index-database",
         "nixpkgs": "nixpkgs",
+        "nyx": "nyx",
         "preservation": "preservation",
         "rust-overlay": "rust-overlay",
         "sops-nix": "sops-nix"

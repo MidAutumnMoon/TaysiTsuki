@@ -41,6 +41,15 @@
             flake = false;
         };
 
+        nyx = {
+            url = "github:chaotic-cx/nyx";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.home-manager.follows = "empty";
+            inputs.jovian.follows = "empty";
+            inputs.flake-schemas.follows = "empty";
+            inputs.rust-overlay.follows = "rust-overlay";
+        };
+
         # Some toolchains
 
         rust-overlay = {
