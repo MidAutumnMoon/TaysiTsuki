@@ -20,30 +20,31 @@ runs:
               } &
               disown
 
-        - name: Move TMPDIR
-          shell: bash
-          run: |
-              sudo sh -c 'uuidgen > /mnt/touchit' &
-              builddir="/mnt/$(uuidgen)"
-              sudo mkdir -p "$builddir"
-              sudo chmod 1777 "${builddir}"
-              echo "TMPDIR=${builddir}" >> $GITHUB_ENV
-              echo "TMPDIR set to ${builddir}"
-
         - name: Setup nix
           uses: MidAutumnMoon/spheti-action/nix@master
           with:
               cachix-url: "https://nuirrce.cachix.org/"
               cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
 
+        - name: Move TMPDIR
+          shell: bash
+          run: |
+              conf="$HOME/.config/nix/nix.conf"
+              builddir="/mnt/$(uuidgen)"
+              sudo mkdir -p "$builddir"
+              sudo chmod 1777 "${builddir}"
+              echo "build-dir = ${builddir}" >> $conf
+              nix config show
+
         - name: Add nyx substituters
           shell: bash
           run: |
               conf="$HOME/.config/nix/nix.conf"
-              sudo bash -c "
-                echo 'extra-substituters = https://chaotic-nyx.cachix.org/' >> $conf ;
-                echo 'extra-trusted-public-keys = chaotic-nyx.cachix.org-1:HfnXSw4pj95iI/n17rIDy40agHj12WfF+Gqk6SonIT8=' >> $conf ;
-              "
+              echo "extra-substituters = https://chaotic-nyx.cachix.org/" \
+                >> $conf
+              echo "extra-trusted-public-keys = chaotic-nyx.cachix.org-1:HfnXSw4pj95iI/n17rIDy40agHj12WfF+Gqk6SonIT8=" \
+                >> $conf
+              nix config show
 
         - name: Setup cachix
           uses: cachix/cachix-action@v16
@@ -53,4 +54,3 @@ runs:
               pushFilter: '(NVIDIA.*\.run)'
               skipAddingSubstituter: true
               authToken: ${{ inputs.cachix_token }}
-# vim: nowrap:
