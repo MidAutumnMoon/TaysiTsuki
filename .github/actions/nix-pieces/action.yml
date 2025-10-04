@@ -36,6 +36,15 @@ runs:
               cachix-url: "https://nuirrce.cachix.org/"
               cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
 
+        - name: Add nyx substituters
+          shell: bash
+          run: |
+              conf="$HOME/.config/nix/nix.conf"
+              sudo bash -c "
+                echo 'extra-substituters = https://chaotic-nyx.cachix.org/' >> $conf ;
+                echo 'extra-trusted-public-keys = chaotic-nyx.cachix.org-1:HfnXSw4pj95iI/n17rIDy40agHj12WfF+Gqk6SonIT8=' >> $conf ;
+              "
+
         - name: Setup cachix
           uses: cachix/cachix-action@v16
           with:
