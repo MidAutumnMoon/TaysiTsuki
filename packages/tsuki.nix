@@ -98,11 +98,6 @@ allUnique <| withValidate <|
         update = {};
     }
     {
-        attr = tsuki "coredns";
-        group = gs.go_1;
-        update = {};
-    }
-    {
         attr = tsuki "dnscrypt";
         group = gs.go_1;
         update = {};
@@ -120,6 +115,11 @@ allUnique <| withValidate <|
     #
     # go 2
     #
+    {
+        attr = tsuki "coredns";
+        group = gs.go_2;
+        update = {};
+    }
     {
         attr = tsuki "opentofu";
         group = gs.go_2;
