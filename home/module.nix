@@ -20,7 +20,7 @@
         libtree
         picard
         sops
-        yacreader
+        #yacreader
         # TODO: remove
         imagemagick
         # TODO: remove
