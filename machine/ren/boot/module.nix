@@ -27,4 +27,8 @@
     boot.kernelPackages =
         lib.mkForce pkgs.linuxPackages_cachyos;
 
+    boot.kernel.sysctl = {
+        "kernel.dmesg_restrict" = 0;
+    };
+
 }
