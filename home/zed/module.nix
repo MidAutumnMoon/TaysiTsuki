@@ -2,9 +2,9 @@
 
 {
 
-    packages = [
-        pkgs.zed-editor
-        pkgs.package-version-server
+    packages = with pkgs; [
+        tsuki.zed
+        package-version-server
     ];
 
     xdg_config."zed".src = dots.get "zed";
