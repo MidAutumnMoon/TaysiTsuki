@@ -64,7 +64,7 @@
     },
     "languages": {
         "Ruby": {
-            "language_servers": ["rubocop", "!solargraph", "!ruby-lsp"]
+            "language_servers": ["!rubocop", "!solargraph", "!ruby-lsp"]
         },
         "Nix": {
             "language_servers": ["nixd", "!nil"],

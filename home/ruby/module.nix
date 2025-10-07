@@ -4,7 +4,7 @@
 
     packages = with pkgs; [
         ruby_3_4
-        rubocop
+        #rubocop
     ];
 
     xdg_config."rubocop/config.yml".src =
