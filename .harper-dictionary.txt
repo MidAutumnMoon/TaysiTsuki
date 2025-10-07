@@ -33,6 +33,8 @@ gc
 imagemagick
 impl
 kwin
+localbinbo
+localbinbox
 lol
 mut
 ng

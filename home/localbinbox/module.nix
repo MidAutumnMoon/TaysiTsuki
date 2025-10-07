@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, dots, ... }:
 
 let
 
@@ -22,5 +22,7 @@ in
         jq
         localbinbox
     ];
+
+    home.".local/bin".src = dots.get "localbinbox/scripts";
 
 }

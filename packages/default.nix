@@ -40,6 +40,8 @@ in rec {
         { rustPlatform = tsuki.rust; }
         { doCheck = false; }; # tests fail on github workflow
 
+    localbinbox = callPackage ../home/localbinbox {};
+
     #
     # Lix overrides
     #

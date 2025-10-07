@@ -13,6 +13,10 @@ tsuki.rust.buildRustPackage {
         fileset = gitTracked ./.;
     };
 
+    nativeBuildInputs = [
+        tsuki.hooks.prefixCommaToBin
+    ];
+
     cargoLock.lockFile = ./Cargo.lock;
 
 }

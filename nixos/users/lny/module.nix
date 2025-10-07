@@ -93,7 +93,7 @@ in
         deps = [ "etc" ];
         text = /*bash*/ ''
             cursysPath="/run/current-system"
-            if [[ 
+            if [[
                 -d "$( dirname '${lnyPrevGenFile}' )" \
                 && -L "$cursysPath"
             ]]; then
