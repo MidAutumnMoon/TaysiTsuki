@@ -6,5 +6,4 @@ opentofu.withPlugins ( p: with p; [
     cloudflare
     sops
     tailscale
-    _assert
 ] )
