@@ -15,8 +15,10 @@ pub fn collect_read_dir(toplevel: &Path) -> Result<Vec<PathBuf>> {
         .collect::<std::io::Result<Vec<_>>>()
         .context("Failed to collect entries")?
         .iter()
-        // TODO: make it absolute?
         .map(DirEntry::path)
+        // TODO: ensure relative before join?
+        .map(|p| toplevel.join(p))
+        .sorted()
         .collect_vec()
         .pipe(Ok)
 }
