@@ -3,8 +3,9 @@ use std::path::Path;
 
 use anyhow::Context;
 use anyhow::Result;
+use anyhow::bail;
 use anyhow::ensure;
-use ino_color::InoColor;
+use ino_color::ceprintln;
 use ino_color::fg::Yellow;
 use itertools::Itertools;
 use localbinbox::collect_read_dir;
@@ -14,7 +15,7 @@ fn main() -> Result<()> {
         let args = std::env::args().skip(1).collect_vec();
         let cwd = current_dir()?;
         let inputs = if args.is_empty() {
-            eprintln!("{}", "No files, read current dir".fg::<Yellow>());
+            ceprintln!(Yellow, "No files, read current dir");
             collect_read_dir(&cwd)?
         } else {
             args.into_iter()
@@ -35,8 +36,6 @@ fn main() -> Result<()> {
         inputs
     };
 
-    eprintln!("{}", "Generate par2archive for paths".fg::<Yellow>());
-
     for p in paths {
         par_sum(&p)
             .with_context(|| format!("Failed to par2 {}", p.display()))?;
@@ -46,5 +45,20 @@ fn main() -> Result<()> {
 }
 
 fn par_sum(path: &Path) -> Result<()> {
+    enum PathType {
+        File,
+        Dir,
+    }
+
+    let path_type = if path.is_file() {
+        PathType::File
+    } else if path.is_dir() {
+        PathType::Dir
+    } else {
+        bail!("{} is neither file nor dir", path.display())
+    };
+
+    ceprintln!(Yellow, "Generate par2archive for {}", path.display());
+
     Ok(())
 }

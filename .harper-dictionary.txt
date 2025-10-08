@@ -32,6 +32,7 @@ fn
 gc
 imagemagick
 impl
+ino
 kwin
 localbinbo
 localbinbox
@@ -44,6 +45,7 @@ nixpkgs
 rclone
 repl
 repls
+rustc
 semver
 stdout
 substituter
