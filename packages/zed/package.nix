@@ -1,4 +1,5 @@
 {
+    lib,
     stdenv,
     tsuki,
     autoPatchelfHook,
@@ -11,6 +12,9 @@
     vulkan-loader,
     zlib,
     glibc,
+
+    makeBinaryWrapper,
+    nodejs,
 }:
 
 # Based on
@@ -32,6 +36,7 @@ stdenv.mkDerivation rec {
 
     nativeBuildInputs = [
         autoPatchelfHook
+        makeBinaryWrapper
     ];
 
     buildInputs = [
@@ -59,6 +64,14 @@ stdenv.mkDerivation rec {
         rm *.md
         mv -t "$out" *
         addAutoPatchelfSearchPath "$out/libexec"
+    '';
+
+    postFixup = ''
+        for f in "$out/bin/zed" "$out/libexec/zed-editor"
+        do
+            wrapProgram "$f" \
+                --suffix PATH : "${lib.makeBinPath [ nodejs ]}"
+        done
     '';
 
     meta = {
