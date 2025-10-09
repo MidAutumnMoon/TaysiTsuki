@@ -4,5 +4,5 @@ fd \
     --type directory \
     --no-ignore \
     --hidden \
-    '.backup|original' \
+    '.backup' \
     -x rm -rvf
