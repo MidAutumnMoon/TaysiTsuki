@@ -21,6 +21,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b0e094c3a4de7412a1c8c19ec9cb1013d4be8151a35399636e70373c43212707"
 
 [[package]]
+name = "ino_iter"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9f0194bc536e732bf8d5ee3c47e5fa23b0013687061fd453bbd73096f52cb70d"
+
+[[package]]
 name = "itertools"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -35,6 +41,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ino_color",
+ "ino_iter",
  "itertools",
  "tap",
 ]

@@ -18,7 +18,6 @@ in
 
     packages = with pkgs; [
         _7zzWith7zAlias
-        par2cmdline-turbo
         jq
         localbinbox
     ];

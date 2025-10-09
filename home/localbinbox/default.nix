@@ -1,6 +1,7 @@
 {
     lib,
     tsuki,
+    par2cmdline-turbo,
 }:
 
 tsuki.rust.buildRustPackage {
@@ -16,6 +17,10 @@ tsuki.rust.buildRustPackage {
     nativeBuildInputs = [
         tsuki.hooks.prefixCommaToBin
     ];
+
+    env = {
+        CFG_PAR2 = lib.getExe' par2cmdline-turbo "par2";
+    };
 
     cargoLock.lockFile = ./Cargo.lock;
 

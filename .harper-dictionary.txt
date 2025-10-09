@@ -16,6 +16,7 @@ YUV
 avifenc
 basename
 bootloader
+chdir
 cidata
 cjxl
 cli
