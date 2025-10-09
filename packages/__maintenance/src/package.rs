@@ -165,6 +165,7 @@ fn update_one_package(
 
     match Command::new("nix-update")
         .args(update.as_nix_update_args())
+        .arg("--use-github-releases")
         .arg("--write-commit-message")
         .arg(commit_message_file.path())
         .arg("--flake")
