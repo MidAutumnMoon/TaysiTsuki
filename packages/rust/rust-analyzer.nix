@@ -9,6 +9,9 @@
     fetchurl,
     stdenv,
     autoPatchelfHook,
+
+    makeBinaryWrapper,
+    mimalloc,
 }:
 
 stdenv.mkDerivation rec {
@@ -28,13 +31,18 @@ stdenv.mkDerivation rec {
 
     nativeBuildInputs = [
         autoPatchelfHook
+        makeBinaryWrapper
     ];
 
-    dontUnpack = true;
+    unpackPhase = ''
+        gunzip -c "${src}" > "${pname}"
+    '';
 
     installPhase = ''
-        gunzip -c "${src}" > "${pname}"
         install -Dm755 "${pname}" "$out/bin/${pname}"
+        wrapProgram "$out/bin/${pname}" \
+            --inherit-argv0 \
+            --set LD_PRELOAD "${mimalloc}/lib/libmimalloc.so"
     '';
 
     meta = with lib; {
