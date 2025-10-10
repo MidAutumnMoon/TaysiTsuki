@@ -15,6 +15,8 @@
 
     makeBinaryWrapper,
     nodejs,
+
+    mimalloc,
 }:
 
 # Based on
@@ -70,7 +72,9 @@ stdenv.mkDerivation rec {
         for f in "$out/bin/zed" "$out/libexec/zed-editor"
         do
             wrapProgram "$f" \
-                --suffix PATH : "${lib.makeBinPath [ nodejs ]}"
+                --inherit-argv0 \
+                --suffix PATH : "${lib.makeBinPath [ nodejs ]}" \
+                --set LD_PRELOAD "${mimalloc}/lib/libmimalloc.so"
         done
     '';
 
