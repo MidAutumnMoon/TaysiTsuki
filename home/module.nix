@@ -31,6 +31,7 @@
         ncdu
         shellcheck
         bash-language-server
+        gh
     ];
 
     envvars = {
