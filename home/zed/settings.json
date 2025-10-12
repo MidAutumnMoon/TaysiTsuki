@@ -71,7 +71,27 @@
             "tab_size": 4
         },
         "JSONC": { "tab_size": 4 },
-        "JSON": { "tab_size": 4 }
+        "JSON": { "tab_size": 4 },
+        "JavaScript": {
+            "language_servers": [
+                "deno",
+                "!typescript-language-server",
+                "!vtsls",
+                "!eslint"
+            ],
+            "formatter": "language_server",
+            "tab_size": 4
+        },
+        "TypeScript": {
+            "language_servers": [
+                "deno",
+                "!typescript-language-server",
+                "!vtsls",
+                "!eslint"
+            ],
+            "formatter": "language_server",
+            "tab_size": 4
+        }
     },
     "inlay_hints": {
         // toggle inlay hint with ctrl-:
@@ -107,6 +127,23 @@
                         "ToDoHyphen": false,
                         "Dashes": false
                     }
+                }
+            }
+        },
+        "deno": {
+            "settings": {
+                "deno": { "enable": true }
+            }
+        },
+        "json-language-server": {
+            "settings": {
+                "json": {
+                    "schemas": [
+                        {
+                            "fileMatch": ["deno.json", "deno.jsonc"],
+                            "url": "https://raw.githubusercontent.com/denoland/deno/refs/heads/main/cli/schemas/config-file.v1.json"
+                        }
+                    ]
                 }
             }
         }
