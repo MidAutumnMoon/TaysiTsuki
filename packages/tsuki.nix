@@ -93,6 +93,11 @@ allUnique <| withValidate <|
         group = gs.small_1;
         update = {};
     }
+    {
+        attr = tsuki "deno";
+        group = gs.small_1;
+        update = {};
+    }
 
     #
     # go 1
