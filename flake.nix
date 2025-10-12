@@ -36,11 +36,6 @@
             inputs.nix-github-actions.follows = "empty";
         };
 
-        nix-index-database = {
-            url = "github:nix-community/nix-index-database";
-            flake = false;
-        };
-
         nyx = {
             url = "github:chaotic-cx/nyx";
             inputs.nixpkgs.follows = "nixpkgs";

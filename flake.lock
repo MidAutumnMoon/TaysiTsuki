@@ -131,22 +131,6 @@
         "type": "github"
       }
     },
-    "nix-index-database": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1760241904,
-        "narHash": "sha256-OD7QnaGEVNdukYEbJbUNWPsvnDrpbZOZxVIk6Pt9Jhw=",
-        "owner": "nix-community",
-        "repo": "nix-index-database",
-        "rev": "c9f5ea45f25652ec2f771f9426ccacb21cbbaeaa",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "nix-index-database",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1760205645,
@@ -215,7 +199,6 @@
         "dns": "dns",
         "empty": "empty",
         "flake-utils": "flake-utils",
-        "nix-index-database": "nix-index-database",
         "nixpkgs": "nixpkgs",
         "nyx": "nyx",
         "preservation": "preservation",
