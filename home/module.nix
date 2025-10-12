@@ -32,6 +32,7 @@
         shellcheck
         bash-language-server
         gh
+        tsuki.deno
     ];
 
     envvars = {
