@@ -25,7 +25,8 @@ struct CliOpts {
     #[clap(default_value_t = false)]
     no_backup_no_par: bool,
 
-    /// Don't remove source directory after archiving.
+    /// Don't remove source directory after archiving. Only has affect
+    /// when `-N` is supplied.
     #[clap(long, short = 'K')]
     #[clap(default_value_t = false)]
     keep_source: bool,
