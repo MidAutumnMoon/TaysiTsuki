@@ -118,9 +118,9 @@ checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
 name = "ino_color"
-version = "3.1.2"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0e094c3a4de7412a1c8c19ec9cb1013d4be8151a35399636e70373c43212707"
+checksum = "0109a1802ebdbcd33ff192430a042c3bad90c657fea47ea8077b4e08c63ef369"
 
 [[package]]
 name = "ino_iter"
