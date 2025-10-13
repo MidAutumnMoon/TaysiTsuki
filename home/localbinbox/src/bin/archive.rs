@@ -1,12 +1,10 @@
 use std::env::current_dir;
-use std::os::linux::raw::stat;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 
 use anyhow::Context;
 use anyhow::Result;
-use anyhow::bail;
 use anyhow::ensure;
 use ino_color::ceprintln;
 use ino_color::fg::Yellow;
