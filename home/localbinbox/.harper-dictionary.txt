@@ -1,2 +1,3 @@
+lzma2
 par2
 par2archive

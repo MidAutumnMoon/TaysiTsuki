@@ -10,7 +10,7 @@
     "agent": {
         "default_model": {
             "provider": "openrouter",
-            "model": "qwen/qwen3-235b-a22b-thinking-2507"
+            "model": "moonshotai/kimi-k2-0905"
         },
         "inline_assistant_model": {
             "provider": "openrouter",
@@ -125,7 +125,8 @@
                 "harper-ls": {
                     "linters": {
                         "ToDoHyphen": false,
-                        "Dashes": false
+                        "Dashes": false,
+                        "ExpandMemoryShorthands": false
                     }
                 }
             }

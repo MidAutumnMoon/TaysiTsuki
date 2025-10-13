@@ -5,6 +5,7 @@ ESC
 FIXME
 IO
 JXL
+MiB
 N.B.
 OS
 PWD
@@ -43,6 +44,7 @@ ng
 nixos
 nixosConfigurations
 nixpkgs
+par2archive
 rclone
 repl
 repls
