@@ -3,7 +3,7 @@
 }:
 
 opentofu.withPlugins ( p: with p; [
-    cloudflare
-    sops
-    tailscale
+    cloudflare_cloudflare
+    carlpett_sops
+    tailscale_tailscale
 ] )
