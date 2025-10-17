@@ -187,6 +187,14 @@ allUnique <| withValidate <|
     { attr = "lix"; group = "Lix"; }
     { attr = "colmena"; group = "Colmena"; }
     { attr = "zellij"; group = "Zellij"; }
+    {
+        attr = "linuxPackages_cachyos.kernel";
+        group = "CachyKernel";
+    }
+    {
+        attr = "linuxPackages_cachyos-server.kernel";
+        group = "CachyKernelServer";
+    }
 ]
 
 ++
