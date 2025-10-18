@@ -105,27 +105,6 @@ in
     # Hardware configs
     #
 
-    boot.initrd = {
-        availableKernelModules = [
-            "ahci"
-            "xhci_pci"
-            "usbhid"
-            "usb_storage"
-            "sd_mod"
-        ];
-        includeDefaultModules = false;
-        systemd.enable = true;
-    };
-
-    boot.kernelPackages = lib.mkForce pkgs.linuxPackages;
-
-    boot.loader = {
-        systemd-boot.enable = true;
-        efi.canTouchEfiVariables = true;
-    };
-
-    boot.kernelModules = [ "kvm-intel" ];
-
     hardware = {
         cpu.intel.updateMicrocode = true;
         enableRedistributableFirmware = true;
