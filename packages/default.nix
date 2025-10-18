@@ -30,7 +30,7 @@ in rec {
 
     inherit (legacyFrom "nyx")
         linuxPackages_cachyos
-        linuxPackages_cachyos-server
+        linuxPackages_cachyos-lts
     ;
 
     dnscrypt-proxy = tsuki.dnscrypt;

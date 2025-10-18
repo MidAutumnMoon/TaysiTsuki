@@ -4,7 +4,7 @@
 
     boot = {
         loader.grub.enable = true;
-        kernelPackages = lib.mkForce pkgs.linuxPackages_cachyos-server;
+        kernelPackages = lib.mkForce pkgs.linuxPackages_cachyos-lts;
     };
 
 }

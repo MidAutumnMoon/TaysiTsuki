@@ -105,6 +105,7 @@
                     sops-nix.nixosModules.default
                     preservation.nixosModules.default
                     ./lore/module.nix
+                    self.nixosModules.only-nyx-cache 
                 ]
                 ++ ( lib.listAllModules ./nixos )
                 ++ ( lib.listAllModules ./secrets );
@@ -113,10 +114,7 @@
                 arguments = { inherit flakes; };
             };
         in {
-            ren = nixos "x86_64-linux" <| (
-                lib.listAllModules ./machine/ren
-                ++ [ self.nixosModules.only-nyx-cache ]
-            );
+            ren = nixos "x86_64-linux" <| lib.listAllModules ./machine/ren;
             phia = nixos "x86_64-linux" <| lib.listAllModules ./machine/phia;
             uk-01 = nixos "x86_64-linux" <| (
                 lib.listAllModules ./machine/uk-01

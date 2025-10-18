@@ -192,8 +192,8 @@ allUnique <| withValidate <|
         group = "CachyKernel";
     }
     {
-        attr = "linuxPackages_cachyos-server.kernel";
-        group = "CachyKernelServer";
+        attr = "linuxPackages_cachyos-lts.kernel";
+        group = "CachyKernelLTS";
     }
 ]
 
