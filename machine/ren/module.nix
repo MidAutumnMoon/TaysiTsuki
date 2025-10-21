@@ -129,7 +129,7 @@ in
     programs.kde-pim.enable = false;
 
     i18n.inputMethod = {
-        enable = true;
+        enable = false;
         type = "fcitx5";
         fcitx5 = {
             addons = with pkgs; [
