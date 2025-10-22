@@ -8,7 +8,7 @@
 buildGoModule ( drvSelf: {
 
     pname = "sing-box";
-    version = "1.13.0-alpha.24-unstable-2025-10-21";
+    version = "1.13.0-alpha.25-unstable-2025-10-21";
 
     src = fetchFromGitHub {
         owner = "SagerNet";
