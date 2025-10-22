@@ -14,7 +14,7 @@
         },
         "inline_assistant_model": {
             "provider": "openrouter",
-            "model": "moonshotai/kimi-k2-0905"
+            "model": "x-ai/grok-code-fast-1"
         }
     },
     "vim_mode": true,
