@@ -17,4 +17,9 @@
         nix-tree
     ];
 
+    environment.variables = {
+        KWIN_USE_OVERLAYS = 1;
+        POWERDEVIL_NO_DDCUTIL = 1;
+    };
+
 }
