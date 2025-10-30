@@ -8,11 +8,13 @@ let
         inherit lib flakes;
     };
 
+    hostSystem = final.stdenv.hostPlatform.system;
+
     pkgsFrom =
-        name: flakes.${name}.packages.${final.system};
+        name: flakes.${name}.packages.${hostSystem};
 
     legacyFrom =
-        name: flakes.${name}.legacyPackages.${final.system};
+        name: flakes.${name}.legacyPackages.${hostSystem};
 
     discovered =
         lib.packagesFromDirectoryRecursive {

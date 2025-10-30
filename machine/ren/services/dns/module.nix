@@ -32,7 +32,8 @@ in
         package = pkgs.tsuki.coredns;
         config =
             let
-                inherit (flakes.dns.util.${pkgs.system}) writeZone;
+                hostSystem = pkgs.stdenv.hostPlatform.system;
+                inherit (flakes.dns.util.${hostSystem}) writeZone;
                 appToZone = app:
                     lore.utils.appToDnsRecords app |> writeZone "418.im";
             in ''
