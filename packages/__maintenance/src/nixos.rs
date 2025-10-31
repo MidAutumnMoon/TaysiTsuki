@@ -5,22 +5,21 @@ use std::process::Command;
 use anyhow::Context;
 use anyhow::Result;
 use anyhow::ensure;
-use indoc::formatdoc;
+use docstr::docstr;
 use tracing::debug;
 
 use crate::cmd::capture_cmd_output;
 use crate::package::NIX_BUILD_OPTS;
 
-// TODO: dedup the command pattern
 pub fn eval_hostnames() -> Result<String> {
     let toplevel =
         capture_cmd_output("git", &["rev-parse", "--show-toplevel"])?;
-    let driver = formatdoc! {r#"
-        with builtins;
-        let flake = getFlake (toString {toplevel}); in
-        assert hasAttr "nixosConfigurations" flake;
-        attrNames flake.nixosConfigurations
-    "#};
+    let driver = docstr!(format!
+        /// with builtins;
+        /// let flake = getFlake (toString {toplevel}); in
+        /// assert hasAttr "nixosConfigurations" flake;
+        /// attrNames flake.nixosConfigurations
+    );
     capture_cmd_output(
         "nix",
         &["eval", "--impure", "--json", "--expr", &driver],

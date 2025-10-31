@@ -17,6 +17,7 @@ YUV
 avifenc
 basename
 bootloader
+builtins
 chdir
 cidata
 cjxl
@@ -56,6 +57,7 @@ substituters
 sudo
 systemctl
 thiserror
+toString
 toplevel
 unix
 vfat
