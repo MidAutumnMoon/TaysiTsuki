@@ -1,5 +1,14 @@
 { pkgs, ... }:
 
+let
+
+    obsidianBinElectron =
+        pkgs.obsidian.override {
+            electron = pkgs.electron-bin;
+        };
+
+in
+
 {
 
     environment.systemPackages = with pkgs; [
@@ -10,7 +19,7 @@
         wl-clipboard
         telegram-desktop
         mpv
-        obsidian
+        obsidianBinElectron
         unrar
         numbat
         tsuki.qimgv
