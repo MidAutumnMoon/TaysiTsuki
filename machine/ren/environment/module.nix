@@ -22,7 +22,6 @@ in
         obsidianBinElectron
         unrar
         numbat
-        tsuki.qimgv
         nix-tree
     ];
 

@@ -169,18 +169,6 @@ allUnique <| withValidate <|
     }
 
     #
-    # something something
-    #
-
-    {
-        attr = tsuki "qimgv";
-        group = "Qimgv";
-        update = {
-            unstable_branch = true;
-        };
-    }
-
-    #
     # others to make sure being cached
     #
     { attr = "nixd"; group = "Nixd"; }
