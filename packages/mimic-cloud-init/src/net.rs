@@ -1,14 +1,13 @@
-use std::cell::LazyCell;
 use std::collections::HashMap;
 use std::fs::create_dir_all;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use anyhow::Context;
 use anyhow::Result as AnyResult;
 use anyhow::ensure;
 
-#[allow(clippy::declare_interior_mutable_const)]
-const SYSTEMD_NETWORK_DIR: LazyCell<PathBuf> = LazyCell::new(|| {
+static SYSTEMD_NETWORK_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
     // indent
     PathBuf::from("/etc/systemd/network")
 });
@@ -109,12 +108,10 @@ pub fn render_network_config(conf_str: &str) -> AnyResult<()> {
 
     if !networkd_configs.is_empty() {
         eprintln!("write netword config");
-        let p = SYSTEMD_NETWORK_DIR;
-        create_dir_all(&*p)?;
+        create_dir_all(&*SYSTEMD_NETWORK_DIR)?;
 
         for (name, content) in networkd_configs {
-            let p = SYSTEMD_NETWORK_DIR;
-            let full_path = &p.join(name);
+            let full_path = &SYSTEMD_NETWORK_DIR.join(name);
             dbg!(&full_path);
             std::fs::write(full_path, content).with_context(|| {
                 format!(

@@ -37,7 +37,7 @@ pub fn find_config_drive() -> AnyResult<Option<PathBuf>> {
     Ok(Some(dev))
 }
 
-#[allow(clippy::option_if_let_else)]
+#[expect(clippy::option_if_let_else)]
 pub fn devices_match_label(label: &str) -> AnyResult<HashSet<String>> {
     let param = format!("--match-token=LABEL={label}");
     if let Some(output) = blkid(&[&param, "--output=device"])? {
@@ -51,7 +51,7 @@ pub fn devices_match_label(label: &str) -> AnyResult<HashSet<String>> {
     }
 }
 
-#[allow(clippy::option_if_let_else)]
+#[expect(clippy::option_if_let_else)]
 pub fn devices_match_fstype(fstype: &str) -> AnyResult<HashSet<String>> {
     let param = format!("--match-token=TYPE={fstype}");
     if let Some(output) = blkid(&[&param, "--output=device"])? {

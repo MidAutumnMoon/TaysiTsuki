@@ -8,7 +8,7 @@ use anyhow::Result;
 use itertools::Itertools;
 use tap::Pipe;
 
-#[allow(clippy::missing_errors_doc)]
+#[expect(clippy::missing_errors_doc)]
 pub fn collect_read_dir(toplevel: &Path) -> Result<Vec<PathBuf>> {
     read_dir(toplevel)
         .context("Failed to read_dir")?

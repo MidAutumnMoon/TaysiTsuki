@@ -60,7 +60,7 @@ fn main() -> Result<()> {
 }
 
 /// Generate par2archive and checksum the generated files.
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn par_sum(path: &Path) -> Result<()> {
     enum PathType {
         File,

@@ -92,7 +92,7 @@ pub struct Update {
 
 impl Update {
     #[inline]
-    #[allow(clippy::option_if_let_else)]
+    #[expect(clippy::option_if_let_else)]
     pub fn as_nix_update_args(&self) -> Vec<String> {
         if let Some(r) = &self.version_regex {
             vec!["--version-regex".into(), r.into()]
