@@ -17,11 +17,11 @@
 stdenv.mkDerivation rec {
 
     pname = "rust-analyzer";
-    version = "2025-10-28";
+    version = "2025-11-03";
 
     src = fetchurl rec {
         url = "${meta.homepage}/releases/download/${version}/${passthru.file}";
-        hash = "sha256-ygDLLV2PcU3gu5MP12N8pLQMVlz4+STwg9FoVddVOAo=";
+        hash = "sha256-ux0GbP3+ksBKuZXois4BZDbn6E9unDpdsDuv5+dl8I4=";
         passthru.file = "rust-analyzer-x86_64-unknown-linux-gnu.gz";
     };
 
