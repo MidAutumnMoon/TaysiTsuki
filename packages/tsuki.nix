@@ -121,6 +121,11 @@ allUnique <| withValidate <|
         group = gs.go_1;
         update.version_regex = "app/v(.*)";
     }
+    {
+        attr = tsuki "avahi2dns";
+        group = gs.go_1;
+        update = {};
+    }
 
     #
     # go 2
