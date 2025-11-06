@@ -1,6 +1,10 @@
 { lib, config, ... }:
 
-{
+let
+
+    tailscaleIface = config.services.tailscale.interfaceName;
+
+in {
 
     services.avahi =
         lib.mkIf config.services.avahi.enable {
@@ -11,6 +15,7 @@
             publish.addresses = true;
             publish.userServices = true;
             publish.domain = true;
+            denyInterfaces = [ tailscaleIface ];
         };
 
 }
