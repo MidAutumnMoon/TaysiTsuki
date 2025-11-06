@@ -2,30 +2,27 @@
     stdenvNoCC,
     fetchurl,
     zstd,
+    tsuki,
 }:
 
 stdenvNoCC.mkDerivation rec {
 
     pname = "adblocklist";
-    version = "2025-11-01.023334";
+    version = "2025-11-06.090923";
 
-    src = fetchurl {
-        url = "${meta.homepage}/releases/download/${version}/dnscrypt-blocklist.txt.zstd";
-        hash = "sha256-KKrQ5ZbOyJAHHslNmdyoFlOqoCAGfwmWyVdGaavssgU=";
+    src = tsuki.fetchGitHubRelease {
+        owner = "MidAutumnMoon";
+        repo = "combined-anti-ad-dns-blocklist";
+        tag = version;
+        file = "assets.tar.zst";
+        hash = "sha256-b4cvWbIV3Gu1YSQavoP8VsakCDafaSC1QDw6azz46tU=";
     };
-
-    dontUnpack = true;
 
     nativeBuildInputs = [ zstd ];
 
-    installPhase = ''
-        unzstd "$src" -o "$out"
+    unpackPhase = ''
+        mkdir -p "$out"
+        tar xaf "$src" -C "$out"
     '';
 
-    meta = {
-        homepage = "https://github.com/MidAutumnMoon/combined-anti-ad-dns-blocklist";
-    };
-
 }
-
-# vim: nowrap:
