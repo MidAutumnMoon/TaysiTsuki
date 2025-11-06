@@ -26,7 +26,6 @@
         proxy = 7890;
         torrent = 9094;
         qbitwebui = 9095;
-        dnscryptWebui = 9096;
         clashApi = 9097;
         dns = 9098;
         dnscryptLocal = 9099;
@@ -61,7 +60,6 @@
             # ren services
             proxy = onRen "proxy";
             clash_dashboard = onRen "clash";
-            dns_dashboard = onRen "dnscrypt";
             wpad = onRen "wpad";
             navidrome = onRen "music";
             peerban = onRen "peerban";

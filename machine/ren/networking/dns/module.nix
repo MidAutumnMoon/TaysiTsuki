@@ -82,15 +82,7 @@ in
             # Logging
             query_log.file = "/dev/stdout";
             nx_log.file = "/dev/stdout";
-            # Monitoring UI
-            monitoring_ui = {
-                enabled = true;
-                listen_address = "127.0.0.1:${toString ports.dnscryptWebui}";
-                username = "";
-                password = "";
-                enable_query_log = true;
-                privacy_level = 0;
-            };
+            monitoring_ui.enabled = false;
         };
     };
 
@@ -123,19 +115,6 @@ in
         };
         nameservers = [ fakeAddr fakeAddrV6 ];
     };
-
-    #
-    # caddy config
-    #
-
-    services.caddy.virtualHosts."im_418".extraConfig =
-        let inherit ( config.services.dnscrypt-proxy ) settings; in
-        ''
-            @dns_dashboard host ${apps.homelab.dns_dashboard.fqdn}
-            handle @dns_dashboard {
-                reverse_proxy http://${settings.monitoring_ui.listen_address}
-            }
-        '';
 
 }
 
