@@ -26,6 +26,8 @@ in
         allowedUDPPorts = [ 53 ];
     };
 
+    services.avahi2dns.enable = true;
+
     # coredns provides homelab domain resolution
     services.coredns = {
         enable = true;

@@ -32,6 +32,7 @@
         dnscryptLocal = 9099;
         navidrome = 9100;
         peerbanhelper = 9101;
+        avahi2dns = 9102;
     };
 
     lore.domains = rec {
