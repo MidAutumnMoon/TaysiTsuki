@@ -126,6 +126,8 @@ in
 
             @wpad host ${homelab.wpad.fqdn}
             handle @wpad {
+                @dat path *.dat
+                header @dat Content-Type application/x-ns-proxy-autoconfig
                 root * ${wpad}
                 file_server browse
             }
