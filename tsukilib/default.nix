@@ -38,7 +38,6 @@ rec {
 
     inherit ( tsuki.module )
         listAllModules
-        rejectUnset
     ;
 
     inherit ( tsuki.trivial )

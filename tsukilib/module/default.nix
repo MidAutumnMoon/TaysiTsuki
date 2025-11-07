@@ -1,6 +1,3 @@
 [
-
   ./listAllModules.nix
-  ./rejectUnset.nix
-
 ]

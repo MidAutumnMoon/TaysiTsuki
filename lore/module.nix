@@ -1,4 +1,4 @@
-{ lib, config, flakes, ... }:
+{ lib, config, ... }:
 
 {
 
@@ -90,5 +90,3 @@
         };
 
 }
-
-# vim: nowrap:
