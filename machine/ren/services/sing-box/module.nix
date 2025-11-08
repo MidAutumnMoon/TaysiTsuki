@@ -28,11 +28,6 @@ in
                 format = "binary";
                 restartUnits = [ singService ];
             };
-            cert--sing = {
-                key = "ca";
-                sopsFile = ./cert--sing.yml;
-                restartUnits = [ singService ];
-            };
         };
 
     passthru.singboxLore =
@@ -79,7 +74,6 @@ in
             nix-instantiate \
                 --eval --strict --json \
                 --arg "loreFile" "${config.passthru.singboxLore}" \
-                --argstr "certPath" "$CREDENTIALS_DIRECTORY/cert" \
                 "$CREDENTIALS_DIRECTORY/private_config" \
             > "$conf"
             exec sing-box run \
@@ -92,10 +86,7 @@ in
             CacheDirectory = "sing-box";
             LoadCredential =
                 let inherit ( config.sops ) secrets; in
-                [
-                    "private_config:${secrets.conf--sing.path}"
-                    "cert:${secrets.cert--sing.path}"
-                ];
+                [ "private_config:${secrets.conf--sing.path}" ];
             DynamicUser = true;
         };
         useHardening = true;
