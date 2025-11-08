@@ -11,7 +11,7 @@ let
     sambaOption = [
         "x-systemd.automount"
         "x-systemd.mount-timeout=10s"
-        "x-systemd.idle-timeout=1hour"
+        "x-systemd.idle-timeout=10m"
         "_netdev"
         "noauto"
         "noatime"
