@@ -25,7 +25,7 @@ in
     };
 
     systemd.services.navidrome = {
-        unitConfig.RequiresMountsFor = [ poolMnt ];
+        unitConfig.WantsMountsFor = [ poolMnt ];
         # Bind the whole samba share to use multiple libraries
         serviceConfig.BindReadOnlyPaths = [ poolMnt ];
     };
