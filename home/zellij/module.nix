@@ -3,7 +3,7 @@
 {
 
     packages = with pkgs; [
-        zellij
+        tsuki.zellij
     ];
 
     xdg_config."zellij".src = dots.get "zellij";

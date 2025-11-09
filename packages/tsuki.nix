@@ -179,7 +179,7 @@ allUnique <| withValidate <|
     { attr = "nixd"; group = "Nixd"; }
     { attr = "lix"; group = "Lix"; }
     { attr = "colmena"; group = "Colmena"; }
-    { attr = "zellij"; group = "Zellij"; }
+    { attr = tsuki "zellij"; group = "Zellij"; }
     {
         attr = "linuxPackages_cachyos.kernel";
         group = "CachyKernel";
