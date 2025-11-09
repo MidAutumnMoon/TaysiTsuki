@@ -33,6 +33,7 @@
         bash-language-server
         gh
         tsuki.deno
+        wgsl-analyzer
     ];
 
     envvars = {

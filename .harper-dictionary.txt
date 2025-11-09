@@ -61,4 +61,5 @@ toString
 toplevel
 unix
 vfat
+webgpu
 xattr
