@@ -10,7 +10,7 @@
     "agent": {
         "default_model": {
             "provider": "openrouter",
-            "model": "z-ai/glm-4.6"
+            "model": "z-ai/glm-4.6:exacto"
         },
         "inline_assistant_model": {
             "provider": "openrouter",
