@@ -187,4 +187,11 @@ in
         |> listToAttrs
     ;
 
+    config.services.logrotate.settings = {
+        "${genRecord}" = {
+            rotate = 0;
+            size = "512k";
+        };
+    };
+
 }
