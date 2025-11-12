@@ -39,7 +39,7 @@ let
         '';
     };
 
-    lnyPrevGenFile = "/var/lib/lny-prev-gen";
+    genRecord = "/var/lib/lny-generation-record";
 
     blueprintNameOf =
         username: "lny-blueprint-${username}.json";
@@ -92,13 +92,16 @@ in
     config.system.activationScripts."lny-prev-generation" = {
         deps = [ "etc" ];
         text = /*bash*/ ''
-            cursysPath="/run/current-system"
-            if [[
-                -d "$( dirname '${lnyPrevGenFile}' )" \
-                && -L "$cursysPath"
-            ]]; then
-                printf "%s" "$( readlink -f $cursysPath )" \
-                    > '${lnyPrevGenFile}'
+            if [[ -d "$( dirname '${genRecord}' )" ]]
+            then
+                if [[ ! -f "${genRecord}" ]]
+                then
+                    touch "${genRecord}"
+                fi
+                if ! grep -q "$systemConfig" "${genRecord}"
+                then
+                    printf "%s\n" "$systemConfig" >> '${genRecord}'
+                fi
             fi
         '';
     };
@@ -126,25 +129,36 @@ in
                     | sed -n '/^XDG/p' \
                     | sed 's/^/export /g' )"
 
-                if [[ -f '${lnyPrevGenFile}' ]]; then
-                    prevGen="$( < '${lnyPrevGenFile}' )"
-                    if [[ -n "$prevGen" ]]; then
-                        oldBlueprint="$prevGen/etc/${blueprintName}"
-                    else
-                        echo "prevGen file is empty"
-                        exit 1
+                currGen="$(readlink -f "/run/current-system")"
+                newBlueprint="${config.environment.etc
+                    .${blueprintName}.source}"
+
+                if [[ ! -f "${genRecord}" ]]
+                then
+                    echo "${genRecord} does not exist"
+                    exit 1
+                fi
+
+                if [[ ! -s "${genRecord}" ]]
+                then
+                    "${lnyBin}" --new-blueprint "$newBlueprint"
+                    exit 0
+                fi
+
+                # reverse order, and ignore current generation
+                for sysGen in $(tac "${genRecord}" | grep -v "$currGen")
+                do
+                    test ! -d "$sysGen" && continue
+
+                    oldBlueprint="$sysGen/etc/${blueprintName}"
+                    if [[ -f "$oldBlueprint" ]]
+                    then
+                        "${lnyBin}" \
+                            --new-blueprint "$newBlueprint" \
+                            --old-blueprint "$oldBlueprint"
+                        break
                     fi
-                fi
-
-                newBlueprint="${config.environment.etc.${blueprintName}.source}"
-
-                if [[ -n "$oldBlueprint" && -f "$oldBlueprint" ]]; then
-                    '${lnyBin}' \
-                        --new-blueprint "$newBlueprint" \
-                        --old-blueprint "$oldBlueprint"
-                else
-                    '${lnyBin}' --new-blueprint "$newBlueprint"
-                fi
+                done
             '';
             service = {
                 description = "lny for ${val.username}";
@@ -153,7 +167,7 @@ in
                 before = [ "systemd-user-sessions.service" ];
                 stopIfChanged = false;
                 path = [
-                    pkgs.gnused
+                    pkgs.gnused pkgs.gnugrep
                     config.systemd.package
                 ];
                 unitConfig = {
