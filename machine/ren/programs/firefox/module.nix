@@ -96,7 +96,7 @@
         # hit ctrl-q by accident and the browser quits is really annoying
         "browser.quitShortcut.disabled" = true;
         "browser.search.suggest.enabled" = false;
-        "browser.sessionstore.restore_pinned_tabs_on_demand" = true;
+        # "browser.sessionstore.restore_pinned_tabs_on_demand" = true;
         "browser.tabs.insertAfterCurrent" = true;
         "browser.uitour.enabled" = false;
         "browser.urlbar.decodeURLsOnCopy" = true;
