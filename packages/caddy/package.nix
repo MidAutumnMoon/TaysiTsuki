@@ -51,7 +51,7 @@ buildGoModule rec {
 
     # needs proxyVendor since go.sum is modified on the fly
     proxyVendor = true;
-    vendorHash = "sha256-WQ6eS6/v1g4aOo6m6P3UpeYKldUdHPRf4qrx9/pn8UI=";
+    vendorHash = "sha256-E5ZTL4bjbaHWi5NQenmenaaMHlryDsy+SL6Q6gG0ZlQ=";
 
     outputs = [
         "out"
