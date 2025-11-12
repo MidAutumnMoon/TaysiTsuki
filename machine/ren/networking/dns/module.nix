@@ -21,6 +21,9 @@ let
             ${lib.join "\n" localData}
         '';
 
+    corednsIface = "enp3s0";
+    corednsService = config.systemd.services.coredns.name;
+
 in
 
 {
@@ -57,7 +60,7 @@ in
                 }
             }
             .:53 {
-                bind enp3s0
+                bind ${corednsIface}
                 import the_conf
             }
             .:53 {
@@ -65,6 +68,44 @@ in
                 import the_conf
             }
         '';
+
+    # When coredns launches, the interface may not yet have addresses,
+    # which causes coredns unable to handle incoming requests.
+    # This service reloads coredns on address changes.
+    #
+    # ## Why not systemd-dispatch?
+    #
+    # It's a simple Python script, but for some reason it also depends
+    # on glib :/
+    systemd.services."coredns-reload-on-changes" = {
+        unitConfig = {
+            # AI: learnt sys-subsystem-*.device
+            BindsTo = "sys-subsystem-net-devices-${corednsIface}.device";
+            Requires = corednsService;
+            After = [
+                "sys-subsystem-net-devices-${corednsIface}.device"
+                corednsService
+            ];
+        };
+        serviceConfig = {
+            Type = "simple";
+            Restart = "always";
+            RestartSec = "5s";
+        };
+        wantedBy = [ "multi-user.target" ];
+        path = [
+            pkgs.iproute2
+            config.systemd.package
+        ];
+        script = ''
+            # AI: learnt "ip monitor"
+            ip -4 -6 mon a dev ${corednsIface} | while read -r _;
+            do
+                echo "Address changes detected, reload coredns"
+                systemctl reload "${corednsService}"
+            done
+        '';
+    };
 
     # dnscrypt-proxy resolves internet names
     services.dnscrypt-proxy = {
