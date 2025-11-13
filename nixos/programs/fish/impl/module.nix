@@ -47,6 +47,8 @@ in
                 fishCfg.__functionsBundle
             ];
             pathsToLink = [
+                "/share/fish/completions"
+                "/share/fish/functions"
                 "/share/fish/vendor_conf.d"
                 "/share/fish/vendor_completions.d"
                 "/share/fish/vendor_functions.d"
@@ -68,12 +70,18 @@ in
 
         programs.fish.init =
             let comp = toString fishCfg.__generatedCompletion; in
-            /*fish*/ ''
+            lib.mkBefore ''
                 if not contains "${comp}" $fish_complete_path
                     # Append because auto generated completions have
                     # lower quality than fish vendored ones.
                     set --append fish_complete_path "${comp}"
                 end
+                # Workaround for fish not adding "/share/fish/completions" from
+                # XDG_DATA_DIRS
+                set --prepend fish_complete_path \
+                    "${fishCfg.package}/share/fish/completions"
+                set --append fish_function_path \
+                    "${fishCfg.package}/share/fish/functions"
             '';
 
     };
