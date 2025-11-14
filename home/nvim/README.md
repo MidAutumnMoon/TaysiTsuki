@@ -9,7 +9,3 @@ Dotfiles of people from which I borrowed useful ideas:
 - https://github.com/thecasualcoder/neovim-dotfiles/
 - https://github.com/AndrewRadev/Vimfiles/
 - https://github.com/lettertwo/config
-
-| ![](./.images/2025-02.png) |
-| :-: |
-| 2025 Feb Screenshot |
