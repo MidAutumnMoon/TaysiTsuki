@@ -23,7 +23,6 @@ o.completion.menu = {
             { "label", "label_description", gap = 1 },
             { "kind_icon", "kind", gap = 1, },
         },
-        -- treesitter = { "lsp" },
     },
 }
 

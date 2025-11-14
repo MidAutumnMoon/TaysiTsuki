@@ -106,7 +106,6 @@ local __plugins = {
 
     {
         "andymass/vim-matchup",
-        -- after = "nvim-treesitter",
         init = function()
             vim.g.matchup_matchparen_deferred = 1
         end
@@ -129,17 +128,6 @@ local __plugins = {
             scope = { enabled = false }
         },
     },
-
-    -- {
-    --     "lewis6991/gitsigns.nvim",
-    --     opts = {
-    --         signs = {
-    --             add = { text = "+" },
-    --             change = { text = '~' },
-    --             delete = { text = '-' }
-    --         },
-    --     },
-    -- },
 
     {
         "nvim-lualine/lualine.nvim",
@@ -188,28 +176,6 @@ local __plugins = {
     },
 
     --
-    -- Languages
-    --
-
-    {
-        "isobit/vim-caddyfile",
-        ft = { "caddyfile" },
-    },
-
-    -- {
-    --     "imsnif/kdl.vim",
-    --     ft = { "kdl" }
-    -- },
-
-    -- { "benknoble/vim-racket" },
-
-    -- {
-    --     "bellinitte/uxntal.vim"
-    -- },
-
-    { "https://github.com/elixir-editors/vim-elixir" },
-
-    --
     -- Other things
     --
 
@@ -222,24 +188,7 @@ local __plugins = {
 local __config = {
     checker = { enabled = false },
     lockfile = vim.fn.stdpath('state') .. "/lazy-lock.json",
-    -- Don't reset runtimepath because treesitter parsers are
-    -- externally managed using nix, and is passed to nvim
-    -- using $XDG_DATA_DIRS.
-    performance = {
-        rtp = { reset = false },
-    },
     ui = { border = "rounded", },
-}
-
-__config.performance.rtp.disabled_plugins = {
-    "gzip",
-    "matchit",
-    "matchparen",
-    "netrwPlugin",
-    "tarPlugin",
-    "tohtml",
-    "tutor",
-    "zipPlugin",
 }
 
 lazy.setup( __plugins, __config )
