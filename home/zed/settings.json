@@ -8,14 +8,15 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
     "agent": {
+        "inline_assistant_model": {
+            "provider": "openrouter",
+            "model": "x-ai/grok-code-fast-1"
+        },
         "default_model": {
             "provider": "openrouter",
             "model": "z-ai/glm-4.6:exacto"
         },
-        "inline_assistant_model": {
-            "provider": "openrouter",
-            "model": "x-ai/grok-code-fast-1"
-        }
+        "model_parameters": []
     },
     "vim_mode": true,
     "vim": {
@@ -58,7 +59,7 @@
     },
     "load_direnv": "shell_hook",
     "show_completions_on_input": false,
-    "relative_line_numbers": true,
+    "relative_line_numbers": "enabled",
     "completions": {
         "words": "fallback"
     },
