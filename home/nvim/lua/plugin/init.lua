@@ -15,30 +15,6 @@
     vim.opt.rtp:prepend( lazy_path )
 end)()
 
-local lore = {
-    --- @type string Name of current user
-    username = (function()
-        local u = vim.loop.os_getenv( "USER" )
-        assert( u and u ~= "", "Failed to read $USER" )
-        return u
-    end)(),
-}
-
---- @return string | nil
---- TODO: fallback to system profile if no user profile
-lore.get_dylib_from_user_profile = function( libname )
-    local profile = "/etc/profiles/per-user/" .. lore.username
-    if not vim.uv.fs_stat( profile ) then
-        return nil
-    end
-    local dylib = profile .. "/lib/" .. libname
-    if not vim.uv.fs_stat( dylib ) then
-        return nil
-    else
-        return dylib
-    end
-end
-
 local lazy = require "lazy"
 
 local __plugins = {
@@ -91,28 +67,6 @@ local __plugins = {
             require "plugin.autopairs"
         end
     },
-
-    -- {
-    --     "windwp/nvim-ts-autotag",
-    --     config = function()
-    --         require "nvim-ts-autotag".setup { }
-    --     end,
-    -- },
-
-    -- {
-    --     "eraserhd/parinfer-rust",
-    --     ft = {
-    --         "racket",
-    --         "lisp",
-    --         "scheme"
-    --     },
-    --     init = function()
-    --         local dylib = lore.get_dylib_from_user_profile( "libparinfer_rust.so" )
-    --         if dylib then
-    --             vim.g.parinfer_dylib_path = dylib
-    --         end
-    --     end
-    -- },
 
     {
         "lukas-reineke/virt-column.nvim",
@@ -205,20 +159,6 @@ local __plugins = {
             require "plugin.tabby"
         end
     },
-
-    -- {
-    --     "HiPhish/rainbow-delimiters.nvim",
-    --     main = "rainbow-delimiters.setup",
-    --     submodules = false,
-    --     opts = {},
-    -- },
-
-    -- {
-    --     "folke/snacks.nvim",
-    --     config = function()
-    --         require "plugin.snacks"
-    --     end
-    -- },
 
     {
         "tzachar/local-highlight.nvim",
