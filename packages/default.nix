@@ -43,6 +43,7 @@ in rec {
         { doCheck = false; }; # tests fail on github workflow
 
     localbinbox = callPackage ../home/localbinbox {};
+    portableTest = callPackage ./portable/test.nix {};
 
     #
     # Lix overrides
