@@ -64,8 +64,8 @@ in
 
     config = {
         systemd.settings.Manager = {
-            DefaultTimeoutStartSec = "20s";
-            DefaultTimeoutStopSec = "20s";
+            DefaultTimeoutStartSec = lib.mkDefault "20s";
+            DefaultTimeoutStopSec = lib.mkDefault "20s";
         };
     };
 

@@ -4,7 +4,8 @@ keys:
     - &ren "age1q0djhewgd46stjzkszzfcqallry9kd7sd6xvr94geur8ls4wz9zs6f7877"
     - &phia "age1zu5wnkx3k3dsylnft2vf5xx97wfemvaw40wyaajxhkrqy7lt2yeqwxj6xm"
     - &uk-01 "age1068nwpttaggue0f2tstmaufl7rmvxscysg53r792862tvatdcvhs0vlmhz"
+    - &sjc-01 "age15zc7zreftfm8eg9ytsj3ksf9h7d8w67c2x5pfj5djlqw9z9gwe7qyv7q3t"
 
 creation_rules:
     - key_groups:
-        - age: [ *me, *ren, *phia, *uk-01 ]
+        - age: [ *me, *ren, *phia, *uk-01, *sjc-01 ]

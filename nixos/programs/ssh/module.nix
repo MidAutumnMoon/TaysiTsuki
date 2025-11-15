@@ -11,8 +11,9 @@
             hostKeyAlgorithms =
                 sshdCfg.HostKeyAlgorithms |> lib.splitString ",";
             pubkeyAcceptedKeyTypes = hostKeyAlgorithms;
-            kexAlgorithms = sshdCfg.KexAlgorithms;
+            kexAlgorithms =
+                sshdCfg.KexAlgorithms
+                ++ ["curve25519-sha256"];
         };
 
 }
-
