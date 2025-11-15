@@ -63,3 +63,4 @@ unix
 vfat
 webgpu
 xattr
+yescrypt
