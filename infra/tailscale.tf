@@ -33,11 +33,11 @@ locals {
             fullname = dev.name
             ipv6 = [
                 for addr in dev.addresses:
-                addr if provider::assert::ipv6( addr )
+                addr if can(regex("^[0-9a-fA-F:]+$", addr))
             ][0]
             ipv4 = [
                 for addr in dev.addresses:
-                addr if provider::assert::ipv4( addr )
+                addr if can(regex("^[0-9.]+$", addr))
             ][0]
         }
     }

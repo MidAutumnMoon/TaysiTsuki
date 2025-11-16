@@ -12,10 +12,6 @@ terraform {
             source = "tailscale/tailscale"
             version = "~> 0"
         }
-        assert = {
-            source = "hashicorp/assert"
-            version = "~> 0"
-        }
     }
 }
 
