@@ -14,26 +14,6 @@ in
         ./services/samba.nix
     ];
 
-    networking = {
-        hostName = lore.machines.phia.hostname;
-        hostId = "0a3e0a19";
-        proxy.default =
-            "http://${lore.apps.homelab.proxy.fqdn}:${toString lore.ports.proxy}";
-        useDHCP = false;
-        tempAddresses = "disabled";
-    };
-
-    systemd.network.networks = {
-        "10-enp2s0" = {
-            name = "enp2s0";
-            DHCP = "yes";
-            networkConfig = {
-                MulticastDNS = "resolve";
-                DNSSEC = "no";
-            };
-        };
-    };
-
     services.caddy.enable = true;
 
     environment.systemPackages = with pkgs; [

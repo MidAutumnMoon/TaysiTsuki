@@ -1,40 +1,6 @@
 { lib, config, pkgs, ... }:
 
-let
-
-    inherit ( config )
-        lore
-    ;
-
-in
-
 {
-
-    #
-    # General
-    #
-
-    networking = {
-        hostName = lore.machines.ren.hostname;
-        proxy.default = "http://localhost:${toString lore.ports.proxy}";
-        tempAddresses = "disabled";
-        useDHCP = false;
-    };
-
-    systemd.network.networks = {
-        "10-enp3s0" = {
-            name = "enp3s0";
-            DHCP = "yes";
-            networkConfig = {
-                MulticastDNS = "resolve";
-                DNSSEC = "no";
-            };
-        };
-    };
-
-    services.resolved.extraConfig = ''
-        Cache = no
-    '';
 
     #
     # Services
