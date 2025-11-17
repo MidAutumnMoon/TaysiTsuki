@@ -34,11 +34,13 @@ in
                         flake.setNixPath = false;
                         flake.setFlakeRegistry = false;
                     };
-                    _module.args = arguments;
+                    # _module.args = arguments;
                 };
             in
             lib.nixosSystem {
-                specialArgs = { inherit lib; };
+                # N.B. _module.arg will cause infrec in some cases,
+                # i.e. passing flakes while importing modules.
+                specialArgs = { inherit lib; } // arguments;
                 modules =
                     ( singleton cfgMod )
                     ++ modules
