@@ -36,6 +36,8 @@
         peerbanhelper = 9101;
         avahi2dns = 9102;
         pds = 9103;
+        tangledKnot = 9104;
+        tangledKnotInternal = 9105;
     };
 
     lore.domains = rec {
@@ -93,6 +95,10 @@
             };
             pds = {
                 subdomain = "pds";
+                domain = im_418;
+            };
+            tangled_knot = {
+                subdomain = "knot";
                 domain = im_418;
             };
         };

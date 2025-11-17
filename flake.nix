@@ -42,6 +42,22 @@
             inputs.rust-overlay.follows = "rust-overlay";
         };
 
+        tangled = {
+            url = "git+https://tangled.org/tangled.org/core?shallow=1";
+            inputs = {
+                nixpkgs.follows = "nixpkgs";
+                flake-compat.follows = "empty";
+                gomod2nix.inputs.flake-utils.follows = "flake-utils";
+                indigo.follows = "empty";
+                htmx-src.follows = "empty";
+                htmx-ws-src.follows = "empty";
+                lucide-src.follows = "empty";
+                inter-fonts-src.follows = "empty";
+                actor-typeahead-src.follows = "empty";
+                ibm-plex-mono-src.follows = "empty";
+            };
+        };
+
         # Some toolchains
 
         rust-overlay = {
