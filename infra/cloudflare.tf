@@ -47,22 +47,59 @@ resource "cloudflare_dns_record" "im_418_torrent_download" {
     proxied = true
 }
 
-resource "cloudflare_dns_record" "im_418_pds_ipv6" {
-    zone_id = cloudflare_zone.im_418.id
-    ttl = local.ttl_auto
-    type = "AAAA"
-    proxied = true
-    name = "pds.${cloudflare_zone.im_418.name}"
-    content = local.ip_addr["sjc-01"]["ipv6"]
+#
+# Bluesky PDS
+#
+
+locals {
+    pds_handles = [
+        {
+            name = "tsuki"
+            did = "did:plc:a4xfuo6ypcagbiiqocyhgklv"
+        }
+    ]
+    pds_addr = {
+        ipv4 = local.ip_addr["sjc-01"]["ipv4"]
+        ipv6 = local.ip_addr["sjc-01"]["ipv6"]
+    }
 }
 
-resource "cloudflare_dns_record" "im_418_pds_ipv4" {
+resource "cloudflare_dns_record" "im_418_pds" {
+    for_each = local.pds_addr
     zone_id = cloudflare_zone.im_418.id
     ttl = local.ttl_auto
-    type = "A"
+    type = each.key == "ipv4" ? "A" : "AAAA"
     proxied = true
     name = "pds.${cloudflare_zone.im_418.name}"
-    content = local.ip_addr["sjc-01"]["ipv4"]
+    content = each.value
+}
+
+resource "cloudflare_dns_record" "im_418_atproto_handles" {
+    for_each = {
+        for pair in setproduct(local.pds_handles, keys(local.pds_addr)) :
+        "${pair[0].name}-${pair[1]}" => {
+            name = "${pair[0].name}.${cloudflare_zone.im_418.name}"
+            type = pair[1] == "ipv4" ? "A" : "AAAA"
+            content = local.pds_addr[pair[1]]
+        }
+    }
+    zone_id = cloudflare_zone.im_418.id
+    ttl = local.ttl_auto
+    proxied = true
+    name = each.value.name
+    type = each.value.type
+    content = each.value.content
+}
+
+resource "cloudflare_dns_record" "im_418_atproto_verify" {
+    for_each = {
+        for handle in local.pds_handles : handle.name => handle
+    }
+    zone_id = cloudflare_zone.im_418.id
+    ttl = local.ttl_auto
+    type = "TXT"
+    name = "_atproto.${each.key}.${cloudflare_zone.im_418.name}"
+    content = "did=${each.value.did}"
 }
 
 #

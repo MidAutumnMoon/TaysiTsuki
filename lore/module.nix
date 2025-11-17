@@ -35,6 +35,7 @@
         navidrome = 9100;
         peerbanhelper = 9101;
         avahi2dns = 9102;
+        pds = 9103;
     };
 
     lore.domains = rec {
@@ -88,6 +89,10 @@
         {
             torrent_download = {
                 subdomain = "td";
+                domain = im_418;
+            };
+            pds = {
+                subdomain = "pds";
                 domain = im_418;
             };
         };

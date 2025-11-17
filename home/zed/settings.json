@@ -74,9 +74,6 @@
         "words": "fallback"
     },
     "languages": {
-        "Ruby": {
-            "language_servers": ["!rubocop", "!solargraph", "!ruby-lsp"]
-        },
         "Nix": {
             "language_servers": ["nixd", "!nil"],
             "tab_size": 4

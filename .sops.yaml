@@ -13,4 +13,7 @@ creation_rules:
   - path_regex: infra/.*
     age: [*me]
 
+  - path_regex: machine/sjc-01/.*
+    age: [*me, *sjc-01]
+
   - age: [*me, *ren, *phia, *uk-01, *sjc-01]

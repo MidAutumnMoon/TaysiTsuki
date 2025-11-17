@@ -1,3 +1,3 @@
 {
-    # services.caddy.enable = true;
+    services.caddy.enable = true;
 }
