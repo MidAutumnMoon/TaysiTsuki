@@ -7,6 +7,12 @@
         settings = with config; {
             PDS_PORT = lore.ports.pds;
             PDS_HOSTNAME = lore.apps.public.pds.fqdn;
+            PDS_CRAWLERS = lib.concatStringsSep "," [
+                "https://bsky.network"
+                "https://relay.fire.hose.cam"
+                "https://relay.upcloud.world"
+            ];
+
         };
         environmentFiles = [ config.sops.secrets.pds.path ];
     };
