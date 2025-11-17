@@ -149,8 +149,8 @@
         "network.buffer.cache.size" = 65535;
         "network.IDN_show_punycode" = true;
         # may break sites, e.g. cdn which verifies origin to the path
-        "network.http.referer.XOriginTrimmingPolicy" = 2;
-        "network.http.referer.trimmingPolicy" = 1;
+        # "network.http.referer.XOriginTrimmingPolicy" = 2;
+        # "network.http.referer.trimmingPolicy" = 1;
         # WILL break sites
         # "network.http.referer.trimmingPolicy" = 2;
         # "network.http.referer.XOriginPolicy" = 2;
