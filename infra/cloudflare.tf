@@ -216,4 +216,32 @@ resource "cloudflare_dns_record" "shameful_dkim" {
     content = local.__dkim.shameful
 }
 
-# vim: nowrap:
+#
+# Resend
+#
+
+resource "cloudflare_dns_record" "im_418_resend_dkim" {
+    zone_id = cloudflare_zone.im_418.id
+    type = "TXT"
+    name = "resend._domainkey.deliver.${cloudflare_zone.im_418.name}"
+    ttl = local.ttl_auto
+    content = local.__dkim.resend
+}
+
+resource "cloudflare_dns_record" "im_418_resend_mx" {
+    zone_id = cloudflare_zone.im_418.id
+    type = "MX"
+    name = "send.deliver.${cloudflare_zone.im_418.name}"
+    ttl = local.ttl_auto
+    proxied = false
+    priority = 10
+    content = "feedback-smtp.us-east-1.amazonses.com"
+}
+
+resource "cloudflare_dns_record" "im_418_resend_spf" {
+    zone_id = cloudflare_zone.im_418.id
+    type = "TXT"
+    name = "send.deliver.${cloudflare_zone.im_418.name}"
+    ttl = local.ttl_auto
+    content = "v=spf1 include:amazonses.com ~all"
+}
