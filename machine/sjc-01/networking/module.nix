@@ -3,7 +3,7 @@
 {
 
     networking.useDHCP = lib.mkForce false;
-    networking.hostName = "sjc-01";
+    networking.hostName = config.lore.machines.sjc-01.hostname;
 
     systemd.services.decrypt-network-config = {
         description = "Decrypt network config";

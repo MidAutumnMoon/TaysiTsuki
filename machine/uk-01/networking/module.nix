@@ -1,9 +1,9 @@
-{ lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
 
     networking.useDHCP = lib.mkForce false;
-    networking.hostName = "uk-01";
+    networking.hostName = config.lore.machines.uk-01.hostname;
 
     systemd.services.mimic-cloud-init-network = {
         description = "Config network from cloud-init datasource";

@@ -1,12 +1,4 @@
-{ lib, config, pkgs, ... }:
-
-let
-
-    inherit ( config )
-        lore
-    ;
-
-in
+{ config, pkgs, ... }:
 
 {
 

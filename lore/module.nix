@@ -20,6 +20,9 @@
         router = {
             static_ip = "10.0.1.1";
         };
+
+        uk-01 = {};
+        sjc-01 = {};
     };
 
     lore.ports = {
