@@ -43,6 +43,10 @@ in rec {
 
     dnscrypt-proxy = tsuki.dnscrypt;
 
+    yt-dlp = prev.yt-dlp.override {
+        inherit (tsuki) deno;
+    };
+
     zram-generator =
         lib.onceride prev.zram-generator
         { rustPlatform = tsuki.rust; }
