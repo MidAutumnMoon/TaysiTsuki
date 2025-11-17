@@ -37,6 +37,8 @@
         let
             settings = config.services.bluesky-pds.settings;
         in lib.mkAfter ''
-            reverse_proxy http://localhost:${toString settings.PDS_PORT}
+            handle {
+                reverse_proxy http://localhost:${toString settings.PDS_PORT}
+            }
         '';
 }
