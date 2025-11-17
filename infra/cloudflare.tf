@@ -47,6 +47,24 @@ resource "cloudflare_dns_record" "im_418_torrent_download" {
     proxied = true
 }
 
+resource "cloudflare_dns_record" "im_418_pds_ipv6" {
+    zone_id = cloudflare_zone.im_418.id
+    ttl = local.ttl_auto
+    type = "AAAA"
+    proxied = true
+    name = "pds.${cloudflare_zone.im_418.name}"
+    content = local.ip_addr["sjc-01"]["ipv6"]
+}
+
+resource "cloudflare_dns_record" "im_418_pds_ipv4" {
+    zone_id = cloudflare_zone.im_418.id
+    ttl = local.ttl_auto
+    type = "A"
+    proxied = true
+    name = "pds.${cloudflare_zone.im_418.name}"
+    content = local.ip_addr["sjc-01"]["ipv4"]
+}
+
 #
 # Tailscale Nodes
 #
