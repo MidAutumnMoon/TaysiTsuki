@@ -1,6 +1,5 @@
 {
     stdenvNoCC,
-    fetchurl,
     zstd,
     tsuki,
 }:

@@ -1,3 +1,1 @@
-with (builtins.getFlake (toString ../.)).lib; let pkgs = import <nixpkgs> {}; in
-
-listAllModules ../nixos
+with (builtins.getFlake (toString ../.)).lib; listAllModules ../nixos

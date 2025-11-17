@@ -7,7 +7,7 @@
 
         # convinient function to get a file from dotfile dir
         dots = {
-            __toString = self: "${tsukiObservatory}/home";
+            __toString = _self: "${tsukiObservatory}/home";
             get = path: "${toString dots}/${path}";
         };
     };

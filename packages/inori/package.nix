@@ -4,8 +4,6 @@
     fetchFromGitHub,
 
     tsuki,
-
-    libavif,
     libjxl,
     imagemagick,
 }:

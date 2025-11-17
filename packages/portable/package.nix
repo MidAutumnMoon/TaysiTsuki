@@ -74,7 +74,7 @@ let
     '';
 in
 
-stdenv.mkDerivation (drvSelf: {
+stdenv.mkDerivation (_drvSelf: {
     pname = "${pname}-img";
     inherit version;
 

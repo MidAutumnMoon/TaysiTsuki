@@ -1,9 +1,5 @@
 { lib, config, pkgs, ... }:
 
-let
-
-in
-
 lib.mkIf config.fonts.fontconfig.enable {
 
     fonts = {
