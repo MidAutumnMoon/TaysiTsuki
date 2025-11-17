@@ -43,7 +43,7 @@ resource "cloudflare_dns_record" "im_418_torrent_download" {
     ttl = local.ttl_auto
     type = "AAAA"
     name = "td.${cloudflare_zone.im_418.name}"
-    content = local.ip_addrs["uk-01"]["ip6"]
+    content = local.ip_addr["uk-01"]["ipv6"]
     proxied = true
 }
 

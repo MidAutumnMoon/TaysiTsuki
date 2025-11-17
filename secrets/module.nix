@@ -9,7 +9,9 @@ in
 
 lib.mkMerge [
 
-    {}
+    {
+        sops.defaultSopsFile = ./default.sops.nix;
+    }
 
     ( onlyMachine config.lore.machines.ren.hostname (
         let teapot = config.users.users.teapot.name; in

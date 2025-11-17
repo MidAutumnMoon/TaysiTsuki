@@ -23,8 +23,8 @@ data "sops_file" "token--tailscale" {
     source_file = "./secrets/token--tailscale.sops.yml"
 }
 
-data "sops_file" "ip_addrs" {
-    source_file = "./secrets/ip.sops.yml"
+data "sops_file" "default_secrets" {
+    source_file = "../secrets/default.sops.yml"
 }
 
 locals {
@@ -32,7 +32,7 @@ locals {
         cloudflare = yamldecode( data.sops_file.token--cloudflare.raw )
         tailscale = yamldecode( data.sops_file.token--tailscale.raw )
     }
-    ip_addrs = yamldecode(data.sops_file.ip_addrs.raw)
+    ip_addr = yamldecode(data.sops_file.default_secrets.raw)["ip_addr"]
     tailnet = "fin-orfe.ts.net"
     im_418 = "418.im"
 }
