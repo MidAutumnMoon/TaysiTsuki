@@ -8,8 +8,8 @@ let
         src = pkgs.fetchFromGitHub {
             owner = "artemsen";
             repo = "swayimg";
-            rev = "ac21e8c9a8385e49985fca6f2f03469231db0b75";
-            hash = "sha256-+DOPX9wrS3367u6STbrOWzUcZR1T0zz8N7jHNh9K3tc=";
+            rev = "fc562799131d3e962a6c14e4a78e8c820953c6e3";
+            hash = "sha256-Q5TqY5UgSGZVVoARcz1ig0UkZBKgRoT9Ndvg/f1T38Q=";
         };
     };
 
