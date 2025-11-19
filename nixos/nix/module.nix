@@ -2,7 +2,7 @@
 
 {
 
-    nix.package = pkgs.nixVersions.stable;
+    nix.package = pkgs.lix;
 
     nix.settings = {
         auto-optimise-store = false;
