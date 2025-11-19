@@ -34,6 +34,7 @@
         gh
         tsuki.deno
         wgsl-analyzer
+        easyeffects
     ];
 
     envvars = {
