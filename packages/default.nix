@@ -35,11 +35,11 @@ in rec {
         linuxPackages_cachyos-lts
     ;
 
-    tangled = {
-        inherit (pkgsFrom "tangled")
-            knot
-        ;
-    };
+    # tangled = {
+    #     inherit (pkgsFrom "tangled")
+    #         knot
+    #     ;
+    # };
 
     dnscrypt-proxy = tsuki.dnscrypt;
 
