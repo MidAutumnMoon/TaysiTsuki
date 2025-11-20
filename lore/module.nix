@@ -38,6 +38,8 @@
         pds = 9103;
         tangledKnot = 9104;
         tangledKnotInternal = 9105;
+        slskd = 9106;
+        slskdWebui = 9107;
     };
 
     lore.domains = rec {
@@ -84,6 +86,7 @@
             };
         in {
             downloader_dashboard = on "uk-01" "2qbit";
+            slskd_dashboard = on "uk-01" "slskd";
         };
 
     lore.apps."public" =
