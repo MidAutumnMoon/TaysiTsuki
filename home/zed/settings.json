@@ -162,5 +162,8 @@
     },
     "edit_predictions": {
         "mode": "subtle"
+    },
+    "file_types": {
+        "Shell Script": [".envrc"]
     }
 }
