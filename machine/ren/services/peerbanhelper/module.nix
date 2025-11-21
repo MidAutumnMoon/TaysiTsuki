@@ -19,7 +19,7 @@ in
         wants = [ "network-online.target" ];
         script = ''
             touch "disable-update-check.txt"
-            exec "${lib.getExe pkgs.jre_headless}" \
+            exec "${lib.getExe pkgs.jdk25_headless}" \
                 -XX:SoftMaxHeapSize=512M \
                 -XX:ZUncommitDelay=30 \
                 -XX:+UseZGC -XX:+ZGenerational \

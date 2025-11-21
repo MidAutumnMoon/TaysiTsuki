@@ -24,11 +24,11 @@ stdenv.mkDerivation ( drvSelf: {
         declare -r dst="$out${drvSelf.passthru.libPath}"
         mkdir -pv "$dst"
         7zz x "$src"
-        
+
         find -type d -name "libraries" -exec cp -r -t "$dst" {} +
         find -type f -name "PeerBanHelper.jar" -exec cp -t "$dst" {} +
     '';
-    
+
     passthru = rec {
         libPath = "/libexec/peerbanhelper";
         jarPath = "${tsuki.peerbanhelper}${libPath}/PeerBanHelper.jar";
