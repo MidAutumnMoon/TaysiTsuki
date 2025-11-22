@@ -53,7 +53,7 @@ in
             options = [ "defaults,mode=755,nosuid,nodev,size=100%" ];
         };
         # scratchpad
-        "/mnt/z" = {
+        "/home/teapot/z" = {
             device = "none";
             fsType = "tmpfs";
             options = [
