@@ -168,6 +168,7 @@
                 };
             }
             |> lib.nixos2colmena self.nixosConfigurations
+            |> lib.flip removeAttrs [ "ren" ]
             |> flakes.colmena.lib.makeHive;
     };
 
