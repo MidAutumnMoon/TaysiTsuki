@@ -51,4 +51,10 @@
         options = "--delete-older-than 3d";
     };
 
+    nix.optimise = {
+        automatic = true;
+    };
+
+    nix.daemonCPUSchedPolicy = "batch";
+
 }
