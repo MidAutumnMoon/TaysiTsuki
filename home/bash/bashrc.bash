@@ -11,9 +11,9 @@ if [[ $- == *i* ]]; then
 
     while [[ "$pid_on_hand" -ne 1 ]]; do
         # Get the command name
-        cmd=$( ps -p "$pid_on_hand" -o cmd= )
+        cmd=$( ps -p "$pid_on_hand" -o comm= )
 
-        if [[ "$cmd" == *fish* ]]; then
+        if [[ "$cmd" == "fish" ]]; then
             parents_have_fish="true"
             break
         fi
@@ -27,4 +27,3 @@ if [[ $- == *i* ]]; then
         exec fish --interactive
     fi
 fi
-
