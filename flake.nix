@@ -58,10 +58,6 @@
         #     };
         # };
 
-        lix = {
-            url = "https://git.lix.systems/lix-project/lix/archive/fd38f625e6897c0597ebb2635bfb39f7cff45225.tar.gz";
-        };
-
         # Some toolchains
 
         rust-overlay = {

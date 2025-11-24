@@ -61,13 +61,11 @@ in rec {
 
     lixSet = prev.lixPackageSets.latest;
 
-    inherit ( lixSet )
+    inherit (lixSet)
+        lix
         # The default "lix" points to old stable version
         nix-eval-jobs
     ;
-
-    lix_2_94 = (pkgsFrom "lix").default;
-    lix = final.lix_2_94;
 
     nixVersions = prev.nixVersions // {
         stable = lixSet.lix;
