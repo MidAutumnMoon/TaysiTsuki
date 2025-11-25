@@ -7,14 +7,14 @@
 stdenv.mkDerivation ( drvSelf: {
 
     pname = "peerbanhelper";
-    version = "9.1.2";
+    version = "9.1.3";
 
     src = tsuki.fetchGitHubRelease {
         owner = "PBH-BTN";
         repo = "PeerBanHelper";
         tag = "v${drvSelf.version}";
         file = "PeerBanHelper_${drvSelf.version}.zip";
-        hash = "sha256-PBfY8syhYEfg+hO1nvutAP05Lk7RlzaCIFDiHl6JRwE=";
+        hash = "sha256-EfWU09/yVaktGQJkVhoe+XesC8k9Nt5oNUtNXVFFEaE=";
     };
 
     dontUnpack = true;
