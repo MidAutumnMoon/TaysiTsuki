@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, config, ... }:
 
 {
 
@@ -27,6 +27,8 @@
         "amd_iommu=on"
         "transparent_hugepage=always"
         "nmi_watchdog=0"
+        # use zram swap
+        "zswap.enabled=0"
     ];
 
     boot.blacklistedKernelModules = [
@@ -34,9 +36,19 @@
     ];
 
     boot.tmp = {
-        useTmpfs = true;
+        # useTmpfs = true;
         tmpfsSize = "100%";
+        useZram = true;
+        zramSettings.zram-size = "ram";
+        zramSettings.fs-type = "xfs";
     };
+
+    boot.supportedFilesystems =
+        let
+            zramCfg = config.boot.tmp.zramSettings;
+        in {
+            ${zramCfg.fs-type} = true;
+        };
 
     boot = {
         bcache.enable = false;
