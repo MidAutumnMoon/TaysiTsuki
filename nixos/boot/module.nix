@@ -43,13 +43,6 @@
         zramSettings.fs-type = "xfs";
     };
 
-    boot.supportedFilesystems =
-        let
-            zramCfg = config.boot.tmp.zramSettings;
-        in {
-            ${zramCfg.fs-type} = true;
-        };
-
     boot = {
         bcache.enable = false;
         enableContainers = false;
