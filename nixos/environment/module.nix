@@ -22,6 +22,7 @@ in
             htop
             rsync
             strace
+            lsof
         ];
 
     environment.variables =
