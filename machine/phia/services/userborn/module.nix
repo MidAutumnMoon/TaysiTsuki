@@ -2,14 +2,12 @@
 
 let
 
-    persistDir = config.fileSystems."/persist".mountPoint;
+    persistDir = config.fileSystems."/var".mountPoint;
 
-in
-
-{
+in {
 
     services.userborn = {
-        passwordFilesLocation = "${persistDir}/etc";
+        passwordFilesLocation = "${persistDir}/lib";
     };
 
 }

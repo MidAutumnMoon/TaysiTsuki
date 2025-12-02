@@ -2,7 +2,7 @@
 keys:
   - &me "age17lvnmh99feams2pvfljw34k5s705uk89x6g26r4ml85yu0h2q9uswpmjm6"
   - &ren "age1rlhnksa8qplfkdecmnsr5v9nfjm3vnagxrertmz2z6gl0sjxr9rqf580cg"
-  - &phia "age1zu5wnkx3k3dsylnft2vf5xx97wfemvaw40wyaajxhkrqy7lt2yeqwxj6xm"
+  - &phia "age1n8syamacyke5y7nczgh85ftg5u5fm28zlsxdfjgesp5wq3n8upqs8532tl"
   - &uk-01 "age1068nwpttaggue0f2tstmaufl7rmvxscysg53r792862tvatdcvhs0vlmhz"
   - &sjc-01 "age15zc7zreftfm8eg9ytsj3ksf9h7d8w67c2x5pfj5djlqw9z9gwe7qyv7q3t"
 
@@ -18,5 +18,8 @@ creation_rules:
 
   - path_regex: machine/ren/.*
     age: [*me, *ren]
+
+  - path_regex: machine/phia/.*
+    age: [*me, *phia]
 
   - age: [*me, *ren, *phia, *uk-01, *sjc-01]

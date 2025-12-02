@@ -4,7 +4,6 @@
 
     networking = with config; {
         hostName = lore.machines.phia.hostname;
-        hostId = "0a3e0a19";
         proxy.default = with lore; "http://${apps.homelab.proxy.fqdn}:${toString ports.proxy}";
         useDHCP = false;
     };

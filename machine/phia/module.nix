@@ -17,9 +17,6 @@
         fuc
     ];
 
-    security.sudo.wheelNeedsPassword = false;
-    security.sudo-rs.wheelNeedsPassword = false;
-
     # Avoid using nobody
     users.users."fileshare" = {
         isNormalUser = true;
@@ -43,7 +40,7 @@
 
     # preservation & sops
 
-    preservation.enable = true;
+    preservation.enable = false;
 
     preservation.preserveAt."/persist" = {
         files = [
@@ -51,16 +48,10 @@
             { file = "/etc/ssh/ssh_host_ed25519_key.pub"; mode = "0644"; }
             { file = "/etc/ssh/ssh_host_rsa_key"; mode = "0600"; }
             { file = "/etc/ssh/ssh_host_rsa_key.pub"; mode = "0644"; }
-            { file = "/etc/machine-id"; mode = "0444"; inInitrd = true; }
+            # { file = "/etc/machine-id"; mode = "0444"; inInitrd = true; }
         ];
         directories = [];
     };
-
-    sops.age.sshKeyPaths = [ "/persist/etc/ssh/ssh_host_ed25519_key" ];
-
-    systemd.suppressedSystemUnits = [
-        "systemd-machine-id-commit.service"
-    ];
 
     systemd.tmpfiles.rules = let
         inherit ( config.sops ) secrets;
@@ -74,6 +65,8 @@
         "z /etc/rclone.conf 0440 ${fileshare.name} ${fileshare.group} - -"
     ];
 
+    boot.machineId = "ca5388f0652c4b549059524647234167";
+
     #
     # Hardware configs
     #
@@ -86,4 +79,3 @@
     nixpkgs.hostPlatform = "x86_64-linux";
 
 }
-
