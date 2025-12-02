@@ -7,8 +7,10 @@ edition = "2024"
 anyhow = "1.0.100"
 clap = { version = "4.5.48", features = ["derive"] }
 docstr = "0.4.6"
+gix-discover = "0.43.0"
 ino_tracing = "0.1.1"
 itertools = "0.14.0"
+parking_lot = "0.12.5"
 rayon = "1.11.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"

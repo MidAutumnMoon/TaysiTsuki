@@ -9,11 +9,15 @@ use docstr::docstr;
 use tracing::debug;
 
 use crate::cmd::capture_cmd_output;
+use crate::cmd::git_toplevel;
 use crate::package::NIX_BUILD_OPTS;
 
 pub fn eval_hostnames() -> Result<String> {
-    let toplevel =
-        capture_cmd_output("git", &["rev-parse", "--show-toplevel"])?;
+    let toplevel = git_toplevel()?;
+    let toplevel = toplevel
+        .as_os_str()
+        .to_str()
+        .context("Git toplevel path is not valid UTF-8")?;
     let driver = docstr!(format!
         /// with builtins;
         /// let flake = getFlake (toString {toplevel}); in

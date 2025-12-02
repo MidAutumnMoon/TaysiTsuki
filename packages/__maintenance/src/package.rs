@@ -1,9 +1,9 @@
 use std::env::set_current_dir;
 use std::fs::read_to_string;
 use std::iter::repeat;
+use std::path::Path;
 use std::process::Command;
 use std::sync::Arc;
-use std::sync::Mutex;
 use std::sync::mpsc::channel;
 
 use anyhow::Context;
@@ -11,6 +11,7 @@ use anyhow::Result;
 use anyhow::bail;
 use anyhow::ensure;
 use itertools::izip;
+use parking_lot::Mutex;
 use rayon::ThreadPoolBuilder;
 use tap::Pipe;
 use tempfile::NamedTempFile;
@@ -19,7 +20,7 @@ use tracing::debug_span;
 use tracing::instrument;
 use tracing::warn;
 
-use crate::cmd::capture_cmd_output;
+use crate::cmd::git_toplevel;
 use crate::manifest::Package;
 
 #[rustfmt::skip]
@@ -83,9 +84,11 @@ pub fn update_all_packages<'a>(
         let permit = Mutex::new(Permit::GoAhead).pipe(Arc::new);
         let (res_sender, res_receiver) = channel::<Result<String>>();
 
-        let toplevel =
-            capture_cmd_output("git", &["rev-parse", "--show-toplevel"])?
-                .pipe(Arc::new);
+        let Ok(toplevel) = git_toplevel() else {
+            debug!("Failed to get git toplevel");
+            *permit.lock() = Permit::Cancel;
+            bail!("Failed to get git toplevel")
+        };
 
         for (package, permit, sender, toplevel) in izip!(
             packages,
@@ -95,10 +98,7 @@ pub fn update_all_packages<'a>(
         ) {
             scope.spawn(move |_| {
                 let _s = debug_span!("update_package", ?package).entered();
-                if matches!(
-                    *permit.lock().expect("Failed to accquire mutex"),
-                    Permit::Cancel
-                ) {
+                if matches!(*permit.lock(), Permit::Cancel) {
                     return;
                 }
                 match update_one_package(package, &toplevel) {
@@ -109,10 +109,7 @@ pub fn update_all_packages<'a>(
                     // it doesn't really matter that much.
                     Err(err) => {
                         debug!(?package, "Failed to update package");
-                        *permit
-                            .lock()
-                            .expect("Failed to accquire mutex") =
-                            Permit::Cancel;
+                        *permit.lock() = Permit::Cancel;
                         let _ = sender.send(Err(err));
                     }
                     Ok(None) => (),
@@ -141,7 +138,7 @@ pub fn update_all_packages<'a>(
 #[instrument]
 fn update_one_package(
     package: &Package,
-    toplevel: &str,
+    toplevel: &Path,
 ) -> Result<Option<String>> {
     let Some(update) = &package.update else {
         debug!("Package not opt into update");

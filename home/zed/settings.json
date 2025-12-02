@@ -10,7 +10,7 @@
     "agent": {
         "inline_assistant_model": {
             "provider": "openrouter",
-            "model": "x-ai/grok-4.1-fast:free"
+            "model": "z-ai/glm-4.6"
         },
         "default_model": {
             "provider": "openrouter",

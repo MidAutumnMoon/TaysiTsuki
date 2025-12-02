@@ -1,4 +1,5 @@
 use std::ffi::OsStr;
+use std::path::PathBuf;
 use std::process::Command;
 
 use anyhow::Context;
@@ -31,4 +32,17 @@ where
         .pipe(String::from_utf8)
         .context("Command output isn't valid UTF-8")
         .pipe(|v| v.map(|s| s.trim().into()))
+}
+
+#[instrument]
+pub fn git_toplevel() -> Result<PathBuf> {
+    debug!("Get git repository toplevel");
+    let cwd = std::env::current_dir()?;
+    // trust discarded
+    let (path, _) = gix_discover::upwards(&cwd)
+        .context("Failed to locate git repo toplevel")?;
+    match path {
+        gix_discover::repository::Path::WorkTree(p) => Ok(p),
+        _ => bail!("Other types of repo are not handled"),
+    }
 }

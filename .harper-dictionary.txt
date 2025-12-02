@@ -14,6 +14,7 @@ TaysiTsuki
 TäysiTsuki
 Vec
 YUV
+attrNames
 avifenc
 basename
 bootloader
@@ -33,6 +34,8 @@ eprintln
 eyre
 fn
 gc
+getFlake
+hasAttr
 imagemagick
 impl
 ino
