@@ -12,7 +12,7 @@
         tools.nixos-generate-config.enable = false;
         # forbiddenDependenciesRegexes = [ "perl" ];
         disableInstallerTools = true;
-        # nixos-init.enable = true;
+        nixos-init.enable = true;
     };
 
     # Don't want to manually update it once a while.
