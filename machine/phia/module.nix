@@ -18,6 +18,7 @@
     ];
 
     security.sudo.wheelNeedsPassword = false;
+    security.sudo-rs.wheelNeedsPassword = false;
 
     # Avoid using nobody
     users.users."fileshare" = {
