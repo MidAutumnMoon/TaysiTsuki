@@ -8,6 +8,8 @@ use anyhow::Result;
 use itertools::Itertools;
 use tap::Pipe;
 
+pub mod sops;
+
 #[expect(clippy::missing_errors_doc)]
 pub fn collect_read_dir(toplevel: &Path) -> Result<Vec<PathBuf>> {
     read_dir(toplevel)
