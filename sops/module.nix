@@ -2,8 +2,14 @@
 
 let
 
-    onlyMachine = name:
-        lib.mkIf ( config.networking.hostName == name );
+    for = hostnames:
+        lib.mkIf (lib.elem config.networking.hostName hostnames);
+
+    inherit (config.lore)
+        machines
+    ;
+
+    teapot = config.users.users.teapot.name;
 
 in
 
@@ -13,25 +19,33 @@ lib.mkMerge [
         sops.defaultSopsFile = ./default.sops.nix;
     }
 
-    ( onlyMachine config.lore.machines.ren.hostname (
-        let teapot = config.users.users.teapot.name; in
-        {
-            sops.secrets = {
-                "key--ssh--teapot" = {
-                    sopsFile = ./ren/key--ssh--teapot.sops.yml;
-                    owner = teapot;
-                };
-                "conf--ssh" = {
-                    sopsFile = ./ren/conf--ssh.sops;
-                    owner = teapot;
-                    format = "binary";
-                };
-                "token--github--me" = {
-                    sopsFile = ./ren/token--github.sops.yml;
-                    owner = teapot;
-                };
+    (for [ machines.ren.hostname ] {
+        sops.secrets = {
+            "key--ssh--teapot" = {
+                sopsFile = ./ren/key--ssh--teapot.sops.yml;
+                owner = teapot;
             };
-        }
-    ) )
+            "conf--ssh" = {
+                sopsFile = ./ren/conf--ssh.sops;
+                owner = teapot;
+                format = "binary";
+            };
+            "token--github--me" = {
+                sopsFile = ./ren/token--github.sops.yml;
+                owner = teapot;
+            };
+        };
+    })
+
+    (for (with machines; [ ren.hostname phia.hostname ]) {
+        sops.secrets."rclone.conf" = {
+            sopsFile = ./mixed/rclone;
+            format = "binary";
+            # insecure, but only on machiens in the lan
+            mode = "0644";
+        };
+        environment.etc."rclone.conf".source =
+            config.sops.secrets."rclone.conf".path;
+    })
 
 ]

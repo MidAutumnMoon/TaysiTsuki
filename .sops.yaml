@@ -25,4 +25,10 @@ creation_rules:
   - path_regex: machine/phia/.*
     age: [*me, *phia]
 
+  - path_regex: sops/mixed/rclone
+    age:
+      - *me
+      - *phia
+      - *ren
+
   - age: [*me, *ren, *phia, *uk-01, *sjc-01]

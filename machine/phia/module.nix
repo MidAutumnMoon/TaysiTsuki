@@ -61,8 +61,6 @@
     in [
         "d ${poolMpt} 0755 ${fileshare.name} ${fileshare.group} - -"
         "d ${torrentMpt} 0755 ${fileshare.name} ${fileshare.group} - -"
-        "C /etc/rclone.conf - - - - ${secrets."conf--rclone".path}"
-        "z /etc/rclone.conf 0440 ${fileshare.name} ${fileshare.group} - -"
     ];
 
     boot.machineId = "ca5388f0652c4b549059524647234167";
