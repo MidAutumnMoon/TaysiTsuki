@@ -117,8 +117,8 @@
                     ./lore/module.nix
                     self.nixosModules.only-nyx-cache
                 ]
-                ++ ( lib.listAllModules ./nixos )
-                ++ ( lib.listAllModules ./secrets );
+                ++ (lib.listAllModules ./nixos)
+                ++ (lib.listAllModules ./sops);
             nixos = lib.brewOS {
                 inherit pkgsBrew modules;
                 arguments = { inherit flakes; };
