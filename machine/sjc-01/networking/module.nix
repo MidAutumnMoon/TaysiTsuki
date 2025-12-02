@@ -10,9 +10,8 @@
         wantedBy = [ "systemd-networkd.service" ];
         before = [ "systemd-networkd.service" ];
         path = with pkgs; [
-            ssh-to-age
             sops
-            bashInteractive
+            coreutils
         ];
         serviceConfig = {
             Type = "oneshot";
@@ -20,13 +19,10 @@
             TimeoutSec = "infinity";
         };
         script = ''
-            export SOPS_AGE_KEY_CMD='bash -c "
-                ssh-to-age -private-key < ${
-                    lib.head config.sops.age.sshKeyPaths
-                }
-            "'
-            sops decrypt "${pkgs.copyPathToStore ./network.sops}" \
-                > "/etc/systemd/network/10-enp0s3.network"
+            export SOPS_AGE_KEY_CMD='cat ${config.sops.age.keyFile}'
+            nf="/run/systemd/network/10-enp0s3.network"
+            mkdir -p "$(dirname $nf)"
+            sops decrypt "${pkgs.copyPathToStore ./network.sops}" > "$nf"
         '';
     };
 

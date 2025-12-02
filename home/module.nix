@@ -35,6 +35,7 @@
         tsuki.deno
         wgsl-analyzer
         easyeffects
+        age
     ];
 
     envvars = {

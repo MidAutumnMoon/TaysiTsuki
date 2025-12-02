@@ -4,7 +4,7 @@ keys:
   - &ren "age1rlhnksa8qplfkdecmnsr5v9nfjm3vnagxrertmz2z6gl0sjxr9rqf580cg"
   - &phia "age1n8syamacyke5y7nczgh85ftg5u5fm28zlsxdfjgesp5wq3n8upqs8532tl"
   - &uk-01 "age1068nwpttaggue0f2tstmaufl7rmvxscysg53r792862tvatdcvhs0vlmhz"
-  - &sjc-01 "age15zc7zreftfm8eg9ytsj3ksf9h7d8w67c2x5pfj5djlqw9z9gwe7qyv7q3t"
+  - &sjc-01 "age1yz293dkqg2uf0ddcf5efdxky3mlcvqpdlprpp9kaj4sqnynngveqjcwqhe"
 
 # N.B. path_regex is matched relative to .sops.yaml,
 # in order to match directories from repo toplevel,
