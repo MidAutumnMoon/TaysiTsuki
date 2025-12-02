@@ -117,8 +117,8 @@ in
         config.envvars
         |> mapAttrsToList ( n: v: "${n}=${toString v}" )
         |> concatStringsSep "\n"
-        # otherwise the conf file is considered malformed :\
-        |> ( val: "${val}\n" )
-    ;
+        # Add trailing newline, # otherwise the conf file
+        # is considered malformed :\
+        |> ( val: "${val}\n" );
 
 }

@@ -14,6 +14,7 @@ let
         types
         filterAttrs
         mapAttrs
+        mapAttrsToList
         attrValues
         listToAttrs
         nameValuePair
@@ -44,9 +45,15 @@ let
     blueprintNameOf =
         username: "lny-blueprint-${username}.json";
 
-in
+    lnyExe =
+        lib.getOutput "lny" pkgs.tsuki.inori
+        |> ( it: lib.getExe' it "lny" );
 
-{
+    usersWithLny =
+        config.users.users
+        |> filterAttrs (_: v: v.lny != null);
+
+in {
 
     options.users.users = mkOption {
         type = types.attrsOf <| types.submodule
@@ -62,135 +69,109 @@ in
 
     # put blueprint into a well known location
     config.environment.etc = let
-        toBlueprint = lnyCfg:
-            lnyCfg
-            |> ( it: it.__rawFiles )
+        toBlueprint = lnyCfg: lnyCfg
+            |> (it: it.__rawFiles)
             |> attrValues
-            |> map ( val: { inherit ( val ) src dst; } )
-            |> ( it: { version = 1; symlinks = it; } )
+            |> map (val: { inherit (val) src dst; })
+            |> (it: { version = 1; symlinks = it; })
             |> builtins.toJSON;
-    in config.users.users
-        # 1. select users which configured lny
-        |> filterAttrs ( _: val: val.lny != null )
-        # 2. only interested in user's uid and lny
-        |> mapAttrs ( name: val: {
-            inherit ( val ) uid lny;
-            username = name;
-        } )
+    in usersWithLny
+        # 1. only interested in user's uid, name and lny
+        |> mapAttrs (_: val: { inherit (val) uid lny name; })
         |> attrValues
         # 3. turn config into blueprint
         |> map ( val: val // { blueprint = toBlueprint val.lny; } )
         # 4. turn these into environment.etc config
         |> map ( val: nameValuePair
-            ( blueprintNameOf val.username )
+            (blueprintNameOf val.name)
             { text = val.blueprint; uid = val.uid; }
         )
-        |> listToAttrs
-    ;
+        |> listToAttrs;
 
-    # record the abosulte path of previous generation
-    config.system.activationScripts."lny-prev-generation" = {
-        deps = [ "etc" ];
-        text = /*bash*/ ''
-            if [[ -d "$( dirname '${genRecord}' )" ]]
-            then
-                if [[ ! -f "${genRecord}" ]]
-                then
-                    touch "${genRecord}"
+    config.systemd.services."lny@" = {
+        description = "lny service for user %i";
+        before = [ "systemd-user-sessions.service" ];
+        partOf = [ "lny-activate.target" ];
+        stopIfChanged = false;
+        path = [
+            pkgs.gnused pkgs.gnugrep
+            config.systemd.package
+        ];
+        serviceConfig = {
+            Type = "oneshot";
+            User = "%i";
+            WorkingDirectory = "~";
+            TimeoutStartSec = "1m";
+            RemainAfterExit = true;
+        };
+        environment = {
+            RUST_LOG = "debug";
+            BLUEPRINT_NAME="lny-blueprint-%i.json";
+        };
+        script = ''
+            # derived from home-manager
+            export XDG_RUNTIME_DIR=''${XDG_RUNTIME_DIR:-/run/user/$UID}
+            if [[ ! -d "$XDG_RUNTIME_DIR" ]]; then
+                eval "$(systemctl --user show-environment 2> /dev/null \
+                    | sed -n '/^XDG/p' | sed 's/^/export /g')"
+            fi
+
+            newGen="$(readlink -f "/run/current-system")"
+            newBlueprint="/etc/$BLUEPRINT_NAME"
+
+            # Covers first run scenario
+            if [[ ! -s "${genRecord}" ]]; then
+                echo "${genRecord} does not exist or empty"
+                "${lnyExe}" --new-blueprint "$newBlueprint"
+                exit
+            fi
+
+            # reverse order, and ignore current generation
+            for sysGen in $(tac "${genRecord}" | grep -v "$newGen"); do
+                test ! -d "$sysGen" && continue
+
+                oldBlueprint="$sysGen/etc/''${BLUEPRINT_NAME}"
+                if [[ -s "$oldBlueprint" ]]; then
+                    "${lnyExe}" \
+                        --new-blueprint "$newBlueprint" \
+                        --old-blueprint "$oldBlueprint"
+                    break
                 fi
-                if ! grep -q "$systemConfig" "${genRecord}"
-                then
-                    printf "%s\n" "$systemConfig" >> '${genRecord}'
-                fi
+            done
+        '';
+    };
+
+    config.systemd.targets."lny-activate" = {
+        wantedBy = [ "multi-user.target" ];
+        wants = usersWithLny
+            # 1. Get usernames
+            |> mapAttrsToList (_: v: v.name)
+            # 2. Template
+            |> map (name: "lny@${name}.service");
+        partOf = [ "sysinit-reactivation.target" ];
+    };
+
+    config.systemd.services."lny-record-prevgen" = {
+        after = [ "lny-activate.target" ];
+        wantedBy = [ "multi-user.target" ];
+        partOf = [ "sysinit-reactivation.target" ];
+        serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+        };
+        script = ''
+            newGen="$(readlink -f "/run/current-system")"
+            if ! grep -q "$newGen" "${genRecord}"; then
+                echo "Writing new generation pat $newGen to ${genRecord}"
+                printf "%s\n" "$newGen" >> '${genRecord}'
             fi
         '';
     };
 
-    # generate systemd service to run lny
-    config.systemd.services =
-    # config.passthru.wattt =
-        config.users.users
-        # 1. select users who configured lny
-        |> filterAttrs ( _: val: val.lny != null )
-        # 2. only interested in their name and homedir
-        |> mapAttrs ( name: val: { username = name; home = val.home; } )
-        |> attrValues
-        # 3. generate systemd service
-        |> map ( val: val // rec {
-            runner = let
-                blueprintName = blueprintNameOf val.username;
-                lnyBin =
-                    lib.getOutput "lny" pkgs.tsuki.inori
-                    |> ( it: lib.getExe' it "lny" );
-            in ''
-                # derived from home-manager
-                eval "$( XDG_RUNTIME_DIR=''${XDG_RUNTIME_DIR:-/run/user/$UID} \
-                    systemctl --user show-environment 2> /dev/null \
-                    | sed -n '/^XDG/p' \
-                    | sed 's/^/export /g' )"
-
-                currGen="$(readlink -f "/run/current-system")"
-                newBlueprint="${config.environment.etc
-                    .${blueprintName}.source}"
-
-                if [[ ! -f "${genRecord}" ]]
-                then
-                    echo "${genRecord} does not exist"
-                    exit 1
-                fi
-
-                if [[ ! -s "${genRecord}" ]]
-                then
-                    "${lnyBin}" --new-blueprint "$newBlueprint"
-                    exit 0
-                fi
-
-                # reverse order, and ignore current generation
-                for sysGen in $(tac "${genRecord}" | grep -v "$currGen")
-                do
-                    test ! -d "$sysGen" && continue
-
-                    oldBlueprint="$sysGen/etc/${blueprintName}"
-                    if [[ -f "$oldBlueprint" ]]
-                    then
-                        "${lnyBin}" \
-                            --new-blueprint "$newBlueprint" \
-                            --old-blueprint "$oldBlueprint"
-                        break
-                    fi
-                done
-            '';
-            service = {
-                description = "lny for ${val.username}";
-                environment = { RUST_LOG="trace"; };
-                script = runner;
-                before = [ "systemd-user-sessions.service" ];
-                stopIfChanged = false;
-                path = [
-                    pkgs.gnused pkgs.gnugrep
-                    config.systemd.package
-                ];
-                unitConfig = {
-                    RequiresMountsFor = val.home;
-                };
-                serviceConfig = {
-                    Type = "oneshot";
-                    WorkingDirectory = val.home;
-                    TimeoutStartSec = "1m";
-                    User = val.username;
-                };
-                wantedBy = [ "multi-user.target" ];
-            };
-        } )
-        # 4. generate systemd service config
-        |> map ( val: nameValuePair "lny-${val.username}" val.service )
-        |> listToAttrs
-    ;
-
     config.services.logrotate.settings = {
         "${genRecord}" = {
             rotate = 0;
-            size = "512k";
+            size = "64k";
         };
     };
 

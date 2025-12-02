@@ -45,4 +45,5 @@
 
     xdg_config."harper-ls/dictionary.txt".src =
         "${tsukiObservatory}/.harper-dictionary.txt";
+
 }

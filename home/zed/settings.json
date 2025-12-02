@@ -10,7 +10,7 @@
     "agent": {
         "inline_assistant_model": {
             "provider": "openrouter",
-            "model": "qwen/qwen3-235b-a22b-2507"
+            "model": "x-ai/grok-4.1-fast:free"
         },
         "default_model": {
             "provider": "openrouter",
