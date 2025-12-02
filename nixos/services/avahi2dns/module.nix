@@ -3,6 +3,7 @@
 let
 
     selfCfg = config.services.avahi2dns;
+    avahiCfg = config.services.avahi;
 
     avahiService =
         config.systemd.services.avahi-daemon.name;
@@ -19,7 +20,7 @@ in
         };
     };
 
-    config = lib.mkIf selfCfg.enable {
+    config = lib.mkIf (avahiCfg.enable && selfCfg.enable) {
         systemd.services."avahi2dns" = {
             requires = [ avahiService ];
             after = [ avahiService ];

@@ -2,6 +2,10 @@
 
 {
 
+    imports = [
+        ./id.nix
+    ];
+
     boot.initrd = {
         systemd.enable = true;
     };

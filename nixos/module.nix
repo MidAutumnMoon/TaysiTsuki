@@ -7,7 +7,8 @@
     i18n.defaultLocale = "en_US.UTF-8";
 
     system = {
-        # etc.overlay.enable = true;
+        etc.overlay.enable = true;
+        etc.overlay.mutable = false;
         tools.nixos-generate-config.enable = false;
         # forbiddenDependenciesRegexes = [ "perl" ];
         disableInstallerTools = true;

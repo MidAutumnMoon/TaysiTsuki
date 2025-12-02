@@ -18,4 +18,8 @@ in {
             denyInterfaces = [ tailscaleIface ];
         };
 
+    systemd.services.avahi-daemon = {
+        serviceConfig.ConfigurationDirectory = lib.mkForce [];
+    };
+
 }

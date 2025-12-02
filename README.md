@@ -2,9 +2,9 @@
 
 <sub>P</sub>i<sup>v</sup>o<sub>t </sub>A<sub>w</sub>a<sup>y</sup>
 
-## Use Tsuki's Binary Cache
+## Use Binary Cache
 
-Tsuki's binary cache is hosted using [Cachix](https://www.cachix.org/),
+The binary cache is hosted using [Cachix](https://www.cachix.org/),
 
 1. Add `https://nuirrce.cachix.org` to substituter list
 2. Add pubkey `nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk=`
@@ -19,3 +19,6 @@ Tsuki's binary cache is hosted using [Cachix](https://www.cachix.org/),
 ### Setup Cachix
 1. Obtain the token from Cachix dashboard.
 2. Put the token in a secret named `CACHIX_AUTH_TOKEN`.
+
+## Notes on Spinning Up New Machine
+1.

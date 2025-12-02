@@ -14,11 +14,6 @@
     services.caddy.enable = true;
     services.avahi.enable = true;
 
-    # services.scx = {
-    #     enable = true;
-    #     scheduler = "scx_bpfland";
-    # };
-
     #
     # Programs
     #
@@ -89,9 +84,7 @@
          KEYBOARD_KEY_90005=btn_middle
     '';
 
-    sops.age.sshKeyPaths = [
-        "/persist/etc/ssh/ssh_host_ed25519_key"
-    ];
+    boot.machineId = "4918e038ffe84b618de01b10861eca7f";
 
     hardware = {
         cpu.amd.updateMicrocode = true;

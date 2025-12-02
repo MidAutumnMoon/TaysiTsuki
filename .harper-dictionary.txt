@@ -46,6 +46,7 @@ nixos
 nixosConfigurations
 nixpkgs
 par2archive
+pubkey
 rclone
 repl
 repls
