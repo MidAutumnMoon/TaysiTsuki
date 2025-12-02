@@ -10,8 +10,6 @@
     fonts.fontconfig.enable = false;
     documentation.man.enable = false;
 
-    sops.age.sshKeyPaths = [
-        "/etc/ssh/ssh_host_ed25519_key"
-    ];
+    boot.machineId = "76b74e865ccb465e97070c85bf39b1c2";
 
 }

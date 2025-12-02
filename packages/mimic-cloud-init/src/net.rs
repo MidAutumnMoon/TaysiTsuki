@@ -8,8 +8,7 @@ use anyhow::Result as AnyResult;
 use anyhow::ensure;
 
 static SYSTEMD_NETWORK_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
-    // indent
-    PathBuf::from("/etc/systemd/network")
+    PathBuf::from("/run/systemd/network")
 });
 
 const PREFIX: &str = "00-mimic-cloud-init";

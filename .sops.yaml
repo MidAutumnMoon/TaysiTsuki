@@ -3,7 +3,7 @@ keys:
   - &me "age17lvnmh99feams2pvfljw34k5s705uk89x6g26r4ml85yu0h2q9uswpmjm6"
   - &ren "age1rlhnksa8qplfkdecmnsr5v9nfjm3vnagxrertmz2z6gl0sjxr9rqf580cg"
   - &phia "age1n8syamacyke5y7nczgh85ftg5u5fm28zlsxdfjgesp5wq3n8upqs8532tl"
-  - &uk-01 "age1068nwpttaggue0f2tstmaufl7rmvxscysg53r792862tvatdcvhs0vlmhz"
+  - &uk-01 "age1y5gnuyfwgcsgqqjdse9p257jpx7zfn9jf6l3zygcraxxfavuspnshguumg"
   - &sjc-01 "age1yz293dkqg2uf0ddcf5efdxky3mlcvqpdlprpp9kaj4sqnynngveqjcwqhe"
 
 # N.B. path_regex is matched relative to .sops.yaml,
@@ -15,6 +15,9 @@ creation_rules:
 
   - path_regex: machine/sjc-01/.*
     age: [*me, *sjc-01]
+
+  - path_regex: machine/uk-01/.*
+    age: [*me, *uk-01]
 
   - path_regex: machine/ren/.*
     age: [*me, *ren]
