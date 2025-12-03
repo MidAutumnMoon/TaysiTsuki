@@ -1,4 +1,4 @@
-{ modulesPath, ... }:
+{ lib, modulesPath, ... }:
 
 {
 
@@ -11,5 +11,6 @@
     documentation.man.enable = false;
 
     boot.machineId = "76b74e865ccb465e97070c85bf39b1c2";
+    system.etc.overlay.mutable = lib.mkForce true;
 
 }
