@@ -31,4 +31,7 @@ creation_rules:
       - *phia
       - *ren
 
+  - path_regex: home/.*
+    age: [*me]
+
   - age: [*me, *ren, *phia, *uk-01, *sjc-01]

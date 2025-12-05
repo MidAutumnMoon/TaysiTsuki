@@ -7,10 +7,11 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+    "colorize_brackets": true,
     "agent": {
         "inline_assistant_model": {
             "provider": "openrouter",
-            "model": "deepseek/deepseek-v3.2"
+            "model": "minimax/minimax-m2"
         },
         "default_model": {
             "provider": "openrouter",
