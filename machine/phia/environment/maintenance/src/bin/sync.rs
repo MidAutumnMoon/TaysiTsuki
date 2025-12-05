@@ -31,11 +31,14 @@ enum SyncDirection {
 }
 
 fn main() -> Result<()> {
-    let direction = match &std::env::args().collect::<Vec<_>>()[..] {
-        [_exe] => bail!("sync up or down"),
-        [_exe, arg] => SyncDirection::from_str(arg)
-            .context("Failed to parse argument")?,
-        _ => bail!("too many arguments"),
+    let args: Vec<String> = std::env::args().collect();
+    let (direction, extra_args) = match args.as_slice() {
+        [_exe, arg, rem @ ..] => (
+            SyncDirection::from_str(arg)
+                .context("Failed to parse argument")?,
+            rem,
+        ),
+        _ => bail!("sync up or down"),
     };
 
     ensure! { POOL.is_dir(),
@@ -60,6 +63,7 @@ fn main() -> Result<()> {
     Command::new(",rclone")
         .arg("sync")
         .args(&exclude_opts)
+        .args(extra_args)
         .args(&sync_opts)
         .spawn()
         .context("Failed to spawn ,rclone")?

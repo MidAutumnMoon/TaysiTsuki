@@ -11,7 +11,7 @@
     "agent": {
         "inline_assistant_model": {
             "provider": "openrouter",
-            "model": "minimax/minimax-m2"
+            "model": "x-ai/grok-4.1-fast"
         },
         "default_model": {
             "provider": "openrouter",
