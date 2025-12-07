@@ -2,8 +2,11 @@
 
 let
 
-    for = hostnames:
-        lib.mkIf (lib.elem config.networking.hostName hostnames);
+    for = machines:
+        map (m: m.hostname) machines
+        |> (ms: lib.mkIf (
+            lib.elem config.networking.hostName ms
+        ));
 
     inherit (config.lore)
         machines
@@ -19,7 +22,7 @@ lib.mkMerge [
         sops.defaultSopsFile = ./default.sops.nix;
     }
 
-    (for [ machines.ren.hostname ] {
+    (for [ machines.ren ] {
         sops.secrets = {
             "key--ssh--teapot" = {
                 sopsFile = ./ren/key--ssh--teapot.sops.yml;
@@ -37,7 +40,7 @@ lib.mkMerge [
         };
     })
 
-    (for (with machines; [ ren.hostname phia.hostname ]) {
+    (for (with machines; [ ren phia ]) {
         sops.secrets."rclone.conf" = {
             sopsFile = ./mixed/rclone;
             format = "binary";
