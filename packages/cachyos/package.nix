@@ -20,7 +20,7 @@ rec {
     kernelConfig = fetchFromGitHub {
         owner = "CachyOS";
         repo = "linux-cachyos";
-        rev = "b76feee309500d7ba6a955760ed4a8e698902ba3";
+        rev = "5c8cf82f0ea40b72aec3fcbc58b449ca3b7cd372";
         sha256 = "sha256-LgoguRNeGJjKQ5SSYF3ljk8CCudkSRbRyWGy0rFDGPk=";
         postFetch = ''
             hold="$(mktemp -d)"
@@ -39,13 +39,13 @@ rec {
     # TODO: implement subpackages in maintainance tool
     nixUpdateTrick1 = stdenv.mkDerivation {
         pname = "cachyos-kernel-patches";
-        version = "unstable";
+        version = "0-unstable-2025-12-08";
         src = kernelPatches;
         buildCommand = "ls $src > $out";
     };
     nixUpdateTrick2 = stdenv.mkDerivation {
         pname = "cachyos-kernel-config";
-        version = "unstable";
+        version = "6.17.9-unstable-2025-12-09";
         src = kernelConfig;
         buildCommand = "cat $src > $out";
     };
