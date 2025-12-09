@@ -25,7 +25,7 @@
     boot.kernelParams = [ "amd_pstate=active" ];
 
     boot.kernelPackages =
-        lib.mkForce pkgs.linuxPackages_cachyos;
+        pkgs.tsuki.cachyos.kernel.packages;
 
     boot.kernel.sysctl = {
         "kernel.dmesg_restrict" = 0;

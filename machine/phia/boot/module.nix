@@ -10,7 +10,7 @@
         "sd_mod"
     ];
 
-    boot.kernelPackages = lib.mkForce pkgs.linuxPackages_cachyos-lts;
+    boot.kernelPackages = pkgs.linuxPackages;
 
     boot.loader = {
         systemd-boot.enable = true;

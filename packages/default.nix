@@ -30,11 +30,6 @@ in rec {
         sops-install-secrets
     ;
 
-    inherit (legacyFrom "nyx")
-        linuxPackages_cachyos
-        linuxPackages_cachyos-lts
-    ;
-
     # tangled = {
     #     inherit (pkgsFrom "tangled")
     #         knot

@@ -53,6 +53,7 @@ let
         go_2 = "Go_2";
         small_1 = "Small_Trivial_1";
         rust_1 = "Rust_1";
+        kernel = "Cachy_Kernel";
     };
 
 in
@@ -174,20 +175,32 @@ allUnique <| withValidate <|
     }
 
     #
+    # Cachyos Kernel
+    #
+    {
+        attr = tsuki "cachyos.kernel";
+        group = gs.kernel;
+    }
+    {
+        attr = tsuki "cachyos.nixUpdateTrick1";
+        group = gs.kernel;
+        update.unstable_branch = true;
+    }
+    {
+        attr = tsuki "cachyos.nixUpdateTrick2";
+        group = gs.kernel;
+        update.unstable_branch = true;
+    }
+
+    #
     # others to make sure being cached
     #
     { attr = "nixd"; group = "Nixd"; }
     { attr = "lix"; group = "Lix"; }
     { attr = "colmena"; group = "Colmena"; }
     { attr = tsuki "zellij"; group = "Zellij"; }
-    {
-        attr = "linuxPackages_cachyos.kernel";
-        group = "CachyKernel";
-    }
-    {
-        attr = "linuxPackages_cachyos-lts.kernel";
-        group = "CachyKernelLTS";
-    }
+
+
 ]
 
 ++
