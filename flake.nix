@@ -30,18 +30,6 @@
             inputs.nix-github-actions.follows = "empty";
         };
 
-        nyx = {
-            url = "github:chaotic-cx/nyx";
-            inputs.nixpkgs.follows = "nixpkgs";
-            inputs.home-manager.follows = "empty";
-            inputs.jovian = {
-                inputs.nixpkgs.follows = "nixpkgs";
-                inputs.nix-github-actions.follows = "empty";
-            };
-            inputs.flake-schemas.follows = "empty";
-            inputs.rust-overlay.follows = "rust-overlay";
-        };
-
         # tangled = {
         #     url = "git+https://tangled.org/tangled.org/core?shallow=1";
         #     inputs = {
@@ -115,7 +103,6 @@
                     sops-nix.nixosModules.default
                     preservation.nixosModules.default
                     ./lore/module.nix
-                    self.nixosModules.only-nyx-cache
                 ]
                 ++ (lib.listAllModules ./nixos)
                 ++ (lib.listAllModules ./sops);
@@ -135,21 +122,6 @@
                 ++ [ flakes.disko.nixosModules.default ]
             );
         };
-
-        # Remove nix-community cache and future ones.
-        nixosModules.only-nyx-cache = { lib, ... }:
-            let
-                isChaotic = lib.strings.hasInfix "chaotic-nyx";
-                substrs = flakes.nyx.nixConfig.extra-substituters;
-                keys = flakes.nyx.nixConfig.extra-trusted-public-keys;
-            in {
-                nix.settings = {
-                    substituters =
-                        lib.mkAfter <| lib.filter isChaotic substrs;
-                    trusted-public-keys =
-                        lib.mkAfter <| lib.filter isChaotic keys;
-                };
-            };
 
         colmenaHive =
             {
