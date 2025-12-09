@@ -1,10 +1,10 @@
-{ lib, pkgs, ... }:
+{ pkgs, ... }:
 
 {
 
     boot = {
         loader.grub.enable = true;
-        kernelPackages = lib.mkForce pkgs.linuxPackages_cachyos-lts;
+        kernelPackages = pkgs.tsuki.cachyos.kernel.packages;
     };
 
     boot.kernelParams = [

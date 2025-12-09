@@ -12,8 +12,6 @@
 
     boot.loader.grub.enable = lib.mkDefault false;
 
-    boot.kernelPackages = pkgs.linuxPackages_latest;
-
     boot.kernel.sysctl = {
         "kernel.unprivileged_bpf_disabled" = 1;
         "dev.tty.ldisc_autoload" = 0;
@@ -62,4 +60,24 @@
         };
     };
 
+    boot.initrd.includeDefaultModules = false;
+
+    boot.initrd.availableKernelModules = [
+        "ahci"
+        "nvme"
+        "uhci_hcd"
+        "ehci_hcd"
+        "ehci_pci"
+        "ohci_hcd"
+        "ohci_pci"
+        "xhci_hcd"
+        "xhci_pci"
+        "usbhid"
+        "hid_generic"
+        "atkbd"
+    ];
+
+    boot.initrd.kernelModules = [
+        "dm_mod"
+    ];
 }
