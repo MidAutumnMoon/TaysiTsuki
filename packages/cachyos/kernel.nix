@@ -62,6 +62,8 @@ let
         sed -i '/^CONFIG_REGULATOR/d' config
         sed -i '/^CONFIG_COMEDI/d' config
         # sed -i '/^CONFIG_SENSORS/d' config
+        sed -i '/^CONFIG_BLK_DEV/d' config
+        sed -i '/^CONFIG_SCSI_/d' config
         # AI: merge multiple empty lines into one
         sed -i '/^$/N;/\n$/D' config
         cp config "$out"
