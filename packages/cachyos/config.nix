@@ -34,6 +34,20 @@ with lib.kernel; flattenKConf {
         CC_OPTIMIZE_FOR_PERFORMANCE_O3 = yes;
         TCP_CONG_BBR = yes;
         DEFAULT_BBR = yes;
+        PCIE_MICROCHIP_HOST = no;
+        PCI_MESON = no;
+        MTD = f no;
+        X86_EXTENDED_PLATFORM = no;
+        MODULE_COMPRESS_XZ = f no;
+        MODULE_COMPRESS_ZSTD = f yes;
+    };
+
+    hacking = {
+        RANDSTRUCT_PERFORMANCE = yes;
+        DEBUG_INFO_BTF = f no;
+        DEBUG_INFO_REDUCED = f yes;
+        DEBUG_LIST = f no;
+        SLUB_DEBUG = no;
     };
 
     cachyos = {
@@ -155,6 +169,31 @@ with lib.kernel; flattenKConf {
         QCOM_PBS = no;
         HSI = no;
         PTP_1588_CLOCK = no;
+        XILINX_SDFEC = no;
+        VMWARE_VMCI = no;
+        MISC_RP1 = no;
+        GP_PCI1XXXX = no;
+        ATH11K_PCI = no;
+        POWER_SEQUENCING = no;
+        MAX31827 = no;
+        GREYBUS = no;
+        EXTCON_USBC_TUSB320 = no;
+        EXTCON_SM5502 = no;
+        EXTCON_RT8973A = no;
+        LAN966X_OIC = no;
+        IPACK_BUS = no;
+        BCM_KONA_USB2_PHY = no;
+        PHY_OCELOT_SERDES = no;
+        PHY_MAPPHONE_MDM6600 = no;
+        PHY_LAN966X_SERDES = no;
+        PHY_CADENCE_SALVO = no;
+        PHY_CADENCE_SIERRA = no;
+        PHY_CADENCE_DPHY_RX = no;
+        PHY_CADENCE_DPHY = no;
+        PHY_CADENCE_TORRENT = no;
+        PHY_NXP_PTN3222 = no;
+        DWC_PCIE_PMU = no;
+        FSI = no;
     };
 
     multimedia = {
@@ -182,6 +221,15 @@ with lib.kernel; flattenKConf {
         ROMFS_FS = no;
         UFS_FS = no;
         MINIX_FS = no;
+        F2FS_FS = f no;
+        ADFS_FS = no;
+        BFS_FS = no;
+        EFS_FS = no;
+        VXFS_FS = no;
+        HPFS_FS = no;
+        QNX4FS_FS = no;
+        QNX6FS_FS = no;
+        EROFS_FS_PCPU_KTHREAD = yes;
     };
 
     uselessUsbDrivers = {
@@ -212,6 +260,9 @@ with lib.kernel; flattenKConf {
         USB_EG20T = no;
         USB_PULSE8_CEC = no;
         USB_RAINSHADOW_CEC = no;
+        USB_ISIGHTFW = no;
+        USB_TRANCEVIBRATOR = no;
+        USB_IOWARRIOR = no;
     };
 
     uselessBlockDevices = {
@@ -229,6 +280,11 @@ with lib.kernel; flattenKConf {
         SATA_INIC162X = no;
         SATA_ACARD_AHCI = no;
         SATA_SIL24 = no;
+        PATA_CMD640_PCI = no;
+        PATA_HPT3X3 = no;
+        PATA_CYPRESS = no;
+        PATA_ALI = no;
+        SATA_VITESSE = no;
     };
 
     uselessInput = {
@@ -329,6 +385,7 @@ with lib.kernel; flattenKConf {
         BACKLIGHT_QCOM_WLED = no;
         DRM_XE = no;
         DRM_I915 = no;
+        AGP = f no;
     };
 
     uselessNet = {
@@ -662,6 +719,14 @@ with lib.kernel; flattenKConf {
         SND_SOC_AMD_ST_ES8336_MACH = no;
         SND_SOC_AMD_ACP3x = no;
         SND_SOC_AMD_LEGACY_MACH = no;
+        SND_AD1889 = no;
+        SND_ALS300 = no;
+        SND_BT87X = no;
+        SND_LAYLA20 = no;
+        SND_HDA_SCODEC_CS35L41_SPI = no;
+        SND_HDA_SCODEC_CS35L56_I2C = no;
+        SND_HDA_SCODEC_CS35L56_SPI = no;
+        SND_HDA_SCODEC_TAS2781_I2C = no;
     };
 
     uselessMultifunction  = {

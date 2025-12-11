@@ -14,7 +14,11 @@ rec {
         owner = "CachyOS";
         repo = "kernel-patches";
         rev = "5f5c847f252b91bc7127af8a3430b1153c28533d";
-        sha256 = "sha256-GJ4hvp2Pyea+BXs845PxZFVlrU6KrzKsE6zfrZFae+I=";
+        sha256 = "sha256-hlC2xkDBOVEEqYKo93MCeBV42/AyUGKzPIsxD6g4umU=";
+        postFetch = ''
+            find "$out" -type f ! -name "0001-cachyos-base-all.patch" -delete
+            find "$out" -type d -empty -delete
+        '';
     };
 
     kernelConfig = fetchFromGitHub {

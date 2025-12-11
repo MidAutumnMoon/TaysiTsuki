@@ -64,6 +64,7 @@ let
         # sed -i '/^CONFIG_SENSORS/d' config
         sed -i '/^CONFIG_BLK_DEV/d' config
         sed -i '/^CONFIG_SCSI_/d' config
+        sed -i '/^CONFIG_DEBUG_/d' config
         # AI: merge multiple empty lines into one
         sed -i '/^$/N;/\n$/D' config
         cp config "$out"
@@ -98,15 +99,21 @@ let
 
     kernel = buildLinux {
         pname = "linux-cachyos";
-        inherit (baseKernel) version;
         src = patchedSrc;
+        version = lib.versions.pad 3 "${baseKernel.version}-cachyos";
+
         inherit defconfig;
 
         # deal with "error: unused option"
         # stupid nixpkgs default
         ignoreConfigErrors = true;
 
-        structuredExtraConfig = myConfig;
+        structuredExtraConfig =
+            myConfig
+            // (with lib.kernel; {
+                LOCALVERSION_AUTO = no;
+                LOCALVERSION = freeform "-cachyos";
+            });
 
         extraPassthru = {
             packages = linuxKernel.packagesFor kernel;
