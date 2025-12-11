@@ -65,6 +65,11 @@ let
         sed -i '/^CONFIG_BLK_DEV/d' config
         sed -i '/^CONFIG_SCSI_/d' config
         sed -i '/^CONFIG_DEBUG_/d' config
+        sed -i '/^CONFIG_.*_PHY=/d' config
+        sed -i '/^CONFIG_INPUT_/d' config
+        sed -i '/^CONFIG_JOYSTICK_/d' config
+        sed -i '/^CONFIG_PTP_1588_CLOCK/d' config
+        sed -i '/^CONFIG_ATH/d' config
         # AI: merge multiple empty lines into one
         sed -i '/^$/N;/\n$/D' config
         cp config "$out"
@@ -113,6 +118,8 @@ let
             // (with lib.kernel; {
                 LOCALVERSION_AUTO = no;
                 LOCALVERSION = freeform "-cachyos";
+                LOGO = lib.mkForce yes;
+                LOGO_LINUX_CLUT224 = yes;
             });
 
         extraPassthru = {
