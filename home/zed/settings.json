@@ -11,7 +11,7 @@
     "agent": {
         "inline_assistant_model": {
             "provider": "openrouter",
-            "model": "x-ai/grok-4.1-fast"
+            "model": "mistralai/devstral-2512:free"
         },
         "default_model": {
             "provider": "openrouter",
