@@ -88,6 +88,7 @@ in
                 let inherit ( config.sops ) secrets; in
                 [ "private_config:${secrets.conf--sing.path}" ];
             DynamicUser = true;
+            Nice = -10;
         };
         useHardening = true;
         wantedBy = [ "multi-user.target" ];
