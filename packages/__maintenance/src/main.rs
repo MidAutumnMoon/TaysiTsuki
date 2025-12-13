@@ -58,7 +58,7 @@ enum App {
     /// Build `NixOS` system.
     #[command(name = "nixos")]
     NixOS {
-        /// List all hosts from nixos config in flake.
+        /// List all hosts from NixOS config in flake.
         /// The output is also a JSON array.
         #[arg(long, short)]
         list_hostnames: bool,

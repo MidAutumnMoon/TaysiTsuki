@@ -87,25 +87,39 @@ pub struct Update {
 
     /// Skip the update.
     pub pinned: Option<bool>,
-    // subpackages: Vec<Self>,
+
+    /// List of subpackages to also update, the attr name of
+    /// the parent package is prepended to it.
+    pub subpackages: Option<Vec<String>>,
 }
 
 impl Update {
     #[inline]
-    #[expect(clippy::option_if_let_else)]
     pub fn as_nix_update_args(&self) -> Vec<String> {
+        let mut accu = vec![];
+
         if let Some(r) = &self.version_regex {
-            vec!["--version-regex".into(), r.into()]
+            accu.push("--version-regex".into());
+            accu.push(r.into());
         } else if let Some(b) = &self.unstable_branch
             && *b
         {
-            vec!["--version".into(), "branch".into()]
+            accu.push("--version".into());
+            accu.push("branch".into());
         } else if let Some(b) = &self.preview_release
             && *b
         {
-            vec!["--version".into(), "unstable".into()]
-        } else {
-            vec![]
+            accu.push("--version".into());
+            accu.push("unstable".into());
         }
+
+        if let Some(subs) = &self.subpackages {
+            for p in subs {
+                accu.push("--subpackage".into());
+                accu.push(p.into());
+            }
+        }
+
+        accu
     }
 }

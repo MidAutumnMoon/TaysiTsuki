@@ -182,7 +182,7 @@ fn update_one_package(
                     if s.trim().is_empty() {
                         None
                     } else {
-                        // Add markdown heading so that it looks nicer in
+                        // Add Markdown heading so that it looks nicer in
                         // pull request.
                         Some(format!("## {s}"))
                     }
