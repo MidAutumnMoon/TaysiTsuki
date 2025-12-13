@@ -20,7 +20,7 @@ in
         script = ''
             touch "disable-update-check.txt"
             exec "${lib.getExe pkgs.jdk25_headless}" \
-                -XX:SoftMaxHeapSize=512M \
+                -XX:SoftMaxHeapSize=256M \
                 -XX:ZUncommitDelay=30 \
                 -XX:+UseZGC -XX:+ZGenerational \
                 -XX:+UseStringDeduplication \
