@@ -22,7 +22,10 @@
         "cifs"
     ];
 
-    boot.kernelParams = [ "amd_pstate=active" ];
+    boot.kernelParams = [
+        "amd_pstate=active"
+        "preempt=full"
+    ];
 
     boot.kernelPackages =
         pkgs.tsuki.cachyos.kernel.packages;

@@ -40,6 +40,8 @@ with lib.kernel; flattenKConf {
         X86_EXTENDED_PLATFORM = no;
         MODULE_COMPRESS_XZ = f no;
         MODULE_COMPRESS_ZSTD = f yes;
+        INPUT_MISC = yes;
+        INPUT_UINPUT = module;
     };
 
     hacking = {
@@ -196,7 +198,6 @@ with lib.kernel; flattenKConf {
         PHY_NXP_PTN3222 = no;
         DWC_PCIE_PMU = no;
         FSI = no;
-        INPUT_MISC = no;
         INPUT_TABLET = no;
         INPUT_TOUCHSCREEN = f no;
         JOYSTICK_IFORCE = no;
@@ -242,7 +243,50 @@ with lib.kernel; flattenKConf {
         MHI_BUS = no;
         MHI_BUS_EP = no;
         MOXTET = no;
-        PECI = no;
+        INPUT_AD714X = no;
+        INPUT_ATMEL_CAPTOUCH = no;
+        INPUT_AW86927 = no;
+        INPUT_BMA150 = no;
+        INPUT_E3X0_BUTTON = no;
+        INPUT_PCSPKR = no;
+        INPUT_MAX77650_ONKEY = no;
+        INPUT_MMA8450 = no;
+        INPUT_APANEL = no;
+        INPUT_GPIO_BEEPER = no;
+        INPUT_GPIO_DECODER = no;
+        INPUT_GPIO_VIBRA = no;
+        INPUT_CPCAP_PWRBUTTON = no;
+        INPUT_ATLAS_BTNS = no;
+        INPUT_ATI_REMOTE2 = no;
+        INPUT_KEYSPAN_REMOTE = no;
+        INPUT_KXTJ9 = no;
+        INPUT_POWERMATE = no;
+        INPUT_YEALINK = no;
+        INPUT_CM109 = no;
+        INPUT_TPS65218_PWRBUTTON = no;
+        INPUT_TPS65219_PWRBUTTON = no;
+        INPUT_TWL4030_PWRBUTTON = no;
+        INPUT_TWL4030_VIBRA = no;
+        INPUT_TWL6040_VIBRA = no;
+        INPUT_PCF8574 = no;
+        INPUT_PWM_BEEPER = no;
+        INPUT_PWM_VIBRA = no;
+        INPUT_RK805_PWRKEY = no;
+        INPUT_GPIO_ROTARY_ENCODER = no;
+        INPUT_DA7280_HAPTICS = no;
+        INPUT_ADXL34X = no;
+        INPUT_IBM_PANEL = no;
+        INPUT_IMS_PCU = no;
+        INPUT_IQS269A = no;
+        INPUT_IQS626A = no;
+        INPUT_IQS7222 = no;
+        INPUT_CMA3000 = no;
+        INPUT_IDEAPAD_SLIDEBAR = no;
+        INPUT_SOC_BUTTON_ARRAY = no;
+        INPUT_DRV260X_HAPTICS = no;
+        INPUT_DRV2665_HAPTICS = no;
+        INPUT_DRV2667_HAPTICS = no;
+        INPUT_STPMIC1_ONKEY = no;
     };
 
     multimedia = {
