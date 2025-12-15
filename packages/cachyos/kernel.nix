@@ -16,15 +16,17 @@
 
 let
 
+    localVer = "-cachyos";
+
     majorMinor = with lib;
         let parts = versions.splitVersion baseKernel.version; in
         "${elemAt parts 0}.${elemAt parts 1}";
 
-    patchForThisVersion =
-        runCommand "cachyos-patch-${majorMinor}" {} ''
-            patchName="0001-cachyos-base-all.patch"
-            patchPath="${kernelPatches}/${majorMinor}/all/$patchName"
-            cp "$patchPath" "$out"
+    fetchPatch = patchPath:
+        runCommand "cachyos-${majorMinor}-${patchPath}" {} ''
+            cp \
+                "${kernelPatches}/${majorMinor}/${patchPath}" \
+                "$out"
         '';
 
     defconfig = "cachyos_defconfig";
@@ -89,13 +91,17 @@ let
                     filter (p: !hasInfix "randstruct" p);
             in
             (rmRandstruct baseKernel.patches)
-            ++ [ patchForThisVersion ];
+            ++ [
+                (fetchPatch "/all/0001-cachyos-base-all.patch")
+                (fetchPatch "/sched/0001-bore-cachy.patch")
+            ];
 
         postPatch = ''
             for dir in arch/*/configs; do
                 install -Dm644 "${kconfigClearence}" "$dir/${defconfig}"
             done
         '';
+
         installPhase = ''
             mkdir -pv "$out"
             rsync -avhP "./" "$out/"
@@ -105,7 +111,7 @@ let
     kernel = buildLinux {
         pname = "linux-cachyos";
         src = patchedSrc;
-        version = lib.versions.pad 3 "${baseKernel.version}-cachyos";
+        version = lib.versions.pad 3 "${baseKernel.version}${localVer}";
 
         inherit defconfig;
 
@@ -117,9 +123,7 @@ let
             myConfig
             // (with lib.kernel; {
                 LOCALVERSION_AUTO = no;
-                LOCALVERSION = freeform "-cachyos";
-                LOGO = lib.mkForce yes;
-                LOGO_LINUX_CLUT224 = yes;
+                LOCALVERSION = freeform localVer;
             });
 
         extraPassthru = {
