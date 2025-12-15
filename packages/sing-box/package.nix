@@ -1,50 +1,43 @@
 {
     lib,
-    buildGoModule,
-    fetchFromGitHub,
+    stdenv,
+    tsuki,
     installShellFiles,
+    autoPatchelfHook,
 }:
 
-buildGoModule ( drvSelf: {
+stdenv.mkDerivation (drvSelf: {
 
     pname = "sing-box";
-    version = "1.13.0-alpha.28-unstable-2025-12-13";
+    version = "1.13.0-alpha.29";
 
-    src = fetchFromGitHub {
+    src = tsuki.fetchGitHubRelease {
         owner = "SagerNet";
         repo = "sing-box";
-        rev = "8769d1344b120bb2a422c5e00d03ca11052b8b8a";
-        hash = "sha256-vxojLIAz8OlI/qr1E+sr+mag2CAJ2k8C5Bwi9dqpKYc=";
+        tag = "v${drvSelf.version}";
+        file = "sing-box-${drvSelf.version}-linux-amd64-musl.tar.gz";
+        hash = "sha256-G1PMB7WPMxPhaLQVlf0d6MuA6IS+4soKLIxmx5bdX74=";
     };
 
-    vendorHash = "sha256-AMsyZWuX9fCz121DdqL+r0D2P9iAXhA+Slm27o4wLis=";
-
-    subPackages = [
-        "cmd/sing-box"
+    nativeBuildInputs = [
+        installShellFiles
+        autoPatchelfHook
     ];
 
-    tags = [
-        "with_acme"
-        "with_quic"
-        "with_clash_api"
-        "with_utls"
-        "badlinkname"
-    ];
-
-    ldflags = [
-        "-s"
-        "-X=github.com/sagernet/sing-box/constant.Version=${drvSelf.version}"
-        "-checklinkname=0"
-    ];
-
-    env.GOAMD64 = "v3";
-    env.CGO_ENABLED = 0;
-
-    nativeBuildInputs = [ installShellFiles ];
-
-    postInstall = ''
-        installShellCompletion release/completions/sing-box.{bash,fish,zsh}
-    '';
+    installPhase =
+        let
+            canExe = with stdenv;
+                buildPlatform.canExecute hostPlatform;
+        in ''
+            mkdir -p "$out"
+            install -Dm755 "sing-box" "$out/bin/sing-box"
+        '' + lib.optionalString canExe ''
+            bin="$out/bin/sing-box"
+            installShellCompletion --cmd sing-box \
+                --bash <("$bin" completion bash) \
+                --fish <("$bin" completion fish) \
+                --zsh <("$bin" completion zsh)
+        '';
 
     meta = {
         homepage = "https://sing-box.sagernet.org";
@@ -52,4 +45,5 @@ buildGoModule ( drvSelf: {
         license = lib.licenses.gpl3Plus;
         mainProgram = "sing-box";
     };
-} )
+
+})
