@@ -4,6 +4,8 @@
 
     systemd.services."rclone@" = {
         description = "rclone mount for remote %i";
+        requires = [ "sops-install-secrets.service" ];
+        after = [ "sops-install-secrets.service" ];
         serviceConfig = {
             Type = "notify";
             RuntimeDirectory = "rclone";
