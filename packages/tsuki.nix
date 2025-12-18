@@ -174,6 +174,10 @@ allUnique <| withValidate <|
         attr = "zram-generator";
         group = gs.rust_1;
     }
+    {
+        attr = "sudo-rs";
+        group = gs.rust_1;
+    }
 
     #
     # Cachyos Kernel

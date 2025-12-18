@@ -49,6 +49,12 @@ in rec {
         { rustPlatform = tsuki.rust; }
         { doCheck = false; }; # tests fail on github workflow
 
+    sudo-rs =
+        lib.onceride prev.sudo-rs
+        { rustPlatform = tsuki.rust; }
+        { doCheck = false; }; # tests fail on github workflow
+
+
     localbinbox = callPackage ../home/localbinbox {};
     portableTest = callPackage ./portable/test.nix {};
 
