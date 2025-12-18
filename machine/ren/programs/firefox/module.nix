@@ -156,6 +156,8 @@
         # "network.http.referer.trimmingPolicy" = 2;
         # "network.http.referer.XOriginPolicy" = 2;
         # "network.http.referer.spoofSource" = true;
+        "network.http.max-persistent-connections-per-proxy" = 255; # u8
+        "network.http.max-connections" = 2000;
 
         "pdfjs.enableScripting" = false;
         "pdfjs.firstRun" = false;
