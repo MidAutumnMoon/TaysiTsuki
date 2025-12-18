@@ -40,6 +40,7 @@
         tangledKnotInternal = 9105;
         slskd = 9106;
         slskdWebui = 9107;
+        sillytavern = 9108;
     };
 
     lore.domains = rec {
@@ -71,6 +72,7 @@
             wpad = onRen "wpad";
             navidrome = onRen "music";
             peerban = onRen "peerban";
+            sillytavern = onRen "tv";
 
             # phia services
             torrent_dashboard = onPhia "qbit";
