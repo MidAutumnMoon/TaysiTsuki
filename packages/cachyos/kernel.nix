@@ -114,6 +114,7 @@ let
         version = lib.versions.pad 3 "${baseKernel.version}${localVer}";
 
         inherit defconfig;
+        # autoModules = false;
 
         # deal with "error: unused option"
         # stupid nixpkgs default

@@ -105,7 +105,7 @@ with lib.kernel; flattenKConf {
         DRM_ACCEL_QAIC = no;
         ACCESSIBILITY = f no;
         MACINTOSH_DRIVERS = no;
-        GOOGLE_FIRMWARE = no;
+        GOOGLE_FIRMWARE = f no;
         TARGET_CORE = no;
         SSB = no;
         BCMA = no;
