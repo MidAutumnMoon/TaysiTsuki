@@ -24,7 +24,7 @@ data "sops_file" "token--tailscale" {
 }
 
 data "sops_file" "default_secrets" {
-    source_file = "../secrets/default.sops.yml"
+    source_file = "../sops/default.sops.yml"
 }
 
 locals {
