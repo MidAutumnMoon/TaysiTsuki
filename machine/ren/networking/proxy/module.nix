@@ -2,23 +2,23 @@
 
 let
 
-    inherit ( config.lore )
+    inherit (config.lore)
         ports
         domains
         apps
     ;
 
-    inherit ( apps )
-        homelab
-    ;
-
     clashApiAddr = "127.0.0.1:${toString ports.clashApi}";
 
-in
+in {
 
-{
+    disabledModules = [
+        "services/networking/sing-box.nix"
+    ];
 
-    disabledModules = [ "services/networking/sing-box.nix" ];
+    imports = [
+        ./dashboard.nix
+    ];
 
     sops.secrets =
         let singService = config.systemd.services."sing-box".name; in
@@ -98,32 +98,6 @@ in
             GC_NPROCS = "1";
         };
     };
-
-    services.caddy.virtualHosts."im_418".extraConfig =
-        let
-            wpad = pkgs.writeTextDir "wpad.dat" /*js*/ ''
-                function FindProxyForURL( url, host ) {
-                    return "PROXY ${homelab.proxy.fqdn}:${toString ports.proxy}";
-                }
-            '';
-        in ''
-            @clash_api host ${homelab.clash_dashboard.fqdn}
-            handle @clash_api {
-                handle_path /api* {
-                    reverse_proxy http://${clashApiAddr}
-                }
-                root * ${pkgs.tsuki.metacubexd}
-                file_server
-            }
-
-            @wpad host ${homelab.wpad.fqdn}
-            handle @wpad {
-                @dat path *.dat
-                header @dat Content-Type application/x-ns-proxy-autoconfig
-                root * ${wpad}
-                file_server browse
-            }
-        '';
 
     networking.firewall = {
         allowedTCPPorts = [ ports.proxy ];
