@@ -69,7 +69,6 @@
 
             # ren services
             proxy = onRen "proxy";
-            clash_dashboard = onRen "clash";
             wpad = onRen "wpad";
             navidrome = onRen "music";
             peerban = onRen "peerban";
@@ -90,6 +89,7 @@
         in {
             downloader_dashboard = on "uk-01" "2qbit";
             slskd_dashboard = on "uk-01" "slskd";
+            clash_dashboard = on "ren" "clash";
         };
 
     lore.apps."public" =

@@ -135,6 +135,7 @@ resource "cloudflare_dns_record" "im_418_ts" {
 locals {
     __im_418_ts_services = {
         "music" = "ren",
+        "clash" = "ren",
     }
 }
 
