@@ -44,9 +44,7 @@ in {
                 |> appendElem domains.im_418_ts
                 |> concatMapStringsSep " " ( v: "\"${v}\"" )
                 |> ( v: "[ ${v} ]" );
-        in
-        pkgs.writeText "sing-box-lore.nix"
-        /*nix*/ ''
+        in pkgs.writeText "sing-box-lore.nix" ''
             {
                 listenPort = ${toString ports.proxy};
                 noproxyDomains = ${noproxy};
@@ -94,9 +92,6 @@ in {
         wantedBy = [ "multi-user.target" ];
         requires = [ "sops-install-secrets.service" ];
         after = [ "sops-install-secrets.service" ];
-        environment = {
-            GC_NPROCS = "1";
-        };
     };
 
     networking.firewall = {
@@ -104,8 +99,9 @@ in {
         allowedUDPPorts = [ ports.proxy ];
     };
 
-    boot.kernel.sysctl = {
-        "net.ipv4.tcp_fastopen" = "3";
+    services.tailscale = {
+        useRoutingFeatures = "both";
+        extraSetFlags = [ "--advertise-exit-node" ];
     };
 
 }
