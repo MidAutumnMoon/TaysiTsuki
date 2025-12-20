@@ -27,6 +27,7 @@
 
     lore.ports = {
         proxy = 7890;
+        tproxy = 7891;
         torrent = 9094;
         qbitwebui = 9095;
         clashApi = 9097;
