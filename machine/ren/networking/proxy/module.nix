@@ -18,6 +18,7 @@ in {
 
     imports = [
         ./dashboard.nix
+        ./tproxy.nix
     ];
 
     sops.secrets =
@@ -34,19 +35,20 @@ in {
         let
             noproxy = with lib;
                 apps.homelab
-                |> attrValues |> map ( val: val.fqdn )
+                |> attrValues |> map (val: val.fqdn)
                 |> appendElem "local"
-                |> concatMapStringsSep " " ( v: "\"${v}\"" )
-                |> ( v: "[ ${v} ]" );
+                |> concatMapStringsSep " " (v: "\"${v}\"")
+                |> (v: "[ ${v} ]");
             tailnetDomains = with lib;
                 apps.tailnet
-                |> attrValues |> map ( val: val.fqdn )
+                |> attrValues |> map (val: val.fqdn)
                 |> appendElem domains.im_418_ts
-                |> concatMapStringsSep " " ( v: "\"${v}\"" )
-                |> ( v: "[ ${v} ]" );
+                |> concatMapStringsSep " " (v: "\"${v}\"")
+                |> (v: "[ ${v} ]");
         in pkgs.writeText "sing-box-lore.nix" ''
             {
                 listenPort = ${toString ports.proxy};
+                tproxyPort = ${toString ports.tproxy};
                 noproxyDomains = ${noproxy};
                 # N.B. bind_interface to tailscale0
                 tailnetDomains = ${tailnetDomains};
@@ -83,25 +85,24 @@ in {
             RuntimeDirectory = "sing-box";
             CacheDirectory = "sing-box";
             LoadCredential =
-                let inherit ( config.sops ) secrets; in
+                let inherit (config.sops) secrets; in
                 [ "private_config:${secrets.conf--sing.path}" ];
             DynamicUser = true;
             Nice = -10;
+            AmbientCapabilities = [
+                "CAP_NET_ADMIN"
+                "CAP_NET_BIND_SERVICE"
+            ];
         };
-        useHardening = true;
+        # useHardening = true;
         wantedBy = [ "multi-user.target" ];
         requires = [ "sops-install-secrets.service" ];
         after = [ "sops-install-secrets.service" ];
     };
 
     networking.firewall = {
-        allowedTCPPorts = [ ports.proxy ];
-        allowedUDPPorts = [ ports.proxy ];
-    };
-
-    services.tailscale = {
-        useRoutingFeatures = "both";
-        extraSetFlags = [ "--advertise-exit-node" ];
+        allowedTCPPorts = [ ports.proxy ports.tproxy ];
+        allowedUDPPorts = [ ports.proxy ports.tproxy ];
     };
 
 }
