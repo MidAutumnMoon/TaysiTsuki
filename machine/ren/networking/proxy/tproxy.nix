@@ -22,7 +22,10 @@ in {
     # make ren a exit node
     services.tailscale = {
         useRoutingFeatures = "both";
-        extraSetFlags = [ "--advertise-exit-node" ];
+        extraSetFlags = [
+            "--advertise-exit-node"
+            "--accept-dns=false"
+        ];
     };
 
     # create custom routing table for PBR later
