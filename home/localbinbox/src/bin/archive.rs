@@ -19,11 +19,10 @@ const BACKUP_DIR_NAME: &str = ".backup";
 #[derive(clap::Parser)]
 #[derive(Debug)]
 struct CliOpts {
-    /// Disable moving the source directory to back up dir
-    /// and par2archive of the created archive.
+    /// Disable generating par2archive for the created archive.
     #[clap(long, short = 'N')]
     #[clap(default_value_t = false)]
-    no_backup_no_par: bool,
+    no_par: bool,
 
     /// Don't remove source directory after archiving. Only has affect
     /// when `-N` is supplied.
@@ -39,13 +38,12 @@ struct CliOpts {
 
 fn main() -> Result<()> {
     let CliOpts {
-        no_backup_no_par,
+        no_par,
         keep_source,
         inputs,
     } = <CliOpts as clap::Parser>::parse();
 
     let cwd = current_dir().context("Failed to get CWD")?;
-    let backup_dir = cwd.join(BACKUP_DIR_NAME);
 
     let dirs_to_archive = {
         let paths = if let Some(inputs) = inputs {
@@ -86,11 +84,6 @@ fn main() -> Result<()> {
 
     dbg!(&dirs_to_archive);
 
-    if !no_backup_no_par {
-        std::fs::create_dir_all(&backup_dir)
-            .context("Failed to create backup dir")?;
-    }
-
     for dir in dirs_to_archive {
         // Paths are absolute, they can't not have a basename or parent.
         let basename = dir.file_name().ok_or_else(|| {
@@ -116,20 +109,17 @@ fn main() -> Result<()> {
         archive_using_7z(&dir, &archive)
             .context("Failed to archive dir using 7z")?;
 
-        if no_backup_no_par {
-            if !keep_source {
-                ceprintln!(Yellow, "Remove source dir");
-                std::fs::remove_dir_all(&dir)
-                    .context("Failed to remove source dir")?;
-            }
+        if no_par {
+            ceprintln!(Yellow, "Skipping par2archive");
         } else {
-            ceprintln!(Yellow, ",par {}", basename.display());
+            ceprintln!(Yellow, ",par {}", archive.display());
             par(&archive).context("Failed to ,par2")?;
+        }
 
-            ceprintln!(Yellow, "Move {} to backup", basename.display());
-            // TODO: not use basename, use full path instead?
-            std::fs::rename(&dir, backup_dir.join(basename))
-                .context("Failed to backup original directory")?;
+        if !keep_source {
+            ceprintln!(Yellow, "Deleting source dir");
+            std::fs::remove_dir_all(&dir)
+                .context("Failed to remove source dir")?;
         }
     }
 
