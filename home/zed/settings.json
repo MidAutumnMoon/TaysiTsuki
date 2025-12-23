@@ -11,11 +11,11 @@
     "agent": {
         "inline_assistant_model": {
             "provider": "openrouter",
-            "model": "google/gemini-3-flash-preview"
+            "model": "z-ai/glm-4.7"
         },
         "default_model": {
             "provider": "openrouter",
-            "model": "google/gemini-3-flash-preview"
+            "model": "z-ai/glm-4.7"
         },
         "thread_summary_model": {
             "provider": "openrouter",
