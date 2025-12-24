@@ -42,6 +42,10 @@ with lib.kernel; flattenKConf {
         MODULE_COMPRESS_ZSTD = f yes;
         INPUT_MISC = yes;
         INPUT_UINPUT = module;
+        EROFS_FS_PCPU_KTHREAD = yes;
+        EROFS_FS_ZIP_ZSTD = yes;
+        EROFS_FS_ZIP_LZMA = yes;
+        EROFS_FS_ZIP_ACCEL = yes;
     };
 
     hacking = {
@@ -322,7 +326,6 @@ with lib.kernel; flattenKConf {
         HPFS_FS = no;
         QNX4FS_FS = no;
         QNX6FS_FS = no;
-        EROFS_FS_PCPU_KTHREAD = yes;
     };
 
     uselessUsbDrivers = {
