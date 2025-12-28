@@ -1,58 +1,60 @@
 name: Update Packages
 
 on:
-    workflow_dispatch:
-    schedule:
-        - cron: "0 6 * * 1"
-    push:
-        paths:
-            - "flake.lock"
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+  push:
+    paths:
+      - "flake.lock"
 
 jobs:
-    update-sources:
-        runs-on: ubuntu-latest
+  update-sources:
+    runs-on: ubuntu-latest
 
-        defaults:
-            run: { shell: bash }
+    defaults:
+      run: { shell: bash }
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v6
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
 
-            - name: Setup nix
-              uses: ./.github/actions/nix-pieces
-              with:
-                  cachix_token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - name: Setup nix
+        uses: ./.github/actions/nix-pieces
+        with:
+          cachix_token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-            - name: Run nix-update
-              id: nix_update
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  F="$(mktemp)"
-                  TOOL=".#tsuki.__maintenance"
-                  nix build --print-build-logs "$TOOL"
-                  RUST_LOG=trace nix shell .#nix-update -c \
-                    nix run "$TOOL" -- update -m "packages/tsuki.nix" -w "$F"
-                  # idiot bash (eye roll)
-                  {
-                    echo "update_summary<<F6EAA0BA8653"
-                    cat "$F"
-                    echo "F6EAA0BA8653"
-                  } >> "$GITHUB_OUTPUT"
+      - name: Run nix-update
+        id: nix_update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          F="$(mktemp)"
+          TOOL=".#tsuki.__maintenance"
+          nix build --print-build-logs "$TOOL"
+          conf="$HOME/.config/nix/nix.conf"
+          sed -i '/^experimental-features/s/$/ pipe-operators/' "$conf"
+          RUST_LOG=trace nix shell nixpkgs#nix-update -c \
+            nix run "$TOOL" -- update -m "packages/tsuki.nix" -w "$F"
+          # idiot bash (eye roll)
+          {
+            echo "update_summary<<F6EAA0BA8653"
+            cat "$F"
+            echo "F6EAA0BA8653"
+          } >> "$GITHUB_OUTPUT"
 
-            - name: Get Date
-              id: commit_date
-              run: |
-                  echo "date=$( date '+%Y-%b-%d' )" >> "$GITHUB_OUTPUT"
+      - name: Get Date
+        id: commit_date
+        run: |
+          echo "date=$( date '+%Y-%b-%d' )" >> "$GITHUB_OUTPUT"
 
-            - name: Open PR
-              uses: peter-evans/create-pull-request@v8
-              with:
-                  sign-commits: true
-                  add-paths: "packages"
-                  title: "pkgs: ${{ steps.commit_date.outputs.date }}"
-                  body: ${{ steps.nix_update.outputs.update_summary }}
-                  commit-message: |
-                      pkgs: ${{ steps.commit_date.outputs.date }}
-                      ${{ steps.nix_update.outputs.update_summary }}
+      - name: Open PR
+        uses: peter-evans/create-pull-request@v8
+        with:
+          sign-commits: true
+          add-paths: "packages"
+          title: "pkgs: ${{ steps.commit_date.outputs.date }}"
+          body: ${{ steps.nix_update.outputs.update_summary }}
+          commit-message: |
+            pkgs: ${{ steps.commit_date.outputs.date }}
+            ${{ steps.nix_update.outputs.update_summary }}
