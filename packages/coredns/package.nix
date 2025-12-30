@@ -32,7 +32,7 @@ buildGoModule rec {
     nativeBuildInputs = [ installShellFiles ];
 
     preBuild = ''
-        GOOS= GOARCH= go generate -v -n -x
+        GOOS= GOARCH= go generate -v -n -x -mod=readonly
     '';
 
     postInstall = ''
