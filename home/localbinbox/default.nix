@@ -4,24 +4,21 @@
     par2cmdline-turbo,
 }:
 
-tsuki.rust.buildRustPackage {
-
+tsuki.rust.buildRustPackage rec {
     pname = "localbinbox";
     version = "0.1.0";
 
-    src = with lib.fileset; toSource {
-        root = ./.;
-        fileset = gitTracked ./.;
-    };
+    inherit (tsuki.workspace)
+        src cargoLock;
 
     nativeBuildInputs = [
         tsuki.hooks.prefixCommaToBin
     ];
 
+    cargoBuildFlags = "-p ${pname}";
+    doCheck = false;
+
     env = {
         CFG_PAR2 = lib.getExe' par2cmdline-turbo "par2";
     };
-
-    cargoLock.lockFile = ./Cargo.lock;
-
 }

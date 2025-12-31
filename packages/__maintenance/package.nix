@@ -1,19 +1,16 @@
 {
-    lib,
     tsuki,
 }:
 
 tsuki.rust.buildRustPackage rec {
-
-    pname = "maintenance";
+    pname = "package_maintenance";
     version = "0.1.0";
 
-    src = with lib.fileset; toSource {
-        root = ./.;
-        fileset = gitTracked ./.;
-    };
+    inherit (tsuki.workspace)
+        src cargoLock;
 
-    cargoLock.lockFile = ./Cargo.lock;
+    cargoBuildFlags = "-p ${pname}";
+    doCheck = false;
+
     meta.mainProgram = pname;
-
 }

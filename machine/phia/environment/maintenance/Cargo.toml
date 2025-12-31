@@ -1,15 +1,13 @@
 [package]
-name = "maintenance"
+name = "phia_maintenance"
 version = "0.1.0"
-edition = "2024"
+edition.workspace = true
 
 [lib]
 
 [dependencies]
-anyhow = "1.0.100"
+anyhow.workspace = true
 strum = { version = "0.27.2", features = ["derive"] }
 
-[lints.clippy]
-all = { priority = -1, level = "warn" }
-pedantic = { priority = -1, level = "warn" }
-nursery = { priority = -1, level = "warn" }
+[lints]
+workspace = true

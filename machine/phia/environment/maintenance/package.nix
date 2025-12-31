@@ -5,22 +5,22 @@
 }:
 
 tsuki.rust.buildRustPackage rec {
-
-    pname = "maintenance";
+    pname = "phia_maintenance";
     version = "0.1.0";
 
-    src = with lib.fileset; toSource {
-        root = ./.;
-        fileset = gitTracked ./.;
-    };
+    inherit (tsuki.workspace)
+        src cargoLock;
 
     nativeBuildInputs = [
         tsuki.hooks.prefixCommaToBin
     ];
 
-    env.CFG_RCLONE_PATH = lib.getExe rclone;
+    cargoBuildFlags = "-p ${pname}";
+    doCheck = false;
 
-    cargoLock.lockFile = ./Cargo.lock;
+    env = {
+        CFG_RCLONE_PATH = lib.getExe rclone;
+    };
+
     meta.mainProgram = pname;
-
 }

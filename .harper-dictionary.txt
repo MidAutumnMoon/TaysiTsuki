@@ -24,6 +24,7 @@ chdir
 cidata
 cjxl
 cli
+clippy
 darwin
 deno
 despeckle

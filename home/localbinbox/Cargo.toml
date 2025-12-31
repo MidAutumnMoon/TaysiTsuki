@@ -1,12 +1,12 @@
 [package]
 name = "localbinbox"
 version = "0.1.0"
-edition = "2024"
+edition.workspace = true
 
 [lib]
 
 [dependencies]
-anyhow = "1.0.100"
+anyhow.workspace = true
 clap = { version = "4.5.48", features = ["derive"] }
 gix-discover = "0.44.0"
 ignore = "0.4.25"
@@ -18,7 +18,5 @@ saphyr = "0.0.6"
 tap = "1.0.1"
 tracing = "0.1.43"
 
-[lints.clippy]
-all = { priority = -1, level = "warn" }
-pedantic = { priority = -1, level = "warn" }
-nursery = { priority = -1, level = "warn" }
+[lints]
+workspace = true

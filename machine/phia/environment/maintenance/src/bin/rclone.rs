@@ -4,7 +4,7 @@ use std::process::Command;
 
 use anyhow::Context;
 use anyhow::Result;
-use maintenance::RCLONE_CONF;
+use phia_maintenance::RCLONE_CONF;
 
 const RCLONE_PATH: Option<&str> = option_env!("CFG_RCLONE_PATH");
 

@@ -1,10 +1,10 @@
 [package]
-name = "maintenance"
+name = "package_maintenance"
 version = "0.1.0"
-edition = "2024"
+edition.workspace = true
 
 [dependencies]
-anyhow = "1.0.100"
+anyhow.workspace = true
 clap = { version = "4.5.48", features = ["derive"] }
 docstr = "0.4.6"
 gix-discover = "0.44.0"
@@ -18,11 +18,5 @@ tap = "1.0.1"
 tempfile = "3.23.0"
 tracing = "0.1.41"
 
-[profile.release]
-lto = "thin"
-strip = "debuginfo"
-
-[lints.clippy]
-all = { priority = -1, level = "warn" }
-pedantic = { priority = -1, level = "warn" }
-nursery = { priority = -1, level = "warn" }
+[lints]
+workspace = true

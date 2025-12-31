@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use std::sync::LazyLock;
 
-/// rclone.conf path
+/// `rclone.conf` path
 // TODO: avoid hardcode
 pub static RCLONE_CONF: LazyLock<PathBuf> = LazyLock::new(|| {
     let conf = PathBuf::from("/etc/rclone.conf");

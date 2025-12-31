@@ -1,0 +1,39 @@
+[workspace]
+resolver = "2"
+members = [
+    "home/localbinbox",
+    "packages/mimic-cloud-init",
+    "packages/__maintenance",
+    "machine/phia/environment/maintenance",
+]
+
+[workspace.package]
+authors = [ "MidAutumnMoon" ]
+license = "GPL-3.0-or-later"
+repository = "https://github.com/MidAutumnMoon/InOri"
+edition = "2024"
+rust-version = "1.95.0"
+
+[workspace.dependencies]
+anyhow = "1.0.100"
+
+[profile.release]
+lto = "thin"
+strip = "debuginfo"
+
+[workspace.lints.clippy]
+all = { priority = -1, level = "warn" }
+pedantic = { priority = -1, level = "warn" }
+nursery = { priority = -1, level = "warn" }
+
+cognitive_complexity = "allow"
+literal_string_with_formatting_args = "allow"
+missing_const_for_fn = "allow"
+too_many_lines = "allow"
+
+unwrap_used = "warn"
+panic = "warn"
+indexing_slicing = "warn"
+unreachable = "warn"
+undocumented_unsafe_blocks = "warn"
+unwrap_in_result = "warn"

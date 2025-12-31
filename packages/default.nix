@@ -24,9 +24,19 @@ let
 
 in rec {
 
-    tsuki = discovered // {};
+    tsuki = discovered // {
+        # test builds
+        localbinbox = callPackage ../home/localbinbox {};
+        portableTest = callPackage ./portable/test.nix {};
 
-    inherit ( pkgsFrom "sops-nix" )
+        # rust workspace shortcuts
+        workspace.src = flakes.self;
+        workspace.cargoLock = {
+            lockFile = ../Cargo.lock;
+        };
+    };
+
+    inherit (pkgsFrom "sops-nix")
         sops-install-secrets
     ;
 
@@ -64,10 +74,6 @@ in rec {
         { rustPlatform = tsuki.rust; }
         { doCheck = false; }; # tests fail on github workflow
 
-
-    localbinbox = callPackage ../home/localbinbox {};
-    portableTest = callPackage ./portable/test.nix {};
-
     #
     # Lix overrides
     #
@@ -87,8 +93,9 @@ in rec {
 
     nixForLinking = prev.nixVersions.stable;
 
+    # TODO: get rid of colmena flake
     colmena =
-        ( pkgsFrom "colmena" ).colmena.override {
+        (pkgsFrom "colmena").colmena.override {
             nix-eval-jobs = final.nix-eval-jobs;
             rustPlatform = final.tsuki.rust;
         };

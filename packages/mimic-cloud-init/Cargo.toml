@@ -1,16 +1,14 @@
 [package]
 name = "mimic-cloud-init"
 version = "0.1.0"
-edition = "2024"
+edition.workspace = true
 
 [dependencies]
-anyhow = "1.0.99"
+anyhow.workspace = true
 serde = { version = "1.0.219", features = ["derive"] }
 serde_yaml_ng = "0.10.0"
 tap = "1.0.1"
 tempfile = "3.21.0"
 
-[lints.clippy]
-all = { priority = -1, level = "warn" }
-pedantic = { priority = -1, level = "warn" }
-nursery = { priority = -1, level = "warn" }
+[lints]
+workspace = true

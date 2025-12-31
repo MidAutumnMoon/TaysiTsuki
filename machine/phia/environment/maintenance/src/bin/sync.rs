@@ -53,6 +53,7 @@ fn main() -> Result<()> {
 
     let sync_opts: [String; 2] = {
         let remote = format!("{REMOTE}:");
+        #[expect(clippy::unwrap_used)]
         let pool = POOL.to_str().unwrap().to_owned();
         match direction {
             SyncDirection::Up => [pool, remote],
