@@ -40,16 +40,6 @@ in rec {
         sops-install-secrets
     ;
 
-    bluesky-pds = prev.bluesky-pds.override {
-        nodejs = prev.nodejs_22;
-    };
-
-    sillytavern = prev.sillytavern.override {
-        buildNpmPackage = prev.buildNpmPackage.override {
-            nodejs = prev.nodejs_22;
-        };
-    };
-
     # tangled = {
     #     inherit (pkgsFrom "tangled")
     #         knot
