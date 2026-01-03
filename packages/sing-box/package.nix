@@ -9,14 +9,14 @@
 stdenv.mkDerivation (drvSelf: {
 
     pname = "sing-box";
-    version = "1.13.0-alpha.35";
+    version = "1.13.0-alpha.36";
 
     src = tsuki.fetchGitHubRelease {
         owner = "SagerNet";
         repo = "sing-box";
         tag = "v${drvSelf.version}";
         file = "sing-box-${drvSelf.version}-linux-amd64-musl.tar.gz";
-        hash = "sha256-9jkgzERGnyIGIiklAMaoKD2qsKpEI2VU6JDEfXK9xZE=";
+        hash = "sha256-SlntsTKfjur+MShR7dirXXBEmPzo+R/bgX2ZM0XrJ50=";
     };
 
     nativeBuildInputs = [
