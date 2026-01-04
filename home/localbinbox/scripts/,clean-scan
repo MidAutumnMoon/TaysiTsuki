@@ -24,10 +24,13 @@ TOPLEVEL.glob("*.jpg").each do |pic|
     system <<~SH or abort "Failed to run magick"
         magick -verbose \
             #{pic.to_s.shellescape} \
+            -colorspace Gray \
             -strip \
             -unsharp 0x2+1+0.4 \
             -threshold 55% \
+            -background black -alpha remove \
             -depth 1 -colors 2 \
+            -define png:compression-level=1 \
             #{out.to_s.shellescape}
     SH
 
