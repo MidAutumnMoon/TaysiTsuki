@@ -120,6 +120,7 @@
         # www.google.com/search?q=%s&udm=14&pws=0&gl=us&gws_rd=cr&safe=off
         "browser.urlbar.update2.engineAliasRefresh" = true;
         "browser.tabs.groups.hoverPreview.enabled" = false;
+        "browser.ml.linkPreview.enabled" = false;
 
         # enabled by default in 141; current 140
         "dom.ipc.forkserver.enable" = true;
