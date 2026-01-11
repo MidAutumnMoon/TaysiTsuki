@@ -11,7 +11,7 @@
     "agent": {
         "inline_assistant_model": {
             "provider": "openrouter",
-            "model": "z-ai/glm-4.7"
+            "model": "minimax/minimax-m2.1"
         },
         "default_model": {
             "provider": "openrouter",
