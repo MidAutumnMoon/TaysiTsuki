@@ -17,7 +17,7 @@ in
 
     services.sillytavern.configFile =
         pkgs.writers.writeYAML "sillytavern.yml" {
-            browserLaunch.enabled = true;
+            browserLaunch.enabled = false;
             basicAuthMode = false;
             requestProxy = {
                 enabled = true;
