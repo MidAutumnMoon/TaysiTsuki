@@ -4,10 +4,10 @@
 
     services.resolved = {
         enable = lib.mkDefault true;
-        llmnr = "false";
-        extraConfig = ''
-            MulticastDNS = resolve
-        '';
+        settings.Resolve = {
+            LLMNR = false;
+            MulticastDNS = "resolve";
+        };
     };
 
 }

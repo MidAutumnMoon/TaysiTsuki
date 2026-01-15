@@ -19,8 +19,8 @@
         };
     };
 
-    services.resolved.extraConfig = ''
-        Cache = no
-    '';
+    services.resolved.settings.Resolve = {
+        Cache = false;
+    };
 
 }
