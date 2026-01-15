@@ -14,11 +14,11 @@ rec {
         owner = "CachyOS";
         repo = "kernel-patches";
         rev = "11908b28acba425e0acfa8a68f6488e665d6e25c";
-        sha256 = "sha256-AIqH/9gsr9FxlQmNsRSylJAm0aVaQIS17E25fhGlgrQ=";
+        sha256 = "sha256-bL2mdzBuYG5aLEPEwlOdOkurG2ry9qHi2LDP7n+ofJw=";
         postFetch = ''
             find "$out" -type f \
                 ! -name "0001-cachyos-base-all.patch" \
-                ! -path "*/sched/*" -delete
+                ! -path "*/sched/0001-bore-cachy.patch" -delete
             find "$out" -type d -empty -delete
         '';
     };
