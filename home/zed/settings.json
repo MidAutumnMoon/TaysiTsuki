@@ -7,14 +7,35 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+    "language_models": {
+        "openai_compatible": {
+            "NanoGPT": {
+                "api_url": "https://nano-gpt.com/api/v1",
+                "available_models": [
+                    {
+                        "name": "minimax/minimax-m2.1",
+                        "max_tokens": 200000,
+                        "max_output_tokens": 100000,
+                        "max_completion_tokens": 200000,
+                        "capabilities": {
+                            "tools": true,
+                            "images": false,
+                            "parallel_tool_calls": false,
+                            "prompt_cache_key": false
+                        }
+                    }
+                ]
+            }
+        }
+    },
     "colorize_brackets": true,
     "agent": {
         "inline_assistant_model": {
-            "provider": "openrouter",
+            "provider": "NanoGPT",
             "model": "minimax/minimax-m2.1"
         },
         "default_model": {
-            "provider": "openrouter",
+            "provider": "NanoGPT",
             "model": "minimax/minimax-m2.1"
         },
         "thread_summary_model": {
