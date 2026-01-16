@@ -1,5 +1,6 @@
 AOM
 AVIF
+CGO
 CQ
 ESC
 FIXME

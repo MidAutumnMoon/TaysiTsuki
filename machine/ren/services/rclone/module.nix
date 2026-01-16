@@ -37,6 +37,7 @@
         environment =
             config.networking.proxy.envVars
             // { GODEBUG = "netdns=go"; };
+        wantedBy = [ "multi-user.target" ];
     };
 
     systemd.targets."rclone-mounts" = {

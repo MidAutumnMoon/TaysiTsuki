@@ -12,7 +12,7 @@ fn main() -> Result<()> {
     let remaining_opts = std::env::args().skip(1);
 
     Command::new(RCLONE_PATH.unwrap_or("rclone"))
-        // Bug with cgo resolver?
+        // Bug with CGO resolver?
         .env("GODEBUG", "netdns=go")
         .arg("--config")
         .arg(&*RCLONE_CONF)
