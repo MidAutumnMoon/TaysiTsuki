@@ -77,16 +77,31 @@ in
             fsType = "btrfs";
             options = btrfsOption "var";
         };
+        "/var/.snapshots" = {
+            device = luksDevice;
+            fsType = "btrfs";
+            options = btrfsOption "var-snapshot";
+        };
         "/persist" = {
             device = luksDevice;
             fsType = "btrfs";
             options = btrfsOption "persist";
             neededForBoot = true;
         };
+        "/persist/.snapshots" = {
+            device = luksDevice;
+            fsType = "btrfs";
+            options = btrfsOption "persist-snapshot";
+        };
         "/home" = {
             device = luksDevice;
             fsType = "btrfs";
             options = btrfsOption "home";
+        };
+        "/home/.snapshots" = {
+            device = luksDevice;
+            fsType = "btrfs";
+            options = btrfsOption "home-snapshot";
         };
         "/mnt/pool" = {
             # TODO: no hardcode hostname and path
