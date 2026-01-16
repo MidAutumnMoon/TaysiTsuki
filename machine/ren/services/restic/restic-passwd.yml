@@ -1,0 +1,25 @@
+backup-restic-passwd: ENC[AES256_GCM,data:HKcJzUx95lYzN3L+DO4TrEakDwlGXq8llOxhzJV4jLV+,iv:u4/5Od/bZW7KWKsUGKPWr0TUX+EA3ucNOjnz3icEfhg=,tag:MX3+OFKsSqPsFlhZfwrH8g==,type:str]
+sops:
+    age:
+        - recipient: age17lvnmh99feams2pvfljw34k5s705uk89x6g26r4ml85yu0h2q9uswpmjm6
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBsRllKWjdnaEZNMitBSm9L
+            QnV4S21IUXphNzFOUk4ycTVIQXZ1cjdkbXdjCmNEcGFtYUh0a1dNeDNUZDgwNnc0
+            azJVcW9rYjZaR085NUE3dHp3MEp4SjQKLS0tIGp1eUdVTFhFeGtHcVlRNjVwUFhI
+            dDdBUzg1aWF1THF1TkxBY2NSY0JWZ3cKf0vQtKpTyjykyzdHK4qvJc9ESnn3QBBM
+            +YTH2d065wJ5A/g/v5VCsFiQcjREb2cvA1dvUdW3fsO5S/ZyMxOXjQ==
+            -----END AGE ENCRYPTED FILE-----
+        - recipient: age1rlhnksa8qplfkdecmnsr5v9nfjm3vnagxrertmz2z6gl0sjxr9rqf580cg
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBlVjh6Wk1OdEp5OUhVeE9F
+            NVpwOVZkN2MwNUtReDRteUhvdURONFlFLzBzCmZHRGYwUHRxdEhBS2dBNmhFOGxW
+            SlAwTGNieVNRVnJyc0tDWWJ4alpubDgKLS0tIHZXdjd0QjBmT01RTElPS1QvRHZR
+            a05lQThQZkp1UE1wSVFuV0FBTDNnZmsKB/dzYVZ1j5Kt9oEEstXWagTMUaA82dQl
+            k73RySNE4aRwirUYZhtCh1yq3wmmNBdsnmRP7tUxG9ZXpEWAxA28+g==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-01-16T16:10:25Z"
+    mac: ENC[AES256_GCM,data:GSPeYvav8uZXY6iyDdppc1KtSw+TRJYejAQ3r/nmMS4fxHOmEjSI1fgj0JFcbqjsw1d4gvhet6rOx+B7TnRK5rHCG+5ttT8zxUJzOpxinRcAvsqLMCUNz04wg+vdiPIsRiluzcXn2XggknNTdIJRQGoTRzyuIkiQlEIgR4w9DeA=,iv:nJPWwYWxC6t4rYjiBm8Uc55d5OpS7rRrYskf9zBdSI8=,tag:WORYdxOsM4NlpafcZ4vAlg==,type:str]
+    unencrypted_suffix: _unencrypted
+    version: 3.11.0

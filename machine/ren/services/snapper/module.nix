@@ -11,7 +11,7 @@ let
         var = {
             SUBVOLUME = mntOf "/var";
         };
-        persistence = {
+        persist = {
             SUBVOLUME = mntOf "/persist";
         };
     };
@@ -19,8 +19,8 @@ let
     snapperCommon = {
         TIMELINE_CLEANUP = true;
         TIMELINE_CREATE = true;
-        # hourly snapshot of 4 days
-        TIMELINE_LIMIT_HOURLY = "96";
+        # hourly snapshot of 7 days
+        TIMELINE_LIMIT_HOURLY = "180";
         TIMELINE_LIMIT_DAILY = "0";
         TIMELINE_LIMIT_WEEKLY = "0";
         TIMELINE_LIMIT_MONTHLY = "0";
