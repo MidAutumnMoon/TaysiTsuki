@@ -29,11 +29,35 @@ in rec {
         localbinbox = callPackage ../home/localbinbox {};
         portableTest = callPackage ./portable/test.nix {};
 
-        # rust workspace shortcuts
-        workspace.src = flakes.self;
-        workspace.cargoLock = {
-            lockFile = ../Cargo.lock;
-        };
+        # Using lib.fileset to avoid unnecessary non-rust rebuilds.
+        workspace =
+            let
+                inherit (lib.fileset)
+                    unions toSource intersection gitTracked;
+                inherit (lib.path) append;
+                inherit (lib.strings) hasInfix;
+                root = ../.;
+                workspaceRootToml = append root "Cargo.toml";
+                workspaceLock = append root "Cargo.lock";
+                membersSrc =
+                    lib.importTOML workspaceRootToml
+                    |> (m: m.workspace.members)
+                    # assert that "members" does not contains glob
+                    |> (ms:
+                        assert lib.all (m: !hasInfix m "*") ms;
+                        ms)
+                    |> map (append root);
+                workspaceSrc = unions <|
+                    [ workspaceRootToml workspaceLock ]
+                    ++ membersSrc;
+            in {
+                cargoLock.lockFile = workspaceLock;
+                src = toSource {
+                    inherit root;
+                    fileset = intersection
+                        (gitTracked root) workspaceSrc;
+                };
+            };
     };
 
     inherit (pkgsFrom "sops-nix")
