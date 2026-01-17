@@ -10,14 +10,14 @@
 stdenv.mkDerivation rec {
 
     pname = "deno";
-    version = "2.6.4";
+    version = "2.6.5";
 
     src = tsuki.fetchGitHubRelease {
         owner = "denoland";
         repo = "deno";
         tag = "v${version}";
         file = "deno-x86_64-unknown-linux-gnu.zip";
-        hash = "sha256-kQC70EUMF7ggAtOUi7jn4ZU8nmUG5jtYbi2qQELsp/Y=";
+        hash = "sha256-4PEJua5tgoUSvb/AUkd56kLXwRfv01GGBYnAdQaANDY=";
     };
 
     nativeBuildInputs = [
