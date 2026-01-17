@@ -30,7 +30,7 @@ let
                 if validateOne it then
                     it
                 else
-                    builtins.throw "Failed to validate \"${it.attr}\""
+                    throw "Failed to validate \"${it.attr}\""
             );
 
     allUnique = packages:
@@ -43,7 +43,7 @@ let
             if length packages == length (uniq packages) then
                 packages
             else
-                builtins.throw "Duplicated attrs found";
+                throw "Duplicated attrs found";
 
     tsuki = name: "tsuki.${name}";
 
@@ -166,7 +166,6 @@ allUnique <| withValidate <|
         attr = tsuki "inori";
         group = "Inori";
         update = {
-            pinned = true;
             unstable_branch = true;
         };
     }
