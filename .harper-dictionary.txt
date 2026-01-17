@@ -48,6 +48,7 @@ kwin
 localbinbo
 localbinbox
 lol
+md
 mut
 ng
 nixos
