@@ -1,3 +1,0 @@
-#!/usr/bin/env -S fish
-
-command avxl avif $argv
