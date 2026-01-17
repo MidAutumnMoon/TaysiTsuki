@@ -23,20 +23,26 @@
                             "parallel_tool_calls": false,
                             "prompt_cache_key": false,
                         },
-                    }
+                    },
                 ],
             },
         },
     },
     "colorize_brackets": true,
     "agent": {
+        "favorite_models": [
+            {
+                "provider": "NanoGPT",
+                "model": "minimax/minimax-m2.1",
+            },
+        ],
         "inline_assistant_model": {
-            "provider": "NanoGPT",
+            "provider": "openrouter",
             "model": "minimax/minimax-m2.1",
         },
         "default_model": {
-            "provider": "NanoGPT",
-            "model": "minimax/minimax-m2.1",
+            "provider": "zed.dev",
+            "model": "claude-opus-4-5-thinking",
         },
         "thread_summary_model": {
             "provider": "openrouter",
@@ -46,7 +52,8 @@
             "provider": "openrouter",
             "model": "openai/gpt-oss-120b",
         },
-        "model_parameters": [{ "temperature": 0.7 }],
+        // "model_parameters": [{ "temperature": 0.7 }],
+        "use_modifier_to_send": true,
     },
     "vim_mode": true,
     "vim": {
@@ -66,9 +73,7 @@
         "dark": "Catppuccin Frappé - No Italics",
     },
     "autosave": {
-        "after_delay": {
-            "milliseconds": 400,
-        },
+        "after_delay": { "milliseconds": 800 },
     },
     "auto_update": false,
     "indent_guides": {
@@ -197,5 +202,9 @@
     },
     "file_types": {
         "Shell Script": [".envrc"],
+    },
+    "minimap": {
+        "show": "auto",
+        "current_line_highlight": "line",
     },
 }
