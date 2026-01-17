@@ -2,6 +2,7 @@
     lib,
     stdenv,
     fetchFromGitHub,
+    installShellFiles,
 
     tsuki,
     libjxl,
@@ -28,6 +29,10 @@ tsuki.rust.buildRustPackage rec {
         "out"
         "busnaguri"
         "lny"
+    ];
+
+    nativeBuildInputs = [
+        installShellFiles
     ];
 
     env.CFG_CJXL_PATH = lib.getExe' libjxl "cjxl";
@@ -65,6 +70,18 @@ tsuki.rust.buildRustPackage rec {
         mv -v "$out/bin/lny" -t "$LNY_BIN_DIR"
     '';
 
+    postInstall =
+        let
+            canExe = with stdenv;
+                buildPlatform.canExecute hostPlatform;
+        in lib.optionalString canExe ''
+            bin="$out/bin/i"
+            installShellCompletion --cmd i \
+                --bash <("$bin" gen-complete -s bash) \
+                --fish <("$bin" gen-complete -s fish) \
+                --zsh <("$bin" gen-complete -s zsh)
+        '';
+
     passthru = {
         busnaguriData = {
             service = "im._418.Busnaguri";
@@ -79,4 +96,3 @@ tsuki.rust.buildRustPackage rec {
     };
 
 }
-
