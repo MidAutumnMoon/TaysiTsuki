@@ -40,9 +40,9 @@ runs:
           shell: bash
           run: |
               conf="$HOME/.config/nix/nix.conf"
-              echo "extra-substituters = https://chaotic-nyx.cachix.org/ https://cache.garnix.io" \
+              echo "extra-substituters = https://cache.garnix.io" \
                 >> $conf
-              echo "extra-trusted-public-keys = chaotic-nyx.cachix.org-1:HfnXSw4pj95iI/n17rIDy40agHj12WfF+Gqk6SonIT8= cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=" \
+              echo "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=" \
                 >> $conf
               nix config show
 
