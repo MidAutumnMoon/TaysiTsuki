@@ -14,14 +14,14 @@
                 "available_models": [
                     {
                         "name": "minimax/minimax-m2.1",
-                        "max_tokens": 200000,
-                        "max_output_tokens": 100000,
-                        "max_completion_tokens": 200000,
+                        "max_tokens": 120000,
+                        "max_output_tokens": 90000,
+                        "max_completion_tokens": 90000,
                         "capabilities": {
                             "tools": true,
                             "images": false,
-                            "parallel_tool_calls": false,
-                            "prompt_cache_key": false,
+                            "parallel_tool_calls": true,
+                            "prompt_cache_key": true,
                         },
                     },
                 ],
@@ -41,8 +41,8 @@
             "model": "minimax/minimax-m2.1",
         },
         "default_model": {
-            "provider": "zed.dev",
-            "model": "claude-opus-4-5-thinking",
+            "provider": "NanoGPT",
+            "model": "minimax/minimax-m2.1",
         },
         "thread_summary_model": {
             "provider": "openrouter",
