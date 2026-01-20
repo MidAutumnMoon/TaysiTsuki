@@ -30,7 +30,7 @@ let
         LATEST=$(
             ls -1 "$SNAPSHOTS" \
             | grep -E '^[0-9]+$' \
-            | tail -n 1 | sort -n | tail -n 1 )
+            | sort -n | tail -n 1 )
         if [ ! -n "$LATEST" ]; then
             echo "[BUG] No snapshots"
             exit 1
