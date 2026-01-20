@@ -19,7 +19,6 @@ let
         "sddm"
         "cache" "_cache"
         "systemd" "tmp"
-        "systemd"
     ];
 
     latestSnapshotOf = vol: ''

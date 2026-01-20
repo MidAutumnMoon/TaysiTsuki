@@ -26,8 +26,8 @@ let
         TIMELINE_LIMIT_MONTHLY = "0";
         TIMELINE_LIMIT_QUARTERLY = "0";
         TIMELINE_LIMIT_YEARLY = "0";
-        NUMBER_LIMIT = "0";
-        NUMBER_CLEANUP = "0";
+        NUMBER_LIMIT = "20";
+        NUMBER_CLEANUP = true;
     };
 
 in lib.mkMerge [
