@@ -18,7 +18,6 @@ window-rule {
     // block-out-from "screencast"
 }
 
-// Telegram media viewer
 window-rule {
     match app-id=r#"^org\.telegram\.desktop$"# title="^Media viewer$"
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
@@ -41,6 +40,7 @@ window-rule {
 window-rule {
     match app-id=r#"firefox$"#
     match app-id="firefox-developer-edition"
+    match app-id="^(org.kde.dolphin)$"
 
     open-maximized true
     open-focused true

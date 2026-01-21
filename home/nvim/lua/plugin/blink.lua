@@ -33,8 +33,8 @@ o.completion.menu.draw.components.kind_icon = {
         if vim.tbl_contains( { "Path" }, ctx.source_name ) then
             local dev_icon, _ = devicons.get_icon( ctx.label )
             if dev_icon then icon = dev_icon end
-        else
-            icon = lspkind.symbolic( ctx.kind, { mode = "symbol", } )
+        -- else
+        --     icon = lspkind.symbolic( ctx.kind, { mode = "symbol", } )
         end
         return icon .. ctx.icon_gap
     end
