@@ -9,7 +9,7 @@
         settings.General.DisplayServer = "wayland";
     };
 
-    services.desktopManager.plasma6.enable = true;
+    services.desktopManager.plasma6.enable = false;
 
     environment.plasma6.excludePackages =
         with pkgs.kdePackages; [

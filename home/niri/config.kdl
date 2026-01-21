@@ -238,6 +238,7 @@ animations {
 }
 
 include "rules.kdl"
+include "workspaces.kdl"
 
 layer-rule {
     match namespace="^noctalia-overview*"

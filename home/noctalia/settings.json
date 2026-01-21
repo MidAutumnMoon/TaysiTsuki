@@ -46,17 +46,17 @@
         "widgets": {
             "center": [
                 {
-                    "characterCount": 2,
+                    "characterCount": 4,
                     "colorizeIcons": false,
                     "enableScrollWheel": true,
                     "followFocusedScreen": false,
                     "groupedBorderOpacity": 1,
                     "hideUnoccupied": false,
-                    "iconScale": 0.8,
+                    "iconScale": 0.9,
                     "id": "Workspace",
-                    "labelMode": "index",
-                    "showApplications": false,
-                    "showLabelsOnlyWhenOccupied": true,
+                    "labelMode": "index+name",
+                    "showApplications": true,
+                    "showLabelsOnlyWhenOccupied": false,
                     "unfocusedIconsOpacity": 1
                 }
             ],

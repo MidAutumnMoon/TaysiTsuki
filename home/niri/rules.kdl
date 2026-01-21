@@ -38,3 +38,20 @@ window-rule {
     // default-column-width { proportion 0.5; }
 }
 
+window-rule {
+    match at-startup=true app-id=r#"^org\.telegram\.desktop$"#
+    exclude title="^Media viewer$"
+
+    open-on-workspace "chat"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^org\.gnome\.Fractal$"#
+    open-on-workspace "chat"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^discord"#
+    match at-startup=true app-id=r#"^com\.discordapp\.Discord$"#
+    open-on-workspace "chat"
+}
