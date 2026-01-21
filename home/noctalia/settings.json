@@ -324,7 +324,7 @@
         "criticalUrgencyDuration": 15,
         "enableKeyboardLayoutToast": true,
         "enabled": true,
-        "location": "top_right",
+        "location": "bottom_left",
         "lowUrgencyDuration": 3,
         "monitors": [
         ],
@@ -333,7 +333,7 @@
         "respectExpireTimeout": false,
         "saveToHistory": {
             "critical": true,
-            "low": true,
+            "low": false,
             "normal": true
         },
         "sounds": {

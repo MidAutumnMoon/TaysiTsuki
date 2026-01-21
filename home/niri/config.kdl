@@ -335,6 +335,8 @@ binds {
     Mod+Ctrl+Right { move-column-right; }
     Mod+Ctrl+Down { move-window-down-or-to-workspace-down; }
     Mod+Ctrl+Up { move-window-up-or-to-workspace-up; }
+    Mod+Ctrl+Shift+Down { move-workspace-down; }
+    Mod+Ctrl+Shift+Up { move-workspace-up; }
 
     // Vim Key
     Mod+H { focus-column-left; }
@@ -345,6 +347,8 @@ binds {
     Mod+Ctrl+L { move-column-right; }
     Mod+Ctrl+J { move-window-down-or-to-workspace-down; }
     Mod+Ctrl+K { move-window-up-or-to-workspace-up; }
+    Mod+Ctrl+Shift+J { move-workspace-down; }
+    Mod+Ctrl+Shift+K { move-workspace-up; }
 
     Mod+Home { focus-column-first; }
     Mod+End  { focus-column-last; }

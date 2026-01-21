@@ -27,7 +27,6 @@ tsuki.rust.buildRustPackage rec {
 
     outputs = [
         "out"
-        "busnaguri"
         "lny"
     ];
 
@@ -47,23 +46,6 @@ tsuki.rust.buildRustPackage rec {
         # coruma
         ln -sv "$out/bin/coruma-reverse" "$out/bin/,?"
 
-        # busnaguri
-        declare -r BUSN_LIBEXEC_DIR="$busnaguri/libexec/inori"
-        declare -r BUSN_BIN="$BUSN_LIBEXEC_DIR/busnaguri"
-        declare -r BUSN_DBUS_DIR="$busnaguri/share/dbus-1/services"
-
-        mkdir -vp "$BUSN_LIBEXEC_DIR"
-        mkdir -pv "$( dirname "$BUSN_BIN" )"
-        mkdir -pv "$BUSN_DBUS_DIR"
-
-        mv -v "$out/bin/busnaguri" "$BUSN_BIN"
-
-        cat <<-DOSINI > "$BUSN_DBUS_DIR/${passthru.busnaguriData.service}.service"
-        [D-BUS Service]
-        Name = ${passthru.busnaguriData.service}
-        Exec = $BUSN_BIN
-        DOSINI
-
         # lny
         declare -r LNY_BIN_DIR="$lny/bin"
         mkdir -pv "$LNY_BIN_DIR"
@@ -81,14 +63,6 @@ tsuki.rust.buildRustPackage rec {
                 --fish <("$bin" gen-complete -s fish) \
                 --zsh <("$bin" gen-complete -s zsh)
         '';
-
-    passthru = {
-        busnaguriData = {
-            service = "im._418.Busnaguri";
-            objectPath = "/Naguru";
-            interface = "im._418.busnaguri";
-        };
-    };
 
     meta = {
         homepage = "https://github.com/MidAutumnMoon/InOri";
