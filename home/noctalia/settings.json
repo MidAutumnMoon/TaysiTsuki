@@ -17,7 +17,7 @@
         "sortByMostUsed": true,
         "terminalCommand": "xterm -e",
         "useApp2Unit": false,
-        "viewMode": "list"
+        "viewMode": "grid"
     },
     "audio": {
         "cavaFrameRate": 30,
@@ -74,6 +74,13 @@
                     "tooltipFormat": "HH:mm ddd, MMM dd",
                     "useCustomFont": false,
                     "usePrimaryColor": false
+                },
+                {
+                    "defaultSettings": {
+                        "hideBackground": false,
+                        "minimumThreshold": 10
+                    },
+                    "id": "plugin:catwalk"
                 },
                 {
                     "colorizeIcons": false,
@@ -189,16 +196,16 @@
                 "id": "audio-card"
             },
             {
+                "enabled": true,
+                "id": "media-sysmon-card"
+            },
+            {
                 "enabled": false,
                 "id": "brightness-card"
             },
             {
-                "enabled": true,
+                "enabled": false,
                 "id": "weather-card"
-            },
-            {
-                "enabled": true,
-                "id": "media-sysmon-card"
             }
         ],
         "diskPath": "/",
@@ -443,15 +450,15 @@
         "foot": false,
         "fuzzel": false,
         "ghostty": false,
-        "gtk": false,
+        "gtk": true,
         "helix": false,
         "hyprland": false,
-        "kcolorscheme": false,
+        "kcolorscheme": true,
         "kitty": false,
         "mango": false,
         "niri": false,
         "pywalfox": false,
-        "qt": false,
+        "qt": true,
         "spicetify": false,
         "telegram": false,
         "vicinae": false,
