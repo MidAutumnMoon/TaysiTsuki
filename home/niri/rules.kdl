@@ -38,6 +38,14 @@ window-rule {
 }
 
 window-rule {
+    match app-id="swayimg"
+
+    open-maximized true
+    open-floating true
+}
+
+// Open window maximized
+window-rule {
     match app-id=r#"firefox$"#
     match app-id="firefox-developer-edition"
     match app-id="^(org.kde.dolphin)$"
@@ -46,6 +54,7 @@ window-rule {
     open-focused true
 }
 
+// Make file chooser larger
 window-rule {
     match app-id="(xdg-desktop-portal)(.*)"
     match app-id="filepicker"

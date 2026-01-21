@@ -205,7 +205,7 @@ layout {
 // See the binds section below for more spawn examples.
 
 // This line starts waybar, a commonly used bar for Wayland compositors.
-spawn-at-startup "dbus-update-activation-environment --systemd --all"
+// spawn-at-startup "dbus-update-activation-environment --systemd --all"
 spawn-at-startup "noctalia-shell"
 spawn-at-startup "easyeffects"
 spawn-at-startup "kbuildsycoca6"
