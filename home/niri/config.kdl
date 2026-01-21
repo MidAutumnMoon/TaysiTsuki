@@ -51,6 +51,11 @@ input {
     focus-follows-mouse max-scroll-amount="0%"
 }
 
+cursor {
+    xcursor-theme "breeze_cursors"
+    xcursor-size 24
+}
+
 // You can configure outputs by their name, which you can find
 // by running `niri msg outputs` while inside a niri instance.
 // The built-in laptop monitor is usually called "eDP-1".
@@ -495,4 +500,8 @@ recent-windows {
 
 debug {
     honor-xdg-activation-with-invalid-serial
+}
+
+environment {
+    QT_QPA_PLATFORMTHEME "qt6ct"
 }
