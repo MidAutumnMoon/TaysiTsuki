@@ -117,7 +117,7 @@
                     "showProgressRing": true,
                     "showVisualizer": true,
                     "useFixedWidth": false,
-                    "visualizerType": "linear"
+                    "visualizerType": "wave"
                 },
                 {
                     "blacklist": [
@@ -489,7 +489,7 @@
         "wifiDetailsViewMode": "grid"
     },
     "wallpaper": {
-        "automationEnabled": false,
+        "automationEnabled": true,
         "directory": "/home/teapot/Pictures/Wallpapers",
         "enableMultiMonitorDirectories": false,
         "enabled": true,
@@ -500,7 +500,7 @@
         ],
         "overviewEnabled": true,
         "panelPosition": "follow_bar",
-        "randomIntervalSec": 300,
+        "randomIntervalSec": 600,
         "recursiveSearch": true,
         "setWallpaperOnAllMonitors": true,
         "solidColor": "#1a1a2e",
