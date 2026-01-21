@@ -1,6 +1,9 @@
 { dots, pkgs, ... }:
 
 {
+    imports = [
+        ./idle.nix
+    ];
 
     # ref: https://gist.github.com/linhusp/05f8f7e0af3fa0fbb944dec17a75aa78
     packages = with pkgs; [
@@ -25,7 +28,7 @@
 
     xdg_config."systemd/user/niri.service.d/override.conf".text = ''
         [Unit]
-        Wants = noctalia.service
+        Wants = noctalia.service hypridle.service sway-audio-idle-inhibit.service
     '';
 
 }

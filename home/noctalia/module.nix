@@ -21,6 +21,7 @@ in
         PartOf=graphical-session.target
         Requisite=graphical-session.target
         After=graphical-session.target
+        ConditionEnvironment=WAYLAND_DISPLAY
 
         [Service]
         ExecStart=${lib.getExe noctalia}
