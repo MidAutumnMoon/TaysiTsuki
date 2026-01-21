@@ -205,8 +205,11 @@ layout {
 // See the binds section below for more spawn examples.
 
 // This line starts waybar, a commonly used bar for Wayland compositors.
+spawn-at-startup "dbus-update-activation-environment --systemd --all"
 spawn-at-startup "noctalia-shell"
 spawn-at-startup "easyeffects"
+spawn-at-startup "kbuildsycoca6"
+spawn-at-startup "kded6"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
@@ -502,8 +505,4 @@ recent-windows {
 
 debug {
     honor-xdg-activation-with-invalid-serial
-}
-
-environment {
-    QT_QPA_PLATFORMTHEME "qt6ct"
 }

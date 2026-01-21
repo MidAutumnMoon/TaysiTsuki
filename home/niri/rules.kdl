@@ -46,3 +46,13 @@ window-rule {
     open-focused true
 }
 
+window-rule {
+    match app-id="(xdg-desktop-portal)(.*)"
+    match app-id="filepicker"
+    match app-id="org.freedesktop.impl.portal.desktop.kde"
+    default-column-width { proportion 0.7; }
+    default-window-height { proportion 0.8; }
+    open-floating true
+    open-fullscreen false
+}
+
