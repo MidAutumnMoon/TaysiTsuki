@@ -2,6 +2,6 @@
 
 {
 
-    xdg_config."niri/config.kdl".src = dots.get "niri/config.kdl";
+    xdg_config."niri".src = dots.get "niri";
 
 }
