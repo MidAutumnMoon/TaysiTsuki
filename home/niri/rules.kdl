@@ -49,6 +49,7 @@ window-rule {
     match app-id=r#"firefox$"#
     match app-id="firefox-developer-edition"
     match app-id="^(org.kde.dolphin)$"
+    match app-id="^(org.telegram.desktop)$"
 
     open-maximized true
     open-focused true
