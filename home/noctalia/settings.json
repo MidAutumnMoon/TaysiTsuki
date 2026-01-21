@@ -7,7 +7,7 @@
         "enableClipPreview": true,
         "enableClipboardHistory": true,
         "iconMode": "native",
-        "ignoreMouseInput": false,
+        "ignoreMouseInput": true,
         "pinnedApps": [
         ],
         "position": "center",
@@ -177,7 +177,7 @@
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
         "matugenSchemeType": "scheme-fruit-salad",
-        "predefinedScheme": "Nord",
+        "predefinedScheme": "Tokyo Night",
         "schedulingMode": "off",
         "useWallpaperColors": false
     },
