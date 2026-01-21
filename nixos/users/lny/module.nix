@@ -5,7 +5,7 @@
 # the existing symlinks won't be removed because the systemd service
 # that handles symlink will not be generated in this case.
 
-{ lib, config, pkgs, ... } @ outerMost:
+{ lib, config, pkgs, flakes, ... } @ outerMost:
 
 let
 
@@ -22,7 +22,7 @@ let
 
     lnyMod = lib.types.submoduleWith {
         specialArgs = {
-            inherit lib;
+            inherit lib flakes;
         };
         modules = lib.singleton {
             imports = [ ./options.nix ];

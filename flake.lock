@@ -101,6 +101,26 @@
         "type": "github"
       }
     },
+    "noctalia": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1768971481,
+        "narHash": "sha256-w7mMbLOC664dDGn/j1AbtU2auWGMAYvh99tt5WNMX+U=",
+        "owner": "noctalia-dev",
+        "repo": "noctalia-shell",
+        "rev": "1a9aa31017bd34f7f5969f050264d7f9b5c6798e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "noctalia-dev",
+        "repo": "noctalia-shell",
+        "type": "github"
+      }
+    },
     "preservation": {
       "locked": {
         "lastModified": 1757436102,
@@ -123,6 +143,7 @@
         "empty": "empty",
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
+        "noctalia": "noctalia",
         "preservation": "preservation",
         "rust-overlay": "rust-overlay",
         "sops-nix": "sops-nix"
