@@ -24,7 +24,7 @@
         "mprisBlacklist": [
         ],
         "preferredPlayer": "mpv",
-        "visualizerType": "linear",
+        "visualizerType": "wave",
         "volumeFeedback": false,
         "volumeOverdrive": false,
         "volumeStep": 1
@@ -36,8 +36,8 @@
         "exclusive": true,
         "floating": false,
         "hideOnOverview": false,
-        "marginHorizontal": 4,
-        "marginVertical": 4,
+        "marginHorizontal": 8,
+        "marginVertical": 8,
         "monitors": [
         ],
         "outerCorners": true,
@@ -285,8 +285,8 @@
         "radiusRatio": 1,
         "scaleRatio": 1.05,
         "screenRadiusRatio": 1,
-        "shadowDirection": "bottom_right",
-        "shadowOffsetX": 2,
+        "shadowDirection": "bottom",
+        "shadowOffsetX": 0,
         "shadowOffsetY": 3,
         "showChangelogOnStartup": true,
         "showHibernateOnLockScreen": false,
