@@ -207,34 +207,3 @@ allUnique <| withValidate <|
 
 ]
 
-++
-
-# KDE packages, a lot of them are not cached on
-# unstable small after a staging-next merge
-(
-    let
-        kde = map (name: "kdePackages.${name}");
-        gen = o:
-            mapAttrs
-                (name: map (v: { attr = v; group = name; })) o
-            |> attrValues
-            |> flatten
-        ;
-    in
-        gen {
-            "KDE_1" =
-                ["telegram-desktop"] ++ kde [
-                    "kwin" "sddm" "systemsettings"
-                ];
-            "KDE_2" = kde [
-                "spectacle" "okular" "kinfocenter"
-                "xdg-desktop-portal-kde" "dolphin"
-            ];
-            "KDE_3" = kde [
-                "plasma-desktop" "konsole"
-                "kate" "kwalletmanager"
-            ];
-        }
-)
-
-# $ nix-instantiate --eval --json --strict tsuki.nix

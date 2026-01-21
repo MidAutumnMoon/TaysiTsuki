@@ -72,8 +72,6 @@ in rec {
 
     dnscrypt-proxy = tsuki.dnscrypt;
 
-    kdePackages = import ./plasma.nix lib prev;
-
     yt-dlp = prev.yt-dlp.override {
         inherit (tsuki) deno;
     };
