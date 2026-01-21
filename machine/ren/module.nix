@@ -37,7 +37,10 @@
 
     users.users."teapot" = {
         isNormalUser = true;
-        extraGroups = [ "wheel" ];
+        extraGroups = [
+            "wheel"
+            config.hardware.i2c.group
+        ];
         uid = 1000;
         password = "Moon";
         openssh.authorizedKeys.keys = [ config.lore.pubkeys.teapot ];

@@ -37,13 +37,14 @@ input {
 
     mouse {
         // natural-scroll
-        // accel-speed 0.2
+        accel-speed 0.8
         accel-profile "adaptive"
         // scroll-method "no-scroll"
+        scroll-factor 1.4
     }
 
     // Uncomment this to make the mouse warp to the center of newly focused windows.
-    warp-mouse-to-focus
+    // warp-mouse-to-focus
 
     // Focus windows and outputs automatically when moving the mouse into them.
     // Setting max-scroll-amount="0%" makes it work only on windows already fully on screen.
@@ -93,6 +94,8 @@ output "DP-2" {
 layout {
     // Set gaps around windows in logical pixels.
     gaps 16
+
+    always-center-single-column
 
     // When to center a column when changing focus, options are:
     // - "never", default behavior, focusing an off-screen column will keep at the left
@@ -228,7 +231,7 @@ layout {
 // See the binds section below for more spawn examples.
 
 // This line starts waybar, a commonly used bar for Wayland compositors.
-spawn-at-startup "waybar"
+spawn-at-startup "noctalia-shell"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
@@ -360,9 +363,9 @@ binds {
 
     // Arrow Key
     Mod+Left  { focus-column-left; }
-    Mod+Down  { focus-window-down; }
-    Mod+Up    { focus-window-up; }
     Mod+Right { focus-column-right; }
+    Mod+Down  { focus-workspace-down; }
+    Mod+Up    { focus-workspace-up; }
     // Vim Key
     Mod+H     { focus-column-left; }
     Mod+J     { focus-window-down; }
@@ -563,4 +566,9 @@ binds {
     // Powers off the monitors. To turn them back on, do any input like
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
+}
+
+recent-windows {
+    on
+    open-delay-ms 100
 }
