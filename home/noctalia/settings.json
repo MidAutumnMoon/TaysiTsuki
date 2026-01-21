@@ -2,8 +2,8 @@
     "appLauncher": {
         "autoPasteClipboard": false,
         "clipboardWrapText": true,
-        "customLaunchPrefix": "",
-        "customLaunchPrefixEnabled": false,
+        "customLaunchPrefix": "niri msg action spawn --",
+        "customLaunchPrefixEnabled": true,
         "enableClipPreview": true,
         "enableClipboardHistory": true,
         "iconMode": "native",
@@ -68,7 +68,7 @@
                 {
                     "icon": "rocket",
                     "id": "Launcher",
-                    "usePrimaryColor": true
+                    "usePrimaryColor": false
                 },
                 {
                     "customFont": "",
