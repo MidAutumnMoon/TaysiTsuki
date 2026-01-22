@@ -7,8 +7,6 @@ let
         foldl'
         elem
         length
-        mapAttrs
-        attrValues
         isList
         concatMap
     ;
@@ -53,6 +51,7 @@ let
         go_2 = "Go_2";
         small_1 = "Small_Trivial_1";
         rust_1 = "Rust_1";
+        rust_2 = "Rust_2";
         kernel = "Cachy_Kernel";
     };
 
@@ -177,6 +176,11 @@ allUnique <| withValidate <|
         attr = "sudo-rs";
         group = gs.rust_1;
     }
+    {
+        attr = tsuki "nushell";
+        group = gs.rust_2;
+        update = {};
+    }
 
     #
     # Cachyos Kernel
@@ -204,6 +208,4 @@ allUnique <| withValidate <|
     { attr = "colmena"; group = "Colmena"; }
     { attr = tsuki "zellij"; group = "Zellij"; }
 
-
 ]
-
