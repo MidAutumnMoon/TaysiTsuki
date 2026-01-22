@@ -217,6 +217,7 @@ animations {
 
 include "rules.kdl"
 include "workspaces.kdl"
+include "./noctalia.kdl"
 
 layer-rule {
     match namespace="^noctalia-overview*"
@@ -477,5 +478,6 @@ debug {
     honor-xdg-activation-with-invalid-serial
 }
 
-include "./noctalia.kdl"
+overview {
+}
 
