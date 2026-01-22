@@ -154,7 +154,10 @@ layout {
     // You can enable drop shadows for windows.
     shadow {
         // Uncomment the next line to enable shadows.
-        off
+        on
+        draw-behind-window true
+        spread 1
+        softness 7
     }
 
     // Struts shrink the area occupied by windows, similarly to layer-shell panels.

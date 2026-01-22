@@ -21,7 +21,7 @@ tsuki.rust.buildRustPackage (drvSelf: {
 
     nativeBuildInputs = [
         pkg-config
-    ]; 
+    ];
 
     buildInputs = [
         zstd

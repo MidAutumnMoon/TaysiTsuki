@@ -1,51 +1,55 @@
-#!/usr/bin/env -S ruby
+#!/usr/bin/env -S nu
 
-# frozen_string_literal: true
+use std/assert
 
-require "shellwords"
-require "pathname"
-require "English"
-require "fileutils"
-require "digest/sha2"
-require "time"
+def main [...args] {
+    let here = ($env.CURRENT_FILE | path dirname)
+    let sops_file = ($here | path join "passwd--restic.sops.yml")
 
-HERE = Pathname.new(__dir__)
-SOPS_FILE = HERE.join("passwd--restic.sops.yml")
+    # Decrypt password using sops
+    let password: string = (
+        ^sops decrypt $sops_file
+        | from yaml
+        | get passwd
+        | str trim )
 
-PASSWORD = `sops decrypt #{SOPS_FILE} --extract '["passwd"]'`.strip.freeze
-abort "Failed to decrypt password" if not $CHILD_STATUS.success?
-abort "Password appears to be empty?" if PASSWORD.empty?
+    if ($password | is-empty) {
+        print "Failed to decrypt password"
+        exit 1
+    }
+    $env.RESTIC_PASSWORD = $password
 
-REPOSITORY = Pathname.new("/mnt/pool/Restic/TopSecret").tap(&:mkpath)
-CONFIG = REPOSITORY.join("config")
+    const repository = "/mnt/pool/Restic/TopSecret"
+    let config = ($repository | path join "config")
+    mkdir $repository
 
-ENV["RESTIC_PASSWORD"] = PASSWORD
-ENV["RESTIC_REPOSITORY"] = REPOSITORY.to_s
-ENV["RESTIC_PACK_SIZE"] = "128"
+    $env.RESTIC_REPOSITORY = $repository
+    $env.RESTIC_PACK_SIZE = "128"
 
-BACKUP_DIRS = [
-    "$HOME/Documents/TopSecret",
-].freeze
+    let backup_dirs = [
+        ($env.HOME | path join "Documents/TopSecret")
+    ]
 
-command =
-    if ARGV.empty?
-        # TODO: shellescape?
-        "backup #{BACKUP_DIRS.join(' ')}"
-    else
-        ARGV.shelljoin
-    end
+    let config_hash_before = if ($config | path exists) {
+        (open $config | hash sha256)
+    } else { "" }
 
-CONFIG_HASH_BEFORE = Digest::SHA256.hexdigest(CONFIG.read)
+    let command = if ($args | is-empty) {
+        $"backup ($backup_dirs | to text)"
+    } else {
+        ($args | to text)
+    }
 
-system <<~SH or abort "failed to run restic"
-    restic #{command}
-SH
+    ^restic $command
 
-CONFIG_HASH_AFTER = Digest::SHA256.hexdigest(CONFIG.read)
+    let config_hash_after = if ($config | path exists) {
+        (open $config | hash sha256)
+    } else { "" }
 
-if CONFIG_HASH_BEFORE != CONFIG_HASH_AFTER
-    puts "repo config changed"
-    current_time = Time.now.strftime("%Y-%m-%d--%H-%M")
-    new_config_path = "#{CONFIG}-#{current_time}"
-    FileUtils.cp(CONFIG, new_config_path)
-end
+    if ($config_hash_before != $config_hash_after) {
+        print "repo config changed"
+        let current_time = (date now | format date "%Y-%m-%d--%H-%M")
+        let new_config_path = $"($config)-($current_time)"
+        cp $config $new_config_path
+    }
+}
