@@ -61,8 +61,8 @@ vim.keymap.set("i", "<A-S-o>", "<C-o>O")
 -- Tabs
 vim.keymap.set("n", "<A-t>", ":tabedit<CR>")
 vim.keymap.set("n", "<A-w>", ":tabclose<CR>")
-vim.keymap.set("n", "<A-]>", ":tabnext<CR>")
-vim.keymap.set("n", "<A-[>", ":tabprevious<CR>")
+vim.keymap.set("n", "<A-l>", ":tabnext<CR>")
+vim.keymap.set("n", "<A-h>", ":tabprevious<CR>")
 vim.keymap.set("n", "<A-0>", ":tablast<CR>")
 for num = 1, 9 do
     local key = string.format("<A-%d>", num)

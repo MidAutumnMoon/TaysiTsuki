@@ -15,36 +15,36 @@
             // autosave-ish
             "escape": ["workspace::SendKeystrokes", "ctrl-c ctrl-s"],
             "alt-j": "vim::Down",
-            "alt-h": "vim::Up"
-        }
+            "alt-h": "vim::Up",
+        },
     },
     {
         "context": "vim_mode == insert && showing_completions",
         "bindings": {
-            "ctrl-space": "editor::ConfirmCompletion"
-        }
+            "ctrl-space": "editor::ConfirmCompletion",
+        },
     },
     // normal mode
     {
         "context": "VimControl && !menu && vim_operator == none",
         "bindings": {
             "enter": "vim::Matching",
-            "alt-]": "pane::ActivateNextItem",
-            "alt-[": "pane::ActivatePreviousItem",
+            "alt-l": "pane::ActivateNextItem",
+            "alt-h": "pane::ActivatePreviousItem",
             // Close current tab
             "alt-w": ["pane::CloseActiveItem", { "save_intent": "save_all" }],
             "alt-o": ["workspace::SendKeystrokes", "o escape"],
             "alt-O": ["workspace::SendKeystrokes", "O escape"],
             // shift current line left and right
-            "alt-h": ["workspace::SendKeystrokes", "I backspace escape"],
-            "alt-l": ["workspace::SendKeystrokes", "I tab escape"],
+            // "alt-h": ["workspace::SendKeystrokes", "I backspace escape"],
+            // "alt-l": ["workspace::SendKeystrokes", "I tab escape"],
             "s": "vim::PushSneak",
             "shift-s": "vim::PushSneakBackward",
             "space A": "editor::SelectAll",
             // Map j/k to gj/gk
             "j": ["vim::Down", { "display_lines": true }],
-            "k": ["vim::Up", { "display_lines": true }]
-        }
+            "k": ["vim::Up", { "display_lines": true }],
+        },
     },
     {
         "context": "VimControl || !Editor && !Terminal",
@@ -54,15 +54,15 @@
             "shift-tab": "workspace::ActivatePreviousPane",
             "alt-k": "editor::MoveLineUp",
             "alt-j": "editor::MoveLineDown",
-            "alt-a": "vim::EndOfLine"
-        }
+            "alt-a": "vim::EndOfLine",
+        },
     },
     // Terminal keymaps
     {
         "context": "Terminal",
         "bindings": {
             "ctrl-p": ["workspace::SendKeystrokes", "up"],
-            "ctrl-n": ["workspace::SendKeystrokes", "down"]
-        }
-    }
+            "ctrl-n": ["workspace::SendKeystrokes", "down"],
+        },
+    },
 ]
