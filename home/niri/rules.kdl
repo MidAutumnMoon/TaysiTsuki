@@ -34,13 +34,6 @@ window-rule {
     // default-column-width { proportion 0.5; }
 }
 
-window-rule {
-    match app-id="swayimg"
-
-    open-maximized true
-    open-floating true
-}
-
 // Open window maximized
 window-rule {
     match app-id=r#"firefox$"#
@@ -48,6 +41,7 @@ window-rule {
     match app-id="^(org.kde.dolphin)$"
     match app-id="^(org.telegram.desktop)$"
     match app-id="^(mpv)$"
+    match app-id="swayimg"
 
     open-maximized true
     open-focused true

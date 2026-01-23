@@ -15,6 +15,7 @@
     services.power-profiles-daemon.enable = true;
     services.upower.enable = true;
     hardware.i2c.enable = true;
+    services.udisks2.enable = true;
 
     xdg.portal = {
         extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde ];
@@ -22,6 +23,9 @@
             "org.freedesktop.impl.portal.FileChooser" = lib.mkForce "kde";
         };
     };
+
+    xdg.icons.enable = true;
+    xdg.icons.fallbackCursorThemes = [ "breeze_cursors" ];
 
     # ref: https://github.com/NixOS/nixpkgs/issues/409986
     environment.etc."xdg/menus/applications.menu".source =

@@ -14,6 +14,7 @@
         kdePackages.qt6ct
         kdePackages.kservice
         kdePackages.konsole
+        kdePackages.ark
         ffmpegthumbnailer
     ];
 
