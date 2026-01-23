@@ -275,7 +275,6 @@ binds {
     // You can also move the mouse into the top-left hot corner,
     // or do a four-finger swipe up on a touchpad.
     Mod+O repeat=false { toggle-overview; }
-
     Mod+Q repeat=false { close-window; }
 
     // Arrow Key
@@ -283,6 +282,8 @@ binds {
     Mod+Right { focus-column-right; }
     Mod+Down  { focus-window-or-workspace-down; }
     Mod+Up    { focus-window-or-workspace-up; }
+    Mod+Shift+Down  { focus-window-or-workspace-down; }
+    Mod+Shift+Up    { focus-window-or-workspace-up; }
     Mod+Ctrl+Left  { move-column-left; }
     Mod+Ctrl+Right { move-column-right; }
     Mod+Ctrl+Down { move-window-down-or-to-workspace-down; }
@@ -293,8 +294,16 @@ binds {
     // Vim Key
     Mod+H { focus-column-left; }
     Mod+L { focus-column-right; }
+
+    // Because Mod+**Shift**+ScrollUp/Down is binded to switch workspaces
+    // the expectation (and potentially muscle memory) is set
+    // that the `Mod+Shift` combination will switch workspace,
+    // these bindings are duplicated to meet the expectation.
     Mod+J { focus-window-or-workspace-down; }
     Mod+K { focus-window-or-workspace-up; }
+    Mod+Shift+J { focus-window-or-workspace-down; }
+    Mod+Shift+K { focus-window-or-workspace-up; }
+
     Mod+Ctrl+H { move-column-left; }
     Mod+Ctrl+L { move-column-right; }
     Mod+Ctrl+J { move-window-down-or-to-workspace-down; }
@@ -302,10 +311,10 @@ binds {
     Mod+Ctrl+Shift+J { move-workspace-down; }
     Mod+Ctrl+Shift+K { move-workspace-up; }
 
-    Mod+Home { focus-column-first; }
-    Mod+End  { focus-column-last; }
-    Mod+Ctrl+Home { move-column-to-first; }
-    Mod+Ctrl+End  { move-column-to-last; }
+    // Mod+Home { focus-column-first; }
+    // Mod+End  { focus-column-last; }
+    // Mod+Ctrl+Home { move-column-to-first; }
+    // Mod+Ctrl+End  { move-column-to-last; }
 
     // Mod+Shift+Left  { focus-monitor-left; }
     // Mod+Shift+Down  { focus-monitor-down; }
@@ -427,8 +436,12 @@ binds {
     Mod+Shift+Equal { set-window-height "+10%"; }
 
     // Move the focused window between the floating and the tiling layout.
-    Mod+V       { toggle-window-floating; }
-    Mod+Shift+V { switch-focus-between-floating-and-tiling; }
+    Mod+A       { toggle-window-floating; }
+    Mod+Shift+A { switch-focus-between-floating-and-tiling; }
+
+    Mod+V {
+        spawn "noctalia-shell" "ipc" "call" "launcher" "clipboard";
+    }
 
     // Toggle tabbed column display mode.
     // Windows in this column will appear as vertical tabs,
@@ -458,7 +471,9 @@ binds {
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
     // The quit action will show a confirmation dialog to avoid accidental exits.
-    Ctrl+Alt+Delete { quit; }
+    Ctrl+Alt+Delete {
+        spawn-sh "noctalia-shell ipc call sessionMenu toggle";
+    }
 
     // Powers off the monitors. To turn them back on, do any input like
     // moving the mouse or pressing any other key.
