@@ -8,7 +8,7 @@ edition.workspace = true
 [dependencies]
 anyhow.workspace = true
 clap = { version = "4.5.48", features = ["derive"] }
-gix-discover = "0.45.0"
+gix-discover = "0.46.0"
 ignore = "0.4.25"
 ino_color = "4.0.0"
 ino_iter = "0.1.0"
