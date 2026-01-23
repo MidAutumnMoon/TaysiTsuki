@@ -1,14 +1,9 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env nu
 
-# frozen_string_literal: true
+def main [] {
+    let toplevel = (^git rev-parse --show-toplevel | str trim)
+    let date_str = (date now | format date "%Y/%b/%d")
+    let commit_msg = $"flake update: ($date_str)"
 
-require_relative "lib"
-
-toplevel = repo_toplevel
-date_str = Time.now.strftime "%Y/%b/%d"
-commit_msg = "flake update: #{date_str}"
-
-system <<~SH
-    git commit -m '#{commit_msg}' -- \
-        '#{toplevel.join 'flake.lock'}'
-SH
+    ^git commit -m $commit_msg -- $"($toplevel)/flake.lock"
+}
