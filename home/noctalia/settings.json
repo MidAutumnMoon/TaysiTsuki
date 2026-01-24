@@ -6,6 +6,7 @@
         "customLaunchPrefixEnabled": true,
         "enableClipPreview": true,
         "enableClipboardHistory": true,
+        "enableSettingsSearch": true,
         "iconMode": "native",
         "ignoreMouseInput": true,
         "pinnedApps": [
@@ -330,12 +331,12 @@
     },
     "nightLight": {
         "autoSchedule": true,
-        "dayTemp": "6500",
+        "dayTemp": "2472",
         "enabled": false,
         "forced": false,
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
-        "nightTemp": "4000"
+        "nightTemp": "1972"
     },
     "notifications": {
         "backgroundOpacity": 1,
@@ -427,7 +428,7 @@
         "showHeader": true,
         "showNumberLabels": true
     },
-    "settingsVersion": 43,
+    "settingsVersion": 44,
     "systemMonitor": {
         "cpuCriticalThreshold": 90,
         "cpuPollingInterval": 3000,

@@ -42,18 +42,13 @@
     },
     "colorize_brackets": true,
     "agent": {
-        "favorite_models": [
-            {
-                "provider": "NanoGPT",
-                "model": "minimax/minimax-m2.1",
-            },
-        ],
+        "favorite_models": [],
         "inline_assistant_model": {
             "provider": "openrouter",
             "model": "minimax/minimax-m2.1",
         },
         "default_model": {
-            "provider": "NanoGPT",
+            "provider": "openrouter",
             "model": "minimax/minimax-m2.1",
         },
         "thread_summary_model": {
