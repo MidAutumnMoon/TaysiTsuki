@@ -18,7 +18,6 @@ in
     xdg_config."systemd/user/noctalia.service".text = ''
         [Unit]
         Description=Noctalia Shell Service
-        PartOf=graphical-session.target
         Requisite=graphical-session.target
         After=graphical-session.target
         ConditionEnvironment=WAYLAND_DISPLAY
