@@ -25,6 +25,7 @@ window-rule {
     match app-id="^(org.kde.dolphin)$"
     match app-id="^(org.telegram.desktop)$"
     match app-id="^(mpv)$"
+    match app-id="^(vesktop)$"
     match app-id="swayimg"
 
     exclude is-floating=true

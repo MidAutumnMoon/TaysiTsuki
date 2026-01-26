@@ -3,6 +3,10 @@
 // Check the wiki for a full description of the configuration:
 // https://yalter.github.io/niri/Configuration:-Introduction
 
+include "rules.kdl"
+include "workspaces.kdl"
+include "./noctalia.kdl"
+
 // Input device configuration.
 // Find the full list of options on the wiki:
 // https://yalter.github.io/niri/Configuration:-Input
@@ -171,6 +175,14 @@ layout {
         // top 64
         // bottom 64
     }
+
+    tab-indicator {
+        place-within-column true
+        gaps-between-tabs 6
+        width 12
+        gap 10
+        corner-radius 8
+    }
 }
 
 // Add lines like this to spawn processes at startup.
@@ -217,10 +229,6 @@ animations {
     // Slow down all animations by this factor. Values below 1 speed them up instead.
     slowdown 0.5
 }
-
-include "rules.kdl"
-include "workspaces.kdl"
-include "./noctalia.kdl"
 
 layer-rule {
     match namespace="^noctalia-overview*"
