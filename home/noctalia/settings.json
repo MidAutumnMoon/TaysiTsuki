@@ -132,7 +132,7 @@
                 },
                 {
                     "hideWhenZero": false,
-                    "hideWhenZeroUnread": false,
+                    "hideWhenZeroUnread": true,
                     "id": "NotificationHistory",
                     "showUnreadBadge": true
                 },
