@@ -7,7 +7,7 @@
         "enableClipPreview": true,
         "enableClipboardHistory": true,
         "enableSettingsSearch": true,
-        "iconMode": "native",
+        "iconMode": "tabler",
         "ignoreMouseInput": true,
         "pinnedApps": [
         ],
