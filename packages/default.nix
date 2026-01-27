@@ -72,7 +72,6 @@ in rec {
 
     dnscrypt-proxy = tsuki.dnscrypt;
 
-    feishin = lib.useElectronBin prev prev.feishin;
     obsidian = lib.useElectronBin prev prev.obsidian;
 
     yt-dlp = prev.yt-dlp.override {

@@ -36,7 +36,7 @@
         wgsl-analyzer
         easyeffects
         age
-        feishin
+        tsuki.feishin
     ];
 
     envvars = {
