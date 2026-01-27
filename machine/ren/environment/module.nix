@@ -1,25 +1,15 @@
 { pkgs, ... }:
 
-let
-
-    obsidianBinElectron =
-        pkgs.obsidian.override {
-            electron = pkgs.electron-bin;
-        };
-
-in
-
 {
 
     environment.systemPackages = with pkgs; [
         fastfetchMinimal
         git
         cifs-utils
-        strawberry
         wl-clipboard
         telegram-desktop
         mpv
-        obsidianBinElectron
+        obsidian
         unrar
         numbat
         nix-tree

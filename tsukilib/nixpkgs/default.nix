@@ -7,5 +7,6 @@
     ./brewOS.nix
 
     ./libsToCompilerEnvvars.nix
+    ./useElectronBin.nix
 
 ]

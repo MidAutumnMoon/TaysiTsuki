@@ -52,6 +52,7 @@ rec {
         brewShells
         brewOS
         libsToCompilerEnvvars
+        useElectronBin
     ;
 
     inherit ( tsuki.list )

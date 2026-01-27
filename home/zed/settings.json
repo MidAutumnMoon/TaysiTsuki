@@ -49,7 +49,7 @@
         },
         "default_model": {
             "provider": "openrouter",
-            "model": "minimax/minimax-m2.1",
+            "model": "moonshotai/kimi-k2.5",
         },
         "thread_summary_model": {
             "provider": "openrouter",
