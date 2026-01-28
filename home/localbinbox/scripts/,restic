@@ -35,12 +35,15 @@ def main [...args] {
     } else { "" }
 
     let command = if ($args | is-empty) {
-        $"backup ($backup_dirs | to text)"
+        [
+            "backup",
+            ($backup_dirs | to text | str trim)
+        ]
     } else {
-        ($args | to text)
+        $args
     }
 
-    ^restic $command
+    ^restic ...$command
 
     let config_hash_after = if ($config | path exists) {
         (open $config | hash sha256)
