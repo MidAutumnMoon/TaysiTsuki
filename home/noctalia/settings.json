@@ -1,6 +1,8 @@
 {
     "appLauncher": {
         "autoPasteClipboard": false,
+        "clipboardWatchImageCommand": "wl-paste --type image --watch cliphist store",
+        "clipboardWatchTextCommand": "wl-paste --type text --watch cliphist store",
         "clipboardWrapText": true,
         "customLaunchPrefix": "niri msg action spawn --",
         "customLaunchPrefixEnabled": true,
@@ -32,10 +34,13 @@
     },
     "bar": {
         "backgroundOpacity": 1,
+        "barType": "simple",
         "capsuleOpacity": 1,
         "density": "spacious",
         "exclusive": true,
         "floating": false,
+        "frameRadius": 12,
+        "frameThickness": 8,
         "hideOnOverview": true,
         "marginHorizontal": 8,
         "marginVertical": 8,
@@ -63,6 +68,7 @@
                     "id": "Workspace",
                     "labelMode": "index+name",
                     "occupiedColor": "secondary",
+                    "reverseScroll": false,
                     "showApplications": true,
                     "showBadge": true,
                     "showLabelsOnlyWhenOccupied": false,
@@ -275,6 +281,7 @@
     },
     "general": {
         "allowPanelsOnScreenWithoutBar": true,
+        "allowPasswordWithFprintd": false,
         "animationDisabled": true,
         "animationSpeed": 2,
         "autoStartAuth": false,
@@ -433,7 +440,7 @@
         "showHeader": true,
         "showNumberLabels": true
     },
-    "settingsVersion": 44,
+    "settingsVersion": 46,
     "systemMonitor": {
         "cpuCriticalThreshold": 90,
         "cpuPollingInterval": 3000,

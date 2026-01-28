@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, config,... }:
 
 let
 
@@ -37,4 +37,21 @@ in {
 
     # ref: https://github.com/NixOS/nixpkgs/issues/409986
     environment.etc."xdg/menus/applications.menu".source = appMenu;
+
+    systemd.user.services."trigger-kbuildsycoca6" = {
+        description = "Trigger kbuildsycoca6 manually";
+
+        wantedBy = [ "nixos-activation.service" ];
+        after = [ "nixos-activation.service" ];
+        stopIfChanged = false;
+
+        serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = false;
+        };
+
+        script = ''
+            ${lib.getExe pkgs.kdePackages.kservice} --noincremental
+        '';
+    };
 }
