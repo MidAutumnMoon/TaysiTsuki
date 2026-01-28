@@ -13,32 +13,21 @@
                 "api_url": "https://nano-gpt.com/api/v1",
                 "available_models": [
                     {
-                        "name": "minimax/minimax-m2.1",
-                        "max_tokens": 120000,
-                        "max_output_tokens": 90000,
-                        "max_completion_tokens": 90000,
-                        "capabilities": {
-                            "tools": true,
-                            "images": false,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": true,
-                        },
-                    },
-                    {
-                        "name": "zai-org/glm-4.7:thinking",
-                        "max_tokens": 120000,
+                        "name": "moonshotai/kimi-k2.5:thinking",
+                        "display_name": "Kimi K2.5",
+                        "max_tokens": 250000,
+                        "max_completion_tokens": 250000,
                         "max_output_tokens": 60000,
-                        "max_completion_tokens": 60000,
                         "capabilities": {
                             "tools": true,
-                            "images": false,
+                            "images": true,
                             "parallel_tool_calls": true,
                             "prompt_cache_key": true,
                         },
                     },
                 ],
             },
-        },
+        }
     },
     "colorize_brackets": true,
     "agent": {
@@ -48,8 +37,8 @@
             "model": "minimax/minimax-m2.1",
         },
         "default_model": {
-            "provider": "openrouter",
-            "model": "moonshotai/kimi-k2.5",
+            "provider": "NanoGPT",
+            "model": "moonshotai/kimi-k2.5:thinking",
         },
         "thread_summary_model": {
             "provider": "openrouter",
