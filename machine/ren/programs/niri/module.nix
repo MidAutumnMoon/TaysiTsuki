@@ -1,6 +1,14 @@
 { pkgs, lib, ... }:
 
-{
+let
+
+    # This avoids to build plasma-workspace.
+    appMenu = pkgs.runCommand "app-menu" {} ''
+        tar xvf "${pkgs.kdePackages.plasma-workspace.src}"
+        find -name "plasma-applications.menu" -exec cp {} "$out" \;
+    '';
+
+in {
     programs.niri.enable = true;
     programs.niri.useNautilus = false;
 
@@ -28,6 +36,5 @@
     xdg.icons.fallbackCursorThemes = [ "breeze_cursors" ];
 
     # ref: https://github.com/NixOS/nixpkgs/issues/409986
-    environment.etc."xdg/menus/applications.menu".source =
-        "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
+    environment.etc."xdg/menus/applications.menu".source = appMenu;
 }
