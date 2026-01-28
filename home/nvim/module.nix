@@ -6,10 +6,10 @@
         tsuki.neovim
         ripgrep
         fd
-        parinfer-rust
+        # parinfer-rust
         skim
         nixd
-        lua-language-server
+        # lua-language-server
     ];
 
     xdg_config."nvim".src = dots.get "nvim";
