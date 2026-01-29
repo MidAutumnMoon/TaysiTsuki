@@ -10,7 +10,7 @@
     "language_models": {
         "openai_compatible": {
             "NanoGPT": {
-                "api_url": "https://nano-gpt.com/api/v1",
+                "api_url": "https://nano-gpt.com/api/v1legacy",
                 "available_models": [
                     {
                         "name": "moonshotai/kimi-k2.5:thinking",
@@ -27,7 +27,7 @@
                     },
                 ],
             },
-        }
+        },
     },
     "colorize_brackets": true,
     "agent": {
@@ -37,8 +37,8 @@
             "model": "minimax/minimax-m2.1",
         },
         "default_model": {
-            "provider": "openrouter",
-            "model": "moonshotai/kimi-k2.5",
+            "provider": "NanoGPT",
+            "model": "moonshotai/kimi-k2.5:thinking",
         },
         "thread_summary_model": {
             "provider": "openrouter",

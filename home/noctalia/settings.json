@@ -144,7 +144,8 @@
                     "hideWhenZero": false,
                     "hideWhenZeroUnread": true,
                     "id": "NotificationHistory",
-                    "showUnreadBadge": true
+                    "showUnreadBadge": true,
+                    "unreadBadgeColor": "primary"
                 },
                 {
                     "displayMode": "onhover",
