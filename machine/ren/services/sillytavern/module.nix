@@ -28,8 +28,10 @@ in
                 lazyLoadCharacters = true;
                 memoryCacheCapacity = "1gb";
             };
-            cacheBuster.enabled = true;
+            # cacheBuster.enabled = true;
             whitelistMode = false;
+            backups.chat.enabled = false;
+            enableDownloadableTokenizers = true;
         }
         |> toString;
 
