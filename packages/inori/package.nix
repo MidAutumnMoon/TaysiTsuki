@@ -12,7 +12,7 @@
 tsuki.rust.buildRustPackage {
 
     pname = "inori";
-    version = "0-unstable-2026-01-26";
+    version = "0-unstable-2026-01-28";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
