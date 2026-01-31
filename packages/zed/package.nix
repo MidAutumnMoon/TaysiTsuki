@@ -26,14 +26,14 @@
 stdenv.mkDerivation rec {
 
     pname = "zed";
-    version = "0.221.4";
+    version = "0.221.5";
 
     src = tsuki.fetchGitHubRelease {
         owner = "zed-industries";
         repo = "zed";
         tag = "v${version}";
         file = "zed-linux-x86_64.tar.gz";
-        hash = "sha256-I5QblKM8GF+HlpBlFmty9Ifw9NFpulzAJekgAZRFcLo=";
+        hash = "sha256-XjUYFQRioxKW8YiMCwr54pqG9DW86FngpDpy55V0DwQ=";
     };
 
     nativeBuildInputs = [
