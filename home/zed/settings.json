@@ -21,7 +21,7 @@
                         "capabilities": {
                             "tools": true,
                             "images": true,
-                            "parallel_tool_calls": true,
+                            "parallel_tool_calls": false,
                             "prompt_cache_key": true,
                         },
                     },

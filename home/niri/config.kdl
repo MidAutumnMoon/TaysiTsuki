@@ -28,7 +28,7 @@ input {
         // Enable numlock on startup, omitting this setting disables it.
         // numlock
 
-        repeat-delay 200
+        repeat-delay 280
         repeat-rate 60
     }
 

@@ -78,8 +78,13 @@ in {
             "--verbose=2"
         ];
 
-        # Hourly snapshots of about 7 days
-        pruneOpts = [ "--keep-last=180" ];
+        # Hourly snapshots of about 5 days
+        pruneOpts = [
+            # f restic
+            "--group-by=tags"
+            "--tag=snapshot"
+            "--keep-hourly=120"
+        ];
 
         dynamicFilesFrom =
             map (vol: config.services.snapper.configs.${vol}.SUBVOLUME)
