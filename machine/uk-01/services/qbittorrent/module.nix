@@ -74,15 +74,15 @@ in {
 
     services.caddy.virtualHosts."im_418".extraConfig =
         let
-            inherit (apps.tailnet) downloader_dashboard;
+            inherit (apps.public) downloader_dashboard;
             inherit (apps.public) torrent_download;
         in
         ''
-            @qbitwebui {
-                host ${downloader_dashboard.fqdn}
-                client_ip private_ranges
-            }
+            @qbitwebui host ${downloader_dashboard.fqdn}
             handle @qbitwebui {
+                basic_auth {
+                    {env.DOWNLOAD_AUTH_NAME} {env.DOWNLOAD_AUTH_PASSWD}
+                }
                 reverse_proxy http://localhost:${toString ports.qbitwebui}
             }
 

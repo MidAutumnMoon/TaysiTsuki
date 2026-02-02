@@ -87,7 +87,6 @@
                 cname = "${node}.tailscale.${im_418}";
             };
         in {
-            downloader_dashboard = on "uk-01" "2qbit";
             slskd_dashboard = on "uk-01" "slskd";
             clash_dashboard = on "ren" "clash";
         };
@@ -97,6 +96,10 @@
         {
             torrent_download = {
                 subdomain = "td";
+                domain = im_418;
+            };
+            downloader_dashboard = {
+                subdomain = "2qbit";
                 domain = im_418;
             };
             pds = {

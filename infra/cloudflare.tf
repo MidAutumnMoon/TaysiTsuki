@@ -47,6 +47,16 @@ resource "cloudflare_dns_record" "im_418_torrent_download" {
     proxied = true
 }
 
+resource "cloudflare_dns_record" "im_418_torrent_dashboard" {
+    zone_id = cloudflare_zone.im_418.id
+    ttl = local.ttl_auto
+    type = "AAAA"
+    name = "2qbit.${cloudflare_zone.im_418.name}"
+    content = local.ip_addr["uk-01"]["ipv6"]
+    proxied = true
+}
+
+
 # resource "cloudflare_dns_record" "im_418_tangled_knot" {
 #     zone_id = cloudflare_zone.im_418.id
 #     ttl = local.ttl_auto

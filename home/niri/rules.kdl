@@ -28,6 +28,7 @@ window-rule {
     match app-id="^(vesktop)$"
     match app-id="^(feishin)$"
     match app-id="swayimg"
+    match app-id="dev.zed.Zed"
 
     exclude is-floating=true
 
