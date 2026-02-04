@@ -9,6 +9,7 @@
         "enableClipPreview": true,
         "enableClipboardHistory": true,
         "enableSettingsSearch": true,
+        "enableWindowsSearch": true,
         "iconMode": "tabler",
         "ignoreMouseInput": true,
         "pinnedApps": [
@@ -33,11 +34,13 @@
         "volumeStep": 1
     },
     "bar": {
+        "autoHideDelay": 500,
+        "autoShowDelay": 150,
         "backgroundOpacity": 1,
         "barType": "simple",
         "capsuleOpacity": 1,
         "density": "spacious",
-        "exclusive": true,
+        "displayMode": "always_visible",
         "floating": false,
         "frameRadius": 12,
         "frameThickness": 8,
@@ -463,7 +466,6 @@
         "swapCriticalThreshold": 90,
         "swapWarningThreshold": 80,
         "tempCriticalThreshold": 90,
-        "tempPollingInterval": 3000,
         "tempWarningThreshold": 80,
         "useCustomColors": false,
         "warningColor": ""
@@ -516,10 +518,11 @@
         ],
         "overviewEnabled": true,
         "panelPosition": "follow_bar",
-        "randomIntervalSec": 600,
+        "randomIntervalSec": 3600,
         "setWallpaperOnAllMonitors": true,
         "showHiddenFiles": false,
         "solidColor": "#1a1a2e",
+        "sortOrder": "name",
         "transitionDuration": 500,
         "transitionEdgeSmoothness": 0.05,
         "transitionType": "random",
