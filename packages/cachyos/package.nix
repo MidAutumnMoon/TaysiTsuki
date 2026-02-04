@@ -13,7 +13,7 @@ rec {
     kernelPatches = fetchFromGitHub {
         owner = "CachyOS";
         repo = "kernel-patches";
-        rev = "d9ee5782e55be03ab33ef40da9825ec1d7772fda";
+        rev = "2da035a385dd1af91b3e69368bd52b1818eab4f7";
         sha256 = "sha256-fVQE2GPI1wDaMoU8bp6pti1K1ldvjPqHTH56nE39kGc=";
         postFetch = ''
             find "$out" -type f \
@@ -45,7 +45,7 @@ rec {
     # TODO: implement subpackages in maintainance tool
     kernel-patches-updater = stdenv.mkDerivation {
         pname = "cachyos-kernel-patches";
-        version = "0-unstable-2026-02-03";
+        version = "0-unstable-2026-02-04";
         src = kernelPatches;
         buildCommand = "ls $src > $out";
     };
