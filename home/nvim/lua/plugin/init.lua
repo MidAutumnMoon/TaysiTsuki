@@ -93,7 +93,7 @@ local __plugins = {
     --
 
     {
-        "ggandor/leap.nvim",
+        "https://codeberg.org/andyg/leap.nvim",
         config = function()
             require "plugin.leap"
         end
