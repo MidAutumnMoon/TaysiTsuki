@@ -37,8 +37,8 @@
             "model": "minimax/minimax-m2.1",
         },
         "default_model": {
-            "provider": "NanoGPT",
-            "model": "moonshotai/kimi-k2.5:thinking",
+            "provider": "openrouter",
+            "model": "moonshotai/kimi-k2.5",
         },
         "thread_summary_model": {
             "provider": "openrouter",

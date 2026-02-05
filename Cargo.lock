@@ -730,6 +730,7 @@ dependencies = [
  "ino_iter",
  "ino_tracing",
  "itertools",
+ "niri-ipc",
  "saphyr",
  "tap",
  "tracing",
@@ -783,6 +784,16 @@ dependencies = [
  "serde_yaml_ng",
  "tap",
  "tempfile",
+]
+
+[[package]]
+name = "niri-ipc"
+version = "25.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12bd9eb4e437f5282ce853cf66837658379cb537b4b6bae687da59246005329a"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
