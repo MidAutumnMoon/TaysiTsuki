@@ -49,7 +49,7 @@ Item {
     signal middleClicked
     signal wheel(int angleDelta)
 
-    readonly property real contentWidth: barIsVertical ? capsuleHeight : Math.round(capsuleHeight + Style.marginXRS * 2)
+    readonly property real contentWidth: barIsVertical ? capsuleHeight : Math.round(capsuleHeight + Style.marginXS * 2)
     readonly property real contentHeight: capsuleHeight
 
     implicitWidth: contentWidth
