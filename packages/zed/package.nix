@@ -6,12 +6,13 @@
 
     libbsd,
     alsa-lib,
-    xorg,
     libxkbcommon,
     wayland,
     vulkan-loader,
     zlib,
     glibc,
+    libxcb,
+    libX11,
 
     makeBinaryWrapper,
     nodejs,
@@ -48,8 +49,8 @@ stdenv.mkDerivation rec {
         alsa-lib
         libxkbcommon
         wayland
-        xorg.libX11
-        xorg.libxcb
+        libX11
+        libxcb
         zlib
     ];
 
