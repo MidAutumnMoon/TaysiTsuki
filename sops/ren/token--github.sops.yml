@@ -1,4 +1,4 @@
-token--github--me: ENC[AES256_GCM,data:SNtBlfAr5kTbXYHhqMhzqLqAR6RV0S/vamCn5oSlKbUAk7pFyDNWOj7hdU67SN8e+k/pDLcMltB1RbISXFsDYUWLxqA3VkobMC0=,iv:F0c/riYgzftCZaL1+Pk8VQMGCCzWRcyGoQuXAjgQebo=,tag:Y0nKmk1G92HgdIICm+Iwtw==,type:str]
+token--github--me: ENC[AES256_GCM,data:as/RtM5WqkHO43hsTdcTlVt5ngEesTgGE3+PVU9i4QCLlEJnMCVHqyGn/T4nUz+6tvM+hTCGg2Dla2uTPJ/HCqL64BsFy2U5SApcoxvwystN4xk6tN3oX1syEFqmhcYSEqcALEV6CmP/zU2w80K0R0qoWxUQS721qqKPLQHRphCxr4ZTVgmwRhlZIyZL5td+3ijEkaCL,iv:zSMyM6jGW5erzbyiULo0akZEpA+QoTEGW6qoxcYpLx0=,tag:D6kyJNqrIArD1D4xM7jtVw==,type:str]
 sops:
     age:
         - recipient: age17lvnmh99feams2pvfljw34k5s705uk89x6g26r4ml85yu0h2q9uswpmjm6
@@ -46,7 +46,7 @@ sops:
             YnRUbitJMGF4SDUxZjRoazdtSW84dkEKQPM4kLu3J98xtvoDreQhQH0VCKIcJSdG
             pIU5M62RgRE5eplenInp+IK3zAl4DaRw8G5mB8X9NH8oGA0IbnObtw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-06-19T14:04:23Z"
-    mac: ENC[AES256_GCM,data:sOIKSdWddAWlJzSa0roey4+LVy4bhM8xnBD4xx6GfowJEh0Bcnnc3fL70z4eLm1QZI45THce3aKV7abi8jzkZSNeQ3W1rG/BdjgbQnflqMaSW2JOGwPRuSEdgDQ19HcJyr6gQLqEYviEjumzWRQZbjKhIOlDhnCcXPa90jQ2aCA=,iv:kx1NJbpZnXVJgpKqoGJFqetN0afM7g76GZlgCZxil1M=,tag:wv+8lcXhGS3t1gYpOgpdOw==,type:str]
+    lastmodified: "2026-02-05T01:02:47Z"
+    mac: ENC[AES256_GCM,data:TN+oAx7mHqRwPFCOioxTYhbY2vGf/l1QNxdTQm5aBe4uFyC7n+762dcr+iLf3XR7ygr65cM+2ire4FEBB+P72CLPYYfAdJ4sXmDbsuu5dWy/XOMEHn91mO7E3kuy+uWHWll0Q4J/Y0xAj7L2un8NcB0JvUDtMynRRZ8nyBqTmII=,iv:TyXNPNSUNp1MAgkdcSjy3QMKAyxIOSuBflR7A+YZsG0=,tag:oxJy7gyYNOds1VYpdJLNfQ==,type:str]
     unencrypted_suffix: _unencrypted
-    version: 3.10.2
+    version: 3.11.0
