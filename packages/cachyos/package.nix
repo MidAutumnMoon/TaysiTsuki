@@ -26,7 +26,7 @@ rec {
     kernelConfig = fetchFromGitHub {
         owner = "CachyOS";
         repo = "linux-cachyos";
-        rev = "94b35b638d970d70a354432d863e5fdf39238e44";
+        rev = "39ecee276c262ef6533165a7e5769b78cb54b226";
         sha256 = "sha256-d1GhWEdENpt002r7mmVJ6n4FqJ/W+m8IZJl5ioWDwjo=";
         postFetch = ''
             hold="$(mktemp -d)"
@@ -51,7 +51,7 @@ rec {
     };
     kernel-config-updater = stdenv.mkDerivation {
         pname = "cachyos-kernel-config";
-        version = "6.17.9-unstable-2026-02-06";
+        version = "6.17.9-unstable-2026-02-08";
         src = kernelConfig;
         buildCommand = "cat $src > $out";
     };
