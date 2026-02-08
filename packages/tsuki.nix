@@ -206,6 +206,5 @@ allUnique <| withValidate <|
     { attr = "nixd"; group = "Nixd"; }
     { attr = "lix"; group = "Lix"; }
     { attr = "colmena"; group = "Colmena"; }
-    { attr = tsuki "zellij"; group = "Zellij"; }
 
 ]
