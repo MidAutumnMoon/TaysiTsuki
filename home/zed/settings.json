@@ -37,8 +37,8 @@
             "model": "moonshotai/kimi-k2.5:thinking",
         },
         "default_model": {
-            "provider": "openrouter",
-            "model": "moonshotai/kimi-k2.5",
+            "provider": "NanoGPT",
+            "model": "moonshotai/kimi-k2.5:thinking",
         },
         "thread_summary_model": {
             "provider": "openrouter",
