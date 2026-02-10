@@ -134,6 +134,7 @@
 
         "general.autoScroll" = true;
         # "general.smoothScroll.msdPhysics.enabled" = true;
+        "general.smoothScroll.currentVelocityWeighting" = "0.1";
         "geo.enabled" = false;
         "gfx.webrender.all" = true;
 
