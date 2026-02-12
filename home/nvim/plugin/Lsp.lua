@@ -1,4 +1,4 @@
-vim.lsp.config( "nixd", {
+vim.lsp.config("nixd", {
     on_init = function( client, result )
         -- client.server_capabilities.completionProvider = false
     end,
@@ -9,11 +9,10 @@ vim.lsp.config( "nixd", {
             home_manager = { expr = "null" },
         },
     } }
-} )
+})
 
 vim.lsp.enable {
     "denols",
-    "rubocop",
     "nixd",
 }
 
@@ -23,8 +22,8 @@ vim.api.nvim_create_autocmd( 'LspAttach', {
         vim.keymap.set( "n", "<F2>", vim.lsp.buf.rename, keyopts )
         vim.keymap.set( "n", "gd", vim.lsp.buf.definition, keyopts )
         -- disable semantic highlight; it's laggy
-        local client = vim.lsp.get_client_by_id( args.data.client_id )
-        client.server_capabilities.semanticTokensProvider = nil
+        -- local client = vim.lsp.get_client_by_id( args.data.client_id )
+        -- client.server_capabilities.semanticTokensProvider = nil
     end
 } )
 
