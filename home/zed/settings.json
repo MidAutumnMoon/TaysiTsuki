@@ -27,6 +27,24 @@
                     },
                 ],
             },
+            "Volcengine": {
+                "api_url": "https://ark.cn-beijing.volces.com/api/coding/v3",
+                "available_models": [
+                    {
+                        "name": "kimi-k2.5",
+                        "display_name": "Kimi K2.5",
+                        "max_tokens": 250000,
+                        // "max_completion_tokens": 250000,
+                        // "max_output_tokens": 60000,
+                        "capabilities": {
+                            "tools": true,
+                            "images": true,
+                            "parallel_tool_calls": false,
+                            "prompt_cache_key": false,
+                        },
+                    },
+                ],
+            },
         },
     },
     "colorize_brackets": true,
@@ -37,8 +55,8 @@
             "model": "moonshotai/kimi-k2.5:thinking",
         },
         "default_model": {
-            "provider": "NanoGPT",
-            "model": "moonshotai/kimi-k2.5:thinking",
+            "provider": "Volcengine",
+            "model": "kimi-k2.5",
         },
         "thread_summary_model": {
             "provider": "openrouter",
@@ -48,7 +66,7 @@
             "provider": "openrouter",
             "model": "openai/gpt-oss-120b",
         },
-        "model_parameters": [{ "temperature": 0.8 }],
+        // "model_parameters": [{ "temperature": 0.8 }],
         "use_modifier_to_send": true,
     },
     "vim_mode": true,

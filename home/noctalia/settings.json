@@ -209,7 +209,7 @@
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
         "monitorForColors": "",
-        "predefinedScheme": "Catppuccin",
+        "predefinedScheme": "Nord",
         "schedulingMode": "off",
         "useWallpaperColors": false
     },
