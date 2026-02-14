@@ -2,66 +2,69 @@ local ok, lore = pcall(require, "lore")
 local ExcludedFiletypes = ok and lore.ExcludedFiletypes or {}
 
 local config = {
-	IgnoredFiles = {}
+	IgnoredFiles = {},
+	debounce_ms = 100,
 }
 
 local M = {}
+local timers = {}
 
---- Check if buffer is valid and safe to operate on
---- @param buf number
---- @return boolean
-local function is_valid_buffer(buf)
-	return vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].modifiable
-end
-
---- @param buf number
-function M.validate_buffer(buf)
-	if not is_valid_buffer(buf) then
-		return false
-	end
-
+local function should_trim(buf)
+	if not vim.api.nvim_buf_is_valid(buf) then return false end
 	local bo = vim.bo[buf]
-	local name = vim.fs.basename(vim.api.nvim_buf_get_name(buf)) or ""
+	if not bo.modifiable then return false end
 
-	return (
-		not vim.tbl_contains(ExcludedFiletypes, bo.ft)
-		and not vim.tbl_contains(config.IgnoredFiles, name)
+	local name = vim.fs.basename(vim.api.nvim_buf_get_name(buf)) or ""
+	return not (
+		vim.tbl_contains(ExcludedFiletypes, bo.ft) or
+		vim.tbl_contains(config.IgnoredFiles, name)
 	)
 end
 
---- @param buf integer
-function M.trim(buf)
-	if not M.validate_buffer(buf) then
-		return
+local function cancel_timer(buf)
+	if timers[buf] then
+		timers[buf]:close()
+		timers[buf] = nil
 	end
+end
+
+function M.trim(buf)
+	if not should_trim(buf) then return end
 
 	local ok_view, saved_view = pcall(vim.fn.winsaveview)
-	if not ok_view then
-		return
-	end
+	if not ok_view then return end
 
-	vim.cmd([[
-        keepjumps keeppatterns silent! %s/\s\+$//e
-    ]])
+	vim.cmd([[keepjumps keeppatterns silent! %s/\s\+$//e]])
 
-	-- Only restore view if buffer is still valid
 	if vim.api.nvim_buf_is_valid(buf) then
 		pcall(vim.fn.winrestview, saved_view)
 	end
 end
 
-vim.keymap.set("n", "<LocalLeader>\\", function()
-	M.trim(0)
-end)
+function M.schedule_trim(buf)
+	cancel_timer(buf)
+	if not vim.api.nvim_buf_is_valid(buf) then return end
+
+	timers[buf] = vim.defer_fn(function()
+		timers[buf] = nil
+		M.trim(buf)
+	end, config.debounce_ms)
+end
+
+vim.keymap.set("n", "<LocalLeader>\\", function() M.trim(0) end)
 
 local augroup = vim.api.nvim_create_augroup("TrimTrailing", { clear = true })
 
 vim.api.nvim_create_autocmd({ "BufLeave", "WinLeave" }, {
 	group = augroup,
 	pattern = "*",
-	callback = function(opts)
-		M.trim(opts.buf)
-	end,
+	callback = function(opts) M.schedule_trim(opts.buf) end,
+})
+
+vim.api.nvim_create_autocmd({ "BufDelete", "BufWipeout" }, {
+	group = augroup,
+	pattern = "*",
+	callback = function(opts) cancel_timer(opts.buf) end,
 })
 
 -- ExitPre excluded because buffer may be invalid/unloaded during quit

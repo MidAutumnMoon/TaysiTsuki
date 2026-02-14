@@ -7,6 +7,15 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+    "context_servers": {
+        "mcp-server-context7": {
+            "enabled": true,
+            "remote": false,
+            "settings": {
+                "context7_api_key": "ctx7sk-096f9ea4-75ea-4a2d-909c-ba8ab95d0615",
+            },
+        },
+    },
     "language_models": {
         "openai_compatible": {
             "NanoGPT": {
@@ -43,6 +52,19 @@
                             "prompt_cache_key": true,
                         },
                     },
+                    {
+                        "name": "doubao-seed-2.0-code",
+                        "display_name": "Doubao Seed 2.0 Code",
+                        "max_tokens": 250000,
+                        // "max_completion_tokens": 250000,
+                        // "max_output_tokens": 60000,
+                        "capabilities": {
+                            "tools": true,
+                            "images": true,
+                            "parallel_tool_calls": true,
+                            "prompt_cache_key": true,
+                        },
+                    },
                 ],
             },
         },
@@ -56,7 +78,7 @@
         },
         "default_model": {
             "provider": "Volcengine",
-            "model": "kimi-k2.5",
+            "model": "doubao-seed-2.0-code",
         },
         "thread_summary_model": {
             "provider": "openrouter",
