@@ -3,7 +3,7 @@
 let
 
     inherit (config) lore;
-
+    tvDomain = lore.apps.homelab.sillytavern.fqdn;
 in
 
 {
@@ -36,7 +36,10 @@ in
         |> toString;
 
     services.caddy.virtualHosts."im_418".extraConfig = ''
-        @sillytavern host ${lore.apps.homelab.sillytavern.fqdn}
+        @sillytavern {
+            host ${tvDomain}
+            client_ip private_ranges
+        }
         handle @sillytavern {
             reverse_proxy http://127.0.0.1:${toString lore.ports.sillytavern}
         }
