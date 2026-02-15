@@ -106,6 +106,27 @@
                     "id": "plugin:catwalk"
                 },
                 {
+                    "compactMode": false,
+                    "diskPath": "/home",
+                    "iconColor": "none",
+                    "id": "SystemMonitor",
+                    "showCpuFreq": false,
+                    "showCpuTemp": false,
+                    "showCpuUsage": false,
+                    "showDiskAvailable": false,
+                    "showDiskUsage": false,
+                    "showDiskUsageAsPercent": false,
+                    "showGpuTemp": false,
+                    "showLoadAverage": false,
+                    "showMemoryAsPercent": false,
+                    "showMemoryUsage": true,
+                    "showNetworkStats": true,
+                    "showSwapUsage": false,
+                    "textColor": "primary",
+                    "useMonospaceFont": true,
+                    "usePadding": false
+                },
+                {
                     "colorizeIcons": false,
                     "hideMode": "hidden",
                     "iconScale": 1,
