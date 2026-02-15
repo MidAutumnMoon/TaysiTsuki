@@ -63,24 +63,17 @@
         "widgets": {
             "center": [
                 {
-                    "characterCount": 4,
                     "colorizeIcons": false,
-                    "emptyColor": "secondary",
-                    "enableScrollWheel": true,
-                    "focusedColor": "primary",
-                    "followFocusedScreen": false,
-                    "groupedBorderOpacity": 1,
-                    "hideUnoccupied": false,
-                    "iconScale": 0.9,
-                    "id": "Workspace",
-                    "labelMode": "index+name",
-                    "occupiedColor": "secondary",
-                    "pillSize": 0.6,
-                    "reverseScroll": false,
-                    "showApplications": true,
-                    "showBadge": true,
-                    "showLabelsOnlyWhenOccupied": false,
-                    "unfocusedIconsOpacity": 1
+                    "hideMode": "transparent",
+                    "iconScale": 0.98,
+                    "id": "Taskbar",
+                    "maxTaskbarWidth": 40,
+                    "onlyActiveWorkspaces": true,
+                    "onlySameOutput": true,
+                    "showPinnedApps": true,
+                    "showTitle": false,
+                    "smartWidth": true,
+                    "titleWidth": 120
                 }
             ],
             "left": [
@@ -127,17 +120,28 @@
                     "usePadding": false
                 },
                 {
+                    "id": "Spacer",
+                    "width": 20
+                },
+                {
+                    "characterCount": 4,
                     "colorizeIcons": false,
-                    "hideMode": "hidden",
-                    "iconScale": 1,
-                    "id": "Taskbar",
-                    "maxTaskbarWidth": 40,
-                    "onlyActiveWorkspaces": true,
-                    "onlySameOutput": true,
-                    "showPinnedApps": true,
-                    "showTitle": false,
-                    "smartWidth": true,
-                    "titleWidth": 120
+                    "emptyColor": "secondary",
+                    "enableScrollWheel": true,
+                    "focusedColor": "primary",
+                    "followFocusedScreen": false,
+                    "groupedBorderOpacity": 1,
+                    "hideUnoccupied": false,
+                    "iconScale": 0.9,
+                    "id": "Workspace",
+                    "labelMode": "index+name",
+                    "occupiedColor": "secondary",
+                    "pillSize": 0.6,
+                    "reverseScroll": false,
+                    "showApplications": true,
+                    "showBadge": true,
+                    "showLabelsOnlyWhenOccupied": true,
+                    "unfocusedIconsOpacity": 1
                 }
             ],
             "right": [
