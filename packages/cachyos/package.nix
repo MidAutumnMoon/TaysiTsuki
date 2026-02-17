@@ -13,8 +13,8 @@ rec {
     kernelPatches = fetchFromGitHub {
         owner = "CachyOS";
         repo = "kernel-patches";
-        rev = "c70ca0984ba05cc50504bda2f3a4ef56b60ab738";
-        sha256 = "sha256-OHpr6fJ9HOskwlR77Xu5fbXKrljb0QBRgfA+uEdb188=";
+        rev = "cb320a13e3c92f32ada27acb1fba8a828a22ae60";
+        sha256 = "sha256-479palXyP6zmfJRiEApiniU5Hv26X3ATUoocahweXUo=";
         postFetch = ''
             find "$out" -type f \
                 ! -name "0001-cachyos-base-all.patch" \
@@ -26,7 +26,7 @@ rec {
     kernelConfig = fetchFromGitHub {
         owner = "CachyOS";
         repo = "linux-cachyos";
-        rev = "8d17474572269bf35454d4ee2cf4824c4fa80cad";
+        rev = "5ece16c7b4a7d1261da68153cafc318a60b78ce8";
         sha256 = "sha256-8OyN6x8QYIM1iddi/GGxG4C1OGYcUNSfuwThEXaWHHw=";
         postFetch = ''
             hold="$(mktemp -d)"
@@ -45,13 +45,13 @@ rec {
     # TODO: implement subpackages in maintainance tool
     kernel-patches-updater = stdenv.mkDerivation {
         pname = "cachyos-kernel-patches";
-        version = "0-unstable-2026-02-13";
+        version = "0-unstable-2026-02-16";
         src = kernelPatches;
         buildCommand = "ls $src > $out";
     };
     kernel-config-updater = stdenv.mkDerivation {
         pname = "cachyos-kernel-config";
-        version = "6.17.9-unstable-2026-02-13";
+        version = "6.17.9-unstable-2026-02-16";
         src = kernelConfig;
         buildCommand = "cat $src > $out";
     };
