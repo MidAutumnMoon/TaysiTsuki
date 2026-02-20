@@ -137,7 +137,6 @@
                     "labelMode": "index+name",
                     "occupiedColor": "secondary",
                     "pillSize": 0.6,
-                    "reverseScroll": false,
                     "showApplications": true,
                     "showBadge": true,
                     "showLabelsOnlyWhenOccupied": true,
@@ -191,6 +190,7 @@
                     "textColor": "none"
                 },
                 {
+                    "applyScrollToAllMonitors": false,
                     "displayMode": "onhover",
                     "iconColor": "none",
                     "id": "Brightness",
@@ -211,7 +211,8 @@
     "brightness": {
         "brightnessStep": 5,
         "enableDdcSupport": true,
-        "enforceMinimum": true
+        "enforceMinimum": true,
+        "syncAllMonitors": false
     },
     "calendar": {
         "cards": [
@@ -308,6 +309,7 @@
         "colorizeIcons": false,
         "deadOpacity": 0.5,
         "displayMode": "auto_hide",
+        "dockType": "floating",
         "enabled": false,
         "floatingRatio": 0,
         "inactiveIndicators": false,
@@ -318,6 +320,8 @@
         ],
         "pinnedStatic": false,
         "position": "bottom",
+        "showFrameIndicator": true,
+        "sitOnFrame": false,
         "size": 1.3
     },
     "general": {
@@ -368,6 +372,7 @@
         ],
         "lockScreenTint": 0,
         "radiusRatio": 1,
+        "reverseScroll": false,
         "scaleRatio": 1.05,
         "screenRadiusRatio": 1,
         "shadowDirection": "bottom",
@@ -425,10 +430,12 @@
     },
     "notifications": {
         "backgroundOpacity": 1,
+        "clearDismissed": true,
         "criticalUrgencyDuration": 9,
         "density": "default",
         "enableBatteryToast": true,
         "enableKeyboardLayoutToast": true,
+        "enableMarkdown": false,
         "enableMediaToast": false,
         "enabled": true,
         "location": "bottom_left",

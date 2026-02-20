@@ -3,7 +3,6 @@ result*
 /.direnv/
 target/
 
-
-# Added by cargo
-
 /target
+
+**/clipper/Assets/
