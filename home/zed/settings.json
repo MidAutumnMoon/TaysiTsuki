@@ -183,6 +183,8 @@
             "alt": true,
         },
     },
+    "semantic_tokens": "combined",
+    "document_symbols": "on",
     "lsp": {
         "rust-analyzer": {
             "initialization_options": {
