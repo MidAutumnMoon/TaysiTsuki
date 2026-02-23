@@ -32,6 +32,7 @@ in
             whitelistMode = false;
             backups.chat.enabled = false;
             enableDownloadableTokenizers = true;
+            thumbnails.enabled = false;
         }
         |> toString;
 
