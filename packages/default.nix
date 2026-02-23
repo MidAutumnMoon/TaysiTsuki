@@ -74,6 +74,10 @@ in rec {
 
     obsidian = lib.useElectronBin prev prev.obsidian;
 
+    navidrome = prev.navidrome.overrideDerivation (old: {
+        CGO_CFLAGS_ALLOW = "--define-prefix";
+    });
+
     yt-dlp = prev.yt-dlp.override {
         inherit (tsuki) deno;
     };
