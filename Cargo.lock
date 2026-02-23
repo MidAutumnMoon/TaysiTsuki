@@ -219,9 +219,9 @@ dependencies = [
 
 [[package]]
 name = "docstr"
-version = "0.4.6"
+version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03f9c8f8e7c0edf9b0a5626b865628e90e6e896dc871cd65c894058f78bfef27"
+checksum = "1a02d5223c61cb2115df8d68302d9d6159a784ecbf4c44acbf4b99c5ebad68e9"
 dependencies = [
  "litrs",
 ]
