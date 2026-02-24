@@ -219,11 +219,12 @@ dependencies = [
 
 [[package]]
 name = "docstr"
-version = "0.4.7"
+version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a02d5223c61cb2115df8d68302d9d6159a784ecbf4c44acbf4b99c5ebad68e9"
+checksum = "47e20983ad058ad698cebfb75321d4ac04dc00c56cdb3c16c57e3d84a489c48d"
 dependencies = [
  "litrs",
+ "nik-rev",
 ]
 
 [[package]]
@@ -798,6 +799,12 @@ dependencies = [
  "tap",
  "tempfile",
 ]
+
+[[package]]
+name = "nik-rev"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76018729da4fc1da86828e3e0f56f4b4fbf8da1aa42dc50ad1d00de5bdb419d3"
 
 [[package]]
 name = "niri-ipc"
