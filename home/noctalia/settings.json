@@ -33,6 +33,7 @@
         "preferredPlayer": "mpv",
         "visualizerType": "wave",
         "volumeFeedback": false,
+        "volumeFeedbackSoundFile": "",
         "volumeOverdrive": false,
         "volumeStep": 1
     },
@@ -43,6 +44,7 @@
         "barType": "simple",
         "capsuleColorKey": "none",
         "capsuleOpacity": 1,
+        "contentPadding": 0,
         "density": "spacious",
         "displayMode": "always_visible",
         "floating": false,
@@ -81,9 +83,13 @@
             ],
             "left": [
                 {
+                    "colorizeSystemIcon": "none",
+                    "customIconPath": "",
+                    "enableColorization": false,
                     "icon": "rocket",
                     "iconColor": "none",
-                    "id": "Launcher"
+                    "id": "Launcher",
+                    "useDistroLogo": false
                 },
                 {
                     "clockColor": "none",
@@ -212,6 +218,8 @@
         }
     },
     "brightness": {
+        "backlightDeviceMappings": [
+        ],
         "brightnessStep": 5,
         "enableDdcSupport": true,
         "enforceMinimum": true
@@ -303,7 +311,8 @@
         "enabled": false,
         "gridSnap": false,
         "monitorWidgets": [
-        ]
+        ],
+        "overviewEnabled": true
     },
     "dock": {
         "animationSpeed": 2,
@@ -426,6 +435,7 @@
         "bluetoothRssiPollIntervalMs": 10000,
         "bluetoothRssiPollingEnabled": false,
         "disableDiscoverability": false,
+        "networkPanelView": "wifi",
         "wifiDetailsViewMode": "grid",
         "wifiEnabled": true
     },
@@ -587,19 +597,16 @@
         "enableUserTheming": false
     },
     "ui": {
-        "bluetoothDetailsViewMode": "grid",
-        "bluetoothHideUnnamedDevices": false,
         "boxBorderEnabled": true,
         "fontDefault": "Noto Sans",
         "fontDefaultScale": 1.05,
         "fontFixed": "Monaspace Argon",
         "fontFixedScale": 1,
-        "networkPanelView": "wifi",
         "panelBackgroundOpacity": 1,
         "panelsAttachedToBar": true,
         "settingsPanelMode": "attached",
-        "tooltipsEnabled": true,
-        "wifiDetailsViewMode": "grid"
+        "settingsPanelSideBarCardStyle": false,
+        "tooltipsEnabled": true
     },
     "wallpaper": {
         "automationEnabled": true,
