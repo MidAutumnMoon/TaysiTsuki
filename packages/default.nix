@@ -72,6 +72,8 @@ in rec {
 
     dnscrypt-proxy = tsuki.dnscrypt;
 
+    cherry-studio = lib.useElectronBin prev prev.cherry-studio;
+
     obsidian = lib.useElectronBin prev prev.obsidian;
 
     navidrome = prev.navidrome.overrideDerivation (old: {
