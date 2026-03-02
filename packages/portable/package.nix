@@ -146,7 +146,7 @@ stdenv.mkDerivation (_drvSelf: {
 
         echo "Create erofs image"
         mkfs.erofs "$out/${pname}_${version}.raw" "$ROOT" \
-            -d5 -zzstd,level=12 \
+            -d5 -zlz4 \
             -Efragments,ztailpacking,dedupe \
             `# for reproducible build` \
             --ignore-mtime -Uclear -T0 \
