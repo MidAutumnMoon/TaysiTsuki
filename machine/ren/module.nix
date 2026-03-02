@@ -51,6 +51,14 @@
         config.users.users."teapot".name
     ];
 
+    nix.settings.substituters = lib.mkAfter [
+        "https://attic.xuyh0120.win/lantian"
+    ];
+
+    nix.settings.trusted-public-keys = lib.mkAfter [
+        "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
+    ];
+
     security.pam.u2f = {
         enable = true;
         settings = {

@@ -1,56 +1,56 @@
 name: Some Nix Things
 
 inputs:
-    cachix_token: { required: true }
+  cachix_token: { required: true }
 
 runs:
-    using: composite
+  using: composite
 
-    steps:
-        - name: Mount swap
-          shell: bash
-          run: |
-              {
-                F="/mnt/swapf"
-                sudo swapoff --all
-                sudo dd if=/dev/zero of=$F bs=1M count=20480
-                sudo chmod 600 $F
-                sudo mkswap $F
-                sudo swapon $F
-              } &
-              disown
+  steps:
+    - name: Mount swap
+      shell: bash
+      run: |
+        {
+          F="/mnt/swapf"
+          sudo swapoff --all
+          sudo dd if=/dev/zero of=$F bs=1M count=20480
+          sudo chmod 600 $F
+          sudo mkswap $F
+          sudo swapon $F
+        } &
+        disown
 
-        - name: Setup nix
-          uses: MidAutumnMoon/spheti-action/nix@master
-          with:
-              cachix-url: "https://nuirrce.cachix.org/"
-              cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
+    - name: Setup nix
+      uses: MidAutumnMoon/spheti-action/nix@master
+      with:
+        cachix-url: "https://nuirrce.cachix.org/"
+        cachix-pubkey: "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
 
-        - name: Move TMPDIR
-          shell: bash
-          run: |
-              conf="$HOME/.config/nix/nix.conf"
-              builddir="/mnt/$(uuidgen)"
-              sudo mkdir -p "$builddir"
-              sudo chmod 1777 "${builddir}"
-              echo "build-dir = ${builddir}" >> $conf
-              nix config show
+    - name: Move TMPDIR
+      shell: bash
+      run: |
+        conf="$HOME/.config/nix/nix.conf"
+        builddir="/mnt/$(uuidgen)"
+        sudo mkdir -p "$builddir"
+        sudo chmod 1777 "${builddir}"
+        echo "build-dir = ${builddir}" >> $conf
+        nix config show
 
-        - name: Add extra substituters
-          shell: bash
-          run: |
-              conf="$HOME/.config/nix/nix.conf"
-              echo "extra-substituters = https://cache.garnix.io" \
-                >> $conf
-              echo "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=" \
-                >> $conf
-              nix config show
+    - name: Add extra substituters
+      shell: bash
+      run: |
+        conf="$HOME/.config/nix/nix.conf"
+        echo "extra-substituters = https://cache.garnix.io https://attic.xuyh0120.win/lantian" \
+          >> $conf
+        echo "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=" \
+          >> $conf
+        nix config show
 
-        - name: Setup cachix
-          uses: cachix/cachix-action@v16
-          with:
-              installCommand: "nix profile install nixpkgs#cachix"
-              name: "nuirrce"
-              pushFilter: '(NVIDIA.*\.run)'
-              skipAddingSubstituter: true
-              authToken: ${{ inputs.cachix_token }}
+    - name: Setup cachix
+      uses: cachix/cachix-action@v16
+      with:
+        installCommand: "nix profile install nixpkgs#cachix"
+        name: "nuirrce"
+        pushFilter: '(NVIDIA.*\.run)'
+        skipAddingSubstituter: true
+        authToken: ${{ inputs.cachix_token }}

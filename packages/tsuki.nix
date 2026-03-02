@@ -52,7 +52,7 @@ let
         small_1 = "Small_Trivial_1";
         rust_1 = "Rust_1";
         rust_2 = "Rust_2";
-        kernel = "Cachy_Kernel";
+        # kernel = "Cachy_Kernel";
     };
 
 in
@@ -185,20 +185,20 @@ allUnique <| withValidate <|
     #
     # Cachyos Kernel
     #
-    {
-        attr = tsuki "cachyos.kernel";
-        group = gs.kernel;
-    }
-    {
-        attr = tsuki "cachyos.kernel-patches-updater";
-        group = gs.kernel;
-        update.unstable_branch = true;
-    }
-    {
-        attr = tsuki "cachyos.kernel-config-updater";
-        group = gs.kernel;
-        update.unstable_branch = true;
-    }
+    # {
+    #     attr = tsuki "cachyos.kernel";
+    #     group = gs.kernel;
+    # }
+    # {
+    #     attr = tsuki "cachyos.kernel-patches-updater";
+    #     group = gs.kernel;
+    #     update.unstable_branch = true;
+    # }
+    # {
+    #     attr = tsuki "cachyos.kernel-config-updater";
+    #     group = gs.kernel;
+    #     update.unstable_branch = true;
+    # }
 
     #
     # others to make sure being cached

@@ -64,6 +64,10 @@ in rec {
         sops-install-secrets
     ;
 
+    linuxCachyos =
+        (legacyFrom "nix-cachyos-kernel")
+        .linuxPackages-cachyos-latest-lto-x86_64-v3;
+
     # tangled = {
     #     inherit (pkgsFrom "tangled")
     #         knot

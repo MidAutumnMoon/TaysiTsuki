@@ -28,7 +28,7 @@
     ];
 
     boot.kernelPackages =
-        pkgs.tsuki.cachyos.kernel.packages;
+        pkgs.linuxCachyos;
 
     boot.kernel.sysctl = {
         "kernel.dmesg_restrict" = 0;
