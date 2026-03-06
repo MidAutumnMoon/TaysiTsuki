@@ -1,3 +1,5 @@
+{ pkgs, ... }:
+
 {
 
     programs.firefox = {
@@ -5,7 +7,12 @@
         wrapperConfig = {
             speechSynthesisSupport = false;
         };
+        nativeMessagingHosts.packages = [ pkgs.firefoxpwa ];
     };
+
+    environment.systemPackages = [
+        pkgs.firefoxpwa
+    ];
 
     programs.firefox.policies = {
         DisableAppUpdate = true;
@@ -121,6 +128,7 @@
         "browser.urlbar.update2.engineAliasRefresh" = true;
         "browser.tabs.groups.hoverPreview.enabled" = false;
         "browser.ml.linkPreview.enabled" = false;
+        "browser.tabs.loadBookmarksInTabs" = true;
 
         # enabled by default in 141; current 140
         "dom.ipc.forkserver.enable" = true;

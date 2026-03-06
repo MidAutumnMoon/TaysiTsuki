@@ -32,7 +32,8 @@ in
             whitelistMode = false;
             backups.chat.enabled = false;
             enableDownloadableTokenizers = true;
-            thumbnails.enabled = false;
+            # set to false if theme requires HQ pics
+            thumbnails.enabled = true;
         }
         |> toString;
 
