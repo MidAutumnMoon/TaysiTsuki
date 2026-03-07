@@ -142,11 +142,7 @@ allUnique <| withValidate <|
     {
         attr = tsuki "sing-box";
         group = gs.small_1;
-        update = {
-            pinned = true;
-            preview_release = true;
-            unstable_branch = true;
-        };
+        update = {};
     }
 
     #
