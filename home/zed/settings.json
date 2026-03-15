@@ -126,9 +126,9 @@
             "model": "doubao-seed-2.0-code",
         },
         "default_model": {
-            "enable_thinking": true,
-            "provider": "openrouter",
-            "model": "minimax/minimax-m2.5",
+            "enable_thinking": false,
+            "provider": "Volcengine",
+            "model": "kimi-k2.5",
         },
         "thread_summary_model": {
             "provider": "openrouter",
