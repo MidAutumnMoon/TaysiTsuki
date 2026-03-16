@@ -33,6 +33,7 @@ symlinkJoin {
         makeWrapper \
             "${lib.getExe neovim-unwrapped}" "$out/bin/nvim" \
             --inherit-argv0 \
+            --set UV_THREADPOOL_SIZE "16" \
             --set XDG_DATA_DIRS "${xdgDataDirs}" \
             --set XDG_CONFIG_DIRS "${xdgConfigDirs}"
 
