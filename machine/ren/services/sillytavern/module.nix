@@ -37,6 +37,12 @@ in
         }
         |> toString;
 
+    systemd.services."sillytavern" = {
+        environment = {
+            NODE_ENV = "production";
+        };
+    };
+
     services.caddy.virtualHosts."im_418".extraConfig = ''
         @sillytavern {
             host ${tvDomain}
