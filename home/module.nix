@@ -38,7 +38,6 @@
         age
         tsuki.feishin
         # tsuki.opencode
-        cherry-studio
     ];
 
     envvars = {
