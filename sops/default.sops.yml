@@ -1,7 +1,4 @@
 ip_addr:
-    sjc-01:
-        ipv4: ENC[AES256_GCM,data:rkgtiUKMAXau8n0TmFA=,iv:ohDIPt/wZZnbCOyKMniGaHETjUuHJID7sjuS5EiyVks=,tag:293kkmgwk5hzVKsqHyOx/w==,type:str]
-        ipv6: ENC[AES256_GCM,data:zIRsZmz8jKF0D90yPqmYr73hRb0=,iv:IfVP0KovhMcTNsdrjDz4QtHOnQYCLrqfWpz+Q6xE0JU=,tag:WgF/oRsmEjDwiLkdK24hVg==,type:str]
     uk-01:
         ipv4: ENC[AES256_GCM,data:87Shg/3GEZni3ZFs0A==,iv:2ZKBJExjBEMr1FD6mEBlfTD1WJkzIOZ8ftsQvLtetA4=,tag:KXdRxu95BZTxS9y10Vj/IQ==,type:str]
         ipv6: ENC[AES256_GCM,data:i1h+qp25DTEY0myWrlmBtFU5mZg=,iv:60MsBVLaDh82xbtll49f12CSGQQHhJw1WNQKHVpeOOo=,tag:l8FWmBcONN2iu9gIq8S5Qg==,type:str]
@@ -52,7 +49,7 @@ sops:
             aFdWRUVlRWljRmpyK29Jckc2QzhhemcKRJIx/6nOyNsZO3Y6woqirPajWXQTm7F8
             sWmix+PUHkAEGkmX2IwaGAHt6OQ4T4GJbc+/Sn9UYM+9xKIoGevkvQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-11-17T07:17:32Z"
-    mac: ENC[AES256_GCM,data:7kn7h+2egamJkh/4h2LPZjk+Nu6Etl0GfXxscUt1NkIFrsFLV4QoCvDcanxhJ2x1XWMdF6HQIKOSnvs+5j/wQqQjovUu7kOkembVTXZtTPL5kZ/QKQjQRzOLK9dU6NKuVDvZRVd71MhQdphxfAkHmqzFY0GxSLJ9xfDVSvxOhJc=,iv:SRRBkZ+z3v/UYatpAGWeVQe+lEC2Ek4f0EcuPAHuywg=,tag:37bGuEZ1Sjuc1apbx8yEqw==,type:str]
+    lastmodified: "2026-03-21T13:50:21Z"
+    mac: ENC[AES256_GCM,data:7QXlyG4rmvNrQriMz5TV9Q034rFRudpVj0fArcsVn3EHrh/B65VAoNPAki7vVbzhqNowMbvcrsLIomgq5MU/B9OuPYIADA8V4mec4mhWJKy6sZKsYSRaPfYg8ZicqCRYQ+wwEatItEqk+ui3e9ALc63+vrPlUuaTgBezRA87HpM=,iv:d81VxAMvXz5yeVhfWmHTlHzcGQSkE4MglYg9Bu1MoTo=,tag:dAvZP+CTu61SKuLHB88xKQ==,type:str]
     unencrypted_suffix: _unencrypted
-    version: 3.11.0
+    version: 3.12.1

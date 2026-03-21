@@ -128,10 +128,6 @@
                 lib.listAllModules ./machine/uk-01
                 ++ [ flakes.disko.nixosModules.default ]
             );
-            sjc-01 = nixos "x86_64-linux" <| (
-                lib.listAllModules ./machine/sjc-01
-                ++ [ flakes.disko.nixosModules.default ]
-            );
         };
 
         colmenaHive =
