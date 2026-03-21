@@ -7,11 +7,11 @@
         wrapperConfig = {
             speechSynthesisSupport = false;
         };
-        nativeMessagingHosts.packages = [ pkgs.firefoxpwa ];
+        # nativeMessagingHosts.packages = [ pkgs.firefoxpwa ];
     };
 
     environment.systemPackages = [
-        pkgs.firefoxpwa
+        # pkgs.firefoxpwa
     ];
 
     programs.firefox.policies = {
