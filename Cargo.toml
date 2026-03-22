@@ -16,10 +16,7 @@ rust-version = "1.95.0"
 
 [workspace.dependencies]
 anyhow = "1.0.100"
-gix-discover = {
-    version = "0",
-    features = [ "sha1" ]
-}
+gix-discover = { version = "0", features = [ "sha1" ] }
 
 [profile.release]
 lto = "thin"
