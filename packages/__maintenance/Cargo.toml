@@ -7,7 +7,7 @@ edition.workspace = true
 anyhow.workspace = true
 clap = { version = "4.5.48", features = ["derive"] }
 docstr = "0.4.6"
-gix-discover = "0.48.0"
+gix-discover = "0.49.0"
 ino_tracing = "0.1.1"
 itertools = "0.14.0"
 parking_lot = "0.12.5"
