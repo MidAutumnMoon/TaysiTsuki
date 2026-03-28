@@ -8,14 +8,14 @@
 
 stdenvNoCC.mkDerivation (drvSelf: {
     pname = "monaspace";
-    version = "1.301";
+    version = "1.400";
 
     src = tsuki.fetchGitHubRelease {
         owner = "githubnext";
         repo = "monaspace";
         tag = "v${drvSelf.version}";
         file = "monaspace-static-v${drvSelf.version}.zip";
-        hash = "sha256-4gFpfI7zz9RVn7+0tfYL90JRE3KbyijjOwqREtscpXk=";
+        hash = "sha256-q2bXG+dRSV9nlyczKjNFWXlDvU177rygP1zeBL+ZTec=";
     };
     
     dontUnpack = true;
