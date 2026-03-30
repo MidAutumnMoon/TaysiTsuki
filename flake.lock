@@ -175,6 +175,21 @@
         "type": "github"
       }
     },
+    "nixpkgs-firefox-148": {
+      "locked": {
+        "lastModified": 1773185401,
+        "narHash": "sha256-xswssWLGAezKzfIefOcpGe0xOfVEw8Jz2P+orNVt/Ig=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "3468dc962295ddaf071398bc0ee562ecca6da40b",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "rev": "3468dc962295ddaf071398bc0ee562ecca6da40b",
+        "type": "indirect"
+      }
+    },
     "nixpkgs-lib": {
       "locked": {
         "lastModified": 1772328832,
@@ -273,6 +288,7 @@
         "flake-utils": "flake-utils",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
         "nixpkgs": "nixpkgs_2",
+        "nixpkgs-firefox-148": "nixpkgs-firefox-148",
         "noctalia": "noctalia",
         "preservation": "preservation",
         "rust-overlay": "rust-overlay",

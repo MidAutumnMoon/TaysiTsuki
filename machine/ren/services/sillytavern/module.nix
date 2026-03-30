@@ -27,6 +27,7 @@ in
             performance = {
                 lazyLoadCharacters = true;
                 memoryCacheCapacity = "1gb";
+                requestCompression.enabled = true;
             };
             # cacheBuster.enabled = true;
             whitelistMode = false;
