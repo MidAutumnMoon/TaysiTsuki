@@ -11,6 +11,7 @@
     vulkan-loader,
     zlib,
     glibc,
+    glib,
     libxcb,
     libX11,
 
@@ -52,6 +53,7 @@ stdenv.mkDerivation rec {
         libX11
         libxcb
         zlib
+        glib
     ];
 
     runtimeDependencies = [
