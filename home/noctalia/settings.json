@@ -37,7 +37,7 @@
         "volumeFeedback": true,
         "volumeFeedbackSoundFile": "",
         "volumeOverdrive": false,
-        "volumeStep": 1
+        "volumeStep": 4
     },
     "bar": {
         "autoHideDelay": 500,
@@ -422,6 +422,7 @@
         "showHibernateOnLockScreen": false,
         "showScreenCorners": false,
         "showSessionButtonsOnLockScreen": true,
+        "smoothScrollEnabled": true,
         "telemetryEnabled": true
     },
     "hooks": {
@@ -675,6 +676,7 @@
         "fillColor": "#000000",
         "fillMode": "crop",
         "hideWallpaperFilenames": false,
+        "linkLightAndDarkWallpapers": true,
         "monitorDirectories": [
         ],
         "overviewBlur": 0.4,

@@ -137,7 +137,7 @@
         "default_model": {
             "enable_thinking": false,
             "provider": "Volcengine",
-            "model": "kimi-k2.5",
+            "model": "doubao-seed-2.0-code",
         },
         "thread_summary_model": {
             "provider": "openrouter",
