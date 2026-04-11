@@ -11,9 +11,11 @@ NIconButton {
     property ShellScreen screen
     property string widgetId: ""
     property string section: ""
+    property int sectionWidgetIndex: -1
+    property int sectionWidgetsCount: 0
 
     icon: "clipboard-data"
-    tooltipText: pluginApi?.tr("bar.tooltip") || "Clipboard History"
+    tooltipText: pluginApi?.tr("bar.tooltip")
     tooltipDirection: BarService.getTooltipDirection(screen?.name)
     baseSize: Style.getCapsuleHeightForScreen(screen?.name)
     applyUiScale: false
@@ -34,12 +36,12 @@ NIconButton {
 
         model: [
             {
-                "label": pluginApi?.tr("context.toggle") || "Toggle Clipper",
+                "label": pluginApi?.tr("context.toggle"),
                 "action": "toggle-clipper",
                 "icon": "clipboard"
             },
             {
-                "label": pluginApi?.tr("context.settings") || "Open Settings",
+                "label": pluginApi?.tr("context.settings"),
                 "action": "open-settings",
                 "icon": "settings"
             },

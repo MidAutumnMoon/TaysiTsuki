@@ -18,7 +18,7 @@ QtObject {
 
         // First option: Create new note
         model.push({
-            "label": pluginApi?.tr("notecards.create-note") || "Create New Note",
+            "label": pluginApi?.tr("notecards.create-note"),
             "action": "create-new",
             "icon": "add"
         });
@@ -27,7 +27,7 @@ QtObject {
         for (let i = 0; i < noteCards.length; i++) {
             const note = noteCards[i];
             model.push({
-                "label": note.title || (pluginApi?.tr("notecards.untitled-placeholder") || "Untitled"),
+                "label": note.title || pluginApi?.tr("notecards.untitled-placeholder"),
                 "action": "note-" + note.id,
                 "icon": "note",
                 "noteId": note.id
@@ -53,7 +53,7 @@ QtObject {
         } else if (action.startsWith("note-")) {
             const noteId = action.replace("note-", "");
             const note = noteCards.find(n => n.id === noteId);
-            root.noteSelected(noteId, note ? note.title : (pluginApi?.tr("notecards.untitled-placeholder") || "Untitled"));
+            root.noteSelected(noteId, note ? note.title : pluginApi?.tr("notecards.untitled-placeholder"));
         }
     }
 }

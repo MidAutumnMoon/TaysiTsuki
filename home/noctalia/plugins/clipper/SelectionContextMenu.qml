@@ -68,7 +68,7 @@ PanelWindow {
                     contextMenu.anchorItem = anchorPoint;
                     contextMenu.visible = true;
                 } catch (e) {
-                    ToastService.showError(pluginApi?.tr("toast.failed-to-get-cursor-position") || "Failed to get cursor position");
+                    ToastService.showError(pluginApi?.tr("toast.failed-to-get-cursor-position"));
                     root.close();
                 }
             } else {

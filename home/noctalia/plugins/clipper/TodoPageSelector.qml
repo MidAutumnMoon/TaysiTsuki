@@ -19,7 +19,7 @@ QtObject {
         for (let i = 0; i < todoPages.length; i++) {
             const page = todoPages[i];
             model.push({
-                "label": page.name || (pluginApi?.tr("notecards.untitled-placeholder") || "Untitled"),
+                "label": page.name || pluginApi?.tr("notecards.untitled-placeholder"),
                 "action": "page-" + page.id,
                 "icon": "list",
                 "pageId": page.id
@@ -43,7 +43,7 @@ QtObject {
         if (action.startsWith("page-")) {
             const pageId = parseInt(action.replace("page-", ""));
             const page = todoPages.find(p => p.id === pageId);
-            root.pageSelected(pageId, page ? page.name : (pluginApi?.tr("notecards.untitled-placeholder") || "Untitled"));
+            root.pageSelected(pageId, page ? page.name : pluginApi?.tr("notecards.untitled-placeholder"));
         }
     }
 }

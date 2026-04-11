@@ -37,7 +37,8 @@
     "change-color": "Change Color",
     "export": "Export to .txt",
     "delete": "Delete Note",
-    "untitled-placeholder": "Untitled"
+    "untitled-placeholder": "Untitled",
+    "toggle-privacy-mode": "개인 정보 보호 모드 전환"
   },
   "toast": {
     "invalid-clipboard-item": "Invalid clipboard item",

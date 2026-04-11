@@ -8,7 +8,7 @@ NIconButtonHot {
     property var pluginApi: null
 
     icon: "clipboard-data"
-    tooltipText: pluginApi?.tr("bar.tooltip") || "Clipboard History"
+    tooltipText: pluginApi?.tr("bar.tooltip")
 
     onClicked: {
         if (pluginApi) {

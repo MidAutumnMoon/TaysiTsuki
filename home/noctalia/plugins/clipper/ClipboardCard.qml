@@ -267,7 +267,7 @@ Rectangle {
                     id: todoButton
                     visible: root.enableTodoIntegration && !root.isImage
                     icon: "checkbox"
-                    tooltipText: pluginApi?.tr("card.add-todo") || "Add to ToDo"
+                    tooltipText: pluginApi?.tr("card.add-todo")
                     colorFg: root.accentFgColor
                     colorBg: "transparent"
                     colorBgHover: Qt.rgba(0, 0, 0, 0.1)
@@ -295,7 +295,7 @@ Rectangle {
                 NIconButton {
                     visible: !root.isPinned && (pluginApi?.pluginSettings?.pincardsEnabled ?? true)  // Hide pin button if pinned or if feature disabled
                     icon: "pin"
-                    tooltipText: pluginApi?.tr("card.pin") || "Pin"
+                    tooltipText: pluginApi?.tr("card.pin")
                     colorFg: root.accentFgColor
                     colorBg: "transparent"
                     colorBgHover: Qt.rgba(0, 0, 0, 0.1)
@@ -305,7 +305,7 @@ Rectangle {
                 }
                 NIconButton {
                     icon: "trash"
-                    tooltipText: pluginApi?.tr("card.delete") || "Delete"
+                    tooltipText: pluginApi?.tr("card.delete")
                     colorFg: root.accentFgColor
                     colorBg: "transparent"
                     colorBgHover: Qt.rgba(0, 0, 0, 0.1)

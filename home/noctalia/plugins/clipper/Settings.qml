@@ -325,12 +325,12 @@ ColumnLayout {
     currentIndex: tabView.currentIndex
 
     NTabButton {
-      text: pluginApi?.tr("settings.tab-general") || "General"
+      text: pluginApi?.tr("settings.tab-general")
       tabIndex: 0
       checked: tabBar.currentIndex === 0
     }
     NTabButton {
-      text: pluginApi?.tr("settings.tab-appearance") || "Appearance"
+      text: pluginApi?.tr("settings.tab-appearance")
       tabIndex: 1
       checked: tabBar.currentIndex === 1
     }
@@ -352,7 +352,7 @@ ColumnLayout {
 
       // ===== INTEGRATIONS SECTION =====
       NText {
-        text: pluginApi?.tr("settings.integrations") || "Integrations"
+        text: pluginApi?.tr("settings.integrations")
         font.bold: true
         font.pointSize: Style.fontSizeL
       }
@@ -360,8 +360,8 @@ ColumnLayout {
       // ToDo Integration Toggle
       NToggle {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.todo-integration") || "ToDo Plugin Integration"
-        description: root.todoPluginAvailable ? (pluginApi?.tr("settings.todo-description") || "Add clipboard items directly to your ToDo list") : (pluginApi?.tr("settings.todo-disabled") || "ToDo plugin is not installed or disabled")
+        label: pluginApi?.tr("settings.todo-integration")
+        description: root.todoPluginAvailable ? pluginApi?.tr("settings.todo-description") : pluginApi?.tr("settings.todo-disabled")
         enabled: root.todoPluginAvailable
         checked: root.valueTodoIntegration
         onToggled: checked => {
@@ -375,7 +375,7 @@ ColumnLayout {
 
       // ===== FEATURES SECTION =====
       NText {
-        text: pluginApi?.tr("settings.features") || "Features"
+        text: pluginApi?.tr("settings.features")
         font.bold: true
         font.pointSize: Style.fontSizeL
       }
@@ -383,8 +383,8 @@ ColumnLayout {
       // Fullscreen Mode Toggle
       NToggle {
           Layout.fillWidth: true
-          label: pluginApi?.tr("settings.fullscreen-mode") || "Fullscreen Mode"
-          description: pluginApi?.tr("settings.fullscreen-mode-desc") || "Expand the clipboard panel to fill the entire screen"
+          label: pluginApi?.tr("settings.fullscreen-mode")
+          description: pluginApi?.tr("settings.fullscreen-mode-desc")
           checked: root.valueFullscreenMode
           onToggled: checked => {
               root.valueFullscreenMode = checked;
@@ -398,8 +398,8 @@ ColumnLayout {
       // PinCards Enable Toggle
       NToggle {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.pincards-enabled") || "Enable Pin Cards"
-        description: pluginApi?.tr("settings.pincards-desc") || "Show pinned items panel and allow pinning clipboard items"
+        label: pluginApi?.tr("settings.pincards-enabled")
+        description: pluginApi?.tr("settings.pincards-desc")
         checked: root.valuePincardsEnabled
         onToggled: checked => {
                      root.valuePincardsEnabled = checked;
@@ -413,7 +413,7 @@ ColumnLayout {
         visible: pluginApi?.pluginSettings?.pincardsEnabled ?? true
 
         NText {
-          text: pluginApi?.tr("settings.pincards-items-count") || "Pinned Items"
+          text: pluginApi?.tr("settings.pincards-items-count")
           font.bold: true
         }
 
@@ -438,7 +438,7 @@ ColumnLayout {
       // Clear all pinned items button
       NButton {
         Layout.alignment: Qt.AlignRight
-        text: pluginApi?.tr("settings.clear-all-pinned") || "Clear All Pinned Items"
+        text: pluginApi?.tr("settings.clear-all-pinned")
         icon: "trash"
         visible: pluginApi?.pluginSettings?.pincardsEnabled ?? true
         enabled: (pluginApi?.mainInstance?.pinnedItems?.length || 0) > 0
@@ -448,7 +448,7 @@ ColumnLayout {
             pluginApi.mainInstance.pinnedItems = [];
             pluginApi.mainInstance.savePinnedFile();
             pluginApi.mainInstance.pinnedRevision++;
-            ToastService.showNotice(pluginApi?.tr("toast.pinned-cleared") || "All pinned items cleared");
+            ToastService.showNotice(pluginApi?.tr("toast.pinned-cleared"));
           }
         }
       }
@@ -456,8 +456,8 @@ ColumnLayout {
       // NoteCards Enable Toggle
       NToggle {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.notecards-enabled") || "Enable NoteCards"
-        description: pluginApi?.tr("settings.notecards-desc") || "Show notecards panel for quick notes and sticky notes"
+        label: pluginApi?.tr("settings.notecards-enabled")
+        description: pluginApi?.tr("settings.notecards-desc")
         checked: root.valueNotecardsEnabled
         onToggled: checked => {
                      root.valueNotecardsEnabled = checked;
@@ -471,7 +471,7 @@ ColumnLayout {
         visible: pluginApi?.pluginSettings?.notecardsEnabled ?? true
 
         NText {
-          text: pluginApi?.tr("settings.notecards-notes-count") || "Current Notes"
+          text: pluginApi?.tr("settings.notecards-notes-count")
           font.bold: true
         }
 
@@ -496,7 +496,7 @@ ColumnLayout {
       // Clear all notes button
       NButton {
         Layout.alignment: Qt.AlignRight
-        text: pluginApi?.tr("settings.clear-all-notes") || "Clear All Notes"
+        text: pluginApi?.tr("settings.clear-all-notes")
         icon: "trash"
         visible: pluginApi?.pluginSettings?.notecardsEnabled ?? true
         enabled: (pluginApi?.mainInstance?.noteCards?.length || 0) > 0
@@ -514,8 +514,8 @@ ColumnLayout {
       // Hide Panel Background Toggle
       NToggle {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.hide-panel-background") || "Hide Panel Background"
-        description: pluginApi?.tr("settings.hide-panel-background-desc") || "Remove background from panel containers. Note: Pin Cards and Note Cards work best with background enabled."
+        label: pluginApi?.tr("settings.hide-panel-background")
+        description: pluginApi?.tr("settings.hide-panel-background-desc")
         checked: root.valueHidePanelBackground
         onToggled: checked => {
             root.valueHidePanelBackground = checked;
@@ -528,7 +528,7 @@ ColumnLayout {
 
       // ===== AUTO-PASTE SECTION =====
       NText {
-        text: pluginApi?.tr("settings.auto-paste-section") || "Auto-Paste"
+        text: pluginApi?.tr("settings.auto-paste-section")
         font.bold: true
         font.pointSize: Style.fontSizeL
       }
@@ -536,8 +536,8 @@ ColumnLayout {
       // Auto-Paste Toggle
       NToggle {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.auto-paste") || "Auto-Paste on Click"
-        description: pluginApi?.tr("settings.auto-paste-desc") || "Automatically paste clipboard item into focused window after selecting"
+        label: pluginApi?.tr("settings.auto-paste")
+        description: pluginApi?.tr("settings.auto-paste-desc")
         checked: root.valueAutoPaste
         onToggled: checked => {
           root.valueAutoPaste = checked;
@@ -558,7 +558,7 @@ ColumnLayout {
           id: warningText
           anchors.fill: parent
           anchors.margins: Style.marginM
-          text: pluginApi?.tr("settings.auto-paste-warning") || "wtype is required for auto-paste.\nInstall with: sudo pacman -S wtype"
+          text: pluginApi?.tr("settings.auto-paste-warning")
           wrapMode: Text.Wrap
           color: (typeof Color !== "undefined") ? Color.mError : "#CC0000"
           font.pointSize: Style.fontSizeS
@@ -569,8 +569,8 @@ ColumnLayout {
       NToggle {
         visible: root.valueAutoPaste
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.auto-paste-rmb") || "Right-Click Only"
-        description: pluginApi?.tr("settings.auto-paste-rmb-desc") || "Use right-click for auto-paste; left-click copies to clipboard without pasting"
+        label: pluginApi?.tr("settings.auto-paste-rmb")
+        description: pluginApi?.tr("settings.auto-paste-rmb-desc")
         checked: root.valueAutoPasteOnRightClick
         onToggled: checked => {
           root.valueAutoPasteOnRightClick = checked;
@@ -585,8 +585,8 @@ ColumnLayout {
 
         NValueSlider {
           Layout.fillWidth: true
-          label: pluginApi?.tr("settings.auto-paste-delay") || "Paste Delay (ms)"
-          description: pluginApi?.tr("settings.auto-paste-delay-desc") || "Delay before pasting (ms). Increase if focus follows cursor is enabled in your compositor."
+          label: pluginApi?.tr("settings.auto-paste-delay")
+          description: pluginApi?.tr("settings.auto-paste-delay-desc")
           from: 100
           to: 1000
           stepSize: 50
@@ -603,8 +603,8 @@ ColumnLayout {
       // Show close button toggle
       NToggle {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.show-close-button") || "Show Close Button"
-        description: pluginApi?.tr("settings.show-close-button-desc") || "Display an X button at the top-right corner to close the panel"
+        label: pluginApi?.tr("settings.show-close-button")
+        description: pluginApi?.tr("settings.show-close-button-desc")
         checked: root.valueShowCloseButton
         onToggled: checked => {
                      root.valueShowCloseButton = checked;
@@ -618,7 +618,7 @@ ColumnLayout {
 
       // ===== APPEARANCE SECTION =====
       NText {
-        text: pluginApi?.tr("settings.appearance") || "Card Appearance"
+        text: pluginApi?.tr("settings.appearance")
         font.bold: true
         font.pointSize: Style.fontSizeL
       }
@@ -626,8 +626,8 @@ ColumnLayout {
       // Card type selector
       NComboBox {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.card-type") || "Card Type"
-        description: pluginApi?.tr("settings.card-type-desc") || "Select card type to customize"
+        label: pluginApi?.tr("settings.card-type")
+        description: pluginApi?.tr("settings.card-type-desc")
         model: root.cardTypes
         currentKey: root.selectedCardType
         onSelected: key => root.selectedCardType = key
@@ -646,7 +646,7 @@ ColumnLayout {
           spacing: Style.marginS
 
           NText {
-            text: pluginApi?.tr("settings.preview") || "Preview"
+            text: pluginApi?.tr("settings.preview")
             font.bold: true
             color: Color.mOnSurface
           }
@@ -726,7 +726,7 @@ ColumnLayout {
                   anchors.left: parent.left
                   anchors.right: parent.right
                   anchors.top: parent.top
-                  text: pluginApi?.tr("settings.sample-content") || "Sample content preview..."
+                  text: pluginApi?.tr("settings.sample-content")
                   wrapMode: Text.Wrap
                   color: root.getPreviewFg()
                   verticalAlignment: Text.AlignTop
@@ -740,8 +740,8 @@ ColumnLayout {
       // Color settings
       NComboBox {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.bg-color") || "Background Color"
-        description: pluginApi?.tr("settings.bg-color-desc") || "Card background color"
+        label: pluginApi?.tr("settings.bg-color")
+        description: pluginApi?.tr("settings.bg-color-desc")
         model: root.colorOptions
         currentKey: root.cardColors[root.selectedCardType]?.bg || "mOutline"
         onSelected: key => {
@@ -767,8 +767,8 @@ ColumnLayout {
 
       NComboBox {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.separator-color") || "Separator Color"
-        description: pluginApi?.tr("settings.separator-color-desc") || "Line between header and content"
+        label: pluginApi?.tr("settings.separator-color")
+        description: pluginApi?.tr("settings.separator-color-desc")
         model: root.colorOptions
         currentKey: root.cardColors[root.selectedCardType]?.separator || "mSurface"
         onSelected: key => {
@@ -794,8 +794,8 @@ ColumnLayout {
 
       NComboBox {
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.fg-color") || "Foreground Color"
-        description: pluginApi?.tr("settings.fg-color-desc") || "Title, icons and content text color"
+        label: pluginApi?.tr("settings.fg-color")
+        description: pluginApi?.tr("settings.fg-color-desc")
         model: root.colorOptions
         currentKey: root.cardColors[root.selectedCardType]?.fg || "mOnSurface"
         onSelected: key => {
@@ -822,7 +822,7 @@ ColumnLayout {
       // Reset button
       NButton {
         Layout.alignment: Qt.AlignRight
-        text: pluginApi?.tr("settings.reset-defaults") || "Reset to Defaults"
+        text: pluginApi?.tr("settings.reset-defaults")
         icon: "refresh"
         onClicked: {
           const defaults = JSON.parse(JSON.stringify(root.defaultCardColors));

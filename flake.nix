@@ -85,7 +85,7 @@
             config = { allowUnfree = true; };
             overlays = [
                 self.overlays.nuclage
-                self.overlays.firefox-148
+                # self.overlays.firefox-148
             ];
         };
 
