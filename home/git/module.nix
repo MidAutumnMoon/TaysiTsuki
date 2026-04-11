@@ -88,7 +88,7 @@ in {
             autocorrect = prompt
 
         [commit]
-            verbose = true
+            verbose = false
 
         [rerere]
             enabled = true
