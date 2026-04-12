@@ -41,7 +41,9 @@ in
     systemd.services."sillytavern" = {
         environment = {
             NODE_ENV = "production";
-        };
+        }
+        // config.networking.proxy.envVars
+        ;
     };
 
     services.caddy.virtualHosts."im_418".extraConfig = ''
