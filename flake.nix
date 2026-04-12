@@ -5,9 +5,6 @@
         nixpkgs.url =
             "github:NixOS/nixpkgs/nixos-unstable-small";
 
-        nixpkgs-firefox-148.url = 
-            "nixpkgs/3468dc962295ddaf071398bc0ee562ecca6da40b";
-
         # Some modules
 
         preservation.url = "github:nix-community/preservation";
@@ -85,7 +82,6 @@
             config = { allowUnfree = true; };
             overlays = [
                 self.overlays.nuclage
-                # self.overlays.firefox-148
             ];
         };
 
@@ -103,13 +99,6 @@
 
         overlays.nuclage =
             import ./packages { inherit lib flakes; };
-
-        overlays.firefox-148 = final: prev: 
-            let hostSystem = final.stdenv.hostPlatform.system; in
-            {
-                inherit (flakes.nixpkgs-firefox-148.legacyPackages.${hostSystem})
-                firefox-unwrapped;
-            };
 
         inherit pkgsBrew;
 
