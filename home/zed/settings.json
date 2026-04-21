@@ -25,8 +25,26 @@
     },
     "language_models": {
         "openai_compatible": {
-            "Bailian": {
-                "api_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "ZAI Coding Plan": {
+                "api_url": "https://api.z.ai/api/coding/paas/v4",
+                "available_models": [
+                    {
+                        "name": "glm-5.1",
+                        "max_tokens": 200000,
+                        "max_output_tokens": 32000,
+                        "max_completion_tokens": 200000,
+                        "capabilities": {
+                            "tools": true,
+                            "images": false,
+                            "parallel_tool_calls": true,
+                            "prompt_cache_key": false,
+                            "chat_completions": true
+                        }
+                    }
+                ]
+            },
+            "百度千帆": {
+                "api_url": "https://qianfan.baidubce.com/v2/coding",
                 "available_models": [
                     {
                         "name": "kimi-k2.5",
@@ -35,7 +53,7 @@
                         "max_completion_tokens": 200000,
                         "capabilities": {
                             "tools": true,
-                            "images": true,
+                            "images": false,
                             "parallel_tool_calls": true,
                             "prompt_cache_key": false,
                             "chat_completions": true
@@ -136,8 +154,8 @@
         },
         "default_model": {
             "enable_thinking": false,
-            "provider": "Volcengine",
-            "model": "doubao-seed-2.0-code",
+            "provider": "ZAI Coding Plan",
+            "model": "glm-5.1",
         },
         "thread_summary_model": {
             "provider": "openrouter",
