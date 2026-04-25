@@ -17,7 +17,7 @@ itertools = "0.14.0"
 saphyr = "0.0.6"
 tap = "1.0.1"
 tracing = "0.1.43"
-niri-ipc = "=25.11.0"
+niri-ipc = "=26.4.0"
 
 [lints]
 workspace = true
