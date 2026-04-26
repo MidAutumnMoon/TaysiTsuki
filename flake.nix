@@ -123,7 +123,7 @@
             };
         in {
             ren = nixos "x86_64-linux" <| lib.listAllModules ./machine/ren;
-            phia = nixos "x86_64-linux" <| lib.listAllModules ./machine/phia;
+            # phia = nixos "x86_64-linux" <| lib.listAllModules ./machine/phia;
             uk-01 = nixos "x86_64-linux" <| (
                 lib.listAllModules ./machine/uk-01
                 ++ [ flakes.disko.nixosModules.default ]
