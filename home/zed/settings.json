@@ -30,36 +30,36 @@
                 "available_models": [
                     {
                         "name": "glm-5.1",
-                        "max_tokens": 200000,
-                        "max_output_tokens": 32000,
-                        "max_completion_tokens": 200000,
+                        "max_tokens": 204800,
+                        "max_output_tokens": 131072,
+                        "max_completion_tokens": 204800,
                         "capabilities": {
                             "tools": true,
                             "images": false,
                             "parallel_tool_calls": true,
                             "prompt_cache_key": false,
-                            "chat_completions": true
-                        }
-                    }
-                ]
+                            "chat_completions": true,
+                        },
+                    },
+                ],
             },
             "百度千帆": {
                 "api_url": "https://qianfan.baidubce.com/v2/coding",
                 "available_models": [
                     {
                         "name": "kimi-k2.5",
-                        "max_tokens": 200000,
-                        "max_output_tokens": 32000,
-                        "max_completion_tokens": 200000,
+                        "max_tokens": 240000,
+                        "max_output_tokens": 98000,
+                        "max_completion_tokens": 240000,
                         "capabilities": {
                             "tools": true,
                             "images": false,
                             "parallel_tool_calls": true,
                             "prompt_cache_key": false,
-                            "chat_completions": true
-                        }
-                    }
-                ]
+                            "chat_completions": true,
+                        },
+                    },
+                ],
             },
             "NanoGPT": {
                 "api_url": "https://nano-gpt.com/api/v1legacy",
@@ -82,6 +82,20 @@
             "Volcengine": {
                 "api_url": "https://ark.cn-beijing.volces.com/api/coding/v3",
                 "available_models": [
+                    {
+                        "name": "glm-5.1",
+                        "display_name": "GLM 5.1",
+                        "max_tokens": 204800,
+                        "max_output_tokens": 131072,
+                        "max_completion_tokens": 204800,
+                        "capabilities": {
+                            "tools": true,
+                            "images": false,
+                            "parallel_tool_calls": true,
+                            "prompt_cache_key": false,
+                            "chat_completions": true,
+                        },
+                    },
                     {
                         "name": "kimi-k2.5",
                         "display_name": "Kimi K2.5",
@@ -130,22 +144,22 @@
         "tool_permissions": {
             "tools": {
                 "mcp:mcp-server-exa-search:web_search_exa": {
-                    "default": "allow"
+                    "default": "allow",
                 },
                 "mcp:mcp-server-context7:query-docs": {
-                    "default": "allow"
+                    "default": "allow",
                 },
                 "mcp:mcp-server-context7:resolve-library-id": {
-                    "default": "allow"
+                    "default": "allow",
                 },
                 "terminal": {
                     "always_allow": [
                         {
-                            "pattern": "^grep\\b"
-                        }
-                    ]
-                }
-            }
+                            "pattern": "^grep\\b",
+                        },
+                    ],
+                },
+            },
         },
         "favorite_models": [],
         "inline_assistant_model": {

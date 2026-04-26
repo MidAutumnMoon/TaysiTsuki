@@ -7,6 +7,7 @@
     tsuki,
     libjxl,
     imagemagick,
+    libavif,
 }:
 
 tsuki.rust.buildRustPackage {
@@ -35,7 +36,7 @@ tsuki.rust.buildRustPackage {
     ];
 
     env.CFG_CJXL_PATH = lib.getExe' libjxl "cjxl";
-    env.CFG_AVIFENC_PATH = lib.getExe' tsuki.libavif-hotfix "avifenc";
+    env.CFG_AVIFENC_PATH = lib.getExe' libavif "avifenc";
     env.CFG_MAGICK_PATH = lib.getExe' imagemagick "magick";
 
     RUSTFLAGS = with stdenv;
