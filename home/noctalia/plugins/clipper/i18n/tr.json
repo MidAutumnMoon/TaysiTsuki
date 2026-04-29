@@ -37,8 +37,7 @@
     "change-color": "Change Color",
     "export": "Export to .txt",
     "delete": "Delete Note",
-    "untitled-placeholder": "Untitled",
-    "toggle-privacy-mode": "Gizlilik modunu değiştir"
+    "untitled-placeholder": "Untitled"
   },
   "toast": {
     "invalid-clipboard-item": "Invalid clipboard item",
@@ -114,6 +113,10 @@
     "separator-color-desc": "Başlık ve içerik arasındaki çizgi",
     "fg-color": "Ön plan rengi",
     "fg-color-desc": "Başlık, simgeler ve metin içeriği rengi",
-    "reset-defaults": "Varsayılanlara sıfırla"
+    "reset-defaults": "Varsayılanlara sıfırla",
+    "panel-width": "Panel genişliği",
+    "panel-width-desc": "Panelin piksel cinsinden genişliği (yalnızca tam ekran modu devre dışıyken)",
+    "panel-height": "Panel yüksekliği",
+    "panel-height-desc": "Panelin piksel cinsinden yüksekliği. Otomatik yükseklik için 0 girin (yalnızca tam ekran modu devre dışıyken)"
   }
 }

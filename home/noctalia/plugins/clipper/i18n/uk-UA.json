@@ -37,8 +37,7 @@
     "change-color": "Change Color",
     "export": "Export to .txt",
     "delete": "Delete Note",
-    "untitled-placeholder": "Untitled",
-    "toggle-privacy-mode": "Перемкнути режим конфіденційності"
+    "untitled-placeholder": "Untitled"
   },
   "toast": {
     "invalid-clipboard-item": "Invalid clipboard item",
@@ -114,6 +113,10 @@
     "separator-color-desc": "Лінія між заголовком і вмістом",
     "fg-color": "Колір переднього плану",
     "fg-color-desc": "Колір заголовка, значків і текстового вмісту",
-    "reset-defaults": "Скинути до типових значень"
+    "reset-defaults": "Скинути до типових значень",
+    "panel-width": "Ширина панелі",
+    "panel-width-desc": "Ширина панелі в пікселях (тільки коли повноекранний режим вимкнено)",
+    "panel-height": "Висота панелі",
+    "panel-height-desc": "Висота панелі в пікселях. Встановіть 0 для автоматичної висоти (тільки коли повноекранний режим вимкнено)"
   }
 }

@@ -37,8 +37,7 @@
     "change-color": "Change Color",
     "export": "Export to .txt",
     "delete": "Delete Note",
-    "untitled-placeholder": "Untitled",
-    "toggle-privacy-mode": "Adatvédelmi mód váltása"
+    "untitled-placeholder": "Untitled"
   },
   "toast": {
     "invalid-clipboard-item": "Invalid clipboard item",
@@ -114,6 +113,10 @@
     "separator-color-desc": "Vonal a fejléc és a tartalom között",
     "fg-color": "Előtérszín",
     "fg-color-desc": "Cím, ikonok és szöveges tartalom színe",
-    "reset-defaults": "Alapértelmezések visszaállítása"
+    "reset-defaults": "Alapértelmezések visszaállítása",
+    "panel-width": "Panel szélessége",
+    "panel-width-desc": "A panel szélessége képpontokban (csak ha a teljes képernyős mód ki van kapcsolva)",
+    "panel-height": "Panel magassága",
+    "panel-height-desc": "A panel magassága képpontokban. 0 értéknél automatikus magasság (csak ha a teljes képernyős mód ki van kapcsolva)"
   }
 }

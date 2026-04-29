@@ -37,8 +37,7 @@
     "change-color": "Change Color",
     "export": "Export to .txt",
     "delete": "Delete Note",
-    "untitled-placeholder": "Untitled",
-    "toggle-privacy-mode": "Переключить режим конфиденциальности"
+    "untitled-placeholder": "Untitled"
   },
   "toast": {
     "invalid-clipboard-item": "Invalid clipboard item",
@@ -114,6 +113,10 @@
     "separator-color-desc": "Линия между заголовком и содержимым",
     "fg-color": "Цвет переднего плана",
     "fg-color-desc": "Цвет заголовка, значков и текстового содержимого",
-    "reset-defaults": "Сбросить к значениям по умолчанию"
+    "reset-defaults": "Сбросить к значениям по умолчанию",
+    "panel-width": "Ширина панели",
+    "panel-width-desc": "Ширина панели в пикселях (только когда полноэкранный режим отключён)",
+    "panel-height": "Высота панели",
+    "panel-height-desc": "Высота панели в пикселях. Установите 0 для автоматической высоты (только когда полноэкранный режим отключён)"
   }
 }

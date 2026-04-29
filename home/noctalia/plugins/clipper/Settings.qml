@@ -11,6 +11,20 @@ ColumnLayout {
 
   property var pluginApi: null
 
+  // Live preview + revert-on-cancel pattern (approved deviation from AGENTS.md edit-copy).
+  // User-approved 2026-04-20. Settings changes apply visually in real time to Panel/BarWidget
+  // but are only persisted to disk when the shell calls saveSettings() (Apply button).
+  // Closing without Apply restores the snapshot taken on open.
+  property var _snapshot: null
+  property bool _applied: false
+
+  function _applyPreview(key, value) {
+    if (!pluginApi) return;
+    var patch = {};
+    patch[key] = value;
+    pluginApi.pluginSettings = Object.assign({}, pluginApi.pluginSettings, patch);
+  }
+
   property bool valueTodoIntegration: pluginApi?.pluginSettings?.enableTodoIntegration ?? false
   property bool valuePincardsEnabled: pluginApi?.pluginSettings?.pincardsEnabled ?? true
   property bool valueNotecardsEnabled: pluginApi?.pluginSettings?.notecardsEnabled ?? true
@@ -20,6 +34,8 @@ ColumnLayout {
   property bool valueAutoPaste: pluginApi?.pluginSettings?.autoPaste ?? false
   property bool valueAutoPasteOnRightClick: pluginApi?.pluginSettings?.autoPasteOnRightClick ?? false
   property int valueAutoPasteDelay: pluginApi?.pluginSettings?.autoPasteDelay ?? 300
+  property int valuePanelWidth: pluginApi?.pluginSettings?.panelWidth ?? 1450
+  property int valuePanelHeight: pluginApi?.pluginSettings?.panelHeight ?? 0
   property var pendingCardColors: JSON.parse(JSON.stringify(defaultCardColors))
   property var pendingCustomColors: {
     "Text": {
@@ -270,6 +286,11 @@ ColumnLayout {
   }
 
   Component.onCompleted: {
+    // Snapshot settings on open for revert-on-cancel
+    if (pluginApi) {
+      _snapshot = JSON.parse(JSON.stringify(pluginApi.pluginSettings));
+    }
+
     // Load saved settings
     if (pluginApi?.pluginSettings?.enableTodoIntegration !== undefined) {
       enableTodoIntegration = pluginApi.pluginSettings.enableTodoIntegration;
@@ -291,6 +312,12 @@ ColumnLayout {
       } catch (e) {
         Logger.w("Clipper", "Failed to load custom colors: " + e);
       }
+    }
+  }
+
+  Component.onDestruction: {
+    if (!_applied && pluginApi && _snapshot) {
+      pluginApi.pluginSettings = Object.assign({}, _snapshot);
     }
   }
 
@@ -366,6 +393,7 @@ ColumnLayout {
         checked: root.valueTodoIntegration
         onToggled: checked => {
                      root.valueTodoIntegration = checked;
+                     root._applyPreview("enableTodoIntegration", checked);
                    }
       }
 
@@ -388,6 +416,39 @@ ColumnLayout {
           checked: root.valueFullscreenMode
           onToggled: checked => {
               root.valueFullscreenMode = checked;
+              root._applyPreview("fullscreenMode", checked);
+          }
+      }
+
+      // Panel Width (hidden when fullscreen)
+      NSpinBox {
+          Layout.fillWidth: true
+          visible: !root.valueFullscreenMode
+          label: pluginApi?.tr("settings.panel-width")
+          description: pluginApi?.tr("settings.panel-width-desc")
+          value: root.valuePanelWidth
+          from: 400
+          to: 3840
+          stepSize: 50
+          onValueChanged: {
+              root.valuePanelWidth = value;
+              root._applyPreview("panelWidth", value);
+          }
+      }
+
+      // Panel Height (hidden when fullscreen)
+      NSpinBox {
+          Layout.fillWidth: true
+          visible: !root.valueFullscreenMode
+          label: pluginApi?.tr("settings.panel-height")
+          description: pluginApi?.tr("settings.panel-height-desc")
+          value: root.valuePanelHeight
+          from: 0
+          to: 2160
+          stepSize: 50
+          onValueChanged: {
+              root.valuePanelHeight = value;
+              root._applyPreview("panelHeight", value);
           }
       }
 
@@ -403,6 +464,7 @@ ColumnLayout {
         checked: root.valuePincardsEnabled
         onToggled: checked => {
                      root.valuePincardsEnabled = checked;
+                     root._applyPreview("pincardsEnabled", checked);
                    }
       }
 
@@ -461,6 +523,7 @@ ColumnLayout {
         checked: root.valueNotecardsEnabled
         onToggled: checked => {
                      root.valueNotecardsEnabled = checked;
+                     root._applyPreview("notecardsEnabled", checked);
                    }
       }
 
@@ -511,19 +574,22 @@ ColumnLayout {
         Layout.fillWidth: true
       }
 
-      // Hide Panel Background Toggle
+      // Hide Panel Background Toggle (hidden when Notecards enabled — no effect with notecards)
       NToggle {
         Layout.fillWidth: true
+        visible: !root.valueNotecardsEnabled
         label: pluginApi?.tr("settings.hide-panel-background")
         description: pluginApi?.tr("settings.hide-panel-background-desc")
         checked: root.valueHidePanelBackground
         onToggled: checked => {
             root.valueHidePanelBackground = checked;
+            root._applyPreview("hidePanelBackground", checked);
         }
       }
 
       NDivider {
         Layout.fillWidth: true
+        visible: !root.valueNotecardsEnabled
       }
 
       // ===== AUTO-PASTE SECTION =====
@@ -541,6 +607,7 @@ ColumnLayout {
         checked: root.valueAutoPaste
         onToggled: checked => {
           root.valueAutoPaste = checked;
+          root._applyPreview("autoPaste", checked);
         }
       }
 
@@ -574,6 +641,7 @@ ColumnLayout {
         checked: root.valueAutoPasteOnRightClick
         onToggled: checked => {
           root.valueAutoPasteOnRightClick = checked;
+          root._applyPreview("autoPasteOnRightClick", checked);
         }
       }
 
@@ -592,7 +660,10 @@ ColumnLayout {
           stepSize: 50
           value: root.valueAutoPasteDelay
           text: root.valueAutoPasteDelay + " ms"
-          onMoved: value => { root.valueAutoPasteDelay = Math.round(value); }
+          onMoved: value => {
+            root.valueAutoPasteDelay = Math.round(value);
+            root._applyPreview("autoPasteDelay", Math.round(value));
+          }
         }
       }
 
@@ -608,6 +679,7 @@ ColumnLayout {
         checked: root.valueShowCloseButton
         onToggled: checked => {
                      root.valueShowCloseButton = checked;
+                     root._applyPreview("showCloseButton", checked);
                    }
       }
     }  // End General Tab
@@ -877,6 +949,7 @@ ColumnLayout {
     if (!pluginApi)
       return;
 
+    // Belt-and-suspenders: guarantee final state is correct even if a _applyPreview was missed.
     pluginApi.pluginSettings.enableTodoIntegration = root.valueTodoIntegration;
     pluginApi.pluginSettings.pincardsEnabled = root.valuePincardsEnabled;
     pluginApi.pluginSettings.notecardsEnabled = root.valueNotecardsEnabled;
@@ -886,6 +959,8 @@ ColumnLayout {
     pluginApi.pluginSettings.autoPaste = root.valueAutoPaste;
     pluginApi.pluginSettings.autoPasteOnRightClick = root.valueAutoPasteOnRightClick;
     pluginApi.pluginSettings.autoPasteDelay = root.valueAutoPasteDelay;
+    pluginApi.pluginSettings.panelWidth = root.valuePanelWidth;
+    pluginApi.pluginSettings.panelHeight = root.valuePanelHeight;
     pluginApi.pluginSettings.cardColors = JSON.parse(JSON.stringify(root.pendingCardColors));
     pluginApi.pluginSettings.customColors = JSON.parse(JSON.stringify(root.pendingCustomColors));
 
@@ -893,6 +968,7 @@ ColumnLayout {
       pluginApi.mainInstance.showCloseButton = root.valueShowCloseButton;
     }
 
+    _applied = true;
     pluginApi.saveSettings();
   }
 }

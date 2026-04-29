@@ -82,38 +82,55 @@ Item {
     stderr: StdioCollector {}
 
     onExited: exitCode => {
+                // Never wipe in-memory notes on shell-level error — the files
+                // are still on disk and would silently disappear from the UI.
                 if (exitCode !== 0) {
-                  root.noteCards = [];
+                  Logger.w("Clipper", "loadNoteCards: shell exit=" + exitCode + ", keeping in-memory notes");
                   return;
                 }
 
                 try {
                   const output = String(stdout.text).trim();
                   if (!output || output === "[]") {
-                    root.noteCards = [];
-                    root.noteCardsRevision++;
-
-                    // Save to file
+                    // Empty load result. Only clear in-memory state when it
+                    // was already empty; otherwise preserve it. This avoids
+                    // wiping freshly-created (still-being-saved) notes if the
+                    // disk listing raced ahead of the atomic-write rename.
+                    if (root.noteCards.length === 0) {
+                      root.noteCardsRevision++;
+                    }
                     return;
                   }
 
                   const loadedNotes = JSON.parse(output);
-                  root.noteCards = Array.isArray(loadedNotes) ? loadedNotes : [];
-                  root.noteCardsRevision++;
-
-                  // Save to file
-
+                  if (Array.isArray(loadedNotes)) {
+                    root.noteCards = loadedNotes;
+                    root.noteCardsRevision++;
+                  }
                 } catch (e) {
-                  root.noteCards = [];
+                  Logger.w("Clipper", "loadNoteCards: parse error, keeping in-memory notes: " + e);
                 }
               }
   }
 
-  // Function to load all notecards
+  // Function to load all notecards.
+  // IMPORTANT: per-file validation — a single malformed or 0-byte .json
+  // file must NOT wipe all notes. The previous `jq -s '.' *.json` approach
+  // was all-or-nothing: any bad file made jq exit non-zero, the
+  // `|| echo '[]'` fallback returned an empty array, and onExited cleared
+  // root.noteCards even though every other note was intact on disk.
   function loadNoteCards() {
-    // Use jq to create a proper JSON array from all .json files
-    const script = "cd '" + root.noteCardsDir + "' || { echo '[]'; exit 0; }; " + "jq -s '.' *.json 2>/dev/null || echo '[]'";
-    loadNoteCardsProc.command = ["bash", "-c", script];
+    // Capture concatenated valid files into a single var, then decide.
+    // jq -s reads a stream of JSON values with no required separator, so
+    // concatenating is enough — we never feed it empty or malformed input.
+    const script = 'cd "$1" 2>/dev/null || { echo "[]"; exit 0; }; ' +
+                   'shopt -s nullglob; ' +
+                   'out=$(for f in *.json; do ' +
+                   '  jq -e . "$f" >/dev/null 2>&1 && cat "$f"; ' +
+                   'done); ' +
+                   'if [ -z "$out" ]; then echo "[]"; ' +
+                   'else printf "%s" "$out" | jq -s "."; fi';
+    loadNoteCardsProc.command = ["bash", "-c", script, "loadNoteCards", root.noteCardsDir];
     loadNoteCardsProc.running = true;
   }
 
@@ -350,20 +367,89 @@ Item {
               }
   }
 
+  // Atomic write: payload arrives via stdin, lands in <path>.tmp, then is
+  // renamed onto the target. Optional `oldPath` is removed only after the
+  // new file is verified non-empty and renamed, so a failed save never wipes
+  // existing data. Replaces the previous Quickshell.execDetached + base64
+  // pipeline, which silently failed in noctalia-qs 0.0.x (no file ever
+  // appeared on disk despite saveNoteCard firing). Process gives us exit
+  // codes and stderr; the queue serializes saves because Process is
+  // single-instance. Each queue entry: { content, path, oldPath, id }.
+  property var _atomicWriteQueue: []
+  property var _atomicWriteCurrent: null
+  property bool _atomicWriteBusy: false
+
+  Process {
+    id: atomicWriteProc
+    running: false
+    stdinEnabled: true
+    stderr: StdioCollector {}
+
+    onExited: (exitCode, exitStatus) => {
+                const job = root._atomicWriteCurrent;
+                root._atomicWriteCurrent = null;
+                root._atomicWriteBusy = false;
+                stdinEnabled = true;
+                if (exitCode !== 0) {
+                  Logger.w("Clipper", "atomicWrite FAIL exit=" + exitCode +
+                                      " id=" + (job ? job.id : "?") +
+                                      " path=" + (job ? job.path : "?") +
+                                      " stderr=" + String(stderr.text).trim());
+                }
+                root._drainAtomicWriteQueue();
+              }
+  }
+
+  function _drainAtomicWriteQueue() {
+    if (_atomicWriteBusy || _atomicWriteQueue.length === 0)
+      return;
+
+    const job = _atomicWriteQueue.shift();
+    _atomicWriteCurrent = job;
+    _atomicWriteBusy = true;
+
+    const script = 'p="$1"; t="${p}.tmp"; o="$2"; ' +
+                   'cat > "$t" && ' +
+                   '[ -s "$t" ] && ' +
+                   'mv -f "$t" "$p" && ' +
+                   '{ [ -z "$o" ] || [ "$o" = "$p" ] || rm -f "$o"; } ' +
+                   '|| { rm -f "$t"; exit 1; }';
+    atomicWriteProc.command = ["sh", "-c", script, "atomicWrite",
+                               job.path, job.oldPath || ""];
+    atomicWriteProc.stdinEnabled = true;
+    atomicWriteProc.running = true;
+    atomicWriteProc.write(job.content);
+    atomicWriteProc.stdinEnabled = false;
+  }
+
+  // Public entry point. `oldPath` may be empty; if non-empty and different
+  // from `path`, it is removed only after the new file is safely on disk.
+  function atomicWrite(filePath, content, oldFilePath, id) {
+    if (!filePath || typeof filePath !== "string") {
+      Logger.w("Clipper", "atomicWrite: missing filePath");
+      return;
+    }
+    if (!content || content.length === 0) {
+      Logger.w("Clipper", "atomicWrite: refusing empty write to " + filePath);
+      return;
+    }
+    _atomicWriteQueue.push({
+                             content: content,
+                             path: filePath,
+                             oldPath: oldFilePath || "",
+                             id: id || ""
+                           });
+    _drainAtomicWriteQueue();
+  }
+
   // Function to save pinned items to file
   function savePinnedFile() {
     const data = {
       items: root.pinnedItems
     };
     const json = JSON.stringify(data, null, 2);
-
-    // Use base64 encoding to safely pass JSON through shell
-    // Qt.btoa() produces valid base64 (A-Z, a-z, 0-9, +, /, =) - no shell metacharacters
-    // File path is constant, not user-controlled
-    const base64 = Qt.btoa(json);
     const filePath = Quickshell.env("HOME") + "/.config/noctalia/plugins/clipper/pinned.json";
-
-    Quickshell.execDetached(["sh", "-c", `echo "${base64}" | base64 -d > "${filePath}"`]);
+    atomicWrite(filePath, json, "", "pinned");
   }
 
   // Function to unpin item
@@ -445,10 +531,13 @@ Item {
 
     const newFilename = getNoteFilename(updatedNote);
 
-    // If filename changed (title changed), delete old file
+    // Track the stale filename so saveNoteCard / atomicWrite can delete it
+    // only AFTER the new file is successfully on disk. The pre-2.4.3 code
+    // fired rm and save in parallel via execDetached, which could reorder
+    // so that rm landed after a failed save — wiping both files at once.
+    let oldFilePathToReplace = "";
     if (oldFilename !== newFilename && updates.title !== undefined) {
-      const oldFilePath = root.noteCardsDir + "/" + oldFilename;
-      Quickshell.execDetached(["rm", oldFilePath]);
+      oldFilePathToReplace = root.noteCardsDir + "/" + oldFilename;
     }
 
     // Immutable array update
@@ -461,8 +550,8 @@ Item {
     root.noteCards = newNotes;
     root.noteCardsRevision++;
 
-    // Save to file
-    saveNoteCard(updatedNote);
+    // Save to file (old filename is removed only on successful new save)
+    saveNoteCard(updatedNote, oldFilePathToReplace);
   }
 
   // Function to delete a note card
@@ -530,9 +619,10 @@ Item {
     const fileName = "notecard_" + timestamp + ".txt";
     const filePath = Quickshell.env("HOME") + "/Documents/" + fileName;
 
-    // Use base64 encoding to safely pass content through shell
-    const base64 = Qt.btoa(note.content || "");
-    Quickshell.execDetached(["sh", "-c", `echo "${base64}" | base64 -d > "${filePath}"`]);
+    // Force a non-empty payload so the atomicWrite guard never trips for
+    // blank notes — a single space exports cleanly as a 1-byte file.
+    const exportContent = (note.content && note.content.length > 0) ? note.content : " ";
+    atomicWrite(filePath, exportContent, "", "export-" + noteId);
 
     // Store exported filename - append to list so all exports are tracked
     const existingExports = note.exportedFiles || [];
@@ -568,20 +658,27 @@ Item {
     return title + ".json";
   }
 
-  // Function to save individual notecard to file
-  function saveNoteCard(note) {
+  // Function to save individual notecard to file.
+  // oldFilePath (optional) is the previous on-disk filename when the note
+  // has been renamed — atomicWrite removes it only after the new file
+  // is verified non-empty, so a failed save never wipes the old data.
+  function saveNoteCard(note, oldFilePath) {
+    if (!note || !note.id) {
+      Logger.w("Clipper", "saveNoteCard: refusing to save invalid note");
+      return;
+    }
     const filename = getNoteFilename(note);
     const filePath = root.noteCardsDir + "/" + filename;
     const json = JSON.stringify(note, null, 2);
-
-    // Use base64 encoding to safely pass JSON through shell
-    const base64 = Qt.btoa(json);
-    Quickshell.execDetached(["sh", "-c", `echo "${base64}" | base64 -d > "${filePath}"`]);
+    if (!json || json.length < 10) {
+      Logger.w("Clipper", "saveNoteCard: refusing suspiciously small JSON for note " + note.id);
+      return;
+    }
+    atomicWrite(filePath, json, oldFilePath, note.id);
   }
 
   // Function to save all note cards (saves each to individual file)
   function saveNoteCards() {
-    // Save each notecard individually
     for (let i = 0; i < root.noteCards.length; i++) {
       saveNoteCard(root.noteCards[i]);
     }
@@ -662,12 +759,9 @@ Item {
       const mimeType = matches[1];
       const base64Data = matches[2];
 
-      // Decode base64 to binary in JavaScript (no shell commands)
-      const binaryStr = Qt.atob(base64Data);
-      const bytes = new Uint8Array(binaryStr.length);
-      for (let i = 0; i < binaryStr.length; i++) {
-        bytes[i] = binaryStr.charCodeAt(i);
-      }
+      // Decode base64 to binary bytes (no shell commands).
+      // Qt.atob() with array-like overload returns a Uint8Array directly (non-deprecated form).
+      const bytes = new Uint8Array(Qt.atob(base64Data));
 
       // Copy binary data directly via Process stdin
       copyPinnedImageProc.running = true;
@@ -1237,6 +1331,14 @@ Item {
     // Create notecards directory if it doesn't exist
     Quickshell.execDetached(["mkdir", "-p", root.noteCardsDir]);
 
+    // Sweep any stale .tmp files left over from a prior interrupted atomic
+    // write (shell killed between tmp-write and rename). These are never
+    // meaningful data; leaving them around would confuse the `jq -s '*.json'`
+    // loader on next start.
+    Quickshell.execDetached(["sh", "-c",
+                             'find "$1" -maxdepth 1 -name "*.json.tmp" -type f -delete 2>/dev/null',
+                             "cleanTmp", root.noteCardsDir]);
+
     // Force reload pinned items from file
     pinnedFile.reload();
 
@@ -1264,14 +1366,15 @@ Item {
       getSelectionForNoteSelectorProcess.terminate();
     if (copyToClipboardProc.running)
       copyToClipboardProc.terminate();
-    if (wlCopyProc.running)
-      wlCopyProc.terminate();
     if (deleteItemProc.running)
       deleteItemProc.terminate();
     if (wipeProc.running)
       wipeProc.terminate();
     if (loadNoteCardsProc.running)
       loadNoteCardsProc.terminate();
+    if (atomicWriteProc.running)
+      atomicWriteProc.terminate();
+    _atomicWriteQueue = [];
 
     autoPasteTimer.stop();
     if (autoPasteProc.running) autoPasteProc.terminate();

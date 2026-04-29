@@ -37,8 +37,7 @@
     "change-color": "Change Color",
     "export": "Export to .txt",
     "delete": "Delete Note",
-    "untitled-placeholder": "Untitled",
-    "toggle-privacy-mode": "Privacymodus schakelen"
+    "untitled-placeholder": "Untitled"
   },
   "toast": {
     "invalid-clipboard-item": "Invalid clipboard item",
@@ -114,6 +113,10 @@
     "separator-color-desc": "Lijn tussen koptekst en inhoud",
     "fg-color": "Voorgrondkleur",
     "fg-color-desc": "Kleur van titel, pictogrammen en tekstinhoud",
-    "reset-defaults": "Standaardinstellingen herstellen"
+    "reset-defaults": "Standaardinstellingen herstellen",
+    "panel-width": "Panelbreedte",
+    "panel-width-desc": "Breedte van het paneel in pixels (alleen wanneer de volledig-schermmodus is uitgeschakeld)",
+    "panel-height": "Panelhoogte",
+    "panel-height-desc": "Hoogte van het paneel in pixels. Stel in op 0 voor automatische hoogte (alleen wanneer de volledig-schermmodus is uitgeschakeld)"
   }
 }

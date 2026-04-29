@@ -7,6 +7,15 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+    "project_panel": {
+        "dock": "left"
+    },
+    "outline_panel": {
+        "dock": "left"
+    },
+    "collaboration_panel": {
+        "dock": "left"
+    },
     "context_servers": {
         "mcp-server-exa-search": {
             "enabled": true,
@@ -141,6 +150,7 @@
     },
     "colorize_brackets": true,
     "agent": {
+        "dock": "right",
         "tool_permissions": {
             "tools": {
                 "mcp:mcp-server-exa-search:web_search_exa": {

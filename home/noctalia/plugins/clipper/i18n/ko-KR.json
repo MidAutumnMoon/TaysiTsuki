@@ -37,8 +37,7 @@
     "change-color": "Change Color",
     "export": "Export to .txt",
     "delete": "Delete Note",
-    "untitled-placeholder": "Untitled",
-    "toggle-privacy-mode": "개인 정보 보호 모드 전환"
+    "untitled-placeholder": "Untitled"
   },
   "toast": {
     "invalid-clipboard-item": "Invalid clipboard item",
@@ -114,6 +113,10 @@
     "separator-color-desc": "헤더와 콘텐츠 사이의 선",
     "fg-color": "전경색",
     "fg-color-desc": "제목, 아이콘 및 텍스트 콘텐츠 색상",
-    "reset-defaults": "기본값으로 재설정"
+    "reset-defaults": "기본값으로 재설정",
+    "panel-width": "패널 너비",
+    "panel-width-desc": "패널의 너비(픽셀 단위, 전체 화면 모드가 비활성화된 경우에만 적용)",
+    "panel-height": "패널 높이",
+    "panel-height-desc": "패널의 높이(픽셀 단위). 0으로 설정하면 자동 높이(전체 화면 모드가 비활성화된 경우에만 적용)"
   }
 }

@@ -37,8 +37,7 @@
     "change-color": "Change Color",
     "export": "Export to .txt",
     "delete": "Delete Note",
-    "untitled-placeholder": "Untitled",
-    "toggle-privacy-mode": "Basculer le mode confidentialité"
+    "untitled-placeholder": "Untitled"
   },
   "toast": {
     "invalid-clipboard-item": "Invalid clipboard item",
@@ -114,6 +113,10 @@
     "separator-color-desc": "Ligne entre l'en-tête et le contenu",
     "fg-color": "Couleur de premier plan",
     "fg-color-desc": "Couleur du titre, des icônes et du texte",
-    "reset-defaults": "Réinitialiser les valeurs par défaut"
+    "reset-defaults": "Réinitialiser les valeurs par défaut",
+    "panel-width": "Largeur du panneau",
+    "panel-width-desc": "Largeur du panneau en pixels (uniquement quand le mode plein écran est désactivé)",
+    "panel-height": "Hauteur du panneau",
+    "panel-height-desc": "Hauteur du panneau en pixels. Mettre à 0 pour hauteur automatique (uniquement quand le mode plein écran est désactivé)"
   }
 }

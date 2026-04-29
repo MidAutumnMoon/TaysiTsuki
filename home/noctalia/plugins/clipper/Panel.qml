@@ -43,10 +43,12 @@ Item {
     // Panel dimensions - fullscreen transparent container
     property real contentPreferredWidth: (pluginApi?.pluginSettings?.fullscreenMode ?? false)
         ? (screen?.width ?? 1920)
-        : 1450 * Style.uiScaleRatio
-    property var contentPreferredHeight: (pluginApi?.pluginSettings?.fullscreenMode ?? false)
-        ? (screen?.height ?? 900)
-        : undefined
+        : (pluginApi?.pluginSettings?.panelWidth ?? 1450) * Style.uiScaleRatio
+    property var contentPreferredHeight: {
+        if (pluginApi?.pluginSettings?.fullscreenMode ?? false) return screen?.height ?? 900;
+        var h = pluginApi?.pluginSettings?.panelHeight ?? 0;
+        return h > 0 ? h * Style.uiScaleRatio : undefined;
+    }
 
     // SmartPanel background color - transparent when hidePanelBackground is enabled
     property color panelBackgroundColor: (pluginApi?.pluginSettings?.hidePanelBackground ?? false)

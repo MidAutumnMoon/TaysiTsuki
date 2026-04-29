@@ -37,8 +37,7 @@
     "change-color": "Change Color",
     "export": "Export to .txt",
     "delete": "Delete Note",
-    "untitled-placeholder": "Untitled",
-    "toggle-privacy-mode": "切换隐私模式"
+    "untitled-placeholder": "Untitled"
   },
   "toast": {
     "invalid-clipboard-item": "Invalid clipboard item",
@@ -114,6 +113,10 @@
     "separator-color-desc": "标题和内容之间的线条",
     "fg-color": "前景颜色",
     "fg-color-desc": "标题、图标和文本内容颜色",
-    "reset-defaults": "重置为默认值"
+    "reset-defaults": "重置为默认值",
+    "panel-width": "面板宽度",
+    "panel-width-desc": "面板的像素宽度（仅在全屏模式关闭时有效）",
+    "panel-height": "面板高度",
+    "panel-height-desc": "面板的像素高度。设为 0 则自动高度（仅在全屏模式关闭时有效）"
   }
 }

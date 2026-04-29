@@ -37,8 +37,7 @@
     "change-color": "Change Color",
     "export": "Export to .txt",
     "delete": "Delete Note",
-    "untitled-placeholder": "Untitled",
-    "toggle-privacy-mode": "Datenschutzmodus umschalten"
+    "untitled-placeholder": "Untitled"
   },
   "toast": {
     "invalid-clipboard-item": "Invalid clipboard item",
@@ -114,6 +113,10 @@
     "separator-color-desc": "Linie zwischen Kopfzeile und Inhalt",
     "fg-color": "Vordergrundfarbe",
     "fg-color-desc": "Farbe für Titel, Symbole und Textinhalt",
-    "reset-defaults": "Auf Standardwerte zurücksetzen"
+    "reset-defaults": "Auf Standardwerte zurücksetzen",
+    "panel-width": "Panelbreite",
+    "panel-width-desc": "Breite des Panels in Pixeln (nur wenn der Vollbildmodus deaktiviert ist)",
+    "panel-height": "Panelhöhe",
+    "panel-height-desc": "Höhe des Panels in Pixeln. Auf 0 setzen für automatische Höhe (nur wenn der Vollbildmodus deaktiviert ist)"
   }
 }

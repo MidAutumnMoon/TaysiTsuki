@@ -37,8 +37,7 @@
     "change-color": "Change Color",
     "export": "Export to .txt",
     "delete": "Delete Note",
-    "untitled-placeholder": "Untitled",
-    "toggle-privacy-mode": "Växla sekretessläge"
+    "untitled-placeholder": "Untitled"
   },
   "toast": {
     "invalid-clipboard-item": "Invalid clipboard item",
@@ -114,6 +113,10 @@
     "separator-color-desc": "Linje mellan rubrik och innehåll",
     "fg-color": "Förgrundsfärg",
     "fg-color-desc": "Färg på titel, ikoner och textinnehåll",
-    "reset-defaults": "Återställ till standard"
+    "reset-defaults": "Återställ till standard",
+    "panel-width": "Panelbredd",
+    "panel-width-desc": "Panelens bredd i pixlar (bara när fullskärmsläget är inaktiverat)",
+    "panel-height": "Panelhöjd",
+    "panel-height-desc": "Panelens höjd i pixlar. Ange 0 för automatisk höjd (bara när fullskärmsläget är inaktiverat)"
   }
 }
