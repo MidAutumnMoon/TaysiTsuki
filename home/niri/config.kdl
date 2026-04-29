@@ -499,6 +499,9 @@ debug {
     honor-xdg-activation-with-invalid-serial
 }
 
-overview {
+blur {
+    passes 3
+    offset 1.5
+    noise 0.05
+    saturation 1.3
 }
-

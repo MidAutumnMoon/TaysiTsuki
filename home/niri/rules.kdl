@@ -4,6 +4,9 @@ window-rule {
     geometry-corner-radius 8
     clip-to-geometry true
     open-maximized-to-edges false
+    background-effect {
+        blur true
+    }
 }
 
 // Example: block out two password managers from screen capture.
@@ -65,3 +68,9 @@ window-rule {
     open-fullscreen false
 }
 
+layer-rule {
+  match namespace="^noctalia-(background|launcher-overlay|dock)-.*$"
+  background-effect {
+    xray false
+  }
+}
