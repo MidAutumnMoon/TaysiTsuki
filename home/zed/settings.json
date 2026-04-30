@@ -8,13 +8,13 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
     "project_panel": {
-        "dock": "left"
+        "dock": "left",
     },
     "outline_panel": {
-        "dock": "left"
+        "dock": "left",
     },
     "collaboration_panel": {
-        "dock": "left"
+        "dock": "left",
     },
     "context_servers": {
         "mcp-server-exa-search": {
@@ -34,6 +34,25 @@
     },
     "language_models": {
         "openai_compatible": {
+            "腾讯云 Token Plan": {
+                "api_url": "https://api.lkeap.cloud.tencent.com/plan/v3",
+                "available_models": [
+                    {
+                        "name": "glm-5.1",
+                        "max_tokens": 250000,
+                        "max_output_tokens": 200000,
+                        "max_completion_tokens": 250000,
+                        "capabilities": {
+                            "tools": true,
+                            "images": false,
+                            "parallel_tool_calls": true,
+                            "prompt_cache_key": false,
+                            "chat_completions": true,
+                            "interleaved_reasoning": true,
+                        },
+                    },
+                ],
+            },
             "ZAI Coding Plan": {
                 "api_url": "https://api.z.ai/api/coding/paas/v4",
                 "available_models": [
@@ -48,6 +67,7 @@
                             "parallel_tool_calls": true,
                             "prompt_cache_key": false,
                             "chat_completions": true,
+                            "interleaved_reasoning": true,
                         },
                     },
                 ],
@@ -66,6 +86,7 @@
                             "parallel_tool_calls": true,
                             "prompt_cache_key": false,
                             "chat_completions": true,
+                            "interleaved_reasoning": true,
                         },
                     },
                 ],
@@ -103,6 +124,7 @@
                             "parallel_tool_calls": true,
                             "prompt_cache_key": false,
                             "chat_completions": true,
+                            "interleaved_reasoning": true,
                         },
                     },
                     {
@@ -116,19 +138,7 @@
                             "images": true,
                             "parallel_tool_calls": true,
                             "prompt_cache_key": true,
-                        },
-                    },
-                    {
-                        "name": "doubao-seed-2.0-code",
-                        "display_name": "Doubao Seed 2.0 Code",
-                        "max_tokens": 250000,
-                        // "max_completion_tokens": 250000,
-                        // "max_output_tokens": 60000,
-                        "capabilities": {
-                            "tools": true,
-                            "images": true,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": true,
+                            "interleaved_reasoning": true,
                         },
                     },
                     {
@@ -150,6 +160,7 @@
     },
     "colorize_brackets": true,
     "agent": {
+        "sidebar_side": "right",
         "dock": "right",
         "tool_permissions": {
             "tools": {
@@ -178,7 +189,7 @@
         },
         "default_model": {
             "enable_thinking": false,
-            "provider": "ZAI Coding Plan",
+            "provider": "腾讯云 Token Plan",
             "model": "glm-5.1",
         },
         "thread_summary_model": {

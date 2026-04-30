@@ -2,7 +2,7 @@
 
 use std/assert
 
-def main [...args] {
+def --wrapped main [...args] {
     let here = ($env.CURRENT_FILE | path dirname)
     let sops_file = ($here | path join "passwd--restic.sops.yml")
 
@@ -19,20 +19,16 @@ def main [...args] {
     }
     $env.RESTIC_PASSWORD = $password
 
-    const repository = "/mnt/pool/Restic/TopSecret"
-    let config = ($repository | path join "config")
-    mkdir $repository
-
-    $env.RESTIC_REPOSITORY = $repository
+    $env.RESTIC_REPOSITORY = "rclone:Box:Pool/Restic/TopSecret"
     $env.RESTIC_PACK_SIZE = "128"
 
     let backup_dirs = [
         ($env.HOME | path join "Documents/TopSecret")
     ]
 
-    let config_hash_before = if ($config | path exists) {
-        (open $config | hash sha256)
-    } else { "" }
+    # let config_hash_before = if ($config | path exists) {
+    #     (open $config | hash sha256)
+    # } else { "" }
 
     let command = if ($args | is-empty) {
         [
@@ -45,14 +41,14 @@ def main [...args] {
 
     ^restic ...$command
 
-    let config_hash_after = if ($config | path exists) {
-        (open $config | hash sha256)
-    } else { "" }
+    # let config_hash_after = if ($config | path exists) {
+    #     (open $config | hash sha256)
+    # } else { "" }
 
-    if ($config_hash_before != $config_hash_after) {
-        print "repo config changed"
-        let current_time = (date now | format date "%Y-%m-%d--%H-%M")
-        let new_config_path = $"($config)-($current_time)"
-        cp $config $new_config_path
-    }
+    # if ($config_hash_before != $config_hash_after) {
+    #     print "repo config changed"
+    #     let current_time = (date now | format date "%Y-%m-%d--%H-%M")
+    #     let new_config_path = $"($config)-($current_time)"
+    #     cp $config $new_config_path
+    # }
 }
