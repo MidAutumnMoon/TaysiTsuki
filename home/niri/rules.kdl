@@ -4,6 +4,7 @@ window-rule {
     geometry-corner-radius 8
     clip-to-geometry true
     open-maximized-to-edges false
+    draw-border-with-background false
     background-effect {
         blur true
     }
