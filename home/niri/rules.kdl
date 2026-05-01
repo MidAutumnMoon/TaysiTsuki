@@ -56,6 +56,9 @@ window-rule {
     open-fullscreen false
     open-maximized false
     // default-column-width { proportion 0.5; }
+    background-effect {
+        xray false
+    }
 }
 
 // Make file chooser larger
