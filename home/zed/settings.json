@@ -34,6 +34,25 @@
     },
     "language_models": {
         "openai_compatible": {
+            "Nvidia NIM": {
+                "api_url": "https://integrate.api.nvidia.com",
+                "available_models": [
+                    {
+                        "name": "openai/gpt-oss-120b",
+                        "max_tokens": 120000,
+                        "max_output_tokens": 64000,
+                        "max_completion_tokens": 120000,
+                        "capabilities": {
+                            "tools": true,
+                            "images": false,
+                            "parallel_tool_calls": false,
+                            "prompt_cache_key": false,
+                            "chat_completions": true,
+                            "interleaved_reasoning": false,
+                        },
+                    },
+                ],
+            },
             "腾讯云 Token Plan": {
                 "api_url": "https://api.lkeap.cloud.tencent.com/plan/v3",
                 "available_models": [
@@ -42,6 +61,7 @@
                         "max_tokens": 250000,
                         "max_output_tokens": 200000,
                         "max_completion_tokens": 250000,
+                        "reasoning_effort": "high",
                         "capabilities": {
                             "tools": true,
                             "images": false,
@@ -193,12 +213,12 @@
             "model": "glm-5.1",
         },
         "thread_summary_model": {
-            "provider": "openrouter",
-            "model": "openai/gpt-oss-120b",
+            "provider": "Nvidia NIM",
+            "model": "gpt-oss-120b",
         },
         "commit_message_model": {
-            "provider": "openrouter",
-            "model": "openai/gpt-oss-120b",
+            "provider": "Nvidia NIM",
+            "model": "gpt-oss-120b",
         },
         "model_parameters": [{ "temperature": 0.7 }],
         "use_modifier_to_send": true,
