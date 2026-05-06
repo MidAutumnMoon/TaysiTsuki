@@ -7,6 +7,7 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+    "document_folding_ranges": "on",
     "project_panel": {
         "dock": "left",
     },
@@ -148,30 +149,16 @@
                         },
                     },
                     {
-                        "name": "kimi-k2.5",
-                        "display_name": "Kimi K2.5",
+                        "name": "kimi-k2.6",
                         "max_tokens": 250000,
-                        // "max_completion_tokens": 250000,
-                        // "max_output_tokens": 60000,
+                        "max_completion_tokens": 250000,
+                        "max_output_tokens": 131000,
                         "capabilities": {
                             "tools": true,
-                            "images": true,
+                            "images": false,
                             "parallel_tool_calls": true,
-                            "prompt_cache_key": true,
+                            "prompt_cache_key": false,
                             "interleaved_reasoning": true,
-                        },
-                    },
-                    {
-                        "name": "doubao-seed-2.0-pro",
-                        "display_name": "Doubao Seed 2.0 Pro",
-                        "max_tokens": 250000,
-                        // "max_completion_tokens": 250000,
-                        // "max_output_tokens": 60000,
-                        "capabilities": {
-                            "tools": true,
-                            "images": true,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": true,
                         },
                     },
                 ],
@@ -204,8 +191,8 @@
         },
         "favorite_models": [],
         "inline_assistant_model": {
-            "provider": "Volcengine",
-            "model": "doubao-seed-2.0-code",
+            "provider": "腾讯云 Token Plan",
+            "model": "glm-5.1",
         },
         "default_model": {
             "enable_thinking": false,
@@ -214,13 +201,13 @@
         },
         "thread_summary_model": {
             "provider": "Nvidia NIM",
-            "model": "gpt-oss-120b",
+            "model": "openai/gpt-oss-120b",
         },
         "commit_message_model": {
             "provider": "Nvidia NIM",
-            "model": "gpt-oss-120b",
+            "model": "openai/gpt-oss-120b",
         },
-        "model_parameters": [{ "temperature": 0.7 }],
+        "model_parameters": [{ "temperature": 0.9 }],
         "use_modifier_to_send": true,
     },
     "vim_mode": true,
@@ -347,8 +334,15 @@
             },
         },
         "deno": {
+            "initialization_options": {
+                "enable": true,
+                "unstable": true,
+            },
             "settings": {
-                "deno": { "enable": true },
+                "deno": {
+                    "enable": true,
+                    "unstable": true,
+                },
             },
         },
         "json-language-server": {
