@@ -7,14 +7,14 @@
 stdenvNoCC.mkDerivation ( drvSelf: {
 
     pname = "metacubexd";
-    version = "1.245.1";
+    version = "1.247.0";
 
     src = let
         repo = "https://github.com/MetaCubeX/metacubexd";
         dist = "compressed-dist.tgz";
     in fetchurl {
         url = "${repo}/releases/download/v${drvSelf.version}/${dist}";
-        hash = "sha256-sBI4EW2sXph+b+SZ/6g06VIdpjo/zVn/qFl0DCqNiG4=";
+        hash = "sha256-wjok82sRWiUBHSmPT/aXxS6M6A6171ZN6kWDolVgNrw=";
     };
 
     sourceRoot = ".";
