@@ -201,11 +201,11 @@
         },
         "thread_summary_model": {
             "provider": "Nvidia NIM",
-            "model": "openai/gpt-oss-120b",
+            "model": "gpt-oss-120b",
         },
         "commit_message_model": {
             "provider": "Nvidia NIM",
-            "model": "openai/gpt-oss-120b",
+            "model": "gpt-oss-120b",
         },
         "model_parameters": [{ "temperature": 0.9 }],
         "use_modifier_to_send": true,
