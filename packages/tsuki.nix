@@ -133,7 +133,9 @@ allUnique <| withValidate <|
     {
         attr = tsuki "coredns";
         group = gs.go_2;
-        update = {};
+        update = {
+            version_regex = "(v1\\..*)";
+        };
     }
     {
         attr = tsuki "opentofu";

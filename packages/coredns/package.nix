@@ -17,7 +17,8 @@ buildGoModule rec {
         sha256 = "sha256-Uk4oWsUxaGdLQzX5JywYzi7pmQHGo06uQdLeOkP4U/s=";
     };
 
-    vendorHash = "sha256-kj+bcr7zRiQ+Lloa32qyMl/Gi3qiLLtjtT/IUeOx1PQ=";
+    proxyVendor = true;
+    vendorHash = "sha256-iqoJoo6dYS03t+O7RXjEpcT0VC6pBYMBrEr7K6otlsY=";
 
     outputs = [
         "out"
@@ -30,10 +31,6 @@ buildGoModule rec {
     doCheck = false;
 
     nativeBuildInputs = [ installShellFiles ];
-
-    preBuild = ''
-        GOOS= GOARCH= go generate -v -n -x -mod=readonly
-    '';
 
     postInstall = ''
         installManPage man/*
