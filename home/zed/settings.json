@@ -37,12 +37,12 @@
     "language_models": {
         "openai_compatible": {
             "Nvidia NIM": {
-                "api_url": "https://integrate.api.nvidia.com",
+                "api_url": "https://integrate.api.nvidia.com/v1",
                 "available_models": [
                     {
                         "name": "openai/gpt-oss-120b",
+                        "reasoning_effort": "high",
                         "max_tokens": 120000,
-                        "max_completion_tokens": 120000,
                         "capabilities": {
                             "tools": true,
                             "images": false,
@@ -60,7 +60,7 @@
                     {
                         "name": "glm-5.1",
                         "max_tokens": 200000,
-                        "reasoning_effort": "high",
+                        "reasoning_effort": "xhigh",
                         "capabilities": {
                             "tools": true,
                             "images": false,
@@ -78,6 +78,7 @@
                     {
                         "name": "glm-5.1",
                         "max_tokens": 200000,
+                        "reasoning_effort": "xhigh",
                         "capabilities": {
                             "tools": true,
                             "images": false,
@@ -95,6 +96,7 @@
                     {
                         "name": "kimi-k2.5",
                         "max_tokens": 240000,
+                        "reasoning_effort": "xhigh",
                         "capabilities": {
                             "tools": true,
                             "images": false,
@@ -110,8 +112,7 @@
                 "api_url": "https://nano-gpt.com/api/v1legacy",
                 "available_models": [
                     {
-                        "name": "moonshotai/kimi-k2.5:thinking",
-                        "display_name": "Kimi K2.5",
+                        "name": "moonshotai/kimi-k2.6:thinking",
                         "max_tokens": 250000,
                         "capabilities": {
                             "tools": true,
@@ -129,6 +130,7 @@
                         "name": "glm-5.1",
                         "display_name": "GLM 5.1",
                         "max_tokens": 200000,
+                        "reasoning_effort": "xhigh",
                         "capabilities": {
                             "tools": true,
                             "images": false,
@@ -141,6 +143,7 @@
                     {
                         "name": "kimi-k2.6",
                         "max_tokens": 250000,
+                        "reasoning_effort": "xhigh",
                         "capabilities": {
                             "tools": true,
                             "images": false,
@@ -186,17 +189,19 @@
             "model": "glm-5.1",
         },
         "default_model": {
-            "enable_thinking": false,
             "provider": "腾讯云 Token Plan",
             "model": "glm-5.1",
+            "enable_thinking": false,
         },
         "thread_summary_model": {
             "provider": "Nvidia NIM",
-            "model": "gpt-oss-120b",
+            "model": "openai/gpt-oss-120b",
+            "enable_thinking": true,
         },
         "commit_message_model": {
             "provider": "Nvidia NIM",
-            "model": "gpt-oss-120b",
+            "model": "openai/gpt-oss-120b",
+            "enable_thinking": true,
         },
         "model_parameters": [{ "temperature": 0.9 }],
         "use_modifier_to_send": true,

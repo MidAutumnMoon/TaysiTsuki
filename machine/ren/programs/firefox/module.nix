@@ -139,6 +139,8 @@
         "dom.security.https_only_mode_send_http_background_request" = false;
         # currently only enabled on nightly by default
         "dom.text_fragments.create_text_fragment.enabled" = true;
+        "dom.min_background_timeout_value" = 20;
+        "dom.min_background_timeout_value_without_budget_throttling" = 20;
 
         "general.autoScroll" = true;
         # "general.smoothScroll.msdPhysics.enabled" = true;
