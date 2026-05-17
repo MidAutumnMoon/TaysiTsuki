@@ -1,12 +1,19 @@
 { pkgs, ... }:
 
+let
+
+    llvm = pkgs.llvmPackages_latest;
+
+in
+
 {
 
     packages = with pkgs; [
         tsuki.rust.rust-analyzer
         tsuki.rust.toolchainForDev
         # for lld
-        ( clang.override { inherit ( llvmPackages ) bintools; } )
+        (llvm.clang.override { inherit (llvm) bintools; })
+        llvm.lldb
         cargo-bloat
         cargo-outdated
         # cargo-llvm-cov
