@@ -106,19 +106,34 @@
                             "interleaved_reasoning": true,
                         },
                     },
+                    {
+                        "name": "glm-5.1",
+                        "max_tokens": 200000,
+                        "reasoning_effort": "xhigh",
+                        "capabilities": {
+                            "tools": true,
+                            "images": false,
+                            "parallel_tool_calls": true,
+                            "prompt_cache_key": false,
+                            "chat_completions": true,
+                            "interleaved_reasoning": true,
+                        },
+                    },
                 ],
             },
             "NanoGPT": {
-                "api_url": "https://nano-gpt.com/api/v1legacy",
+                "api_url": "https://nano-gpt.com/api/v1",
                 "available_models": [
                     {
                         "name": "moonshotai/kimi-k2.6:thinking",
+                        "display_name": "Kimi K2.6",
                         "max_tokens": 250000,
                         "capabilities": {
                             "tools": true,
                             "images": true,
-                            "parallel_tool_calls": false,
+                            "parallel_tool_calls": true,
                             "prompt_cache_key": false,
+                            "interleaved_reasoning": true,
                         },
                     },
                 ],
@@ -179,6 +194,12 @@
                         {
                             "pattern": "^cargo\\s+clippy(\\s|$)",
                         },
+                        {
+                            "pattern": "^cargo\\s+test(\\s|$)",
+                        },
+                        {
+                            "pattern": "^sort\\b",
+                        },
                     ],
                 },
             },
@@ -189,19 +210,17 @@
             "model": "glm-5.1",
         },
         "default_model": {
-            "provider": "腾讯云 Token Plan",
+            "provider": "百度千帆",
             "model": "glm-5.1",
             "enable_thinking": false,
         },
         "thread_summary_model": {
             "provider": "Nvidia NIM",
             "model": "openai/gpt-oss-120b",
-            "enable_thinking": true,
         },
         "commit_message_model": {
             "provider": "Nvidia NIM",
             "model": "openai/gpt-oss-120b",
-            "enable_thinking": true,
         },
         "model_parameters": [{ "temperature": 0.9 }],
         "use_modifier_to_send": true,
