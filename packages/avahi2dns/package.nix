@@ -7,16 +7,16 @@
 buildGoModule (drvSelf: {
 
     pname = "avahi2dns";
-    version = "0.1.0";
+    version = "0.2.0";
 
     src = fetchFromGitHub {
         owner = "LouisBrunner";
         repo = "avahi2dns";
         tag = drvSelf.version;
-        hash = "sha256-/ugdPLhWa76/rtFRWr4pHhmuvYxIB0sbNnw4m6vnNSg=";
+        hash = "sha256-F4P/g/x+gK1+84ubXK52xhvAfVddhdbrrEo9A0sdjC4=";
     };
 
-    vendorHash = "sha256-rROxPRFsQC852leigEqfhyoL+e2metSmLNR98WJBEfw=";
+    vendorHash = "sha256-BSepcq0LKwEtetYhs/dQ2y5EkCAbkSlpRlWHrhlfqmc=";
 
     env.CGO_ENABLED = 0;
 
