@@ -622,9 +622,9 @@ dependencies = [
 
 [[package]]
 name = "ino_color"
-version = "4.0.0"
+version = "5.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0109a1802ebdbcd33ff192430a042c3bad90c657fea47ea8077b4e08c63ef369"
+checksum = "daa8905ff180e272e3f71ab78fbd98a7f03a62e898d92f395d67aec4e36866d0"
 
 [[package]]
 name = "ino_iter"
