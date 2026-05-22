@@ -54,24 +54,6 @@
                     },
                 ],
             },
-            "腾讯云 Token Plan": {
-                "api_url": "https://api.lkeap.cloud.tencent.com/plan/v3",
-                "available_models": [
-                    {
-                        "name": "glm-5.1",
-                        "max_tokens": 200000,
-                        "reasoning_effort": "xhigh",
-                        "capabilities": {
-                            "tools": true,
-                            "images": false,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": false,
-                            "chat_completions": true,
-                            "interleaved_reasoning": true,
-                        },
-                    },
-                ],
-            },
             "ZAI Coding Plan": {
                 "api_url": "https://api.z.ai/api/coding/paas/v4",
                 "available_models": [
@@ -128,12 +110,14 @@
                         "name": "moonshotai/kimi-k2.6:thinking",
                         "display_name": "Kimi K2.6",
                         "max_tokens": 250000,
+                        "reasoning_effort": "high",
                         "capabilities": {
                             "tools": true,
                             "images": true,
                             "parallel_tool_calls": true,
                             "prompt_cache_key": false,
                             "interleaved_reasoning": true,
+                            "chat_completions": true,
                         },
                     },
                 ],
@@ -161,7 +145,7 @@
                         "reasoning_effort": "xhigh",
                         "capabilities": {
                             "tools": true,
-                            "images": false,
+                            "images": true,
                             "parallel_tool_calls": true,
                             "prompt_cache_key": false,
                             "interleaved_reasoning": true,
@@ -173,10 +157,15 @@
     },
     "colorize_brackets": true,
     "agent": {
+        "profiles": {},
         "sidebar_side": "right",
         "dock": "right",
         "tool_permissions": {
+            "default": "allow",
             "tools": {
+                "create_directory": {
+                    "default": "allow",
+                },
                 "mcp:mcp-server-exa-search:web_search_exa": {
                     "default": "allow",
                 },
@@ -200,6 +189,9 @@
                         {
                             "pattern": "^sort\\b",
                         },
+                        {
+                            "pattern": "^deno\\s+task(\\s|$)",
+                        },
                     ],
                 },
             },
@@ -210,7 +202,7 @@
             "model": "glm-5.1",
         },
         "default_model": {
-            "provider": "百度千帆",
+            "provider": "Volcengine",
             "model": "glm-5.1",
             "enable_thinking": false,
         },
