@@ -31,10 +31,14 @@ in
             };
             # cacheBuster.enabled = true;
             whitelistMode = false;
-            backups.chat.enabled = false;
+            backups = {
+                common.numberOfBackups = 0;
+                chat.enabled = false;
+            };
             enableDownloadableTokenizers = true;
             # set to false if theme requires HQ pics
             thumbnails.enabled = true;
+            enableKeepAlive = true;
         }
         |> toString;
 

@@ -31,13 +31,11 @@
         ncdu
         shellcheck
         bash-language-server
-        # gh
+        gh
         tsuki.deno
-        # wgsl-analyzer
         easyeffects
         age
         # tsuki.feishin
-        # tsuki.opencode
     ];
 
     envvars = {
