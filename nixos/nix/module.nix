@@ -12,11 +12,9 @@
         # Let cache.nixos.org be queried first.
         substituters = lib.mkAfter [
             "https://nuirrce.cachix.org"
-            "https://cache.garnix.io"
         ];
         trusted-public-keys = [
             "nuirrce.cachix.org-1:KQWa6ZfDkMPXeDiUpmyDhNw4CmgybPyeVklmi/1Rtqk="
-            "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
         ];
 
         auto-allocate-uids = true;

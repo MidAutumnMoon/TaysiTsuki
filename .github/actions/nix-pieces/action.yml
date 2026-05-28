@@ -40,9 +40,9 @@ runs:
       shell: bash
       run: |
         conf="$HOME/.config/nix/nix.conf"
-        echo "extra-substituters = https://cache.garnix.io https://attic.xuyh0120.win/lantian" \
+        echo "extra-substituters = https://attic.xuyh0120.win/lantian" \
           >> $conf
-        echo "extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=" \
+        echo "extra-trusted-public-keys = lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=" \
           >> $conf
         nix config show
 
