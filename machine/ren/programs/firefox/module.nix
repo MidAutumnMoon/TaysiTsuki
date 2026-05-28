@@ -202,6 +202,7 @@
         lockPref( "toolkit.telemetry.enabled", false );
         lockPref( "toolkit.coverage.opt-out", true );
         lockPref( "toolkit.legacyUserProfileCustomizations.stylesheets", true );
+        lockPref("view_source.wrap_long_lines", true);
     '';
 
 }
