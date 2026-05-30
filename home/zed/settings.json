@@ -36,23 +36,6 @@
     },
     "language_models": {
         "openai_compatible": {
-            "MIMO": {
-                "api_url": "https://token-plan-cn.xiaomimimo.com/v1",
-                "available_models": [
-                    {
-                        "name": "mimo-v2.5-pro",
-                        "max_tokens": 200000,
-                        "capabilities": {
-                            "tools": true,
-                            "images": false,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": false,
-                            "chat_completions": true,
-                            "interleaved_reasoning": false,
-                        },
-                    },
-                ],
-            },
             "Nvidia NIM": {
                 "api_url": "https://integrate.api.nvidia.com/v1",
                 "available_models": [
@@ -219,8 +202,8 @@
             "model": "glm-5.1",
         },
         "default_model": {
-            "provider": "MIMO",
-            "model": "mimo-v2.5-pro",
+            "provider": "ZAI Coding Plan",
+            "model": "glm-5.1",
             "enable_thinking": false,
         },
         "thread_summary_model": {
