@@ -36,6 +36,7 @@
         easyeffects
         age
         # tsuki.feishin
+        tsuki.opencode
     ];
 
     envvars = {

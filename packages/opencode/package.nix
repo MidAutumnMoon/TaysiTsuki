@@ -21,9 +21,9 @@ symlinkJoin {
         cat > "$out/bin/${exeName}" << 'EOF'
         #!${runtimeShell}
         # AI: used AI to write the variable substitution
-        export http_proxy="''${http_proxy/socks5:/http:}"
-        export https_proxy="''${https_proxy/socks5:/http:}"
-        export all_proxy="''${all_proxy/socks5:/http:}"
+        export http_proxy="''${http_proxy/socks5h:/http:}"
+        export https_proxy="''${https_proxy/socks5h:/http:}"
+        export all_proxy="''${all_proxy/socks5h:/http:}"
         exec "$(dirname "$0")/.${exeName}-before-proxy" "$@"
         EOF
 
