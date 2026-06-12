@@ -8,17 +8,17 @@
 buildGoModule rec {
 
     pname = "coredns";
-    version = "1.14.3";
+    version = "1.14.4";
 
     src = fetchFromGitHub {
         owner = "coredns";
         repo = "coredns";
         rev = "v${version}";
-        sha256 = "sha256-Uk4oWsUxaGdLQzX5JywYzi7pmQHGo06uQdLeOkP4U/s=";
+        sha256 = "sha256-ByfXuFjALQV7iDb+QVGaP1UYDPXZTHAiTdcxNLbETCs=";
     };
 
     proxyVendor = true;
-    vendorHash = "sha256-iqoJoo6dYS03t+O7RXjEpcT0VC6pBYMBrEr7K6otlsY=";
+    vendorHash = "sha256-d25oLszWb9RBV51iBmkDzuXPJvcIadcea1nXuSlmcbE=";
 
     outputs = [
         "out"
