@@ -9,8 +9,8 @@
 {
     "agent_servers": {
         "opencode": {
-            "type": "registry"
-        }
+            "type": "registry",
+        },
     },
     "cli_default_open_behavior": "existing_window",
     "document_folding_ranges": "on",
@@ -63,8 +63,8 @@
                 "api_url": "https://api.z.ai/api/coding/paas/v4",
                 "available_models": [
                     {
-                        "name": "glm-5.1",
-                        "max_tokens": 200000,
+                        "name": "glm-5.2",
+                        "max_tokens": 800000,
                         "reasoning_effort": "xhigh",
                         "capabilities": {
                             "tools": true,
@@ -208,7 +208,7 @@
         },
         "default_model": {
             "provider": "ZAI Coding Plan",
-            "model": "glm-5.1",
+            "model": "glm-5.2",
             "enable_thinking": false,
         },
         "thread_summary_model": {
