@@ -207,8 +207,8 @@
             "model": "glm-5.1",
         },
         "default_model": {
-            "provider": "ZAI Coding Plan",
-            "model": "glm-5.2",
+            "provider": "百度千帆",
+            "model": "glm-5.1",
             "enable_thinking": false,
         },
         "thread_summary_model": {

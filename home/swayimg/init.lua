@@ -1,0 +1,138 @@
+-- General
+swayimg.enable_decoration(true)
+swayimg.enable_antialiasing(false)
+
+-- Image list
+swayimg.imagelist.enable_adjacent(true)
+swayimg.imagelist.enable_fsmon(true)
+
+-- Text overlay
+swayimg.text.set_timeout(3)
+swayimg.text.set_status_timeout(3)
+
+-- Viewer
+swayimg.viewer.set_window_background(0xff292828)
+swayimg.viewer.set_image_chessboard(16, 0xff333333, 0xff4c4c4c) -- TODO: adjust size/colors to preference
+swayimg.viewer.set_default_scale("fit")
+swayimg.viewer.limit_history(30)
+swayimg.viewer.limit_preload(5)
+
+-- Gallery
+swayimg.gallery.enable_preload(true)
+
+-- Viewer text scheme
+swayimg.viewer.set_text("topleft", {
+    "File:\t{name}",
+    "Size:\t{frame.width}x{frame.height}",
+    "Disk:\t{sizehr}",
+    -- exif: no single-field equivalent in Lua API; use {meta.*} tags
+    -- e.g. "Camera:\t{meta.Exif.Photo.Model}"
+})
+-- top_right = none → omitted
+swayimg.viewer.set_text("bottomleft", {
+    "Index:\t{list.index}/{list.total}",
+    "Scale:\t{scale}%",
+})
+swayimg.viewer.set_text("bottomright", {
+    -- status: not available as template; shown via swayimg.text.set_status()
+    "Frame:\t{frame.index}/{frame.total}",
+})
+
+-- Viewer key bindings
+swayimg.viewer.bind_reset()
+
+swayimg.viewer.on_key("Left", function()
+    swayimg.viewer.switch_image("prev")
+end)
+swayimg.viewer.on_key("Right", function()
+    swayimg.viewer.switch_image("next")
+end)
+swayimg.viewer.on_key("bracketright", function()
+    swayimg.viewer.switch_image("next")
+end)
+swayimg.viewer.on_key("bracketleft", function()
+    swayimg.viewer.switch_image("prev")
+end)
+swayimg.viewer.on_key("Escape", function()
+    swayimg.exit()
+end)
+swayimg.viewer.on_key("Home", function()
+    swayimg.viewer.switch_image("first")
+end)
+swayimg.viewer.on_key("End", function()
+    swayimg.viewer.switch_image("last")
+end)
+swayimg.viewer.on_key("Minus", function()
+    swayimg.viewer.set_abs_scale(swayimg.viewer.get_scale() - 0.2)
+end)
+swayimg.viewer.on_key("Equal", function()
+    local mouse = swayimg.get_mouse_pos()
+    swayimg.viewer.set_abs_scale(swayimg.viewer.get_scale() + 0.2, mouse.x, mouse.y)
+end)
+swayimg.viewer.on_mouse("ScrollUp", function()
+    local mouse = swayimg.get_mouse_pos()
+    swayimg.viewer.set_abs_scale(swayimg.viewer.get_scale() + 0.2, mouse.x, mouse.y)
+end)
+swayimg.viewer.on_mouse("ScrollDown", function()
+    local mouse = swayimg.get_mouse_pos()
+    swayimg.viewer.set_abs_scale(swayimg.viewer.get_scale() - 0.2, mouse.x, mouse.y)
+end)
+swayimg.viewer.on_key("f", function()
+    swayimg.set_fullscreen()
+end)
+swayimg.viewer.on_key("j", function()
+    local pos = swayimg.viewer.get_position()
+    swayimg.viewer.set_abs_position(pos.x, pos.y + 10)
+end)
+swayimg.viewer.on_key("k", function()
+    local pos = swayimg.viewer.get_position()
+    swayimg.viewer.set_abs_position(pos.x, pos.y - 10)
+end)
+swayimg.viewer.on_key("h", function()
+    local pos = swayimg.viewer.get_position()
+    swayimg.viewer.set_abs_position(pos.x - 10, pos.y)
+end)
+swayimg.viewer.on_key("l", function()
+    local pos = swayimg.viewer.get_position()
+    swayimg.viewer.set_abs_position(pos.x + 10, pos.y)
+end)
+swayimg.viewer.on_key("n", function()
+    swayimg.viewer.set_animation()
+end)
+swayimg.viewer.on_key("i", function()
+    if swayimg.text.visible() then
+        swayimg.text.hide()
+    else
+        swayimg.text.show()
+    end
+end)
+swayimg.viewer.on_key("a", function()
+    swayimg.viewer.set_fix_scale("fit")
+end)
+swayimg.viewer.on_key("w", function()
+    swayimg.viewer.set_fix_scale("width")
+end)
+swayimg.viewer.on_key("p", function()
+    swayimg.viewer.set_fix_scale("keep")
+end)
+swayimg.viewer.on_key("o", function()
+    local img = swayimg.viewer.get_image()
+    if img then
+        os.execute(string.format("fish -c \"open (dirname '%s')\"", img.path))
+    end
+end)
+swayimg.viewer.on_key("c", function()
+    local img = swayimg.viewer.get_image()
+    if img then
+        os.execute(string.format(
+            "printf 'file://%s\\n' | wl-copy -t text/uri-list",
+            img.path
+        ))
+    end
+end)
+
+-- Viewer mouse bindings
+swayimg.viewer.on_mouse("MouseRight", function()
+    swayimg.viewer.switch_image("next")
+end)
+swayimg.viewer.set_drag_button("MouseLeft")

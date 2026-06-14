@@ -6,6 +6,6 @@
         swayimg
     ];
 
-    xdg_config."swayimg/config".src = dots.get "swayimg/swayimgrc.ini";
+    xdg_config."swayimg/init.lua".src = dots.get "swayimg/init.lua";
 
 }
