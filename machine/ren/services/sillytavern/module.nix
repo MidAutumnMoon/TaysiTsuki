@@ -39,6 +39,13 @@ in
             # set to false if theme requires HQ pics
             thumbnails.enabled = true;
             enableKeepAlive = true;
+            whitelistImportDomains = [
+                "localhost"
+                "cdn.discordapp.com"
+                "files.catbox.moe"
+                "raw.githubusercontent.com"
+                "botbooru.com"
+            ];
         }
         |> toString;
 
