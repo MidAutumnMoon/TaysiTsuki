@@ -32,9 +32,7 @@ Not for ordinary PNG images, and not for backing up the card PNG itself.
 
 ## Bundled scripts
 
-Paths are relative to this skill folder
-(`.agents/skills/sillytavern-card-backup/`). From the project root invoke
-them with the full path. Required Deno permissions are listed below.
+Required Deno permissions are listed below.
 
 ### `scripts/chara_dump.ts` — inspect a card
 
@@ -45,7 +43,7 @@ to write the full decoded JSON to disk; hand the path around, never read the
 file back into context.
 
 ```
-deno run --allow-read --allow-write=. .agents/skills/sillytavern-card-backup/scripts/chara_dump.ts <card.png> [--out <file.json>]
+deno run --allow-read --allow-write=. scripts/chara_dump.ts <card.png> [--out <file.json>]
 ```
 
 ### `scripts/backup_card_images.ts` — find and download pictures
@@ -57,7 +55,7 @@ a file came from.
 
 ```
 deno run --allow-read --allow-write --allow-net \
-  .agents/skills/sillytavern-card-backup/scripts/backup_card_images.ts \
+  scripts/backup_card_images.ts \
   <card.png> [out_dir] [--dry-run]
 ```
 
