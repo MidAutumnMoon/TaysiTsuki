@@ -62,6 +62,8 @@ deno run --allow-read --allow-write --allow-net \
 - `out_dir` defaults to `./backups`.
 - `--dry-run` lists the URLs it would download without fetching anything.
 
+**Filename collisions:** The script writes files flat into `out_dir`. When processing multiple cards, use a distinct directory per card (e.g. `backups/CardName/`) to avoid cross-card filename collisions.
+
 The script exits `0` only if every URL was fetched; dead links (host returns
 non-200, e.g. 404) are reported and cause a non-zero exit so partial failures
 are visible. Dead links cannot be recovered — surface them to the user and
