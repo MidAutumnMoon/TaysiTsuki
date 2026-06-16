@@ -94,6 +94,9 @@ in {
             enabled = true
             autoupdate = true
 
+        [safe]
+            directory = /home/teapot/z
+
         # Alias
 
         [alias]

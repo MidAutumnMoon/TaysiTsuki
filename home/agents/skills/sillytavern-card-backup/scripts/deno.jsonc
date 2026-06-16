@@ -1,0 +1,8 @@
+{
+    "fmt": {
+        "indentWidth": 4,
+        "useTabs": false,
+        "jsx.multiLineParens": "never",
+        "singleBodyPosition": "sameLine",
+    },
+}
