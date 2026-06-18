@@ -38,7 +38,8 @@ Required Deno permissions are listed below.
 
 Prints a **bounded summary** to stdout (spec, name, per-field lengths only —
 no card prose), so large or NSFW card bodies never enter the agent's context.
-Use this first when you are unsure what a card contains. Pass `--out <file>`
+Run this first to see the card name, greeting count, and lorebook presence
+without dumping prose into context. Pass `--out <file>`
 to write the full decoded JSON to disk; hand the path around, never read the
 file back into context.
 
@@ -71,8 +72,8 @@ suggest swapping them in the card.
 
 ## Workflow
 
-1. **(Only if you doubt the file is a real card)** run `chara_dump.ts` to
-   confirm it's `chara_card_v2` and see its fields.
+1. **Inspect** with `chara_dump.ts` to confirm it's `chara_card_v2`, see the
+   card name, greeting count, and whether an unscanned lorebook is present.
 2. **Preview** with `backup_card_images.ts --dry-run` so you can show the user
    the count and sources before touching the network.
 3. **Download** with `backup_card_images.ts <card> <out_dir>`.
