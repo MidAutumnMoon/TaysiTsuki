@@ -25,7 +25,7 @@ jobs:
             groups: ${{ steps.list_groups_step.outputs.groups }}
         steps:
             - name: Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
 
             - name: Setup nix
               uses: ./.github/actions/nix-pieces
@@ -54,7 +54,7 @@ jobs:
             fail-fast: false
         steps:
             - name: Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
 
             - name: Setup nix
               uses: ./.github/actions/nix-pieces
@@ -79,7 +79,7 @@ jobs:
             hostnames: ${{ steps.hostnames_step.outputs.hostnames }}
         steps:
             - name: Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
 
             - name: Setup nix
               uses: ./.github/actions/nix-pieces
@@ -107,7 +107,7 @@ jobs:
             fail-fast: false
         steps:
             - name: Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
 
             - name: Setup nix
               uses: ./.github/actions/nix-pieces
