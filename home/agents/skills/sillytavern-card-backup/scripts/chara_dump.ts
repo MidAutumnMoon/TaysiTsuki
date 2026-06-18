@@ -88,27 +88,32 @@ function lorebookInfo(d: Record<string, unknown>): string {
     return parts.join("; ");
 }
 
-const summary: string[] = [];
-summary.push(`spec: ${obj.spec ?? "?"}  version: ${obj.spec_version ?? "?"}`);
-summary.push(
+const fieldDescriptions = fields
+    .map((fieldName) => {
+        const fieldValue = data[fieldName];
+        if (fieldValue === undefined) return null;
+        const shape = Array.isArray(fieldValue)
+            ? `${fieldValue.length} entries`
+            : `${String(fieldValue).length} chars`;
+        return `  ${fieldName}: ${shape}`;
+    })
+    .filter((line): line is string => line !== null);
+
+const lorebookStatus = lorebookInfo(data);
+
+const outputLines = [
+    `spec: ${obj.spec ?? "?"}  version: ${obj.spec_version ?? "?"}`,
     `name: ${
         typeof data.name === "string" && data.name ? data.name : "(none)"
     }`,
-);
-summary.push("fields:");
-for (const f of fields) {
-    const v = data[f];
-    if (v === undefined) continue;
-    const shape = Array.isArray(v)
-        ? `${v.length} entries`
-        : `${String(v).length} chars`;
-    summary.push(`  ${f}: ${shape}`);
-}
+    "fields:",
+    ...fieldDescriptions,
+    lorebookStatus
+        ? `lorebook: ${lorebookStatus}  [NOT scanned]`
+        : "lorebook: none",
+];
 
-const lore = lorebookInfo(data);
-summary.push(lore ? `lorebook: ${lore}  [NOT scanned]` : "lorebook: none");
-
-console.log(summary.join("\n"));
+console.log(outputLines.join("\n"));
 
 if (outFile) {
     await Deno.writeTextFile(outFile, JSON.stringify(obj, null, 2));
