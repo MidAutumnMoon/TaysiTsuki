@@ -160,6 +160,11 @@ allUnique <| withValidate <|
         group = gs.rust_1;
     }
     {
+        attr = tsuki "dirge";
+        group = gs.rust_1;
+        update = {};
+    }
+    {
         attr = tsuki "inori";
         group = "Inori";
         update = {
