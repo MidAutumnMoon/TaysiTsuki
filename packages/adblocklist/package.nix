@@ -7,14 +7,14 @@
 stdenvNoCC.mkDerivation rec {
 
     pname = "adblocklist";
-    version = "2026-06-01.060715";
+    version = "2026-06-16.063514";
 
     src = tsuki.fetchGitHubRelease {
         owner = "MidAutumnMoon";
         repo = "combined-anti-ad-dns-blocklist";
         tag = version;
         file = "assets.tar.zst";
-        hash = "sha256-1a278GlY+ZVLrRGB1HJ/r415okGYIRm64qr+9OPyzsI=";
+        hash = "sha256-sBr08hDK65oSZZwjpNzIl0qILSb0q/O/XYlVF/5ihq4=";
     };
 
     nativeBuildInputs = [ zstd ];
