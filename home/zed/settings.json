@@ -108,25 +108,6 @@
                     },
                 ],
             },
-            "NanoGPT": {
-                "api_url": "https://nano-gpt.com/api/v1",
-                "available_models": [
-                    {
-                        "name": "moonshotai/kimi-k2.6:thinking",
-                        "display_name": "Kimi K2.6",
-                        "max_tokens": 250000,
-                        "reasoning_effort": "high",
-                        "capabilities": {
-                            "tools": true,
-                            "images": true,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": false,
-                            "interleaved_reasoning": true,
-                            "chat_completions": true,
-                        },
-                    },
-                ],
-            },
             "Volcengine": {
                 "api_url": "https://ark.cn-beijing.volces.com/api/coding/v3",
                 "available_models": [
@@ -144,7 +125,7 @@
                         },
                     },
                     {
-                        "name": "kimi-k2.6",
+                        "name": "kimi-k2.7-code",
                         "max_tokens": 250000,
                         "reasoning_effort": "high",
                         "capabilities": {
@@ -217,8 +198,8 @@
             "model": "kimi-k2.6",
         },
         "default_model": {
-            "provider": "ZAI Coding Plan",
-            "model": "glm-5.2",
+            "provider": "Volcengine",
+            "model": "kimi-k2.7-code",
             "enable_thinking": false,
         },
         "thread_summary_model": {
@@ -229,7 +210,7 @@
             "provider": "Volcengine",
             "model": "doubao-seed-2-0-lite-260428",
         },
-        "model_parameters": [{ "temperature": 0.9 }],
+        "model_parameters": [{ "temperature": 1.0 }],
         "use_modifier_to_send": true,
     },
     "vim_mode": true,
