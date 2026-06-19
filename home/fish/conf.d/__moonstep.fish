@@ -24,6 +24,13 @@
 
 status is-interactive || exit 0
 
+# Idempotency guard: re-sourcing this file (dev iteration, config
+# reload) would otherwise re-register every `--on-event`/`--on-variable`
+# handler under a fresh function definition, firing each one twice per
+# cycle. Fish dedups function bodies but not event bindings.
+set -q __moonstep_loaded; and exit 0
+set -g __moonstep_loaded
+
 # Universal variable holding the rendered prompt parts, indexed in the
 # order of $__moonstep_prompt_fns. Universal so the background child can
 # write it and the parent's `--on-variable` handler fires on change.
@@ -33,16 +40,40 @@ set -g __moonstep_prompt_fns \
     fish_prompt \
     fish_right_prompt
 
+# Generation counter (per-shell uvar) so a slow background render can
+# detect that it's been superseded and abort before writing a stale
+# result. `command kill` on the previous child is async; this is the
+# race-free backstop.
+set -g __moonstep_gen_var __moonstep_prompt_gen_{$fish_pid}
+set -g __moonstep_gen 0
+set -U $__moonstep_gen_var 0
+
+# Capture the fish binary once at load (fish forbids command
+# substitution in command position); reused on every prompt.
+status fish-path | read -g __moonstep_fish_path
+
+# Sweep orphaned uvars from crashed/killed previous sessions. Live
+# sessions are skipped — `kill -0` succeeds for them. (`kill -0` only
+# probes liveness; it does not send a signal.)
+for v in (set -Un | string match "__moonstep_prompt_*")
+    set -l pid (string match -r '[0-9]+$' $v)
+    test -z "$pid"; and continue
+    if not kill -0 $pid 2>/dev/null
+        set -eU $v
+    end
+end
+
 # Render the prompt function(s) synchronously into the uvar. Used once
 # for the seed; the helpers read $__moonstep_saved_* which must be set
 # by the caller.
 function __moonstep_render_into_uvar
     set -l parts
     for fn in $__moonstep_prompt_fns
-        # `string collect` keeps multi-line output (e.g. fish_prompt's
-        # leading/middle `echo`s) as a single array element instead of
-        # splitting on newlines.
-        set --append parts ($fn | string collect)
+        # `string collect --no-trim-newlines` keeps multi-line output
+        # (e.g. fish_prompt's leading/middle `echo`s) as a single array
+        # element instead of splitting on newlines, and preserves any
+        # trailing newlines verbatim (default trims one).
+        set --append parts ($fn | string collect --no-trim-newlines)
     end
     set -U $__moonstep_prompt_var $parts
 end
@@ -80,8 +111,13 @@ function __moonstep_fire --on-event fish_prompt
         # fish would index `__moonstep_prompt_var` itself (a 1-element
         # string) and return empty for any index > 1. Then `\$$ref` in
         # the eval derefs that name at runtime.
+        #
+        # Keep a copy of the original under `__moonstep_orig_<fn>` so
+        # the session can recover if something goes wrong with the hijack
+        # (e.g. via `functions -c __moonstep_orig_fish_prompt fish_prompt`).
         set -l i 0
         for fn in $__moonstep_prompt_fns
+            functions -c $fn __moonstep_orig_$fn
             set i (math $i + 1)
             set -l ref $__moonstep_prompt_var"[$i]"
             eval "
@@ -93,11 +129,15 @@ function __moonstep_fire --on-event fish_prompt
     end
 
     # Cancel any in-flight render so it can't overwrite a newer result.
-    command kill $__moonstep_last_pid 2>/dev/null
+    if set -q __moonstep_last_pid
+        command kill $__moonstep_last_pid 2>/dev/null
+    end
 
-    # Capture the fish binary path once (fish forbids command substitution
-    # in command position).
-    status fish-path | read -l fish_path
+    # Bump the generation counter *before* spawning so that even if the
+    # kill above is delayed, a stale child can still detect it has been
+    # superseded and abort its write.
+    set -g __moonstep_gen (math $__moonstep_gen + 1)
+    set -U $__moonstep_gen_var $__moonstep_gen
 
     # Render in a child fish. It does not source this file (the
     # `status is-interactive` guard exits early), so it autoloads and
@@ -105,23 +145,29 @@ function __moonstep_fire --on-event fish_prompt
     # the command string; `$st`/`$ps`/`$cd`/`$__moonstep_prompt_fns`/
     # `$__moonstep_prompt_var` expand here in the parent, while the
     # `\$`-prefixed names are left for the child.
-    $fish_path -c "
+    $__moonstep_fish_path -c "
         set -g __moonstep_saved_status $st
         set -g __moonstep_saved_pipestatus $ps
         set -g __moonstep_saved_cmd_duration $cd
         set -l parts
         for fn in $__moonstep_prompt_fns
-            set --append parts (\$fn | string collect)
+            set --append parts (\$fn | string collect --no-trim-newlines)
         end
+        # Abort if a newer spawn has superseded us — prevents a slow
+        # child from clobbering a fresher result. `\$$__moonstep_gen_var`
+        # double-derefs: parent expands the var *name* (e.g.
+        # `__moonstep_prompt_gen_391698`), child reads its *value*.
+        test \"$__moonstep_gen\" = \"\$$__moonstep_gen_var\"; or exit
         set -U $__moonstep_prompt_var \$parts
-    " >/dev/null 2>&1 &
+    " >/dev/null &
 
     set -g __moonstep_last_pid $last_pid
     disown
 end
 
-# Kill the in-flight render and drop the uvar on exit.
+# Kill the in-flight render and drop our uvars on exit.
 function __moonstep_clean --on-event fish_exit
     command kill $__moonstep_last_pid 2>/dev/null
     set -eU $__moonstep_prompt_var
+    set -eU $__moonstep_gen_var
 end
