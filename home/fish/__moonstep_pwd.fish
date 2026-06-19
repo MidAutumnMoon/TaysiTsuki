@@ -21,6 +21,8 @@ set -g __pwd_separator_color \
 
 function __moonstep_pwd
 
+    set -f __color_reset ( set_color reset )
+
     set -f pwd ( pwd )
 
     string match --quiet --regex "^$HOME" "$pwd"

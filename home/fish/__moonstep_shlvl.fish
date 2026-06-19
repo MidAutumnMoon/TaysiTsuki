@@ -7,6 +7,8 @@ set -g __shlvl_min_level 2
 
 function __moonstep_shlvl
 
+    set -f __color_reset ( set_color reset )
+
     if [ $SHLVL -lt "$__shlvl_min_level" ]
         return
     end

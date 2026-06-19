@@ -85,11 +85,6 @@ function __moonstep_render_into_uvar
         set --append parts ($fn | string collect --no-trim-newlines)
     end
     set -U $__moonstep_prompt_var $parts
-    # The prompt functions set __color_reset globally as a side effect.
-    # Erase it so the seed render (which runs here in the parent)
-    # doesn't pollute the interactive session. Subsequent renders happen
-    # in the child process and don't have this problem.
-    set -e __color_reset
 end
 
 # Repaint whenever the child writes a fresh result.

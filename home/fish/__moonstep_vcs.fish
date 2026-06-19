@@ -76,6 +76,7 @@ end
 
 # Based on "_tide_item_git.fish" from tide.fish
 function __moonstep_git_status
+    set -f __color_reset ( set_color reset )
     set -f git_cmd \
         git --no-optional-locks
 

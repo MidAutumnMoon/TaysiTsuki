@@ -1,7 +1,5 @@
 function fish_prompt
 
-    set -g __color_reset ( set_color reset )
-
     # Add a gap between each prompt
     echo
 
@@ -15,4 +13,3 @@ function fish_prompt
     __moonstep_prompt
 
 end
-
