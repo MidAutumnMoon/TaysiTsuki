@@ -29,6 +29,23 @@ A NixOS config repo. Flake at the root. Machines in `machine/`, shared modules i
 - Give each sub-agent full context — it won't see your conversation history.
 - Keep sub-tasks scoped to one concern. If two sub-agents might edit the same file, don't run them in parallel.
 
+## Dotfile modules (`home/*/module.nix`)
+
+Each `home/<name>/module.nix` is a lny submodule config (not a NixOS module),
+consumed by `nixos/users/lny`. Returns an attrset of lny options:
+
+- `packages`                       — packages added to user profile
+- `xdg_config."<path>".src/.text`  — symlink: $XDG_CONFIG_HOME/<path>
+- `home."<path>".src/.text`        — symlink: $HOME/<path>
+- `envvars`                        — environment vars (via environment.d)
+
+The attrname is the *destination*; `.src`/`.text` is the *source*.
+
+`dots` (defined in `home/module.nix`) is a module arg:
+- `dots.get "<path>"` → `{{ home }}/TaysiTsuki/home/<path>`
+- `{{ home }}` / `{{ config }}` are jinja templates expanded at activation by
+  the lny binary (see `nixos/users/lny`), avoiding home-manager round trips.
+
 ## Communication
 
 - Be short. Say the thing, stop.

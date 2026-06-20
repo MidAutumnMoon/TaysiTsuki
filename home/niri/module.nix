@@ -1,3 +1,5 @@
+# lny module — installs niri + KDE/Qt tooling; symlinks repo home/niri dir -> $XDG_CONFIG_HOME/niri
+# also writes a systemd user unit override for niri.service
 { dots, pkgs, ... }:
 
 {

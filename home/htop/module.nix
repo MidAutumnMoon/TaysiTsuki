@@ -1,3 +1,4 @@
+# lny module — symlinks repo home/htop/htoprc -> $XDG_CONFIG_HOME/htop/htoprc
 { dots, ... }:
 
 {

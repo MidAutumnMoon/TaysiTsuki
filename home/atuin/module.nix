@@ -1,3 +1,4 @@
+# lny module — installs atuin; symlinks repo home/atuin/config.toml -> $XDG_CONFIG_HOME/atuin/config.toml
 { dots, pkgs, ... }:
 
 {

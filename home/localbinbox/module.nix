@@ -1,3 +1,4 @@
+# lny module — installs 7zz/jq/localbinbox; symlinks repo home/localbinbox/scripts -> $HOME/.local/bin
 { pkgs, dots, ... }:
 
 let

@@ -1,3 +1,4 @@
+# lny module — installs nushell; symlinks repo home/nushell (dir) -> $XDG_CONFIG_HOME/nushell
 { dots, pkgs, ... }:
 
 {

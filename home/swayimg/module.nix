@@ -1,3 +1,4 @@
+# lny module — installs swayimg; symlinks repo home/swayimg/init.lua -> $XDG_CONFIG_HOME/swayimg/init.lua
 { dots, pkgs, ... }:
 
 {

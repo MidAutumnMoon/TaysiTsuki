@@ -1,3 +1,4 @@
+# lny module — installs zed + package-version-server; symlinks repo home/zed (dir) -> $XDG_CONFIG_HOME/zed
 { dots, pkgs, ... }:
 
 {

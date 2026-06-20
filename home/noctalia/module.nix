@@ -1,3 +1,5 @@
+# lny module — installs noctalia; symlinks repo home/noctalia (dir) -> $XDG_CONFIG_HOME/noctalia
+# also writes the noctalia systemd user service unit
 { dots, pkgs, flakes, lib, ... }:
 
 let

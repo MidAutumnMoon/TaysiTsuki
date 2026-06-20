@@ -1,3 +1,4 @@
+# lny module — symlinks repo home/bash/bashrc.bash -> $HOME/.bashrc
 { dots, ... }:
 
 {

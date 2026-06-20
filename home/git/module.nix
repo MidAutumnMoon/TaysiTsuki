@@ -1,3 +1,4 @@
+# lny module — installs git; writes $XDG_CONFIG_HOME/git/config from inline text
 { lib, nixosCfg, pkgs, ... }:
 
 # Excellent material for configuring git:

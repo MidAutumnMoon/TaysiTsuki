@@ -1,3 +1,4 @@
+# lny module — installs rust dev toolchain; sets CARGO_HOME via envvars
 { pkgs, ... }:
 
 let

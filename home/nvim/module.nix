@@ -1,3 +1,4 @@
+# lny module — installs nvim toolchain; symlinks repo home/nvim dir -> $XDG_CONFIG_HOME/nvim
 { pkgs, dots, ... }:
 
 {

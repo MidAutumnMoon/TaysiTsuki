@@ -1,3 +1,4 @@
+# lny module — installs foot; symlinks repo home/foot/foot.ini -> $XDG_CONFIG_HOME/foot/foot.ini
 { lib, dots, pkgs, ... }:
 
 {
