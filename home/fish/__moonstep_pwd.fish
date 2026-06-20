@@ -24,13 +24,14 @@ function __moonstep_pwd
     set -f __color_reset ( set_color reset )
 
     set -f pwd ( pwd )
+    set -f home_re ( string escape --style regex -- $HOME )
 
-    string match --quiet --regex "^$HOME" "$pwd"
+    string match --quiet --regex "^$home_re" "$pwd"
     and set -f is_under_home true
 
     if [ "$__pwd_replace_home" = true ]
         string replace \
-            --regex "^$HOME" \
+            --regex "^$home_re" \
             ( string escape --style regex $__pwd_replace_home_text ) \
             "$pwd" \
             | read --null pwd
@@ -67,6 +68,6 @@ function __moonstep_pwd
 
     set colored_pwd "$colored_pwd$__color_reset"
 
-    __moonstep_printf "$colored_pwd"
+    __moonstep_printf '%s' "$colored_pwd"
 
 end

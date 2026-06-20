@@ -13,12 +13,7 @@ function __moonstep_shlvl
         return
     end
 
-    __moonstep_printf "%s" \
-        # colored "[$text"
-        {$__shlvl_text_color}\[SHLVL" " \
-        # colored $SHLVL
-        {$__shlvl_color}$SHLVL{$__color_reset} \
-        # colored "]"
-        {$__shlvl_text_color}\]{$__color_reset}
+    __moonstep_printf '%s' \
+        "$__shlvl_text_color""[SHLVL ""$__shlvl_color""$SHLVL""$__color_reset""$__shlvl_text_color""]""$__color_reset"
 
 end

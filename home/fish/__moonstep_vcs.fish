@@ -30,9 +30,7 @@ set -g __vcs_jj_text_color ( set_color purple )
 function __moonstep_vcs
 
     # TODO: prefer jujutsu if implemented
-    if command git rev-parse --absolute-git-dir \
-        2>/dev/null | read -l git_dir
-
+    if command git rev-parse --absolute-git-dir 2>/dev/null >/dev/null
         __moonstep_git
     end
 
@@ -42,35 +40,29 @@ end
 # Git implementation
 #
 
-function __moonstep_git --no-scope-shadowing
+function __moonstep_git
 
-    command git rev-parse --absolute-git-dir 2>/dev/null \
-        | read -f git_dir
+    # branch — output flows directly to stdout
+    __moonstep_git_branch
 
-    # # colored "["
-    # printf "$__vcs_git_color""[""$__color_reset"
-
-    # branch
-    begin
-        printf ( __moonstep_git_branch "$git_branch" )
-    end
-
-    # various status indicator
-    begin
-        __moonstep_git_status | read -lz status_output
-        test -n "$status_output"
-        and printf " $status_output" # add a spacer
-    end
-
-    # # closing "]"
-    # printf "$__vcs_git_color""]""$__color_reset"
+    # various status indicators
+    #
+    # N.B. use `read -l` (newline-delimited), NOT `read -lz`: the `-z`
+    # (NUL-delimited) mode appends a spurious trailing newline to the
+    # captured value when reading from a function pipe, which would
+    # push the status onto a new line.
+    __moonstep_git_status | read -l status_output
+    test -n "$status_output"
+    and printf ' %s' $status_output
 
 end
 
 function __moonstep_git_branch
+    # `read -f` (not `-fz`): strips git's trailing newline at the source.
+    # See the note in __moonstep_git for why `-z` is a footgun here.
     command git branch --show-current 2>/dev/null \
-        | read -fz branch
-    __moonstep_printf "%s" \
+        | read -f branch
+    __moonstep_printf '%s' \
         "$__vcs_git_branch_color""$branch"
 end
 
@@ -80,34 +72,9 @@ function __moonstep_git_status
     set -f git_cmd \
         git --no-optional-locks
 
-    set -f rendered
-
-    function _ren -a name count --no-scope-shadowing
-        test -z "$name" && return
-        test -z "$count" && return
-        test "$count" -eq 0 && return
-        set -f text_var "__vcs_""$name""_text"
-        set -f color_var "__vcs_""$name""_color"
-        printf "%s" \
-            "$$color_var$$text_var$count$__color_reset" \
-            | read -zf _output
-        set --append rendered "$_output"
-        set --erase _output
-    end
-
-    _ren "stash" ( command $git_cmd stash list 2>/dev/null | count )
-
     set -f git_status (
         command $git_cmd status --porcelain=v1 2>/dev/null
     )
-
-    _ren "conflict" ( string match -r '^UU' $git_status | count )
-    # N.B. "." means whitespace. In git's output
-    # "M" -> staged
-    # " M" -> dirty
-    _ren "staged" ( string match -r '^[ADMR]' $git_status | count )
-    _ren "dirty" ( string match -r '^.[ADMR]' $git_status | count )
-    _ren "untracked" ( string match -r '^\?\?' $git_status | count )
 
     set -f behind_ahead (
         git rev-list --count \
@@ -116,18 +83,46 @@ function __moonstep_git_status
             # tab, not space
             | string split --no-empty \t )
 
-    _ren "behind" $behind_ahead[1]
-    _ren "ahead" $behind_ahead[2]
+    # Build (name, count) pairs for each indicator.
+    # N.B. In git's porcelain v1 output, "." means whitespace:
+    #   "M"  -> staged
+    #   " M" -> dirty
+    set -f pairs \
+        "stash"     ( command $git_cmd stash list 2>/dev/null | count ) \
+        "conflict"  ( string match -r '^(DD|AU|UD|UA|DU|AA|UU)' $git_status | count ) \
+        "staged"    ( string match -r '^[ADMR]' $git_status | count ) \
+        "dirty"     ( string match -r '^.[ADMR]' $git_status | count ) \
+        "untracked" ( string match -r '^\?\?' $git_status | count )
 
-    printf "%s" ( string join " " $rendered )
+    if test ( count $behind_ahead ) -ge 1
+        set --append pairs "behind" $behind_ahead[1]
+    end
+    if test ( count $behind_ahead ) -ge 2
+        set --append pairs "ahead" $behind_ahead[2]
+    end
 
-    functions --erase _ren
+    set -f rendered
+    for i in ( seq 1 2 ( count $pairs ) )
+        set -f name $pairs[$i]
+        set -f cnt  $pairs[( math $i + 1 )]
+        test -z "$cnt"; and continue
+        test "$cnt" -eq 0; and continue
+        set -f text_var  "__vcs_$name""_text"
+        set -f color_var "__vcs_$name""_color"
+        set --append rendered \
+            ( printf '%s' "$$color_var$$text_var$cnt$__color_reset" \
+                | string collect )
+    end
+
+    printf '%s' ( string join " " $rendered )
+
 end
 
 #
 # Jujutsu implementation
 #
 
-function __moonstep_jujutsu --no-scope-shadowing
-    __moonstep_printf "$__vcs_jj_text_color"jujutsu"(unimplemented)"
+function __moonstep_jujutsu
+    __moonstep_printf '%s' \
+        "$__vcs_jj_text_color""jujutsu""(unimplemented)"
 end
