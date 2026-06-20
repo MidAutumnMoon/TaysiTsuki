@@ -18,7 +18,7 @@ function __moonstep_prompt
         set -f error_text "($__moonstep_saved_status)"
     end
 
-    __moonstep_printf \
+    printf \
         "$color%s$__color_reset" \
         "$error_text$text$__prompt_input_text"
 

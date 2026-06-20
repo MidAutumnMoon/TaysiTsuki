@@ -62,7 +62,7 @@ function __moonstep_git_branch
     # See the note in __moonstep_git for why `-z` is a footgun here.
     command git branch --show-current 2>/dev/null \
         | read -f branch
-    __moonstep_printf '%s' \
+    printf '%s' \
         "$__vcs_git_branch_color""$branch"
 end
 
@@ -123,6 +123,6 @@ end
 #
 
 function __moonstep_jujutsu
-    __moonstep_printf '%s' \
+    printf '%s' \
         "$__vcs_jj_text_color""jujutsu""(unimplemented)"
 end

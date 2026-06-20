@@ -13,7 +13,7 @@ function __moonstep_shlvl
         return
     end
 
-    __moonstep_printf '%s' \
+    printf '%s' \
         "$__shlvl_text_color""[SHLVL ""$__shlvl_color""$SHLVL""$__color_reset""$__shlvl_text_color""]""$__color_reset"
 
 end

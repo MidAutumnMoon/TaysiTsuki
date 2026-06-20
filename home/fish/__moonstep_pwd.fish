@@ -68,6 +68,6 @@ function __moonstep_pwd
 
     set colored_pwd "$colored_pwd$__color_reset"
 
-    __moonstep_printf '%s' "$colored_pwd"
+    printf '%s' "$colored_pwd"
 
 end
