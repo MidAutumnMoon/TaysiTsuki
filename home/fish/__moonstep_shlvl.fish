@@ -1,19 +1,17 @@
-set -g __shlvl_color ( set_color normal )
-
-set -g __shlvl_text "SHLVL"
-set -g __shlvl_text_color ( set_color bryellow )
-
-set -g __shlvl_min_level 2
-
 function __moonstep_shlvl
+    set -f reset      ( set_color reset )
+    set -f text_color ( set_color bryellow )
+    set -f num_color  ( set_color normal )
 
-    set -f __color_reset ( set_color reset )
+    # Config
+    set -f text      "SHLVL"
+    set -f min_level 2
 
-    if [ $SHLVL -lt "$__shlvl_min_level" ]
+    if [ $SHLVL -lt "$min_level" ]
         return
     end
 
     printf '%s' \
-        "$__shlvl_text_color""[SHLVL ""$__shlvl_color""$SHLVL""$__color_reset""$__shlvl_text_color""]""$__color_reset"
+        "$text_color""[SHLVL ""$num_color""$SHLVL""$reset""$text_color""]""$reset"
 
 end

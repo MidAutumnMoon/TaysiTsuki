@@ -198,7 +198,7 @@
             "model": "kimi-k2.6",
         },
         "default_model": {
-            "provider": "Volcengine",
+            "provider": "ZAI Coding Plan",
             "model": "glm-5.2",
             "enable_thinking": false,
         },
