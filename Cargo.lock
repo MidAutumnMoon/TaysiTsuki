@@ -357,9 +357,9 @@ dependencies = [
 
 [[package]]
 name = "gix-date"
-version = "0.15.4"
+version = "0.15.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3ecab64a98bbac9f8e02990a9ea5e3c974a7d49b95f2bd70ad94ad22fa6b48c"
+checksum = "3d63f9e28b59ddeb1a1eb9e5cf986a9222b5d484947445edbc20473939cc7fd0"
 dependencies = [
  "bstr",
  "gix-error",
@@ -369,9 +369,9 @@ dependencies = [
 
 [[package]]
 name = "gix-discover"
-version = "0.52.0"
+version = "0.53.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77bacdd12b7879d2178a80c58c2f319995e4654e1a7a23e3181e5c8a12b824f7"
+checksum = "d624d5b23b10c1d85337645227abe353ac95ab8ff66a7bdd5ce689b2db33a722"
 dependencies = [
  "bstr",
  "dunce",
@@ -433,9 +433,9 @@ dependencies = [
 
 [[package]]
 name = "gix-hashtable"
-version = "0.15.1"
+version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0e30b93eea8718baf7d8153fcb938e2926175bbf18097c09f1c01b6f0be0563"
+checksum = "7e261d54091f0d1c729bc83f54548c071bdec60a697de1e58e88bdfd7a99d24e"
 dependencies = [
  "gix-hash",
  "hashbrown 0.17.1",
@@ -455,9 +455,9 @@ dependencies = [
 
 [[package]]
 name = "gix-object"
-version = "0.61.0"
+version = "0.62.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5cd857e29429c7213bdef3f5aef83f8cc124774fe8ae0d27b1607d218d6d525"
+checksum = "019b38afc3eac1e41f9fe09a327664b313ba4a120fa5f40e3678795d0e42783e"
 dependencies = [
  "bstr",
  "gix-actor",
@@ -486,9 +486,9 @@ dependencies = [
 
 [[package]]
 name = "gix-ref"
-version = "0.64.0"
+version = "0.65.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c04f64c37eb7e6feb73c7060f8dc6f381cc5de5d53249bfd450bc48a86b2e8b"
+checksum = "9bbfbce1dfd7d7f8469ddef6d3518376aff664348f153cbe0fc3e58ef993d24e"
 dependencies = [
  "gix-actor",
  "gix-features",
