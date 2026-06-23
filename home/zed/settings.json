@@ -114,7 +114,7 @@
                     {
                         "name": "glm-5.2",
                         "max_tokens": 900000,
-                        "reasoning_effort": "high",
+                        "reasoning_effort": "xhigh",
                         "capabilities": {
                             "tools": true,
                             "images": false,
@@ -145,6 +145,17 @@
                             "parallel_tool_calls": true,
                             "prompt_cache_key": false,
                             "interleaved_reasoning": false,
+                        },
+                    },
+                    {
+                        "name": "deepseek-v4-pro",
+                        "max_tokens": 900000,
+                        "capabilities": {
+                            "tools": true,
+                            "images": false,
+                            "parallel_tool_calls": true,
+                            "prompt_cache_key": false,
+                            "interleaved_reasoning": true,
                         },
                     },
                 ],
@@ -195,11 +206,11 @@
         "favorite_models": [],
         "inline_assistant_model": {
             "provider": "Volcengine",
-            "model": "kimi-k2.6",
+            "model": "kimi-k2.7-code",
         },
         "default_model": {
             "provider": "Volcengine",
-            "model": "glm-5.2",
+            "model": "kimi-k2.7-code",
             "enable_thinking": false,
         },
         "thread_summary_model": {
@@ -210,7 +221,7 @@
             "provider": "Volcengine",
             "model": "doubao-seed-2-0-lite-260428",
         },
-        "model_parameters": [{ "temperature": 1.0 }],
+        "model_parameters": [{ "temperature": 0.9 }],
         "use_modifier_to_send": true,
     },
     "vim_mode": true,
