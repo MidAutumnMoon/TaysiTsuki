@@ -64,7 +64,7 @@
                 "available_models": [
                     {
                         "name": "glm-5.2",
-                        "max_tokens": 800000,
+                        "max_tokens": 900000,
                         "reasoning_effort": "xhigh",
                         "capabilities": {
                             "tools": true,
@@ -210,7 +210,7 @@
         },
         "default_model": {
             "provider": "Volcengine",
-            "model": "kimi-k2.7-code",
+            "model": "glm-5.2",
             "enable_thinking": false,
         },
         "thread_summary_model": {
@@ -261,7 +261,7 @@
     "git_panel": {
         "dock": "right",
     },
-    "load_direnv": "direct",
+    "load_direnv": "shell_hook",
     "show_completions_on_input": false,
     "relative_line_numbers": "enabled",
     "completions": {
