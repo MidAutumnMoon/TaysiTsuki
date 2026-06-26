@@ -10,8 +10,14 @@ let
     fishCfg = config.programs.fish;
     manCfg = config.documentation.man.man-db;
 
-    generator =
-        "${fishCfg.package}/share/fish/tools/create_manpage_completions.py";
+    # fish >= 4.8 no longer installs this script to disk; it is embedded
+    # in the binary and retrieved via `status get-file`.
+    generator = pkgs.runCommand "create_manpage_completions.py" { }
+        ''
+            ${lib.getExe fishCfg.package} --no-config \
+                -c 'status get-file tools/create_manpage_completions.py' \
+                > "$out"
+        '';
 
     python =
         pkgs.python3.pythonOnBuildForHost.interpreter;
