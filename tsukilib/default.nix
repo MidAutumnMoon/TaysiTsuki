@@ -53,6 +53,7 @@ rec {
         brewOS
         libsToCompilerEnvvars
         useElectronBin
+        bakeInit
     ;
 
     inherit ( tsuki.list )

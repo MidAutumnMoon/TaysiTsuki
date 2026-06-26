@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
 
@@ -7,11 +7,11 @@
     ];
 
     programs.fish.interactiveInit = /* fish */ ''
-        zoxide init fish | source
+        ${lib.bakeInit pkgs pkgs.zoxide "fish" "zoxide init fish"}
     '';
 
     programs.bash.interactiveShellInit = /* bash */ ''
-        eval "$( zoxide init bash )"
+        ${lib.bakeInit pkgs pkgs.zoxide "bash" "zoxide init bash"}
     '';
 
 }

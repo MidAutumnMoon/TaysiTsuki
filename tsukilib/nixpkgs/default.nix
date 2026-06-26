@@ -9,4 +9,6 @@
     ./libsToCompilerEnvvars.nix
     ./useElectronBin.nix
 
+    ./bakeInit.nix
+
 ]
