@@ -12,8 +12,8 @@ stdenvNoCC.mkDerivation {
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "sillytavern-token-estimate";
-        rev = "41f66c1268867120097363f7bd9b8713c9112d48";
-        hash = "sha256-QvE0p0D79/BZJruA4fkeCIcT+MUeFYPh6S7awwso1A0=";
+        rev = "53cabbe00ade518aee9aa7e72c91158f139b24bb";
+        hash = "sha256-2Spa6RRY6eDQnMSFgyHjppKs6sY2hIPmT7gIYvg5Ly4=";
     };
 
     installPhase = ''
