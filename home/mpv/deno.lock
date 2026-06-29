@@ -2,7 +2,7 @@
   "version": "5",
   "specifiers": {
     "npm:@rsbuild/core@2": "2.1.1",
-    "npm:@rspack/cli@2": "2.1.1_@rspack+core@1.7.12",
+    "npm:@rspack/cli@2": "2.1.1_@rspack+core@2.1.1__@swc+helpers@0.5.23",
     "npm:@types/mpv-script@~0.32.8": "0.32.8",
     "npm:esbuild-register@^3.6.0": "3.6.0_esbuild@0.28.1",
     "npm:esbuild@0.28": "0.28.1",
@@ -552,10 +552,10 @@
       ],
       "bin": true
     },
-    "@rspack/cli@2.1.1_@rspack+core@1.7.12": {
+    "@rspack/cli@2.1.1_@rspack+core@2.1.1__@swc+helpers@0.5.23": {
       "integrity": "sha512-zsJFurwCDesy0dud7cejObagbbXsvKcQ6j485nmnytBsXV17Uf6XfedQMxnOXBZeGIel+I7Jl/Jp3Sn08TsZuw==",
       "dependencies": [
-        "@rspack/core@1.7.12"
+        "@rspack/core@2.1.1_@swc+helpers@0.5.23"
       ],
       "bin": true
     },
