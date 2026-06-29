@@ -11,7 +11,7 @@ in
 
 {
 
-    packages = with pkgs; [
+    packages = [
         noctalia
     ];
 

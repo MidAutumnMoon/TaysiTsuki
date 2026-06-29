@@ -9,7 +9,7 @@
         wl-clipboard
         telegram-desktop
         mpv
-        obsidian
+        # obsidian
         unrar
         numbat
         nix-tree

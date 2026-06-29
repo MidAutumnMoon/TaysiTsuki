@@ -15,8 +15,8 @@ in
         # for lld
         (llvm.clang.override { inherit (llvm) bintools; })
         llvm.lldb
-        cargo-bloat
-        cargo-outdated
+        # cargo-bloat
+        # cargo-outdated
         # cargo-llvm-cov
     ];
 

@@ -15,7 +15,7 @@
     packages = with pkgs; [
         colmena
         fuc
-        ( lib.getOutput "out" pkgs.tsuki.inori )
+        (lib.getOutput "out" pkgs.tsuki.inori)
         tsuki.opentofu
         libtree
         picard
@@ -25,12 +25,12 @@
         imagemagick
         # TODO: remove
         restic
-        rsgain
+        # rsgain
         # harper
         mtr
         ncdu
         shellcheck
-        bash-language-server
+        # bash-language-server
         gh
         tsuki.deno
         easyeffects

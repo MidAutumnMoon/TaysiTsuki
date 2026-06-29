@@ -32,7 +32,7 @@ let
         [
             "github.com/caddy-dns/cloudflare"
         ]
-        |> map ( name: '' sed -i '/^)$/i_ "${name}"' "cmd/caddy/main.go" '' )
+        |> map ( name: ''sed -i '/^)$/i_ "${name}"' "cmd/caddy/main.go"'' )
         |> lib.concatStringsSep "\n";
 
 in
