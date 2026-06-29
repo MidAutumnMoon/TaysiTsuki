@@ -10,16 +10,16 @@
 tsuki.rust.buildRustPackage rec {
 
     pname = "dirge";
-    version = "0.13.5";
+    version = "0.13.9";
 
     src = fetchFromGitHub {
         owner = "dirge-code";
         repo = "dirge";
         tag = "v${version}";
-        hash = "sha256-gY08JrXUgeYk8PcuPp40TtuF9ADyXJWwVEin8fAjLV8=";
+        hash = "sha256-w4do4h+4vtrlpeWJlF1X0lH+AhzBTkZpxjRvPmUszPs=";
     };
 
-    cargoHash = "sha256-kO7V5oG0JIfiZNaYLG6wRJgAwGZMrVblyYdhTFrN4fQ=";
+    cargoHash = "sha256-3YMzeWw1xsqIqBGjYF5CxhNZf/3/6QsMmlMk8foIe04=";
 
     nativeBuildInputs = [
         pkg-config
