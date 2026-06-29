@@ -13,6 +13,7 @@ in
         listenAddressIPv6 = "::1";
         listenAddressIPv4 = "127.0.0.1";
         port = lore.ports.sillytavern;
+        package = pkgs.tsuki.sillytavern;
     };
 
     services.sillytavern.configFile =
@@ -35,7 +36,7 @@ in
                 common.numberOfBackups = 0;
                 chat.enabled = false;
             };
-            enableDownloadableTokenizers = true;
+            enableDownloadableTokenizers = false;
             # set to false if theme requires HQ pics
             thumbnails.enabled = true;
             enableKeepAlive = true;

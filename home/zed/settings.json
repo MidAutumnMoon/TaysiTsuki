@@ -210,10 +210,9 @@
             "model": "kimi-k2.7-code",
         },
         "default_model": {
-            "effort": "high",
-            "provider": "deepseek",
-            "model": "deepseek-v4-flash",
-            "enable_thinking": true,
+            "provider": "ZAI Coding Plan",
+            "model": "glm-5.2",
+            "enable_thinking": false,
         },
         "thread_summary_model": {
             "provider": "Volcengine",
