@@ -46,6 +46,8 @@ in
                 "raw.githubusercontent.com"
                 "botbooru.com"
             ];
+            enableServerPlugins = true;
+            enableServerPluginsAutoUpdate = false;
         }
         |> toString;
 

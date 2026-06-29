@@ -7,6 +7,7 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+    "diff_view_style": "unified",
     "agent_servers": {
         "opencode": {
             "type": "registry",
@@ -209,9 +210,10 @@
             "model": "kimi-k2.7-code",
         },
         "default_model": {
-            "provider": "Volcengine",
-            "model": "glm-5.2",
-            "enable_thinking": false,
+            "effort": "high",
+            "provider": "deepseek",
+            "model": "deepseek-v4-flash",
+            "enable_thinking": true,
         },
         "thread_summary_model": {
             "provider": "Volcengine",

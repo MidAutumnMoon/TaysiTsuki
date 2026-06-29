@@ -98,6 +98,11 @@ allUnique <| withValidate <|
         group = gs.small_1;
         update = {};
     }
+    {
+        attr = tsuki "sillytavern-token-estimate";
+        group = gs.small_1;
+        update = {};
+    }
 
     #
     # go 1
