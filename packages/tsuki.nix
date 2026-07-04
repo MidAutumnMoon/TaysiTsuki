@@ -101,7 +101,9 @@ allUnique <| withValidate <|
     {
         attr = tsuki "sillytavern-token-estimate";
         group = gs.small_1;
-        update = {};
+        update = {
+            unstable_branch = true;
+        };
     }
 
     #
