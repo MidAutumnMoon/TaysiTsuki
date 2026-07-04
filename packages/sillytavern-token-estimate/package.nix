@@ -7,7 +7,7 @@
 stdenvNoCC.mkDerivation {
 
     pname = "sillytavern-token-estimate";
-    version = "unstable-2026-06-29";
+    version = "0-unstable-2026-06-29";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
