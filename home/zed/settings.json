@@ -210,9 +210,10 @@
             "model": "kimi-k2.7-code",
         },
         "default_model": {
+            "effort": "xhigh",
             "provider": "Volcengine",
             "model": "glm-5.2",
-            "enable_thinking": false,
+            "enable_thinking": true,
         },
         "thread_summary_model": {
             "provider": "Volcengine",
