@@ -5,7 +5,7 @@
     environment.systemPackages = with pkgs; [
         fastfetchMinimal
         git
-        cifs-utils
+        # cifs-utils
         wl-clipboard
         telegram-desktop
         mpv

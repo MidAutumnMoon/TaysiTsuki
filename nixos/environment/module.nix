@@ -14,16 +14,15 @@ in
 {
     environment.defaultPackages = lib.mkDefault [];
 
-    environment.systemPackages =
-        with pkgs; [
-            fd
-            ripgrep
-            file
-            htop
-            rsync
-            strace
-            lsof
-        ];
+    environment.systemPackages = with pkgs; [
+        fd
+        ripgrep
+        file
+        htop
+        rsync
+        strace
+        lsof
+    ];
 
     environment.variables =
         xdg_vars

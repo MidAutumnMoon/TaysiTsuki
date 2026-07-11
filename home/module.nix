@@ -20,7 +20,6 @@
         libtree
         picard
         sops
-        #yacreader
         # TODO: remove
         imagemagick
         # TODO: remove
@@ -30,13 +29,13 @@
         mtr
         ncdu
         shellcheck
-        # bash-language-server
         gh
         tsuki.deno
         easyeffects
         age
         # tsuki.feishin
         tsuki.opencode
+        uv
     ];
 
     envvars = {

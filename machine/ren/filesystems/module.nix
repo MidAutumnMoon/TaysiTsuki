@@ -103,18 +103,18 @@ in
             fsType = "btrfs";
             options = btrfsOption "home-snapshot";
         };
-        "/mnt/pool" = {
-            # TODO: no hardcode hostname and path
-            device = "//phia.local/pool";
-            fsType = "cifs";
-            options = sambaOption ++ [];
-        };
-        "/mnt/torrent" = {
-            # TODO: no hardcode hostname and path
-            device = "//phia.local/torrent";
-            fsType = "cifs";
-            options = sambaOption ++ [];
-        };
+        # "/mnt/pool" = {
+        #     # TODO: no hardcode hostname and path
+        #     device = "//phia.local/pool";
+        #     fsType = "cifs";
+        #     options = sambaOption ++ [];
+        # };
+        # "/mnt/torrent" = {
+        #     # TODO: no hardcode hostname and path
+        #     device = "//phia.local/torrent";
+        #     fsType = "cifs";
+        #     options = sambaOption ++ [];
+        # };
     };
 
     services = {
