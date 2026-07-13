@@ -1,6 +1,7 @@
 // backup_card_images.ts — find picture URLs in a SillyTavern character card's
-// first messages (data.first_mes + data.alternate_greetings) and download
-// each. Depends only on Deno stdlib + ./_card_io.ts.
+// first messages (data.first_mes + data.alternate_greetings) and
+// description (data.description), then download each.
+// Depends only on Deno stdlib + ./_card_io.ts.
 //
 // Usage:
 //   deno run --allow-read --allow-write --allow-net \
@@ -41,12 +42,13 @@ if (!card) {
 }
 const { data } = card;
 
-// --- 2. collect first messages (first_mes + alternate_greetings) ---
+// --- 2. collect text fields to scan (first_mes, alternate_greetings, description) ---
 const greetings = Array.isArray(data.alternate_greetings)
     ? data.alternate_greetings
     : [];
 const messages = [
     { label: "first_mes", text: String(data.first_mes ?? "") },
+    { label: "description", text: String(data.description ?? "") },
     ...greetings.map((g, i) => ({
         label: `greeting_${i}`,
         text: String(g ?? ""),
@@ -83,7 +85,7 @@ for (const m of messages) {
 }
 
 console.log(
-    `scanned ${messages.length} first-message field(s); found ${urls.length} picture url(s).`,
+    `scanned ${messages.length} text field(s); found ${urls.length} picture url(s).`,
 );
 
 if (dryRun) {
