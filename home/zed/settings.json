@@ -115,6 +115,7 @@
                     {
                         "name": "glm-5.2",
                         "max_tokens": 900000,
+                        "max_output_tokens": 128000,
                         "reasoning_effort": "xhigh",
                         "capabilities": {
                             "tools": true,
