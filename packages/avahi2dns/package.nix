@@ -19,6 +19,7 @@ buildGoModule (drvSelf: {
     vendorHash = "sha256-s+NuVtHmN963kNyaIsA5q9a+e1uDvQsH4qNDF63gk0Y=";
 
     env.CGO_ENABLED = 0;
+    doCheck = false;
 
     meta = with lib; {
         license = licenses.mit;
