@@ -36,7 +36,7 @@ in
         };
     };
 
-    config = lib.mkIf ( fishCfg.enable && manCfg.enable ) {
+    config = lib.mkIf (fishCfg.enable && manCfg.enable) {
 
         # 1) find
         # - "-maxdepth" for excluding locale manpages because
@@ -49,6 +49,12 @@ in
         # - "--keep" is important, otherwise later finished jobs
         #   will delete prio generated completion because they
         #   don't belong to it
+        #
+        # 4) dedupe
+        # - fish 4.8+ embeds vendored completions in the binary; any
+        #   external <cmd>.fish shadows them entirely (even an empty
+        #   file). Drop generated files that would shadow a vendored
+        #   one, in a single fish process to amortize startup.
         programs.fish.__generatedCompletion =
             pkgs.runCommand "fish-generated-completion"
             {}
@@ -61,6 +67,14 @@ in
                         --max-args="100" \
                     '${python}' '${generator}' \
                         --keep --directory "$out" 2>/dev/null
+
+                ${lib.getExe fishCfg.package} --no-config -c '
+                    for f in (find $argv[1] -name "*.fish")
+                        if status get-file completions/(path basename "$f") >/dev/null 2>&1
+                            rm -- "$f"
+                        end
+                    end
+                ' "$out"
             '';
 
     };
