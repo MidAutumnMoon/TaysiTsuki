@@ -8,6 +8,7 @@
 //! Idempotent: re-running with the permission already granted is a
 //! no-op. Safe to call every startup.
 
+use std::path::Path;
 use std::process::Command;
 
 use anyhow::Context;
@@ -15,11 +16,10 @@ use anyhow::Result;
 use anyhow::bail;
 use tracing::info;
 
-/// Ensure the flatpak `app_id` has filesystem access to the psd tmpfs.
-/// No-op if already granted.
-pub fn ensure_psd_access(app_id: &str) -> Result<()> {
-    let uid = nix::unistd::getuid().as_raw();
-    let psd_path = format!("/run/user/{uid}/psd");
+/// Ensure the flatpak `app_id` has filesystem access to `psd_path`
+/// (the psd tmpfs root). No-op if already granted.
+pub fn ensure_psd_access(app_id: &str, psd_path: &Path) -> Result<()> {
+    let psd_path = psd_path.display().to_string();
 
     if has_filesystem(app_id, &psd_path)? {
         return Ok(());

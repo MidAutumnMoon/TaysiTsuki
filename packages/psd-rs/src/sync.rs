@@ -114,17 +114,16 @@ impl State {
 
 /// Check that the app process is not running for `kind`.
 /// psd v7 refuses to start and kills on unsync; we only refuse.
-pub fn ensure_app_not_running(kind: AppKind) -> Result<()> {
+pub fn ensure_app_not_running(kind: AppKind, user: &str) -> Result<()> {
     let psname = kind.process_name();
-    let uid = nix::unistd::getuid().as_raw();
-    // pgrep -x -u <uid> <name>
+    // pgrep -x -u <user> <name>
     let out = Command::new("pgrep")
-        .args(["-x", "-u", &uid.to_string(), psname])
+        .args(["-x", "-u", user, psname])
         .output()
         .context("spawning pgrep")?;
     if out.status.success() {
         bail!(
-            "{psname} is running (uid={uid}); refuse to proceed. \
+            "{psname} is running (user={user}); refuse to proceed. \
              Stop the app first."
         );
     }
@@ -199,7 +198,6 @@ pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
     // Symlink DIR -> TMP. The symlink is created by the user in their
     // own home dir; no chown needed (and would fail with EPERM for
     // non-root users anyway).
-    #[cfg(unix)]
     std::os::unix::fs::symlink(&paths.tmp, &paths.dir).with_context(
         || {
             format!(
@@ -209,8 +207,6 @@ pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
             )
         },
     )?;
-    #[cfg(not(unix))]
-    bail!("symlink creation requires unix");
 
     // Mark the session active via the flag file (lives in the overlay).
     touch(&paths.dir.join(FLAGGED))?;
@@ -251,7 +247,7 @@ pub fn unsync(state: &State, profile: &AppProfile) -> Result<()> {
     if !paths.dir.is_symlink() {
         bail!("{} is not a symlink; cannot unsync", paths.dir.display());
     }
-    ensure_app_not_running(profile.kind)?;
+    ensure_app_not_running(profile.kind, &state.user)?;
 
     // Final delta into BACK_OVFS.
     rsync_sync(
@@ -326,7 +322,6 @@ fn rsync_sync(
 
 /// Copy permission bits from `src` to `dst`. Used to give tmpfs dirs
 /// the same mode as the original profile dir.
-#[cfg(unix)]
 fn copy_mode(src: &Path, dst: &Path) -> Result<()> {
     use std::os::unix::fs::PermissionsExt;
     let mode = fs::metadata(src)
@@ -338,26 +333,15 @@ fn copy_mode(src: &Path, dst: &Path) -> Result<()> {
     Ok(())
 }
 
-#[cfg(not(unix))]
-fn copy_mode(_src: &Path, _dst: &Path) -> Result<()> {
-    Ok(())
-}
-
 fn touch(p: &Path) -> Result<()> {
     fs::write(p, b"").with_context(|| format!("touch {}", p.display()))?;
     Ok(())
 }
 
-#[cfg(unix)]
 fn fsync_dir(p: &Path) -> Result<()> {
     let f = fs::File::open(p)
         .with_context(|| format!("open {}", p.display()))?;
     // best-effort fsync; ignore EINVAL (some filesystems don't support it)
-    let _ = nix::unistd::fsync(&f);
-    Ok(())
-}
-
-#[cfg(not(unix))]
-fn fsync_dir(_p: &Path) -> Result<()> {
+    let _ = f.sync_all();
     Ok(())
 }

@@ -171,7 +171,8 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
     // anything. Idempotent; one call per unique flatpak app-id.
     for kind in profiles.iter().map(|p| p.kind) {
         if let Some(app_id) = kind.flatpak_id()
-            && let Err(e) = flatpak::ensure_psd_access(app_id)
+            && let Err(e) =
+                flatpak::ensure_psd_access(app_id, &state.volatile_root)
         {
             return Err(e).with_context(|| {
                 format!("granting flatpak access for {app_id}")
@@ -187,7 +188,7 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
     for p in profiles {
         // Recover first (idempotent if clean).
         crash::recover(&state.paths_for(p))?;
-        sync::ensure_app_not_running(p.kind)?;
+        sync::ensure_app_not_running(p.kind, &state.user)?;
         sync::startup(state, p)?;
     }
     info!("startup complete");
