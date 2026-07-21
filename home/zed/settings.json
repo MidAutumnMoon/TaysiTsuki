@@ -216,8 +216,8 @@
             "model": "kimi-k2.7-code",
         },
         "default_model": {
-            "effort": "xhigh",
-            "provider": "Volcengine",
+            "effort": "max",
+            "provider": "ZAI Coding Plan",
             "model": "glm-5.2",
             "enable_thinking": true,
         },
