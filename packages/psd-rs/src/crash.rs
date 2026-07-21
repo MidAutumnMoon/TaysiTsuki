@@ -1,41 +1,19 @@
 //! Ungraceful state normalization.
 //!
-//! ## psd v7 behavior
+//! After a crash, `DIR` is a dangling symlink (tmpfs gone) while `BACKUP`
+//! still exists on disk. This makes remounting impossible, so we must
+//! normalize before startup.
 //!
-//! On every startup, `ungraceful_state_check` looks at each profile. If
-//! `DIR/.flagged` is missing (it always is after a reboot, since it lives
-//! in the tmpfs overlay), it assumes a crash and:
+//! We deliberately do NOT snapshot before recovery: it doesn't protect
+//! against the likely failures (wrong pick, recovery bug, post-launch
+//! corruption -- backups cover that), and a full copy of the profile per
+//! recovery is pure overhead. Max data loss is one resync interval.
 //!
-//! 1. `unlink $DIR` (dangling symlink, since tmpfs is gone)
-//! 2. Pick newer of `BACKUP` / `BACK_OVFS` by mtime
-//! 3. Optionally `cp -a` that to `BACKUP-crashrecovery-<ts>` (the snapshot)
-//! 4. `mv $picked $DIR`, `rm -rf $other`
-//!
-//! ## Why psd drops the snapshot step
-//!
-//! The snapshot doesn't protect against the likely failure modes:
-//!
-//! - Picked the wrong target? Snapshot is of the wrong pick. Doesn't help.
-//! - Recovery bug (e.g. an empty `BACK_OVFS` picked over `BACKUP`)?
-//!   Snapshot might be of an empty dir. Doesn't help.
-//! - Browser corrupts the profile after launch? This is just a backup,
-//!   which restic already provides -- redundant.
-//!
-//! The snapshot was also the most expensive part of psd v7: a `cp -a` of
-//! the full profile (2GB+) per recovery, capped at 5 copies = 12GB of
-//! disk. With restic backing up `~/.mozilla`, this is pure overhead.
-//!
-//! ## What psd keeps
-//!
-//! State normalization is mandatory for correctness: a dangling `DIR`
-//! plus existing `BACKUP` makes the overlay mount impossible. The logic:
-//!
+//! Recovery logic:
 //! 1. Detect dangling `DIR` (symlink to missing tmpfs) or missing `DIR`
 //! 2. Pick the newer of `BACKUP` / `BACK_OVFS` (rejecting empty `BACK_OVFS`)
 //! 3. Rename the picked target to `DIR`
 //! 4. Delete the other
-//!
-//! Maximum data loss is one resync interval (default 30min).
 
 use std::fs;
 use std::path::Path;
@@ -51,20 +29,16 @@ use crate::paths::ProfilePaths;
 
 /// Detect and normalize ungraceful state for one profile.
 ///
-/// "Ungraceful" = `DIR` is a dangling symlink (tmpfs gone) while `BACKUP`
-/// exists on disk. If `DIR` is a real directory (non-symlink), the previous
-/// session was clean (or psd never ran) and we skip.
-///
 /// Returns `true` if recovery was performed.
 pub fn recover(paths: &ProfilePaths) -> Result<bool> {
-    // Clean session marker: a real (non-symlink) DIR means unsync
-    // completed, or psd never ran. Either way, nothing to recover.
+    // A real (non-symlink) DIR means unsync completed or psd never ran.
+    // Note: `is_dir()` follows symlinks, so we check `!is_symlink()` too.
     if paths.dir.is_dir() && !paths.dir.is_symlink() {
         return Ok(false);
     }
 
     // DIR is a symlink. If it resolves, the session is still live -- refuse
-    // to touch it (psd v7 would `exit 1` here; we do the same).
+    // to touch it.
     if paths.dir.is_symlink() && paths.dir.exists() {
         bail!(
             "{} is a symlink to an existing path; refusing to recover a live session",
@@ -76,7 +50,7 @@ pub fn recover(paths: &ProfilePaths) -> Result<bool> {
     if !paths.backup.exists() {
         if paths.dir.is_symlink() {
             // Dangling symlink with no backup: just remove the symlink so
-            // the browser recreates the profile from scratch on next launch.
+            // the app recreates the profile from scratch on next launch.
             warn!(
                 dir = %paths.dir.display(),
                 "dangling symlink with no backup; removing symlink"

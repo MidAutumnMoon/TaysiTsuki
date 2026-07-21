@@ -1,23 +1,21 @@
-//! Path resolution for a managed browser profile.
+//! Path resolution for a managed app profile.
 //!
-//! Mirrors the 5-path model from psd v7:
+//! The 5-path model:
 //!
-//! - `DIR` - what the browser sees (`~/.mozilla/firefox/<profile>`)
+//! - `DIR` - what the app sees
 //! - `BACKUP` - frozen profile, renamed from `DIR` at startup;
-//!   becomes the overlay lowerdir (read-only while mounted)
+//!   overlay lowerdir (read-only while mounted)
 //! - `BACK_OVFS` - on-disk staging dir, writable while overlay is live;
 //!   receives periodic resyncs; merged into `BACKUP` at unsync
-//! - `TMP` - overlay mount point in tmpfs (`$XDG_RUNTIME_DIR/psd/...`);
-//!   `DIR` symlinks here
+//! - `TMP` - overlay mount point in tmpfs; `DIR` symlinks here
 //! - `UPPER` - tmpfs dir holding overlay writes (the delta)
 //! - `WORK` - overlay internal workdir
 //!
-//! Why `BACK_OVFS` exists (not in v6 psd):
-//! `BACKUP` is the overlay lowerdir; writing to it while the overlay is
-//! mounted is unsafe (cached inode listings desync from disk). `BACK_OVFS`
-//! sits outside the overlay so it's safe to write at any time. It also
-//! bounds crash-loss to <=1 resync interval and gives the final unsync
-//! merge a stable intermediate target.
+//! Why `BACK_OVFS` exists: `BACKUP` is the overlay lowerdir, so writing
+//! to it while mounted is unsafe (cached inode listings desync from
+//! disk). `BACK_OVFS` sits outside the overlay, safe to write at any
+//! time. It also bounds crash-loss to <=1 resync interval and gives the
+//! final unsync merge a stable intermediate target.
 
 use std::path::Path;
 use std::path::PathBuf;
@@ -26,7 +24,7 @@ use crate::apps::AppProfile;
 
 #[derive(Debug, Clone)]
 pub struct ProfilePaths {
-    /// What the browser reads/writes. Symlink to `tmp` when active.
+    /// What the app reads/writes. Symlink to `tmp` when active.
     pub dir: PathBuf,
     /// Frozen original profile; overlay lowerdir while active.
     pub backup: PathBuf,
@@ -42,12 +40,6 @@ pub struct ProfilePaths {
 
 impl ProfilePaths {
     /// Resolve all paths for one profile.
-    ///
-    /// `volatile_root` is `$XDG_RUNTIME_DIR/psd` (tmpfs). The tag is built
-    /// from `<user>-<kind>-<suffix>`; `suffix` is the profile's final path
-    /// component (e.g. `eiluxnob.default` for firefox, `Default` for
-    /// chromium, `TelegramDesktop` for telegram), which disambiguates
-    /// multiple profiles per app.
     pub fn new(profile: &AppProfile, volatile_root: &Path) -> Self {
         let dir = profile.path.clone();
         let backup = append_suffix(&dir, "-backup");
@@ -61,6 +53,8 @@ impl ProfilePaths {
         );
         let tmp = volatile_root.join(&tag);
         let upper = volatile_root.join(format!("{tag}-rw"));
+        // WORK gets a dot prefix: fuse-overlayfs requires it to be empty,
+        // and the dot keeps it out of the way.
         let work = volatile_root.join(format!(".{tag}"));
 
         Self {
@@ -75,7 +69,6 @@ impl ProfilePaths {
 }
 
 /// Append a string suffix to a path's final component.
-/// Used for `DIR` -> `BACKUP`/`BACK_OVFS` naming (and `-stale` rotation).
 pub fn append_suffix(p: &Path, suffix: &str) -> PathBuf {
     let mut s = p.as_os_str().to_owned();
     s.push(suffix);

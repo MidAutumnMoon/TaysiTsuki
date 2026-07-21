@@ -1,7 +1,7 @@
-//! psd: sync browser profiles to tmpfs via overlayfs.
+//! psd: sync app profiles to tmpfs via overlayfs.
 //!
-//! See `paths.rs` and `crash.rs` for the rationale behind the 5-path
-//! state model.
+//! See `paths.rs` for the 5-path state model and `crash.rs` for
+//! ungraceful-state recovery.
 
 use std::io::stdout;
 use std::path::PathBuf;
@@ -37,11 +37,10 @@ use sync::State;
 #[command(
     name = "psd",
     version,
-    about = "Sync browser profiles to tmpfs via overlayfs"
+    about = "Sync app profiles to tmpfs via overlayfs"
 )]
 struct Cli {
     /// Path to config.json. Required for sync commands; ignored by `preview`.
-    /// Defaults to `$XDG_CONFIG_HOME/psd/config.json`.
     #[arg(long, global = true)]
     config: Option<PathBuf>,
 
@@ -51,11 +50,11 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Command {
-    /// Mount overlays and symlink profiles (`ExecStart`).
+    /// Mount overlays and symlink profiles.
     Startup,
-    /// Rsync overlay view -> back-ovfs (`ExecStartPost` + timer).
+    /// Rsync overlay view -> back-ovfs.
     Resync,
-    /// Final merge and unmount (`ExecStop`).
+    /// Final merge and unmount.
     Unsync,
     /// Detect and normalize ungraceful state.
     Recover,
@@ -64,8 +63,8 @@ enum Command {
         #[arg(value_enum)]
         shell: Shell,
     },
-    /// Show what would be / is being managed. Scans all supported
-    /// browsers; does not require config.
+    /// Show what would be / is being managed. Scans all supported apps;
+    /// does not require config.
     Preview,
 }
 
@@ -82,8 +81,8 @@ fn main() -> ExitCode {
 }
 
 fn run(cli: &Cli) -> Result<()> {
-    // Completions only need clap metadata -- bail early before State::new()
-    // (which requires XDG_RUNTIME_DIR and would fail in build sandboxes).
+    // Completions only need clap metadata -- bail early before State::new(),
+    // which requires XDG_RUNTIME_DIR (absent in build sandboxes).
     if let Command::Completions { shell } = &cli.command {
         let mut cmd = Cli::command();
         generate(*shell, &mut cmd, "psd", &mut stdout());
@@ -92,9 +91,8 @@ fn run(cli: &Cli) -> Result<()> {
 
     let state = State::new()?;
 
-    // Resolve profiles once. Sync commands need config; preview scans all
-    // supported browsers tolerantly (a broken install shouldn't hide the
-    // rest). Completions is handled above.
+    // Sync commands need config; preview scans all apps tolerantly (a
+    // broken install shouldn't hide the rest).
     let profiles = match cli.command {
         Command::Preview => discover(&state, AppKind::iter(), true)?,
         _ => load_profiles(cli, &state)?,
@@ -106,7 +104,6 @@ fn run(cli: &Cli) -> Result<()> {
         Command::Unsync => cmd_unsync(&state, &profiles)?,
         Command::Recover => cmd_recover(&state, &profiles)?,
         Command::Preview => cmd_preview(&state, &profiles),
-        // Handled above before State::new().
         #[allow(clippy::unreachable)]
         Command::Completions { .. } => unreachable!(),
     }
@@ -122,7 +119,6 @@ fn load_config(path: Option<&std::path::Path>) -> Result<Config> {
         .with_context(|| format!("loading config from {}", p.display()))
 }
 
-/// Load config and discover all profiles listed in it. Bails if none found.
 fn load_profiles(cli: &Cli, state: &State) -> Result<Vec<AppProfile>> {
     let cfg = load_config(cli.config.as_deref())?;
     let profiles = discover(state, cfg.apps.iter().copied(), false)?;
@@ -133,8 +129,9 @@ fn load_profiles(cli: &Cli, state: &State) -> Result<Vec<AppProfile>> {
 }
 
 /// Discover profiles for the given apps. When `tolerant`, discovery
-/// errors are logged as warnings instead of propagated (used by `preview`,
-/// which shouldn't hide working apps behind one broken install).
+/// errors are logged as warnings instead of propagated (used by
+/// `preview`, which shouldn't hide working apps behind one broken
+/// install).
 fn discover(
     state: &State,
     kinds: impl Iterator<Item = AppKind>,
@@ -167,8 +164,8 @@ fn home_dir() -> Result<PathBuf> {
 fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
     overlay::check_dependencies()?;
 
-    // Grant flatpak sandboxes access to the psd tmpfs before we mount
-    // anything. Idempotent; one call per unique flatpak app-id.
+    // Grant flatpak sandboxes access to the psd tmpfs before mounting.
+    // Idempotent; one call per unique flatpak app-id.
     for kind in profiles.iter().map(|p| p.kind) {
         if let Some(app_id) = kind.flatpak_id()
             && let Err(e) =
@@ -254,9 +251,8 @@ fn dir_size_human(p: &std::path::Path) -> Result<String> {
         .arg(p)
         .output()
         .context("spawning du")?;
-    // du returns non-zero for minor issues like broken symlinks inside
-    // the tree but still prints the size. Parse stdout regardless of
-    // exit code; only fail if it's empty.
+    // du returns non-zero for broken symlinks inside the tree but still
+    // prints the size -- parse stdout regardless of exit code.
     let line = String::from_utf8_lossy(&out.stdout);
     Ok(line.split_whitespace().next().unwrap_or("?").to_owned())
 }

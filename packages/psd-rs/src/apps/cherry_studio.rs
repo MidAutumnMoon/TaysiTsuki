@@ -1,13 +1,11 @@
 //! Cherry Studio (flatpak) data dir discovery.
 //!
-//! Cherry Studio is an Electron app distributed as a flatpak
-//! (`com.cherry_ai.CherryStudio`). Electron's `userData` lives under
-//! `XDG_CONFIG_HOME` inside the sandbox, so the on-disk path is
+//! Electron's `userData` lives under `XDG_CONFIG_HOME` inside the flatpak
+//! sandbox, so the on-disk path is
 //! `~/.var/app/com.cherry_ai.CherryStudio/config/CherryStudio/`.
 //!
-//! One quirk vs. native apps: the flatpak sandbox needs explicit
-//! permission to reach the overlay mount in `$XDG_RUNTIME_DIR/psd`. See
-//! [`crate::flatpak::ensure_psd_access`], invoked from `cmd_startup`.
+//! The flatpak sandbox also needs explicit permission to reach the
+//! overlay mount (see [`crate::flatpak::ensure_psd_access`]).
 
 use std::path::Path;
 

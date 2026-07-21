@@ -1,12 +1,10 @@
 //! Flatpak sandbox permissions for psd-managed apps.
 //!
-//! A flatpak sandbox cannot see `$XDG_RUNTIME_DIR/psd` by default, so
-//! the overlay mount we create would be unreachable from inside the app.
-//! We grant per-app access via `flatpak override --user --filesystem=`,
-//! matching what upstream psd does in its `firefox-flatpak` contrib.
+//! A flatpak sandbox cannot see the psd tmpfs by default, so the overlay
+//! mount would be unreachable from inside the app. We grant per-app
+//! access via `flatpak override --user --filesystem=`.
 //!
-//! Idempotent: re-running with the permission already granted is a
-//! no-op. Safe to call every startup.
+//! Idempotent: safe to call every startup.
 
 use std::path::Path;
 use std::process::Command;

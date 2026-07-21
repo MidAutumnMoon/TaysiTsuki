@@ -48,9 +48,9 @@ struct LocalState {
 
 #[derive(Debug, Default, Deserialize)]
 struct Profile {
-    // We only care about the keys (profile dir names); values are ignored.
-    // `IgnoredAny` is zero-sized, which trips `zero_sized_map_values`, but
-    // a `BTreeSet` wouldn't deserialize from a JSON object.
+    // Keys are profile dir names; values are ignored. `IgnoredAny` is
+    // zero-sized (trips `zero_sized_map_values`), but a `BTreeSet`
+    // wouldn't deserialize from a JSON object.
     #[serde(default)]
     #[allow(clippy::zero_sized_map_values)]
     info_cache: BTreeMap<String, IgnoredAny>,

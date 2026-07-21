@@ -17,7 +17,7 @@ use crate::apps::with_suffix;
 
 pub fn discover(user: &str, home: &Path) -> Result<Vec<AppProfile>> {
     let mut out = Vec::new();
-    // XDG first (Firefox 147+), then legacy.
+    // XDG first, then legacy.
     for base in [
         home.join(".config/mozilla/firefox"),
         home.join(".mozilla/firefox"),
@@ -105,6 +105,7 @@ mod tests {
 
     #[test]
     #[expect(clippy::unwrap_used)]
+    #[expect(clippy::indexing_slicing)]
     fn parses_relative_and_absolute() {
         let tmp = tempfile::tempdir().unwrap();
         let base = tmp.path();

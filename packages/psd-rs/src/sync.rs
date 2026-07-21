@@ -1,7 +1,5 @@
 //! Sync state machine: startup / resync / unsync.
 //!
-//! ## Model (preserves psd v7 semantics, see `paths.rs` for the why)
-//!
 //! ```text
 //! Active session:
 //!   DIR  --symlink--> TMP (overlay mount)
@@ -10,31 +8,22 @@
 //!   BACK_OVFS (disk) = staging for periodic resyncs
 //! ```
 //!
-//! ## Improvements over psd v7 shell
+//! Design notes:
 //!
-//! - **Atomic renames**: `std::fs::rename` instead of `mv
-//!   --no-target-directory`; same atomicity on one filesystem, no fork.
-//!
-//! - **fsync before rename**: the merge step fsyncs `BACK_OVFS` contents
-//!   before renaming into `BACKUP`, so a crash mid-merge leaves a
+//! - Atomic renames for the DIR/BACKUP swap.
+//! - fsync before the final rename, so a crash mid-merge leaves a
 //!   consistent `BACK_OVFS` for next-boot recovery.
-//!
-//! - **No `kill_browsers`**: unsync refuses to run if the browser process
-//!   is alive, rather than killing it. Killing risks losing unsaved
-//!   browser state; the caller (systemd `ExecStop`) can `KillMode=process`
-//!   the browser first if desired.
-//!
-//! - **PID file with content**: includes the actual PID so stale detection
-//!   is possible (psd v7 wrote an empty file).
+//! - unsync refuses if the app is running instead of killing it, to
+//!   avoid losing unsaved state.
+//! - PID file contains the actual PID, so stale detection is possible.
 //!
 //! ## TODO: dirty tracking
 //!
-//! The unsync path still does a full `TMP -> BACK_OVFS` rsync even if
-//! nothing changed since the last resync. A future improvement: track
-//! overlay write activity and skip the final rsync when clean, directly
-//! addressing the systemd `TimeoutStopSec` race that made psd v7 look
-//! "always ungraceful". For now, set `TimeoutStopSec` generously in the
-//! systemd unit.
+//! Unsync does a full `TMP -> BACK_OVFS` rsync even if nothing changed
+//! since the last resync. Tracking overlay writes would let us skip it
+//! when clean, avoiding the `TimeoutStopSec` race where unsync is killed
+//! mid-rsync and the next boot looks ungraceful. For now,
+//! `TimeoutStopSec` is set generously in the systemd unit.
 
 use std::fs;
 use std::path::Path;
@@ -84,9 +73,8 @@ impl State {
         self.pid_file().exists()
     }
 
-    /// Write a PID file containing the current PID. Not just a marker --
-    /// includes the pid so stale detection is possible (psd v7 wrote an
-    /// empty file, making stale detection impossible).
+    /// Write a PID file containing the current PID (not just a marker,
+    /// so stale detection is possible).
     pub fn mark_active(&self) -> Result<()> {
         fs::create_dir_all(&self.volatile_root).with_context(|| {
             format!("mkdir {}", self.volatile_root.display())
@@ -106,14 +94,13 @@ impl State {
         }
     }
 
-    /// Resolve paths for a profile.
     pub fn paths_for(&self, profile: &AppProfile) -> ProfilePaths {
         ProfilePaths::new(profile, &self.volatile_root)
     }
 }
 
-/// Check that the app process is not running for `kind`.
-/// psd v7 refuses to start and kills on unsync; we only refuse.
+/// Refuse to proceed if the app is running, to avoid losing unsaved
+/// state (we don't kill it).
 pub fn ensure_app_not_running(kind: AppKind, user: &str) -> Result<()> {
     let psname = kind.process_name();
     // pgrep -x -u <user> <name>
@@ -158,11 +145,7 @@ pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
         );
     }
 
-    // Retain DIR perms for the tmpfs dirs we create.
-    //
-    // Create tmpfs dirs. These live in $XDG_RUNTIME_DIR which is already
-    // owned by the user, so no chown needed (and chown would fail with
-    // EPERM for non-root users anyway).
+    // Create tmpfs dirs (TMP, UPPER, WORK) with the same mode as DIR.
     for d in [&paths.tmp, &paths.upper, &paths.work] {
         if !d.exists() {
             fs::create_dir_all(d)
@@ -195,9 +178,7 @@ pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
     // Mount the overlay.
     overlay::mount(&paths.backup, &paths.upper, &paths.work, &paths.tmp)?;
 
-    // Symlink DIR -> TMP. The symlink is created by the user in their
-    // own home dir; no chown needed (and would fail with EPERM for
-    // non-root users anyway).
+    // Symlink DIR -> TMP so the app sees the overlay view.
     std::os::unix::fs::symlink(&paths.tmp, &paths.dir).with_context(
         || {
             format!(
@@ -208,7 +189,8 @@ pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
         },
     )?;
 
-    // Mark the session active via the flag file (lives in the overlay).
+    // .flagged lives inside the overlay (tmpfs), so its absence after a
+    // reboot signals ungraceful shutdown (see `crash::recover`).
     touch(&paths.dir.join(FLAGGED))?;
 
     info!(app = %profile.kind.as_ref(), dir = %paths.dir.display(), "startup ok");
@@ -255,13 +237,9 @@ pub fn unsync(state: &State, profile: &AppProfile) -> Result<()> {
         &paths.back_ovfs,
         /* exclude_flagged */ true,
     )?;
-    // Merge BACK_OVFS -> BACKUP.
-    //
-    // BACKUP is the overlay lowerdir, so writing to it while the overlay
-    // is mounted is normally unsafe (see paths.rs). This is acceptable
-    // here because: (a) the browser is confirmed not running, (b) the
-    // overlay is quiescent with no new writes, (c) we're about to
-    // unmount. psd v7 does the same.
+    // Merge BACK_OVFS -> BACKUP. Writing to the lowerdir while the
+    // overlay is mounted is normally unsafe (see paths.rs), but here the
+    // app is stopped, the overlay is quiescent, and we unmount next.
     rsync_sync(
         &paths.back_ovfs,
         &paths.backup,
@@ -273,6 +251,8 @@ pub fn unsync(state: &State, profile: &AppProfile) -> Result<()> {
     fs::remove_file(&paths.dir)
         .with_context(|| format!("unlink {}", paths.dir.display()))?;
     overlay::unmount(&paths.tmp)?;
+    // Tmpfs cleanup is best-effort -- the durable state is already in
+    // BACKUP, and tmpfs is wiped on reboot anyway.
     let _ = fs::remove_dir_all(&paths.tmp);
     let _ = fs::remove_dir_all(&paths.upper);
     let _ = fs::remove_dir_all(&paths.work);
@@ -320,8 +300,7 @@ fn rsync_sync(
     Ok(())
 }
 
-/// Copy permission bits from `src` to `dst`. Used to give tmpfs dirs
-/// the same mode as the original profile dir.
+/// Copy permission bits from `src` to `dst`.
 fn copy_mode(src: &Path, dst: &Path) -> Result<()> {
     use std::os::unix::fs::PermissionsExt;
     let mode = fs::metadata(src)

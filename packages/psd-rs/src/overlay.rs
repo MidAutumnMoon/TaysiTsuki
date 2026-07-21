@@ -1,7 +1,4 @@
 //! Wrapper around the `fuse-overlayfs` and `fusermount3` binaries.
-//!
-//! We shell out rather than link libfuse to keep the dependency surface
-//! minimal and to match the kernel-side overlayfs semantics exactly.
 
 use std::path::Path;
 use std::process::Command;

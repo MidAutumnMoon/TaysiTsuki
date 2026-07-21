@@ -18,9 +18,6 @@ use strum::AsRefStr;
 use strum::EnumIter;
 
 /// Supported apps. Extend by adding a variant + discover branch.
-///
-/// The derived string representation (lowercase variant name) serves as
-/// both the tmpfs path tag and (by default) the process-name check.
 #[derive(
     Debug,
     Clone,
@@ -41,10 +38,7 @@ pub enum AppKind {
 }
 
 impl AppKind {
-    /// Process name for the "is app running?" check. Used by `pgrep -x`.
-    /// Kept as a named method so variants whose binary name differs from
-    /// the lowercase kind (e.g. telegram, cherry-studio) can override
-    /// without churning call sites.
+    /// Process name for the "is app running?" check.
     pub const fn process_name(self) -> &'static str {
         match self {
             Self::Firefox => "firefox",
@@ -54,10 +48,8 @@ impl AppKind {
         }
     }
 
-    /// If this app runs as a flatpak, returns its app-id (e.g.
-    /// `com.cherry_ai.CherryStudio`). psd grants the sandbox access to
-    /// `$XDG_RUNTIME_DIR/psd` so the overlay mount is reachable.
-    /// Returns `None` for native apps.
+    /// If this app runs as a flatpak, returns its app-id so we can grant
+    /// the sandbox access to the overlay mount. `None` for native apps.
     pub const fn flatpak_id(self) -> Option<&'static str> {
         match self {
             Self::CherryStudio => Some("com.cherry_ai.CherryStudio"),
@@ -73,9 +65,7 @@ pub struct AppProfile {
     pub user: String,
     /// Absolute path the app writes to (DIR in psd terminology).
     pub path: PathBuf,
-    /// Final path component, used as a tmpfs disambiguator when an app
-    /// can have multiple profiles (firefox). For single-profile apps it
-    /// simply echoes the dir name.
+    /// Final path component, used as a tmpfs disambiguator.
     pub suffix: String,
 }
 
