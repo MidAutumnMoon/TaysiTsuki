@@ -166,6 +166,11 @@
     },
     "colorize_brackets": true,
     "agent": {
+        "sandbox_permissions": {
+            "network_hosts": [
+                "wiki.archlinux.org"
+            ]
+        },
         "profiles": {},
         "sidebar_side": "right",
         "dock": "right",

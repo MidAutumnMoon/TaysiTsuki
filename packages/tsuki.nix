@@ -105,6 +105,11 @@ allUnique <| withValidate <|
             unstable_branch = true;
         };
     }
+    {
+        attr = tsuki "profile-sync-daemon";
+        group = gs.small_1;
+        update = {};
+    }
 
     #
     # go 1
