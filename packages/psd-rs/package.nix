@@ -7,6 +7,7 @@
     coreutils,
     util-linux,
     procps,
+    flatpak,
     installShellFiles,
 }:
 
@@ -44,7 +45,7 @@ tsuki.rust.buildRustPackage rec {
         # the service environment).
         wrapProgram $out/bin/psd \
             --prefix PATH : ${lib.makeBinPath [
-                rsync fuse-overlayfs coreutils util-linux procps
+                rsync fuse-overlayfs coreutils util-linux procps flatpak
             ]}
     '';
 

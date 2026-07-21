@@ -3,6 +3,7 @@
 //! Extensible via [`AppKind`]: add a variant, implement discovery in its
 //! module, and match in [`AppProfile::discover`].
 
+pub mod cherry_studio;
 pub mod chromium;
 pub mod firefox;
 pub mod telegram;
@@ -36,18 +37,31 @@ pub enum AppKind {
     Firefox,
     Chromium,
     Telegram,
+    CherryStudio,
 }
 
 impl AppKind {
     /// Process name for the "is app running?" check. Used by `pgrep -x`.
     /// Kept as a named method so variants whose binary name differs from
-    /// the lowercase kind (e.g. telegram) can override without churning
-    /// call sites.
+    /// the lowercase kind (e.g. telegram, cherry-studio) can override
+    /// without churning call sites.
     pub const fn process_name(self) -> &'static str {
         match self {
             Self::Firefox => "firefox",
             Self::Chromium => "chromium",
             Self::Telegram => "telegram-desktop",
+            Self::CherryStudio => "CherryStudio",
+        }
+    }
+
+    /// If this app runs as a flatpak, returns its app-id (e.g.
+    /// `com.cherry_ai.CherryStudio`). psd grants the sandbox access to
+    /// `$XDG_RUNTIME_DIR/psd` so the overlay mount is reachable.
+    /// Returns `None` for native apps.
+    pub const fn flatpak_id(self) -> Option<&'static str> {
+        match self {
+            Self::CherryStudio => Some("com.cherry_ai.CherryStudio"),
+            Self::Firefox | Self::Chromium | Self::Telegram => None,
         }
     }
 }
@@ -76,6 +90,7 @@ impl AppProfile {
             AppKind::Firefox => firefox::discover(user, home),
             AppKind::Chromium => chromium::discover(user, home),
             AppKind::Telegram => telegram::discover(user, home),
+            AppKind::CherryStudio => cherry_studio::discover(user, home),
         }
     }
 }

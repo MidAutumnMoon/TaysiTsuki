@@ -22,6 +22,7 @@ use tracing::warn;
 mod apps;
 mod config;
 mod crash;
+mod flatpak;
 mod overlay;
 mod paths;
 mod sync;
@@ -165,6 +166,18 @@ fn home_dir() -> Result<PathBuf> {
 
 fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
     overlay::check_dependencies()?;
+
+    // Grant flatpak sandboxes access to the psd tmpfs before we mount
+    // anything. Idempotent; one call per unique flatpak app-id.
+    for kind in profiles.iter().map(|p| p.kind) {
+        if let Some(app_id) = kind.flatpak_id()
+            && let Err(e) = flatpak::ensure_psd_access(app_id)
+        {
+            return Err(e).with_context(|| {
+                format!("granting flatpak access for {app_id}")
+            });
+        }
+    }
 
     // Write PID file first so resync/unsync see us as active during
     // startup. If startup fails partway, the PID file existing is
