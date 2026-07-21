@@ -44,11 +44,11 @@ use std::process::Command;
 use anyhow::Context;
 use anyhow::Result;
 use anyhow::bail;
-use nix::unistd::User;
 use tracing::debug;
 use tracing::info;
 use tracing::warn;
 
+use crate::browser::BrowserKind;
 use crate::browser::BrowserProfile;
 use crate::overlay;
 use crate::paths::ProfilePaths;
@@ -66,25 +66,13 @@ pub struct State {
 
 impl State {
     pub fn new() -> Result<Self> {
-        let user_name = std::env::var("USER")
-            .or_else(|_| {
-                // Fall back to getent-like lookup via nix.
-                let uid = nix::unistd::getuid().as_raw();
-                User::from_uid(uid.into())
-                    .ok()
-                    .flatten()
-                    .map(|u| u.name)
-                    .ok_or_else(|| {
-                        anyhow::anyhow!("could not determine current user")
-                    })
-            })
-            .context("determining current user")?;
+        let user = std::env::var("USER")
+            .context("USER is not set; refusing to run")?;
         let xdg_runtime = std::env::var("XDG_RUNTIME_DIR")
             .context("XDG_RUNTIME_DIR is not set; refusing to run")?;
-        let volatile_root = PathBuf::from(xdg_runtime).join("psd");
         Ok(Self {
-            volatile_root,
-            user: user_name,
+            volatile_root: PathBuf::from(xdg_runtime).join("psd"),
+            user,
         })
     }
 
@@ -118,45 +106,29 @@ impl State {
         }
     }
 
-    /// Resolve paths for a profile, including the firefox-style suffix.
+    /// Resolve paths for a profile.
     pub fn paths_for(&self, profile: &BrowserProfile) -> ProfilePaths {
-        let suffix = if profile.needs_suffix() {
-            format!("-{}", profile.suffix)
-        } else {
-            String::new()
-        };
-        ProfilePaths::new(profile, &self.volatile_root, &suffix)
+        ProfilePaths::new(profile, &self.volatile_root)
     }
 }
 
-/// Check that the browser process is not running for `profile`.
+/// Check that the browser process is not running for `kind`.
 /// psd v7 refuses to start and kills on unsync; we only refuse.
-pub fn ensure_browser_not_running(profile: &BrowserProfile) -> Result<()> {
-    let psname = profile.kind.process_name();
+pub fn ensure_browser_not_running(kind: BrowserKind) -> Result<()> {
+    let psname = kind.process_name();
+    let uid = nix::unistd::getuid().as_raw();
     // pgrep -x -u <uid> <name>
     let out = Command::new("pgrep")
-        .args(["-x", "-u", &profile.uid_str(), psname])
+        .args(["-x", "-u", &uid.to_string(), psname])
         .output()
         .context("spawning pgrep")?;
     if out.status.success() {
         bail!(
-            "{psname} is running (uid={}); refuse to proceed. Stop the browser first.",
-            profile.uid_str()
+            "{psname} is running (uid={uid}); refuse to proceed. \
+             Stop the browser first."
         );
     }
     Ok(())
-}
-
-impl BrowserProfile {
-    pub fn uid_str(&self) -> String {
-        // For pgrep -u. The shell version used the username; uid is more
-        // robust against renamed users.
-        // We don't carry uid on the struct; look it up.
-        match User::from_name(&self.user) {
-            Ok(Some(u)) => u.uid.as_raw().to_string(),
-            _ => self.user.clone(),
-        }
-    }
 }
 
 /// Startup: mount overlay, symlink DIR -> TMP, create `BACK_OVFS`.
@@ -188,8 +160,7 @@ pub fn startup(state: &State, profile: &BrowserProfile) -> Result<()> {
     }
 
     // Retain DIR perms for the tmpfs dirs we create.
-    let mode = dir_mode(&paths.dir)?;
-
+    //
     // Create tmpfs dirs. These live in $XDG_RUNTIME_DIR which is already
     // owned by the user, so no chown needed (and chown would fail with
     // EPERM for non-root users anyway).
@@ -197,7 +168,7 @@ pub fn startup(state: &State, profile: &BrowserProfile) -> Result<()> {
         if !d.exists() {
             fs::create_dir_all(d)
                 .with_context(|| format!("mkdir {}", d.display()))?;
-            chmod(d, mode)?;
+            copy_mode(&paths.dir, d)?;
         }
     }
 
@@ -280,7 +251,7 @@ pub fn unsync(state: &State, profile: &BrowserProfile) -> Result<()> {
     if !paths.dir.is_symlink() {
         bail!("{} is not a symlink; cannot unsync", paths.dir.display());
     }
-    ensure_browser_not_running(profile)?;
+    ensure_browser_not_running(profile.kind)?;
 
     // Final delta into BACK_OVFS.
     rsync_sync(
@@ -353,18 +324,22 @@ fn rsync_sync(
     Ok(())
 }
 
-fn dir_mode(p: &Path) -> Result<u32> {
+/// Copy permission bits from `src` to `dst`. Used to give tmpfs dirs
+/// the same mode as the original profile dir.
+#[cfg(unix)]
+fn copy_mode(src: &Path, dst: &Path) -> Result<()> {
     use std::os::unix::fs::PermissionsExt;
-    let meta = fs::metadata(p)
-        .with_context(|| format!("stat {}", p.display()))?;
-    Ok(meta.permissions().mode() & 0o7777)
+    let mode = fs::metadata(src)
+        .with_context(|| format!("stat {}", src.display()))?
+        .permissions()
+        .mode();
+    fs::set_permissions(dst, fs::Permissions::from_mode(mode))
+        .with_context(|| format!("chmod {}", dst.display()))?;
+    Ok(())
 }
 
-#[cfg(unix)]
-fn chmod(p: &Path, mode: u32) -> Result<()> {
-    use std::os::unix::fs::PermissionsExt;
-    fs::set_permissions(p, fs::Permissions::from_mode(mode))
-        .with_context(|| format!("chmod {}", p.display()))?;
+#[cfg(not(unix))]
+fn copy_mode(_src: &Path, _dst: &Path) -> Result<()> {
     Ok(())
 }
 
@@ -373,14 +348,16 @@ fn touch(p: &Path) -> Result<()> {
     Ok(())
 }
 
+#[cfg(unix)]
 fn fsync_dir(p: &Path) -> Result<()> {
-    #[cfg(unix)]
-    {
-        let f = fs::File::open(p)
-            .with_context(|| format!("open {}", p.display()))?;
-        // best-effort fsync; ignore EINVAL (some filesystems don't support it)
-        let _ = nix::unistd::fsync(&f);
-    }
-    let _ = p;
+    let f = fs::File::open(p)
+        .with_context(|| format!("open {}", p.display()))?;
+    // best-effort fsync; ignore EINVAL (some filesystems don't support it)
+    let _ = nix::unistd::fsync(&f);
+    Ok(())
+}
+
+#[cfg(not(unix))]
+fn fsync_dir(_p: &Path) -> Result<()> {
     Ok(())
 }

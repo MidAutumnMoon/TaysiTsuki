@@ -42,7 +42,7 @@ pub fn build_packages<'a>(
 
     let attrs = packages
         .into_iter()
-        .map(|p| format!(".#{}", &p.attr))
+        .map(|p| format!(".#{}", p.attr))
         .collect::<Vec<_>>();
 
     if attrs.is_empty() {

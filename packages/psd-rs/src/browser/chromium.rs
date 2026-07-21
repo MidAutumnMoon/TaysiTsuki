@@ -10,12 +10,13 @@ use std::path::Path;
 use anyhow::Context;
 use anyhow::Result;
 use serde::Deserialize;
+use serde::de::IgnoredAny;
 use tracing::debug;
 use tracing::warn;
 
-use crate::browser::with_suffix;
 use crate::browser::BrowserKind;
 use crate::browser::BrowserProfile;
+use crate::browser::with_suffix;
 
 pub fn discover(user: &str, home: &Path) -> Result<Vec<BrowserProfile>> {
     let base = home.join(".config/chromium");
@@ -51,12 +52,10 @@ struct LocalState {
 
 #[derive(Debug, Default, Deserialize)]
 struct Profile {
+    // We only care about the keys (profile dir names); values are ignored.
+    // `IgnoredAny` is zero-sized, which trips `zero_sized_map_values`, but
+    // a `BTreeSet` wouldn't deserialize from a JSON object.
     #[serde(default)]
-    info_cache: BTreeMap<String, serde_json::Value>,
-}
-
-#[cfg(test)]
-mod tests {
-    // Note: the local_state format is fragile; integration tests belong in
-    // a fixture directory rather than inline JSON. Skip for now.
+    #[allow(clippy::zero_sized_map_values)]
+    info_cache: BTreeMap<String, IgnoredAny>,
 }

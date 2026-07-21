@@ -6,9 +6,9 @@
 use std::path::Path;
 use std::process::Command;
 
-use anyhow::bail;
 use anyhow::Context;
 use anyhow::Result;
+use anyhow::bail;
 use tracing::debug;
 use which::which;
 

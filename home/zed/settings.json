@@ -66,38 +66,7 @@
                     {
                         "name": "glm-5.2",
                         "max_tokens": 900000,
-                        "reasoning_effort": "xhigh",
-                        "capabilities": {
-                            "tools": true,
-                            "images": false,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": false,
-                            "chat_completions": true,
-                            "interleaved_reasoning": true,
-                        },
-                    },
-                ],
-            },
-            "百度千帆": {
-                "api_url": "https://qianfan.baidubce.com/v2/coding",
-                "available_models": [
-                    {
-                        "name": "kimi-k2.5",
-                        "max_tokens": 240000,
-                        "reasoning_effort": "xhigh",
-                        "capabilities": {
-                            "tools": true,
-                            "images": false,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": false,
-                            "chat_completions": true,
-                            "interleaved_reasoning": true,
-                        },
-                    },
-                    {
-                        "name": "glm-5.1",
-                        "max_tokens": 200000,
-                        "reasoning_effort": "xhigh",
+                        "reasoning_effort": "max",
                         "capabilities": {
                             "tools": true,
                             "images": false,
@@ -116,7 +85,7 @@
                         "name": "glm-5.2",
                         "max_tokens": 900000,
                         "max_output_tokens": 128000,
-                        "reasoning_effort": "xhigh",
+                        "reasoning_effort": "max",
                         "capabilities": {
                             "tools": true,
                             "images": false,
@@ -217,7 +186,7 @@
         },
         "default_model": {
             "effort": "max",
-            "provider": "Volcengine",
+            "provider": "ZAI Coding Plan",
             "model": "glm-5.2",
             "enable_thinking": true,
         },

@@ -72,12 +72,6 @@ impl BrowserProfile {
             BrowserKind::Chromium => chromium::discover(user, home),
         }
     }
-
-    /// True if `suffix` should be applied to tmpfs names. Only firefox-family
-    /// browsers can have multiple profiles per install.
-    pub fn needs_suffix(&self) -> bool {
-        matches!(self.kind, BrowserKind::Firefox)
-    }
 }
 
 /// Helper for modules: build a profile with the final path component as suffix.

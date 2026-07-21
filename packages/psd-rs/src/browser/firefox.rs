@@ -11,9 +11,9 @@ use anyhow::Result;
 use tracing::debug;
 use tracing::warn;
 
-use crate::browser::with_suffix;
 use crate::browser::BrowserKind;
 use crate::browser::BrowserProfile;
+use crate::browser::with_suffix;
 
 pub fn discover(user: &str, home: &Path) -> Result<Vec<BrowserProfile>> {
     let mut out = Vec::new();
@@ -108,6 +108,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[expect(clippy::unwrap_used)]
     fn parses_relative_and_absolute() {
         let tmp = tempfile::tempdir().unwrap();
         let base = tmp.path();

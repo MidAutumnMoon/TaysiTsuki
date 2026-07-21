@@ -989,6 +989,7 @@ dependencies = [
  "anyhow",
  "clap",
  "clap_complete",
+ "ino_tracing",
  "nix",
  "serde",
  "serde_json",

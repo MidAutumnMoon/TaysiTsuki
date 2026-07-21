@@ -17,11 +17,11 @@ use clap_complete::Shell;
 use clap_complete::generate;
 use tracing::error;
 use tracing::info;
+use tracing::warn;
 
 mod browser;
 mod config;
 mod crash;
-mod log;
 mod overlay;
 mod paths;
 mod sync;
@@ -69,7 +69,7 @@ enum Command {
 }
 
 fn main() -> ExitCode {
-    log::init();
+    ino_tracing::init_tracing_subscriber();
     let cli = Cli::parse();
     match run(&cli) {
         Ok(()) => ExitCode::SUCCESS,
@@ -91,37 +91,20 @@ fn run(cli: &Cli) -> Result<()> {
 
     let state = State::new()?;
 
+    // Resolve profiles once. Sync commands need config; preview scans all
+    // supported browsers tolerantly (a broken install shouldn't hide the
+    // rest). Completions is handled above.
+    let profiles = match cli.command {
+        Command::Preview => discover(&state, BrowserKind::iter(), true)?,
+        _ => load_profiles(cli, &state)?,
+    };
+
     match cli.command {
-        // Sync commands: require config to know which browsers to manage.
-        Command::Startup => {
-            let cfg = load_config(cli.config.as_deref())?;
-            let profiles = discover_configured(&cfg, &state)?;
-            require_profiles(&profiles)?;
-            cmd_startup(&state, &profiles)?;
-        }
-        Command::Resync => {
-            let cfg = load_config(cli.config.as_deref())?;
-            let profiles = discover_configured(&cfg, &state)?;
-            require_profiles(&profiles)?;
-            cmd_resync(&state, &profiles)?;
-        }
-        Command::Unsync => {
-            let cfg = load_config(cli.config.as_deref())?;
-            let profiles = discover_configured(&cfg, &state)?;
-            require_profiles(&profiles)?;
-            cmd_unsync(&state, &profiles)?;
-        }
-        Command::Recover => {
-            let cfg = load_config(cli.config.as_deref())?;
-            let profiles = discover_configured(&cfg, &state)?;
-            require_profiles(&profiles)?;
-            cmd_recover(&state, &profiles)?;
-        }
-        // Diagnostic: scan all supported browsers, no config needed.
-        Command::Preview => {
-            let profiles = discover_all(&state)?;
-            cmd_preview(&state, &profiles);
-        }
+        Command::Startup => cmd_startup(&state, &profiles)?,
+        Command::Resync => cmd_resync(&state, &profiles)?,
+        Command::Unsync => cmd_unsync(&state, &profiles)?,
+        Command::Recover => cmd_recover(&state, &profiles)?,
+        Command::Preview => cmd_preview(&state, &profiles),
         // Handled above before State::new().
         #[allow(clippy::unreachable)]
         Command::Completions { .. } => unreachable!(),
@@ -138,51 +121,46 @@ fn load_config(path: Option<&std::path::Path>) -> Result<Config> {
         .with_context(|| format!("loading config from {}", p.display()))
 }
 
-fn discover_configured(
-    cfg: &Config,
-    state: &State,
-) -> Result<Vec<BrowserProfile>> {
-    let home = home_dir_for(&state.user)?;
-    let mut out = Vec::new();
-    for &kind in &cfg.browsers {
-        let found = BrowserProfile::discover(kind, &state.user, &home)
-            .with_context(|| {
-                format!("discovering {} profiles", kind.as_ref())
-            })?;
-        out.extend(found);
+/// Load config and discover all profiles listed in it. Bails if none found.
+fn load_profiles(cli: &Cli, state: &State) -> Result<Vec<BrowserProfile>> {
+    let cfg = load_config(cli.config.as_deref())?;
+    let profiles = discover(state, cfg.browsers.iter().copied(), false)?;
+    if profiles.is_empty() {
+        bail!("no browser profiles found for configured browsers");
     }
-    Ok(out)
+    Ok(profiles)
 }
 
-fn discover_all(state: &State) -> Result<Vec<BrowserProfile>> {
-    let home = home_dir_for(&state.user)?;
+/// Discover profiles for the given browsers. When `tolerant`, discovery
+/// errors are logged as warnings instead of propagated (used by `preview`,
+/// which shouldn't hide working browsers behind one broken install).
+fn discover(
+    state: &State,
+    kinds: impl Iterator<Item = BrowserKind>,
+    tolerant: bool,
+) -> Result<Vec<BrowserProfile>> {
+    let home = home_dir()?;
     let mut out = Vec::new();
-    for kind in BrowserKind::iter() {
+    for kind in kinds {
         match BrowserProfile::discover(kind, &state.user, &home) {
             Ok(found) => out.extend(found),
+            Err(e) if tolerant => {
+                warn!(browser = kind.as_ref(), error = %e, "discovery failed");
+            }
             Err(e) => {
-                tracing::warn!(browser = kind.as_ref(), error = %e, "discovery failed");
+                return Err(e).with_context(|| {
+                    format!("discovering {} profiles", kind.as_ref())
+                });
             }
         }
     }
     Ok(out)
 }
 
-fn require_profiles(profiles: &[BrowserProfile]) -> Result<()> {
-    if profiles.is_empty() {
-        bail!("no browser profiles found for configured browsers");
-    }
-    Ok(())
-}
-
-fn home_dir_for(user_name: &str) -> Result<PathBuf> {
-    use nix::unistd::User;
-    let uid = nix::unistd::getuid().as_raw();
-    let user = User::from_name(user_name)
-        .with_context(|| format!("looking up user {user_name}"))?
-        .or_else(|| User::from_uid(uid.into()).ok().flatten())
-        .with_context(|| format!("user {user_name} not found"))?;
-    Ok(user.dir.into_os_string().into())
+fn home_dir() -> Result<PathBuf> {
+    std::env::var_os("HOME")
+        .map(PathBuf::from)
+        .context("HOME is not set")
 }
 
 fn cmd_startup(state: &State, profiles: &[BrowserProfile]) -> Result<()> {
@@ -196,7 +174,7 @@ fn cmd_startup(state: &State, profiles: &[BrowserProfile]) -> Result<()> {
     for p in profiles {
         // Recover first (idempotent if clean).
         crash::recover(&state.paths_for(p))?;
-        sync::ensure_browser_not_running(p)?;
+        sync::ensure_browser_not_running(p.kind)?;
         sync::startup(state, p)?;
     }
     info!("startup complete");
