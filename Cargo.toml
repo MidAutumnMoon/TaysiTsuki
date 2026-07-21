@@ -4,6 +4,7 @@ members = [
     "home/localbinbox",
     "packages/mimic-cloud-init",
     "packages/__maintenance",
+    "packages/psd-rs",
     "machine/phia/environment/maintenance",
 ]
 
@@ -17,6 +18,8 @@ rust-version = "1.95.0"
 [workspace.dependencies]
 anyhow = "1.0.100"
 gix-discover = { version = "0", features = [ "sha1" ] }
+clap = "4.6.3"
+serde = { version = "1.0.229", features = ["derive"] }
 
 [profile.release]
 lto = "thin"

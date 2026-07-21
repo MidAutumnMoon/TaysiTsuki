@@ -217,7 +217,7 @@
         },
         "default_model": {
             "effort": "max",
-            "provider": "ZAI Coding Plan",
+            "provider": "Volcengine",
             "model": "glm-5.2",
             "enable_thinking": true,
         },

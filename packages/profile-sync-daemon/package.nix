@@ -11,6 +11,9 @@
     fuse-overlayfs,
     fuse3,
     kmod,
+    gnugrep,
+    gnused,
+    findutils,
 }:
 
 let
@@ -23,6 +26,9 @@ let
         util-linux
         procps
         kmod
+        gnugrep
+        gnused
+        findutils
     ];
 in
 

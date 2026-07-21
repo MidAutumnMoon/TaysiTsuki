@@ -110,6 +110,10 @@ allUnique <| withValidate <|
         group = gs.small_1;
         update = {};
     }
+    {
+        attr = tsuki "psd-rs";
+        group = gs.rust_1;
+    }
 
     #
     # go 1

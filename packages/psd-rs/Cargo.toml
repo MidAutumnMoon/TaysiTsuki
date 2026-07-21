@@ -1,0 +1,29 @@
+[package]
+name = "psd-rs"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+clap = { version = "4.6.3", features = ["derive"] }
+clap_complete = "4.6.3"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+which = "7"
+nix = { version = "0.30", features = ["user", "fs"] }
+strum = { version = "0.28.0", features = ["derive"] }
+
+[dev-dependencies]
+tempfile = "3.21.0"
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "psd"
+path = "src/main.rs"
