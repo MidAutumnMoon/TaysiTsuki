@@ -106,11 +106,6 @@ allUnique <| withValidate <|
         };
     }
     {
-        attr = tsuki "profile-sync-daemon";
-        group = gs.small_1;
-        update = {};
-    }
-    {
         attr = tsuki "psd-rs";
         group = gs.rust_1;
     }

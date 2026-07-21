@@ -1,7 +1,7 @@
-//! psd: a Rust rewrite of profile-sync-daemon v7.
+//! psd: sync browser profiles to tmpfs via overlayfs.
 //!
 //! See `paths.rs` and `crash.rs` for the rationale behind the 5-path
-//! state model and the differences from upstream psd.
+//! state model.
 
 use std::io::stdout;
 use std::path::PathBuf;

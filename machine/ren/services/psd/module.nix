@@ -1,8 +1,7 @@
 # psd: browser profile sync to tmpfs via overlayfs
 #
-# Replaces upstream profile-sync-daemon (shell) with a Rust rewrite
-# (packages/psd-rs). Config is generated from this module and passed
-# via --config; no user-home file management needed.
+# Config is generated from this module and passed via --config;
+# no user-home file management needed.
 
 { lib, pkgs, ... }:
 
