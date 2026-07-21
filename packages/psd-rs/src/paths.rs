@@ -22,7 +22,7 @@
 use std::path::Path;
 use std::path::PathBuf;
 
-use crate::browser::BrowserProfile;
+use crate::apps::AppProfile;
 
 #[derive(Debug, Clone)]
 pub struct ProfilePaths {
@@ -46,8 +46,9 @@ impl ProfilePaths {
     /// `volatile_root` is `$XDG_RUNTIME_DIR/psd` (tmpfs). The tag is built
     /// from `<user>-<kind>-<suffix>`; `suffix` is the profile's final path
     /// component (e.g. `eiluxnob.default` for firefox, `Default` for
-    /// chromium), which disambiguates multiple profiles per browser.
-    pub fn new(profile: &BrowserProfile, volatile_root: &Path) -> Self {
+    /// chromium, `TelegramDesktop` for telegram), which disambiguates
+    /// multiple profiles per app.
+    pub fn new(profile: &AppProfile, volatile_root: &Path) -> Self {
         let dir = profile.path.clone();
         let backup = append_suffix(&dir, "-backup");
         let back_ovfs = append_suffix(&dir, "-back-ovfs");

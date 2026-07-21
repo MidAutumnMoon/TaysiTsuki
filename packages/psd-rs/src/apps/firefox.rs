@@ -11,11 +11,11 @@ use anyhow::Result;
 use tracing::debug;
 use tracing::warn;
 
-use crate::browser::BrowserKind;
-use crate::browser::BrowserProfile;
-use crate::browser::with_suffix;
+use crate::apps::AppKind;
+use crate::apps::AppProfile;
+use crate::apps::with_suffix;
 
-pub fn discover(user: &str, home: &Path) -> Result<Vec<BrowserProfile>> {
+pub fn discover(user: &str, home: &Path) -> Result<Vec<AppProfile>> {
     let mut out = Vec::new();
     // XDG first (Firefox 147+), then legacy.
     for base in [
@@ -31,12 +31,8 @@ pub fn discover(user: &str, home: &Path) -> Result<Vec<BrowserProfile>> {
             Ok(paths) => {
                 for p in paths {
                     // Dedup: same path may appear in both locations.
-                    if !out.iter().any(|b: &BrowserProfile| b.path == p) {
-                        out.push(with_suffix(
-                            BrowserKind::Firefox,
-                            user,
-                            p,
-                        )?);
+                    if !out.iter().any(|b: &AppProfile| b.path == p) {
+                        out.push(with_suffix(AppKind::Firefox, user, p)?);
                     }
                 }
             }

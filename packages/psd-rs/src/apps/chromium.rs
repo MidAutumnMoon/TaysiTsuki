@@ -14,11 +14,11 @@ use serde::de::IgnoredAny;
 use tracing::debug;
 use tracing::warn;
 
-use crate::browser::BrowserKind;
-use crate::browser::BrowserProfile;
-use crate::browser::with_suffix;
+use crate::apps::AppKind;
+use crate::apps::AppProfile;
+use crate::apps::with_suffix;
 
-pub fn discover(user: &str, home: &Path) -> Result<Vec<BrowserProfile>> {
+pub fn discover(user: &str, home: &Path) -> Result<Vec<AppProfile>> {
     let base = home.join(".config/chromium");
     let local_state = base.join("local_state");
     if !local_state.is_file() {
@@ -35,11 +35,7 @@ pub fn discover(user: &str, home: &Path) -> Result<Vec<BrowserProfile>> {
     let mut out = Vec::new();
     // `info_cache` keys are profile dir names: "Default", "Profile 1", ...
     for name in parsed.profile.info_cache.keys() {
-        out.push(with_suffix(
-            BrowserKind::Chromium,
-            user,
-            base.join(name),
-        )?);
+        out.push(with_suffix(AppKind::Chromium, user, base.join(name))?);
     }
     Ok(out)
 }

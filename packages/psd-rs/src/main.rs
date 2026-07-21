@@ -19,15 +19,15 @@ use tracing::error;
 use tracing::info;
 use tracing::warn;
 
-mod browser;
+mod apps;
 mod config;
 mod crash;
 mod overlay;
 mod paths;
 mod sync;
 
-use browser::BrowserKind;
-use browser::BrowserProfile;
+use apps::AppKind;
+use apps::AppProfile;
 use config::Config;
 use strum::IntoEnumIterator;
 use sync::State;
@@ -95,7 +95,7 @@ fn run(cli: &Cli) -> Result<()> {
     // supported browsers tolerantly (a broken install shouldn't hide the
     // rest). Completions is handled above.
     let profiles = match cli.command {
-        Command::Preview => discover(&state, BrowserKind::iter(), true)?,
+        Command::Preview => discover(&state, AppKind::iter(), true)?,
         _ => load_profiles(cli, &state)?,
     };
 
@@ -122,30 +122,30 @@ fn load_config(path: Option<&std::path::Path>) -> Result<Config> {
 }
 
 /// Load config and discover all profiles listed in it. Bails if none found.
-fn load_profiles(cli: &Cli, state: &State) -> Result<Vec<BrowserProfile>> {
+fn load_profiles(cli: &Cli, state: &State) -> Result<Vec<AppProfile>> {
     let cfg = load_config(cli.config.as_deref())?;
-    let profiles = discover(state, cfg.browsers.iter().copied(), false)?;
+    let profiles = discover(state, cfg.apps.iter().copied(), false)?;
     if profiles.is_empty() {
-        bail!("no browser profiles found for configured browsers");
+        bail!("no app profiles found for configured apps");
     }
     Ok(profiles)
 }
 
-/// Discover profiles for the given browsers. When `tolerant`, discovery
+/// Discover profiles for the given apps. When `tolerant`, discovery
 /// errors are logged as warnings instead of propagated (used by `preview`,
-/// which shouldn't hide working browsers behind one broken install).
+/// which shouldn't hide working apps behind one broken install).
 fn discover(
     state: &State,
-    kinds: impl Iterator<Item = BrowserKind>,
+    kinds: impl Iterator<Item = AppKind>,
     tolerant: bool,
-) -> Result<Vec<BrowserProfile>> {
+) -> Result<Vec<AppProfile>> {
     let home = home_dir()?;
     let mut out = Vec::new();
     for kind in kinds {
-        match BrowserProfile::discover(kind, &state.user, &home) {
+        match AppProfile::discover(kind, &state.user, &home) {
             Ok(found) => out.extend(found),
             Err(e) if tolerant => {
-                warn!(browser = kind.as_ref(), error = %e, "discovery failed");
+                warn!(app = kind.as_ref(), error = %e, "discovery failed");
             }
             Err(e) => {
                 return Err(e).with_context(|| {
@@ -163,7 +163,7 @@ fn home_dir() -> Result<PathBuf> {
         .context("HOME is not set")
 }
 
-fn cmd_startup(state: &State, profiles: &[BrowserProfile]) -> Result<()> {
+fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
     overlay::check_dependencies()?;
 
     // Write PID file first so resync/unsync see us as active during
@@ -174,14 +174,14 @@ fn cmd_startup(state: &State, profiles: &[BrowserProfile]) -> Result<()> {
     for p in profiles {
         // Recover first (idempotent if clean).
         crash::recover(&state.paths_for(p))?;
-        sync::ensure_browser_not_running(p.kind)?;
+        sync::ensure_app_not_running(p.kind)?;
         sync::startup(state, p)?;
     }
     info!("startup complete");
     Ok(())
 }
 
-fn cmd_resync(state: &State, profiles: &[BrowserProfile]) -> Result<()> {
+fn cmd_resync(state: &State, profiles: &[AppProfile]) -> Result<()> {
     if !state.is_active() {
         bail!("not active; refusing to resync");
     }
@@ -191,7 +191,7 @@ fn cmd_resync(state: &State, profiles: &[BrowserProfile]) -> Result<()> {
     Ok(())
 }
 
-fn cmd_unsync(state: &State, profiles: &[BrowserProfile]) -> Result<()> {
+fn cmd_unsync(state: &State, profiles: &[AppProfile]) -> Result<()> {
     for p in profiles {
         sync::unsync(state, p)?;
     }
@@ -200,7 +200,7 @@ fn cmd_unsync(state: &State, profiles: &[BrowserProfile]) -> Result<()> {
     Ok(())
 }
 
-fn cmd_recover(state: &State, profiles: &[BrowserProfile]) -> Result<()> {
+fn cmd_recover(state: &State, profiles: &[AppProfile]) -> Result<()> {
     for p in profiles {
         let paths = state.paths_for(p);
         let recovered = crash::recover(&paths)?;
@@ -213,14 +213,14 @@ fn cmd_recover(state: &State, profiles: &[BrowserProfile]) -> Result<()> {
     Ok(())
 }
 
-fn cmd_preview(state: &State, profiles: &[BrowserProfile]) {
+fn cmd_preview(state: &State, profiles: &[AppProfile]) {
     println!("psd");
     println!("  active: {}", state.is_active());
     println!("  volatile root: {}", state.volatile_root.display());
     println!("  profiles:");
     for p in profiles {
         let paths = state.paths_for(p);
-        println!("    - browser: {}", p.kind.as_ref());
+        println!("    - app:     {}", p.kind.as_ref());
         println!("      dir:     {}", paths.dir.display());
         println!("      backup:  {}", paths.backup.display());
         println!("      tmp:     {}", paths.tmp.display());

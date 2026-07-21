@@ -48,8 +48,8 @@ use tracing::debug;
 use tracing::info;
 use tracing::warn;
 
-use crate::browser::BrowserKind;
-use crate::browser::BrowserProfile;
+use crate::apps::AppKind;
+use crate::apps::AppProfile;
 use crate::overlay;
 use crate::paths::ProfilePaths;
 use crate::paths::append_suffix;
@@ -107,14 +107,14 @@ impl State {
     }
 
     /// Resolve paths for a profile.
-    pub fn paths_for(&self, profile: &BrowserProfile) -> ProfilePaths {
+    pub fn paths_for(&self, profile: &AppProfile) -> ProfilePaths {
         ProfilePaths::new(profile, &self.volatile_root)
     }
 }
 
-/// Check that the browser process is not running for `kind`.
+/// Check that the app process is not running for `kind`.
 /// psd v7 refuses to start and kills on unsync; we only refuse.
-pub fn ensure_browser_not_running(kind: BrowserKind) -> Result<()> {
+pub fn ensure_app_not_running(kind: AppKind) -> Result<()> {
     let psname = kind.process_name();
     let uid = nix::unistd::getuid().as_raw();
     // pgrep -x -u <uid> <name>
@@ -125,7 +125,7 @@ pub fn ensure_browser_not_running(kind: BrowserKind) -> Result<()> {
     if out.status.success() {
         bail!(
             "{psname} is running (uid={uid}); refuse to proceed. \
-             Stop the browser first."
+             Stop the app first."
         );
     }
     Ok(())
@@ -133,7 +133,7 @@ pub fn ensure_browser_not_running(kind: BrowserKind) -> Result<()> {
 
 /// Startup: mount overlay, symlink DIR -> TMP, create `BACK_OVFS`.
 /// Idempotent -- if already active, this is a no-op for that profile.
-pub fn startup(state: &State, profile: &BrowserProfile) -> Result<()> {
+pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
     let paths = state.paths_for(profile);
 
     if !paths.dir.is_dir() {
@@ -215,13 +215,13 @@ pub fn startup(state: &State, profile: &BrowserProfile) -> Result<()> {
     // Mark the session active via the flag file (lives in the overlay).
     touch(&paths.dir.join(FLAGGED))?;
 
-    info!(browser = %profile.kind.as_ref(), dir = %paths.dir.display(), "startup ok");
+    info!(app = %profile.kind.as_ref(), dir = %paths.dir.display(), "startup ok");
     Ok(())
 }
 
 /// Resync: rsync DIR/ (overlay view) -> `BACK_OVFS`/.
 /// Safe to run while overlay is mounted (`BACK_OVFS` is outside it).
-pub fn resync(state: &State, profile: &BrowserProfile) -> Result<()> {
+pub fn resync(state: &State, profile: &AppProfile) -> Result<()> {
     let paths = state.paths_for(profile);
     if !state.is_active() {
         bail!("psd not active; run `startup` first");
@@ -237,12 +237,12 @@ pub fn resync(state: &State, profile: &BrowserProfile) -> Result<()> {
         &paths.back_ovfs,
         /* exclude_flagged */ true,
     )?;
-    info!(browser = %profile.kind.as_ref(), "resync ok");
+    info!(app = %profile.kind.as_ref(), "resync ok");
     Ok(())
 }
 
 /// Unsync: final resync, merge `BACK_OVFS` -> BACKUP, unmount, rename.
-pub fn unsync(state: &State, profile: &BrowserProfile) -> Result<()> {
+pub fn unsync(state: &State, profile: &AppProfile) -> Result<()> {
     let paths = state.paths_for(profile);
     if !state.is_active() {
         debug!("not active; unsync is no-op");
@@ -251,7 +251,7 @@ pub fn unsync(state: &State, profile: &BrowserProfile) -> Result<()> {
     if !paths.dir.is_symlink() {
         bail!("{} is not a symlink; cannot unsync", paths.dir.display());
     }
-    ensure_browser_not_running(profile.kind)?;
+    ensure_app_not_running(profile.kind)?;
 
     // Final delta into BACK_OVFS.
     rsync_sync(
@@ -289,7 +289,7 @@ pub fn unsync(state: &State, profile: &BrowserProfile) -> Result<()> {
         )
     })?;
 
-    info!(browser = %profile.kind.as_ref(), "unsync ok");
+    info!(app = %profile.kind.as_ref(), "unsync ok");
     Ok(())
 }
 

@@ -12,7 +12,7 @@ let
     # Generated config, passed via --config.
     configFile = pkgs.writeText "psd-config.json"
         (builtins.toJSON {
-            browsers = [ "firefox" ];
+            apps = [ "firefox" "telegram" ];
         });
 
     # Common invocation prefix.

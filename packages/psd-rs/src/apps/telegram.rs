@@ -1,0 +1,21 @@
+//! Telegram Desktop data dir discovery.
+//!
+//! Telegram stores everything (session, media cache, logs) under a single
+//! directory at `~/.local/share/TelegramDesktop/`. There is no profile
+//! list -- one dir per install.
+
+use std::path::Path;
+
+use anyhow::Result;
+
+use crate::apps::AppKind;
+use crate::apps::AppProfile;
+use crate::apps::with_suffix;
+
+pub fn discover(user: &str, home: &Path) -> Result<Vec<AppProfile>> {
+    let dir = home.join(".local/share/TelegramDesktop");
+    if !dir.is_dir() {
+        return Ok(Vec::new());
+    }
+    Ok(vec![with_suffix(AppKind::Telegram, user, dir)?])
+}

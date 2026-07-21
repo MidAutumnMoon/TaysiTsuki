@@ -11,12 +11,12 @@ use anyhow::Context;
 use anyhow::Result;
 use serde::Deserialize;
 
-use crate::browser::BrowserKind;
+use crate::apps::AppKind;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    /// Browsers to manage. Must be non-empty.
-    pub browsers: Vec<BrowserKind>,
+    /// Apps to manage. Must be non-empty.
+    pub apps: Vec<AppKind>,
 }
 
 impl Config {
@@ -28,8 +28,8 @@ impl Config {
         let cfg: Self = serde_json::from_str(&raw).with_context(|| {
             format!("parsing config {}", path.display())
         })?;
-        if cfg.browsers.is_empty() {
-            anyhow::bail!("config: `browsers` must not be empty");
+        if cfg.apps.is_empty() {
+            anyhow::bail!("config: `apps` must not be empty");
         }
         Ok(cfg)
     }
