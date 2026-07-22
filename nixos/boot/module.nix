@@ -81,4 +81,8 @@
     boot.initrd.kernelModules = [
         "dm_mod"
     ];
+
+    boot.extraModprobeConfig = ''
+        options fuse enable_uring=1
+    '';
 }
