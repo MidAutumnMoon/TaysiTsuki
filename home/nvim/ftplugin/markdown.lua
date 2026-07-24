@@ -1,2 +1,2 @@
-vim.opt_local.nolinebreak = true
+vim.opt_local.linebreak = false
 vim.opt_local.textwidth = 0
