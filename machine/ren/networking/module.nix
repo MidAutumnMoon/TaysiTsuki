@@ -4,7 +4,7 @@
 
     networking = with config; {
         hostName = lore.machines.ren.hostname;
-        proxy.default = "socks5h://localhost:${toString lore.ports.proxy}";
+        proxy.default = "http://localhost:${toString lore.ports.proxy}";
         useDHCP = false;
     };
 
