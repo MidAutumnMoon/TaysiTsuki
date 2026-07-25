@@ -53,10 +53,12 @@
 
     nix.settings.substituters = lib.mkAfter [
         "https://attic.xuyh0120.win/lantian"
+        "https://cache.numtide.com"
     ];
 
     nix.settings.trusted-public-keys = lib.mkAfter [
         "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
+        "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
     ];
 
     security.pam.u2f = {

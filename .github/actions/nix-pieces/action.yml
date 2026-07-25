@@ -40,9 +40,9 @@ runs:
       shell: bash
       run: |
         conf="$HOME/.config/nix/nix.conf"
-        echo "extra-substituters = https://attic.xuyh0120.win/lantian" \
+        echo "extra-substituters = https://attic.xuyh0120.win/lantian" "https://cache.numtide.com" \
           >> $conf
-        echo "extra-trusted-public-keys = lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=" \
+        echo "extra-trusted-public-keys = lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=" "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=" \
           >> $conf
         nix config show
 

@@ -35,6 +35,7 @@
         age
         # tsuki.feishin
         uv
+        omp
     ];
 
     envvars = {
