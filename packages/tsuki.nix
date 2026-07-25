@@ -170,12 +170,6 @@ allUnique <| withValidate <|
         attr = tsuki "mimic-cloud-init";
         group = gs.rust_1;
     }
-    # Not used for now, disable to save CI time
-    # {
-    #     attr = tsuki "dirge";
-    #     group = gs.rust_1;
-    #     update = {};
-    # }
     {
         attr = tsuki "inori";
         group = "Inori";
