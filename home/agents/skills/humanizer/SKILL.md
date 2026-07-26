@@ -1,6 +1,6 @@
 ---
 name: humanizer
-description: Remove signs of AI-generated writing from text. Use after drafting to make copy sound more natural and human-written. Based on Wikipedia's "Signs of AI writing" guide.
+description: Detect and remove AI-writing patterns from prose. Use when the user wants English text to sound human-written.
 ---
 
 # Humanizer: Remove AI Writing Patterns
@@ -348,6 +348,8 @@ What still reads as AI-generated:
 
 ## Full Example
 
+**Register note:** The voice demonstrated below fits opinionated tech writing. Match your *target's* register — don't import this exact tone into documentation, formal, academic, or third-person prose. Voice is contextual; the patterns are universal.
+
 **Input (AI-heavy):**
 
 > Great question! Here is an essay on this topic. I hope this helps!
@@ -356,33 +358,26 @@ What still reads as AI-generated:
 
 **Draft Rewrite:**
 
-> AI coding assistants speed up some tasks. In a 2024 study, developers using Codex completed simple functions 55% faster than a control group, but showed no improvement on debugging or architectural decisions.
->
-> The tools are good at boilerplate: config files, test scaffolding, repetitive refactors. They are bad at knowing when they are wrong.
+> AI coding tools change how engineers work: how they come up with ideas, refine them, and ship code.
 
 **AI Audit:**
 
 What still reads as AI-generated:
-- Rhythm is still a bit too tidy (clean contrasts, evenly paced)
-- The closer leans slightly slogan-y
+- "Come up with ideas, refine them, and ship code" is still a rule-of-three, lifted from the source's "ideate, iterate, deliver" — rewording a pattern doesn't remove it
+- No voice yet — reads like a neutral summary
 
 **Final Version:**
 
-> AI coding assistants can make you faster at the boring parts. Not everything. Definitely not architecture.
->
-> They're great at boilerplate: config files, test scaffolding, repetitive refactors. They're also great at sounding right while being wrong. I've accepted suggestions that compiled, passed lint, and still missed the point because I stopped paying attention.
->
-> If you don't have tests, you're basically guessing.
+> The original said one thing, buried under a lot of words: AI coding tools change how engineers work. Fine. But change it how? "Ideate, iterate, deliver" tells me nothing. I'd want to know what actually gets faster, and where the tools sound right while being wrong. Until the text says that, "transformative" is just filler.
 
 **Changes Made:**
 
 - Removed chatbot artifacts ("Great question!", "I hope this helps!")
-- Removed significance inflation ("testament", "pivotal moment", "evolving landscape")
+- Removed significance inflation ("testament", "pivotal moment", "evolving landscape", "transformative potential")
 - Removed promotional language ("groundbreaking", "nestled")
 - Removed em dashes
-- Removed copula avoidance ("serves as") → used direct statements
-- Added first-person voice and opinion
-- Varied sentence rhythm
+- Removed copula avoidance ("serves as") → direct statement
+- Added first-person voice and opinion **about the claim already in the input** — no new facts, statistics, or specifics were invented. The source had none to preserve, so the honest humanized version is shorter and calls out the gap rather than manufacturing detail.
 
 ---
 
