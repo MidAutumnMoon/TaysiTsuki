@@ -73,8 +73,16 @@ window-rule {
 }
 
 layer-rule {
-  match namespace="^noctalia-(background|launcher-overlay|dock)-.*$"
-  background-effect {
-    xray false
-  }
+    match namespace="^noctalia-(background|launcher-overlay|dock)-.*$"
+    background-effect {
+        xray false
+    }
+}
+
+layer-rule {
+    match namespace="^launcher$"
+    background-effect {
+        blur true
+        // xray false
+    }
 }
