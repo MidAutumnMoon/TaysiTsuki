@@ -10,6 +10,17 @@ A NixOS config repo. Flake at the root. Machines in `machine/`, shared modules i
 - Do not run `nix build` or `nixos-rebuild` without being asked. They are slow and have side effects.
 - When editing Nix files, match the existing style: `=` alignment, `with` at module level, `let`/`in` blocks for local bindings.
 
+## Fitting New Code
+
+- Read the surrounding code before writing. Extend an existing abstraction over
+  duplicating; if the new feature doesn't fit, reshape the surrounding code to
+  make a place for it rather than force-fitting.
+- Reshapes must stay behavior-preserving for other consumers. `nixos/` and
+  `tsukilib/` are used by multiple machines - call out any behavior change.
+- Don't over-refactor: scale the reshape to the feature.
+- No bolt-ons: special-case flags, parallel implementations, copy-paste,
+  "refactor later" patches.
+
 ## How to Work Here
 
 - To find a machine's config: look in `machine/<name>/` — each is a list of NixOS modules.
@@ -23,25 +34,20 @@ A NixOS config repo. Flake at the root. Machines in `machine/`, shared modules i
 - Prefer Context7 for library docs — it pulls real examples and up-to-date signatures.
 - Don't hallucinate option names, function signatures, or CLI flags. Look it up.
 
-## Complex Tasks
-
-- Break large tasks into sub-tasks. Tackle them in parallel with sub-agents when they don't depend on each other.
-- Give each sub-agent full context — it won't see your conversation history.
-- Keep sub-tasks scoped to one concern. If two sub-agents might edit the same file, don't run them in parallel.
-
 ## Dotfile modules (`home/*/module.nix`)
 
 Each `home/<name>/module.nix` is a lny submodule config (not a NixOS module),
 consumed by `nixos/users/lny`. Returns an attrset of lny options:
 
-- `packages`                       — packages added to user profile
-- `xdg_config."<path>".src/.text`  — symlink: $XDG_CONFIG_HOME/<path>
-- `home."<path>".src/.text`        — symlink: $HOME/<path>
-- `envvars`                        — environment vars (via environment.d)
+- `packages` — packages added to user profile
+- `xdg_config."<path>".src/.text` — symlink: $XDG_CONFIG_HOME/<path>
+- `home."<path>".src/.text` — symlink: $HOME/<path>
+- `envvars` — environment vars (via environment.d)
 
-The attrname is the *destination*; `.src`/`.text` is the *source*.
+The attrname is the _destination_; `.src`/`.text` is the _source_.
 
 `dots` (defined in `home/module.nix`) is a module arg:
+
 - `dots.get "<path>"` → `{{ home }}/TaysiTsuki/home/<path>`
 - `{{ home }}` / `{{ config }}` are jinja templates expanded at activation by
   the lny binary (see `nixos/users/lny`), avoiding home-manager round trips.
