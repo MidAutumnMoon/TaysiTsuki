@@ -109,6 +109,11 @@ allUnique <| withValidate <|
         attr = tsuki "psd-rs";
         group = gs.rust_1;
     }
+    {
+        attr = tsuki "playwright-cli";
+        group = gs.small_1;
+        update = {};
+    }
 
     #
     # go 1

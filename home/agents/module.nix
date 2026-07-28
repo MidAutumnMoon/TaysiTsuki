@@ -6,7 +6,7 @@
     home.".agents".src = dots.get "agents";
 
     packages = with pkgs; [
-        playwright-mcp
+        tsuki.playwright-cli
     ];
 
 }
