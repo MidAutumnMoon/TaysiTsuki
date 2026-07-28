@@ -110,9 +110,17 @@ allUnique <| withValidate <|
         group = gs.rust_1;
     }
     {
-        attr = tsuki "playwright-cli";
+        attr = tsuki "playwright-cli.unwrapped";
         group = gs.small_1;
-        update = {};
+        update = {
+            # microsoft/playwright-cli also publishes deprecated stub tags
+            # (v0.15x.0+, latest v0.180.0): empty npm packages whose index.js
+            # just prints "playwright-cli has moved to playwright" and exits.
+            # They sort above the real 0.1.x CLI, so nix-update would bump to
+            # the stub and prefetch-npm-deps fails on its empty lockfile.
+            # Constrain version discovery to the live 0.1.x series.
+            version_regex = "v(0\\.1\\..*)";
+        };
     }
 
     #
