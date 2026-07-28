@@ -15,16 +15,16 @@ let
     #     into the build sandbox; nixpkgs' browsers are wired in at runtime.
     unwrapped = buildNpmPackage rec {
         pname = "playwright-cli-unwrapped";
-        version = "0.1.14";
+        version = "0.1.17";
 
         src = fetchFromGitHub {
             owner = "microsoft";
             repo = "playwright-cli";
             tag = "v${version}";
-            hash = "sha256-wLE04sfPMh43IzIp6/HKBjloy3iSSanSYdYtklc6lQ4=";
+            hash = "sha256-tc/2Qck3mm6BqWTu2lvvfsM0/BHO/Z0ZvCdFZ7QQqKI=";
         };
 
-        npmDepsHash = "sha256-0bvwryiyPskay+h8+0RiOmnamHkmcRRK00q7ZEPdj1g=";
+        npmDepsHash = "sha256-u44jWprmr3RdzB3aDL3K0ShT5lLxr175z3C8pN43YFA=";
 
         dontNpmBuild = true;
 
