@@ -54,7 +54,7 @@ The attrname is the _destination_; `.src`/`.text` is the _source_.
 
 ## Communication
 
-- Be short. Say the thing, stop.
+- Be concise. Say the thing, stop.
 - Don't repeat what I already said or what's already in context.
 - Don't pad with disclaimers, summaries, or "hope that helps" type closings.
 - If something is wrong, say what's wrong and how to fix it. Don't hedge.

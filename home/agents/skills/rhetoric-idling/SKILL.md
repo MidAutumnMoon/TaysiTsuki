@@ -1,4 +1,3 @@
-
 ---
 name: rhetoric-idling
 description: Detect and rewrite "rhetoric idling" (修辞空转) in LLM-generated prose--sentences that read like good writing but are semantically empty or wrong. Use when reviewing LLM-generated prose.
