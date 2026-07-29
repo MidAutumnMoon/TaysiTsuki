@@ -88,6 +88,10 @@ local __plugins = {
         },
     },
 
+    {
+        "bullets-vim/bullets.vim"
+    },
+
     --
     -- Navigating
     --

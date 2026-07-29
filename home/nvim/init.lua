@@ -161,17 +161,33 @@ vim.api.nvim_create_autocmd( "TextYankPost", {
 -- Restore cursor position
 --
 
-vim.api.nvim_create_autocmd(
-    "BufReadPost",
-    {
-        desc = "Restore cursor position",
-        callback = function (opts)
-            local pos = vim.api.nvim_buf_get_mark(opts.buf, "\"")
-            local win = vim.fn.bufwinid(opts.buf)
-            pcall(vim.api.nvim_win_set_cursor, win, pos)
+vim.api.nvim_create_autocmd("BufReadPost", {
+    desc = "Restore cursor position",
+    callback = function (opts)
+        local buf = opts.buf
+
+        local exclude_ft = { 
+            "gitcommit", 
+            "gitrebase", 
+            "commit", 
+            "svn",
+            "helo"
+        }
+        if vim.tbl_contains(exclude_ft, vim.bo[buf].filetype) then
+            return
         end
-    }
-)
+
+
+        local mark = vim.api.nvim_buf_get_mark(buf, '"')
+        local line_count = vim.api.nvim_buf_line_count(buf)
+        local win = vim.fn.bufwinid(buf)
+
+        local row = mark[1]
+        if row > 0 and row <= line_count then
+            pcall(vim.api.nvim_win_set_cursor, win, mark)
+        end
+    end
+})
 
 --
 --  Auto save
