@@ -99,6 +99,7 @@ vim.opt.shiftwidth = 0
 vim.opt.smarttab = true
 vim.opt.expandtab = true
 vim.opt.autoindent = true
+vim.opt.linebreak = true
 
 vim.opt.list = true
 vim.opt.listchars = {
