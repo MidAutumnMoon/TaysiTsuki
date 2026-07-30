@@ -19,6 +19,12 @@
             inputs.nixpkgs.follows = "nixpkgs";
         };
 
+        xremap = {
+            url = "github:xremap/nix-flake";
+            inputs.nixpkgs.follows = "nixpkgs";
+            inputs.flake-parts.follows = "flake-parts";
+        };
+
         # Some packages
 
         colmena = {
@@ -33,6 +39,7 @@
         llm-agents = {
             url = "github:numtide/llm-agents.nix";
             inputs.nixpkgs.follows = "nixpkgs";
+            inputs.flake-parts.follows = "flake-parts";
         };
 
         # tangled = {
@@ -60,6 +67,7 @@
         nix-cachyos-kernel = {
             url = "github:xddxdd/nix-cachyos-kernel";
             inputs.flake-compat.follows = "empty";
+            inputs.flake-parts.follows = "flake-parts";
         };
 
         # Some toolchains
@@ -77,6 +85,9 @@
             url = "github:numtide/flake-utils";
         };
 
+        flake-parts = {
+            url = "github:hercules-ci/flake-parts";
+        };
     };
 
     outputs = { self, nixpkgs, ... } @ flakes: let
@@ -127,7 +138,10 @@
                 arguments = { inherit flakes; };
             };
         in {
-            ren = nixos "x86_64-linux" <| lib.listAllModules ./machine/ren;
+            ren = nixos "x86_64-linux" <| (
+                lib.listAllModules ./machine/ren
+                ++ [ flakes.xremap.nixosModules.default ]
+            );
             # phia = nixos "x86_64-linux" <| lib.listAllModules ./machine/phia;
             uk-01 = nixos "x86_64-linux" <| (
                 lib.listAllModules ./machine/uk-01
