@@ -34,6 +34,7 @@ window-rule {
     match app-id="swayimg"
     match app-id="dev.zed.Zed"
     match app-id="CherryStudio"
+    match app-id="YACReader"
 
     exclude is-floating=true
 
