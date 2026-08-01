@@ -5,7 +5,7 @@ let
 
     _7zzWith7zAlias = pkgs.symlinkJoin {
         name = "7zz-with-7z-alias";
-        paths = [ pkgs._7zz ];
+        paths = [ pkgs._7zip-zstd ];
         postBuild = ''
             ln -s $out/bin/7zz $out/bin/7z
         '';
