@@ -9,16 +9,16 @@
 buildGoModule rec {
 
     pname = "hysteria";
-    version = "2.10.0";
+    version = "2.11.0";
 
     src = fetchFromGitHub {
         owner = "apernet";
         repo = "hysteria";
         tag = "app/v${version}";
-        hash = "sha256-re/UqkWTVEA2uUnemdUSGXexi7r6LRP6sy0jFiBGlSA=";
+        hash = "sha256-9G+kbYLfrucZ9WhLRZmenZUGDXuMjtwR8a91deCAzGk=";
     };
 
-    vendorHash = "sha256-Kx5u8fTlwA7WxyJM9Q4onespK22tiI6cDQXX4Sb0gFk=";
+    vendorHash = "sha256-/ws9UIDBYYlKNTggz3Rrce40G0PItQSBug1ckeiUafA=";
 
     sourceRoot = "${src.name}/app";
     # sourceRoot is alreay at "app"
