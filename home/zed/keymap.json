@@ -13,7 +13,7 @@
             "ctrl-space": "editor::ShowCompletions",
             "alt-a": "vim::EndOfLine",
             // autosave-ish
-            "escape": ["workspace::SendKeystrokes", "ctrl-c ctrl-s"],
+            "escape": ["workspace::SendKeystrokes", "escape ctrl-s"],
             "alt-j": "vim::Down",
             "alt-h": "vim::Up",
         },

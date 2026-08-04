@@ -22,6 +22,7 @@ let
             user = "teapot";
             subpaths = [
                 ".mozilla"
+                ".omp"
                 # add more paths as needed, e.g. ".var/app/<app-id>", ".config/<app>"
             ];
         }
