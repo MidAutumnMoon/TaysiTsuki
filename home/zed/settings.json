@@ -80,59 +80,6 @@
                     },
                 ],
             },
-            "Volcengine": {
-                "api_url": "https://ark.cn-beijing.volces.com/api/coding/v3",
-                "available_models": [
-                    {
-                        "name": "glm-5.2",
-                        "max_tokens": 900000,
-                        "max_output_tokens": 128000,
-                        "reasoning_effort": "max",
-                        "capabilities": {
-                            "tools": true,
-                            "images": false,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": false,
-                            "chat_completions": true,
-                            "interleaved_reasoning": true,
-                        },
-                    },
-                    {
-                        "name": "kimi-k2.7-code",
-                        "max_tokens": 250000,
-                        "reasoning_effort": "high",
-                        "capabilities": {
-                            "tools": true,
-                            "images": true,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": false,
-                            "interleaved_reasoning": true,
-                        },
-                    },
-                    {
-                        "name": "doubao-seed-2-0-lite-260428",
-                        "max_tokens": 250000,
-                        "capabilities": {
-                            "tools": true,
-                            "images": true,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": false,
-                            "interleaved_reasoning": false,
-                        },
-                    },
-                    {
-                        "name": "deepseek-v4-pro",
-                        "max_tokens": 900000,
-                        "capabilities": {
-                            "tools": true,
-                            "images": false,
-                            "parallel_tool_calls": true,
-                            "prompt_cache_key": false,
-                            "interleaved_reasoning": true,
-                        },
-                    },
-                ],
-            },
         },
     },
     "colorize_brackets": true,
@@ -220,8 +167,8 @@
     },
     "autosave": {
         "after_delay": {
-            "milliseconds": 750
-        }
+            "milliseconds": 750,
+        },
     },
     "auto_update": false,
     "indent_guides": {
@@ -284,6 +231,9 @@
             ],
             "formatter": "language_server",
             "tab_size": 4,
+        },
+        "Rust": {
+            "formartter": "language_server",
         },
     },
     "inlay_hints": {
