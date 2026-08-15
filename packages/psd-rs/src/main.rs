@@ -15,6 +15,7 @@ use clap::Parser;
 use clap::Subcommand;
 use clap_complete::Shell;
 use clap_complete::generate;
+use tracing::debug;
 use tracing::error;
 use tracing::info;
 use tracing::warn;
@@ -54,7 +55,8 @@ enum Command {
     Startup,
     /// Rsync overlay view -> back-ovfs.
     Resync,
-    /// Final merge and unmount.
+    /// Persist the delta; tear down unless the app is running (then
+    /// the profile is persisted and left live).
     Unsync,
     /// Detect and normalize ungraceful state.
     Recover,
@@ -161,6 +163,33 @@ fn home_dir() -> Result<PathBuf> {
         .context("HOME is not set")
 }
 
+/// Run `op` on each profile independently: per-profile errors are
+/// logged and deferred (partial progress is a state the next run
+/// converges from), then reported as one error at the end.
+fn run_per_profile(
+    state: &State,
+    profiles: &[AppProfile],
+    op: impl Fn(&State, &AppProfile) -> Result<()>,
+) -> Result<()> {
+    let mut failed = Vec::new();
+    for p in profiles {
+        if let Err(e) = op(state, p) {
+            error!(
+                app = %p.kind.as_ref(),
+                dir = %p.path.display(),
+                error = %e,
+                "profile operation failed"
+            );
+            failed.push(p.path.display().to_string());
+        }
+    }
+    if failed.is_empty() {
+        Ok(())
+    } else {
+        bail!("failed for: {}", failed.join(", "))
+    }
+}
+
 fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
     overlay::check_dependencies()?;
 
@@ -182,37 +211,52 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
     // correct -- the session is partially live.
     state.mark_active()?;
 
-    for p in profiles {
-        // Recover first (idempotent if clean).
-        crash::recover(&state.paths_for(p))?;
+    run_per_profile(state, profiles, |state, p| {
+        let paths = state.paths_for(p);
+        // Converge: an already-live profile (e.g. systemd restart on a
+        // NixOS switch, with the app open) is a success -- and must
+        // skip the app-running check below.
+        if paths.is_live() {
+            debug!(
+                app = %p.kind.as_ref(),
+                dir = %paths.dir.display(),
+                "already live; skipping startup"
+            );
+            return Ok(());
+        }
+        // Recover first (no-op when clean or live).
+        crash::recover(&paths)?;
         sync::ensure_app_not_running(p.kind, &state.user)?;
-        sync::startup(state, p)?;
-    }
+        sync::startup(state, p)
+    })?;
+
     info!("startup complete");
     Ok(())
 }
 
 fn cmd_resync(state: &State, profiles: &[AppProfile]) -> Result<()> {
-    if !state.is_active() {
-        bail!("not active; refusing to resync");
-    }
-    for p in profiles {
-        sync::resync(state, p)?;
-    }
-    Ok(())
+    // Non-live profiles are skipped inside sync::resync; liveness (not
+    // the PID file) decides what gets synced.
+    run_per_profile(state, profiles, sync::resync)
 }
 
 fn cmd_unsync(state: &State, profiles: &[AppProfile]) -> Result<()> {
-    for p in profiles {
-        sync::unsync(state, p)?;
+    run_per_profile(state, profiles, sync::unsync)?;
+
+    // The PID file means "a session is live" (it gates resync): keep
+    // it while any overlay remains -- whether left live deliberately
+    // (app running) or by a partial failure.
+    if profiles.iter().any(|p| state.paths_for(p).is_live()) {
+        info!("unsync complete; some profiles left live (apps running?)");
+    } else {
+        state.mark_inactive();
+        info!("unsync complete");
     }
-    state.mark_inactive();
-    info!("unsync complete");
     Ok(())
 }
 
 fn cmd_recover(state: &State, profiles: &[AppProfile]) -> Result<()> {
-    for p in profiles {
+    run_per_profile(state, profiles, |state, p| {
         let paths = state.paths_for(p);
         let recovered = crash::recover(&paths)?;
         info!(
@@ -220,8 +264,8 @@ fn cmd_recover(state: &State, profiles: &[AppProfile]) -> Result<()> {
             recovered,
             "recover done"
         );
-    }
-    Ok(())
+        Ok(())
+    })
 }
 
 fn cmd_preview(state: &State, profiles: &[AppProfile]) {

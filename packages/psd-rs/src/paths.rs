@@ -14,8 +14,9 @@
 //! Why `BACK_OVFS` exists: `BACKUP` is the overlay lowerdir, so writing
 //! to it while mounted is unsafe (cached inode listings desync from
 //! disk). `BACK_OVFS` sits outside the overlay, safe to write at any
-//! time. It also bounds crash-loss to <=1 resync interval and gives the
-//! final unsync merge a stable intermediate target.
+//! time. It bounds crash-loss to <=1 resync interval, and unsync hands
+//! it off atomically: it is a complete mirror of the overlay view, so
+//! it is renamed into place as `DIR` (no merge pass).
 
 use std::path::Path;
 use std::path::PathBuf;
@@ -26,9 +27,11 @@ use crate::apps::AppProfile;
 pub struct ProfilePaths {
     /// What the app reads/writes. Symlink to `tmp` when active.
     pub dir: PathBuf,
-    /// Frozen original profile; overlay lowerdir while active.
+    /// Frozen original profile; overlay lowerdir while active. Deleted
+    /// at unsync (superseded by the renamed `back_ovfs`).
     pub backup: PathBuf,
-    /// Writable on-disk staging for resyncs; merged into `backup` at unsync.
+    /// Writable on-disk staging for resyncs; renamed into place as
+    /// `dir` at unsync (it is a complete mirror, so no merge needed).
     pub back_ovfs: PathBuf,
     /// Overlay mount point in tmpfs; `dir` symlinks here.
     pub tmp: PathBuf,
@@ -65,6 +68,14 @@ impl ProfilePaths {
             upper,
             work,
         }
+    }
+
+    /// True when `DIR` is a live overlay symlink (session is up).
+    ///
+    /// This is the liveness predicate for all commands: startup skips
+    /// live profiles, resync/unsync skip non-live ones.
+    pub fn is_live(&self) -> bool {
+        self.dir.is_symlink() && self.dir.exists()
     }
 }
 

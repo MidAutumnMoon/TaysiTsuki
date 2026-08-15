@@ -2,6 +2,7 @@ result*
 
 /.direnv/
 target/
+.zcode/
 
 /target
 

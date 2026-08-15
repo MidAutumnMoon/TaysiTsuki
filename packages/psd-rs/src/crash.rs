@@ -4,6 +4,9 @@
 //! still exists on disk. This makes remounting impossible, so we must
 //! normalize before startup.
 //!
+//! Healthy states are no-ops: a real `DIR` (never managed, or unsync
+//! completed) and a live symlink (session is up) are both left alone.
+//!
 //! We deliberately do NOT snapshot before recovery: it doesn't protect
 //! against the likely failures (wrong pick, recovery bug, post-launch
 //! corruption -- backups cover that), and a full copy of the profile per
@@ -21,7 +24,6 @@ use std::time::SystemTime;
 
 use anyhow::Context;
 use anyhow::Result;
-use anyhow::bail;
 use tracing::info;
 use tracing::warn;
 
@@ -37,13 +39,11 @@ pub fn recover(paths: &ProfilePaths) -> Result<bool> {
         return Ok(false);
     }
 
-    // DIR is a symlink. If it resolves, the session is still live -- refuse
-    // to touch it.
+    // DIR is a symlink resolving to an existing path: the session is
+    // live and healthy. Nothing to recover -- and nothing we may
+    // safely touch.
     if paths.dir.is_symlink() && paths.dir.exists() {
-        bail!(
-            "{} is a symlink to an existing path; refusing to recover a live session",
-            paths.dir.display()
-        );
+        return Ok(false);
     }
 
     // DIR is a dangling symlink (or missing). BACKUP must exist for recovery.
@@ -119,4 +119,90 @@ fn mtime(p: &Path) -> Option<SystemTime> {
 
 fn is_empty_dir(p: &Path) -> bool {
     fs::read_dir(p).map_or(true, |mut it| it.next().is_none())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use tempfile::tempdir;
+
+    fn make_paths(root: &Path) -> ProfilePaths {
+        ProfilePaths {
+            dir: root.join("dir"),
+            backup: root.join("dir-backup"),
+            back_ovfs: root.join("dir-back-ovfs"),
+            tmp: root.join("dir-tmp"),
+            upper: root.join("dir-rw"),
+            work: root.join(".dir"),
+        }
+    }
+
+    fn make_dangling(paths: &ProfilePaths) {
+        // tmp never created -> symlink dangles (tmpfs gone after crash).
+        std::os::unix::fs::symlink(&paths.tmp, &paths.dir).unwrap();
+    }
+
+    #[test]
+    #[expect(clippy::unwrap_used)]
+    fn live_symlink_is_noop() {
+        let tmp = tempdir().unwrap();
+        let paths = make_paths(tmp.path());
+        std::fs::create_dir(&paths.tmp).unwrap();
+        std::os::unix::fs::symlink(&paths.tmp, &paths.dir).unwrap();
+
+        assert!(!recover(&paths).unwrap());
+        assert!(paths.dir.is_symlink());
+    }
+
+    #[test]
+    #[expect(clippy::unwrap_used)]
+    fn dangling_picks_newer_back_ovfs() {
+        let tmp = tempdir().unwrap();
+        let paths = make_paths(tmp.path());
+        std::fs::create_dir(&paths.backup).unwrap();
+        std::fs::write(paths.backup.join("data"), b"old").unwrap();
+        // Ensure strictly newer mtime so the pick is deterministic.
+        std::thread::sleep(std::time::Duration::from_millis(10));
+        std::fs::create_dir(&paths.back_ovfs).unwrap();
+        std::fs::write(paths.back_ovfs.join("data"), b"new").unwrap();
+        make_dangling(&paths);
+
+        assert!(recover(&paths).unwrap());
+        assert_eq!(
+            std::fs::read(paths.dir.join("data")).unwrap(),
+            b"new".as_slice()
+        );
+        assert!(!paths.back_ovfs.exists());
+        assert!(!paths.backup.exists());
+    }
+
+    #[test]
+    #[expect(clippy::unwrap_used)]
+    fn empty_back_ovfs_falls_back_to_backup() {
+        let tmp = tempdir().unwrap();
+        let paths = make_paths(tmp.path());
+        std::fs::create_dir(&paths.backup).unwrap();
+        std::fs::write(paths.backup.join("data"), b"old").unwrap();
+        std::fs::create_dir(&paths.back_ovfs).unwrap();
+        make_dangling(&paths);
+
+        assert!(recover(&paths).unwrap());
+        assert_eq!(
+            std::fs::read(paths.dir.join("data")).unwrap(),
+            b"old".as_slice()
+        );
+        assert!(!paths.back_ovfs.exists());
+    }
+
+    #[test]
+    #[expect(clippy::unwrap_used)]
+    fn missing_backup_removes_dangling_symlink() {
+        let tmp = tempdir().unwrap();
+        let paths = make_paths(tmp.path());
+        make_dangling(&paths);
+
+        assert!(!recover(&paths).unwrap());
+        assert!(paths.dir.symlink_metadata().is_err());
+    }
 }

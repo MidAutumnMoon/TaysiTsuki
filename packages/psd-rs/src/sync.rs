@@ -10,20 +10,34 @@
 //!
 //! Design notes:
 //!
-//! - Atomic renames for the DIR/BACKUP swap.
-//! - fsync before the final rename, so a crash mid-merge leaves a
+//! - All commands converge: a profile already in the target state
+//!   (live overlay for startup/resync, torn down for unsync) is a
+//!   success, not an error. systemd restarts this unit on NixOS
+//!   generation switches (`ExecStop` -> `ExecStart`), so unsync followed
+//!   by startup on a live session must succeed.
+//! - Busy profiles: unsync persists the delta (final resync, safe
+//!   while the app runs) and leaves the overlay live instead of
+//!   failing -- tearing down under a writing app would corrupt state,
+//!   and a failed stop job wedges the switch.
+//! - Unsync teardown is rename-based: `BACK_OVFS` is a complete mirror
+//!   (rsync --delete-after), so it is renamed into place as `DIR`
+//!   atomically; no merge pass, no mid-merge corruption window.
+//! - Unmount before unlinking `DIR`: a busy mount (EBUSY) fails
+//!   cleanly with the session fully intact.
+//! - fsync before the final rename, so a crash mid-unsync leaves a
 //!   consistent `BACK_OVFS` for next-boot recovery.
-//! - unsync refuses if the app is running instead of killing it, to
-//!   avoid losing unsaved state.
-//! - PID file contains the actual PID, so stale detection is possible.
+//! - The PID file means "a session is live": removed only when no
+//!   overlay remains, so the resync timer keeps covering profiles left
+//!   live by unsync. It contains the actual PID, so stale detection is
+//!   possible.
 //!
 //! ## TODO: dirty tracking
 //!
 //! Unsync does a full `TMP -> BACK_OVFS` rsync even if nothing changed
-//! since the last resync. Tracking overlay writes would let us skip it
-//! when clean, avoiding the `TimeoutStopSec` race where unsync is killed
-//! mid-rsync and the next boot looks ungraceful. For now,
-//! `TimeoutStopSec` is set generously in the systemd unit.
+//! since the last resync. Tracking overlay writes would let us skip
+//! that scan when clean. The `TimeoutStopSec` race that motivated this
+//! is gone (unsync is one scan + atomic renames, and busy profiles
+//! skip teardown entirely); dirty tracking would only save the scan.
 
 use std::fs;
 use std::path::Path;
@@ -99,16 +113,22 @@ impl State {
     }
 }
 
-/// Refuse to proceed if the app is running, to avoid losing unsaved
-/// state (we don't kill it).
-pub fn ensure_app_not_running(kind: AppKind, user: &str) -> Result<()> {
+/// True if the app's process is running for `user`.
+fn app_running(kind: AppKind, user: &str) -> Result<bool> {
     let psname = kind.process_name();
     // pgrep -x -u <user> <name>
     let out = Command::new("pgrep")
         .args(["-x", "-u", user, psname])
         .output()
         .context("spawning pgrep")?;
-    if out.status.success() {
+    Ok(out.status.success())
+}
+
+/// Refuse to proceed if the app is running, to avoid corrupting state
+/// under a writing app (we don't kill it).
+pub fn ensure_app_not_running(kind: AppKind, user: &str) -> Result<()> {
+    let psname = kind.process_name();
+    if app_running(kind, user)? {
         bail!(
             "{psname} is running (user={user}); refuse to proceed. \
              Stop the app first."
@@ -199,16 +219,13 @@ pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
 
 /// Resync: rsync DIR/ (overlay view) -> `BACK_OVFS`/.
 /// Safe to run while overlay is mounted (`BACK_OVFS` is outside it).
+/// Non-live profiles are skipped -- one dead profile must not fail
+/// the timer run for the healthy ones.
 pub fn resync(state: &State, profile: &AppProfile) -> Result<()> {
     let paths = state.paths_for(profile);
-    if !state.is_active() {
-        bail!("psd not active; run `startup` first");
-    }
-    if !paths.dir.is_symlink() || !paths.dir.exists() {
-        bail!(
-            "{} is not a live overlay symlink; cannot resync",
-            paths.dir.display()
-        );
+    if !paths.is_live() {
+        debug!(dir = %paths.dir.display(), "not live; skipping resync");
+        return Ok(());
     }
     rsync_sync(
         &paths.dir,
@@ -219,51 +236,76 @@ pub fn resync(state: &State, profile: &AppProfile) -> Result<()> {
     Ok(())
 }
 
-/// Unsync: final resync, merge `BACK_OVFS` -> BACKUP, unmount, rename.
+/// Unsync: persist the delta, then tear down -- unless the app is
+/// running, in which case the profile is left live (see module docs).
+///
+/// Non-live profiles are a no-op; teardown is rename-based:
+/// `BACK_OVFS` (a complete mirror) is renamed into place as `DIR`.
 pub fn unsync(state: &State, profile: &AppProfile) -> Result<()> {
     let paths = state.paths_for(profile);
-    if !state.is_active() {
-        debug!("not active; unsync is no-op");
+    if !paths.is_live() {
+        debug!(dir = %paths.dir.display(), "not live; unsync is a no-op");
         return Ok(());
     }
-    if !paths.dir.is_symlink() {
-        bail!("{} is not a symlink; cannot unsync", paths.dir.display());
-    }
-    ensure_app_not_running(profile.kind, &state.user)?;
 
-    // Final delta into BACK_OVFS.
+    // Persist the delta first: safe while the app runs (the resync
+    // timer does the same thing), so the on-disk staging copy is fresh
+    // no matter how the rest of this goes.
     rsync_sync(
         &paths.dir,
         &paths.back_ovfs,
         /* exclude_flagged */ true,
     )?;
-    // Merge BACK_OVFS -> BACKUP. Writing to the lowerdir while the
-    // overlay is mounted is normally unsafe (see paths.rs), but here the
-    // app is stopped, the overlay is quiescent, and we unmount next.
-    rsync_sync(
-        &paths.back_ovfs,
-        &paths.backup,
-        /* exclude_flagged */ false,
-    )?;
-    fsync_dir(&paths.backup)?;
 
-    // Remove symlink, unmount, rotate BACKUP back to DIR.
+    // Busy profile: keep the overlay live. Tearing down under a
+    // writing app would corrupt state, and a failed stop job would
+    // wedge a systemd restart (NixOS switch).
+    if app_running(profile.kind, &state.user)? {
+        warn!(
+            app = %profile.kind.as_ref(),
+            dir = %paths.dir.display(),
+            "app running; delta persisted, leaving overlay live"
+        );
+        return Ok(());
+    }
+
+    // Unmount before unlinking the symlink: a busy mount (EBUSY) bails
+    // here with the session fully intact instead of orphaning DIR.
+    overlay::unmount(&paths.tmp)?;
+
+    // Durable before the rename: a crash past this point leaves a
+    // consistent BACK_OVFS for next-boot recovery.
+    fsync_dir(&paths.back_ovfs)?;
+
     fs::remove_file(&paths.dir)
         .with_context(|| format!("unlink {}", paths.dir.display()))?;
-    overlay::unmount(&paths.tmp)?;
     // Tmpfs cleanup is best-effort -- the durable state is already in
-    // BACKUP, and tmpfs is wiped on reboot anyway.
+    // BACK_OVFS, and tmpfs is wiped on reboot anyway.
     let _ = fs::remove_dir_all(&paths.tmp);
     let _ = fs::remove_dir_all(&paths.upper);
     let _ = fs::remove_dir_all(&paths.work);
 
-    fs::rename(&paths.backup, &paths.dir).with_context(|| {
+    // BACK_OVFS is a complete mirror of the overlay view; rename it
+    // into place atomically (same parent dir) instead of merging.
+    fs::rename(&paths.back_ovfs, &paths.dir).with_context(|| {
         format!(
             "rename {} -> {}",
-            paths.backup.display(),
+            paths.back_ovfs.display(),
             paths.dir.display()
         )
     })?;
+    // The frozen lowerdir is superseded by the renamed mirror. If
+    // removal fails, the next startup rotates the stale BACKUP aside
+    // -- not worth failing the unit over.
+    if paths.backup.exists()
+        && let Err(e) = fs::remove_dir_all(&paths.backup)
+    {
+        warn!(
+            dir = %paths.backup.display(),
+            error = %e,
+            "failed to remove superseded backup"
+        );
+    }
 
     info!(app = %profile.kind.as_ref(), "unsync ok");
     Ok(())
