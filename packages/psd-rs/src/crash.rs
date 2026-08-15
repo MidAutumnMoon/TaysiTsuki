@@ -1,22 +1,12 @@
-//! Ungraceful state normalization.
+//! Ungraceful-state normalization.
 //!
-//! After a crash, `DIR` is a dangling symlink (tmpfs gone) while `BACKUP`
-//! still exists on disk. This makes remounting impossible, so we must
-//! normalize before startup.
+//! After a crash (tmpfs gone), `DIR` is a dangling symlink and the
+//! real data sits in `BACKUP` / `BACK_OVFS`. Recovery restores the
+//! newer of the two as `DIR`; healthy states (real `DIR`, live
+//! symlink) are no-ops.
 //!
-//! Healthy states are no-ops: a real `DIR` (never managed, or unsync
-//! completed) and a live symlink (session is up) are both left alone.
-//!
-//! We deliberately do NOT snapshot before recovery: it doesn't protect
-//! against the likely failures (wrong pick, recovery bug, post-launch
-//! corruption -- backups cover that), and a full copy of the profile per
-//! recovery is pure overhead. Max data loss is one resync interval.
-//!
-//! Recovery logic:
-//! 1. Detect dangling `DIR` (symlink to missing tmpfs) or missing `DIR`
-//! 2. Pick the newer of `BACKUP` / `BACK_OVFS` (rejecting empty `BACK_OVFS`)
-//! 3. Rename the picked target to `DIR`
-//! 4. Delete the other
+//! No snapshot is taken before recovery: it wouldn't save a wrong
+//! pick, and max data loss is one resync interval anyway.
 
 use std::fs;
 use std::path::Path;
@@ -38,26 +28,26 @@ pub enum RecoverOutcome {
     Already,
 }
 
-/// Detect and normalize ungraceful state for one profile.
-/// Live sessions and clean profiles are healthy -- no-op.
+/// Normalize ungraceful state for one profile; healthy profiles are
+/// a no-op.
 pub fn recover(paths: &ProfilePaths) -> Result<RecoverOutcome> {
-    // A real (non-symlink) DIR means unsync completed or psd never ran.
-    // Note: `is_dir()` follows symlinks, so we check `!is_symlink()` too.
+    // A real directory: unsync completed or psd never ran. (`is_dir()`
+    // follows symlinks, hence the explicit symlink guard.)
     if paths.dir.is_dir() && !paths.dir.is_symlink() {
         return Ok(RecoverOutcome::Already);
     }
 
-    // DIR resolves: the session is live and healthy. Nothing to
-    // recover -- and nothing we may safely touch.
+    // Live session: nothing to recover, and nothing we may safely
+    // touch.
     if paths.is_live() {
         return Ok(RecoverOutcome::Already);
     }
 
-    // DIR is a dangling symlink (or missing). BACKUP must exist for recovery.
+    // Dangling (or missing) DIR: recovery needs a backup.
     if !paths.backup.exists() {
         if paths.dir.is_symlink() {
-            // Dangling symlink with no backup: just remove the symlink so
-            // the app recreates the profile from scratch on next launch.
+            // Nothing to restore: drop the symlink and let the app
+            // recreate its profile.
             warn!(
                 dir = %paths.dir.display(),
                 "dangling symlink with no backup; removing symlink"
@@ -71,14 +61,12 @@ pub fn recover(paths: &ProfilePaths) -> Result<RecoverOutcome> {
 
     info!(dir = %paths.dir.display(), "ungraceful state detected, recovering");
 
-    // Remove the dangling symlink.
     if paths.dir.is_symlink() {
         std::fs::remove_file(&paths.dir).with_context(|| {
             format!("unlink dangling {}", paths.dir.display())
         })?;
     }
 
-    // Pick the newer of BACKUP / BACK_OVFS.
     let target = pick_recovery_target(&paths.backup, &paths.back_ovfs);
     let other = if target == paths.backup {
         &paths.back_ovfs
@@ -86,13 +74,10 @@ pub fn recover(paths: &ProfilePaths) -> Result<RecoverOutcome> {
         &paths.backup
     };
 
-    // Rotate the picked target into place as DIR. `target` may equal
-    // `paths.backup`, so this is typically `BACKUP -> DIR`.
     fs::rename(target, &paths.dir).with_context(|| {
         format!("rename {} -> {}", target.display(), paths.dir.display())
     })?;
 
-    // Clean up the other dir (the one we didn't pick).
     if other.exists() {
         fs::remove_dir_all(other)
             .with_context(|| format!("remove {}", other.display()))?;
@@ -101,12 +86,11 @@ pub fn recover(paths: &ProfilePaths) -> Result<RecoverOutcome> {
     Ok(RecoverOutcome::Recovered)
 }
 
-/// Pick the newer of `backup` / `back_ovfs` by mtime.
+/// Pick the newer of the two by mtime, falling back to `backup`.
 ///
-/// Falls back to `backup` if `back_ovfs` is missing, empty, or if
-/// mtimes can't be read. An empty `back_ovfs` (e.g. from a failed
-/// startup that created the dir but never resynced) must NOT be picked
-/// over `backup` -- doing so would cause data loss.
+/// An empty or missing `back_ovfs` never wins: it can be an artifact
+/// of a startup that never got to resync, and picking it would lose
+/// the real profile.
 fn pick_recovery_target<'a>(
     backup: &'a Path,
     back_ovfs: &'a Path,
@@ -115,9 +99,8 @@ fn pick_recovery_target<'a>(
         return backup;
     }
     match (mtime(backup), mtime(back_ovfs)) {
-        // Ties go to BACK_OVFS: equal mtimes mean the last resync
-        // copied without changes (or timestamp granularity flapping),
-        // and the mirror is never stale relative to its source.
+        // Ties go to `back_ovfs`: equal mtimes are timestamp-granularity
+        // noise, and the mirror is never stale relative to its source.
         (Some(b), Some(o)) if o >= b => back_ovfs,
         _ => backup,
     }
@@ -127,8 +110,7 @@ fn mtime(p: &Path) -> Option<SystemTime> {
     fs::metadata(p).and_then(|m| m.modified()).ok()
 }
 
-/// Unreadable counts as empty: we then fall back to `backup`, the
-/// safe direction (never pick a directory we couldn't inspect).
+/// Unreadable counts as empty, so the picker falls back to `backup`.
 fn is_empty_dir(p: &Path) -> bool {
     fs::read_dir(p).map_or(true, |mut it| it.next().is_none())
 }

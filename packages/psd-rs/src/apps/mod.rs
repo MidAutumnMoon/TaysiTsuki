@@ -17,7 +17,7 @@ use serde::Deserialize;
 use strum::AsRefStr;
 use strum::EnumIter;
 
-/// Supported apps. Extend by adding a variant + discover branch.
+/// Supported apps.
 #[derive(
     Debug,
     Clone,
@@ -38,7 +38,7 @@ pub enum AppKind {
 }
 
 impl AppKind {
-    /// Process name for the "is app running?" check.
+    /// Process name for the running-app check.
     pub const fn process_name(self) -> &'static str {
         match self {
             Self::Firefox => "firefox",
@@ -48,8 +48,8 @@ impl AppKind {
         }
     }
 
-    /// If this app runs as a flatpak, returns its app-id so we can grant
-    /// the sandbox access to the overlay mount. `None` for native apps.
+    /// Flatpak app-id when this app is sandboxed, else `None` (used
+    /// to grant the sandbox tmpfs access).
     pub const fn flatpak_id(self) -> Option<&'static str> {
         match self {
             Self::CherryStudio => Some("com.cherry_ai.CherryStudio"),
@@ -63,7 +63,7 @@ impl AppKind {
 pub struct AppProfile {
     pub kind: AppKind,
     pub user: String,
-    /// Absolute path the app writes to (DIR in psd terminology).
+    /// Absolute path the app writes to (`DIR`).
     pub path: PathBuf,
     /// Final path component, used as a tmpfs disambiguator.
     pub suffix: String,

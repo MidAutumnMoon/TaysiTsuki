@@ -1,10 +1,8 @@
 //! Flatpak sandbox permissions for psd-managed apps.
 //!
-//! A flatpak sandbox cannot see the psd tmpfs by default, so the overlay
-//! mount would be unreachable from inside the app. We grant per-app
-//! access via `flatpak override --user --filesystem=`.
-//!
-//! Idempotent: safe to call every startup.
+//! A sandbox cannot see the psd tmpfs by default, so the overlay
+//! mount would be unreachable from inside the app. Access is granted
+//! per app via `flatpak override --user --filesystem=`; idempotent.
 
 use std::path::Path;
 use std::process::Command;
@@ -46,9 +44,9 @@ fn has_filesystem(app_id: &str, path: &str) -> Result<bool> {
     Ok(parse_has_filesystem(&text, path))
 }
 
-/// `flatpak override --show` prints `filesystems=a;b;` under
-/// `[Context]`; require an exact token match -- a substring test
-/// would false-positive on longer paths and skip a needed grant.
+/// Exact token match against the `filesystems=` list -- substring
+/// matching would false-positive on longer paths and skip a needed
+/// grant.
 fn parse_has_filesystem(show_output: &str, path: &str) -> bool {
     show_output
         .lines()

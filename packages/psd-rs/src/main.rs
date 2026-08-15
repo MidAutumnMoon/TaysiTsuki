@@ -1,7 +1,6 @@
 //! psd: sync app profiles to tmpfs via overlayfs.
 //!
-//! See `paths.rs` for the 5-path state model and `crash.rs` for
-//! ungraceful-state recovery.
+//! The path model lives in `paths.rs`; crash recovery in `crash.rs`.
 
 use std::io::stdout;
 use std::path::PathBuf;
@@ -84,8 +83,8 @@ fn main() -> ExitCode {
 }
 
 fn run(cli: &Cli) -> Result<()> {
-    // Completions only need clap metadata -- bail early before State::new(),
-    // which requires XDG_RUNTIME_DIR (absent in build sandboxes).
+    // Completions need no runtime env; `State::new()` requires
+    // XDG_RUNTIME_DIR, which is absent in build sandboxes.
     if let Command::Completions { shell } = &cli.command {
         let mut cmd = Cli::command();
         generate(*shell, &mut cmd, "psd", &mut stdout());
@@ -130,17 +129,16 @@ fn load_config(path: Option<&std::path::Path>) -> Result<Config> {
 fn load_profiles(cli: &Cli, state: &State) -> Result<Vec<AppProfile>> {
     let cfg = load_config(cli.config.as_deref())?;
     let discovered = discover(state, cfg.apps.iter().copied())?;
-    // One broken install must not hide the rest: report its discovery
-    // failure, then carry on with what was found.
+    // Report broken installs but carry on with what was found.
     for (kind, e) in &discovered.failures {
         error!(app = kind.as_ref(), error = %e, "discovery failed");
     }
     Ok(discovered.profiles)
 }
 
-/// Discovery results: profiles found, plus per-app failures. Callers
-/// decide how failures are reported -- discovery itself never aborts
-/// the whole scan over one app.
+/// Discovery results: profiles found plus per-app failures. One
+/// broken app never aborts the scan; callers decide how failures are
+/// reported.
 #[derive(Debug)]
 struct Discovered {
     profiles: Vec<AppProfile>,
@@ -166,10 +164,9 @@ fn discover(
     Ok(out)
 }
 
-/// Run `op` on each profile independently: per-profile errors are
-/// logged (with which operation failed) and deferred -- partial
-/// progress is a state the next run converges from -- then reported
-/// as one error at the end. Returns each profile's outcome.
+/// Run `op` on each profile independently; log and collect errors,
+/// then fail once at the end. Partial progress stands -- the next run
+/// converges from it. Returns each profile's outcome.
 fn run_per_profile<O>(
     what: &'static str,
     state: &State,
@@ -206,8 +203,8 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
     }
     overlay::check_dependencies()?;
 
-    // Grant flatpak sandboxes access to the psd tmpfs before mounting.
-    // Idempotent; one call per unique flatpak app-id.
+    // Grant flatpak sandboxes tmpfs access before mounting
+    // (idempotent).
     for kind in profiles.iter().map(|p| p.kind) {
         if let Some(app_id) = kind.flatpak_id()
             && let Err(e) =
@@ -221,9 +218,8 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
 
     run_per_profile("startup", state, profiles, |state, p| {
         let paths = state.paths_for(p);
-        // Converge: an already-live profile (e.g. systemd restart on a
-        // NixOS switch, with the app open) is a success -- and must
-        // skip the app-running check below.
+        // Already live (e.g. switch restart with the app open): a
+        // success, and must skip the running check below.
         if sync::overlay_live(&paths)? {
             debug!(
                 app = %p.kind.as_ref(),
@@ -232,7 +228,6 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
             );
             return Ok(());
         }
-        // Normalize any ungraceful state first (no-op when clean).
         crash::recover(&paths)?;
         // Mounting under a running app would corrupt its state.
         if sync::app_running(p.kind, &state.user)? {
@@ -251,8 +246,6 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
 }
 
 fn cmd_resync(state: &State, profiles: &[AppProfile]) -> Result<()> {
-    // Non-live profiles are skipped inside sync::resync; liveness
-    // decides what gets synced.
     run_per_profile("resync", state, profiles, sync::resync)?;
     Ok(())
 }
@@ -304,8 +297,7 @@ fn cmd_preview(state: &State, profiles: &[AppProfile]) {
         println!("      dir:     {}", paths.dir.display());
         println!("      backup:  {}", paths.backup.display());
         println!("      tmp:     {}", paths.tmp.display());
-        // UPPER is the overlay delta in tmpfs -- only exists while
-        // live. This is the actual RAM cost of the session.
+        // UPPER is the session's RAM cost; it only exists while live.
         if paths.is_live()
             && let Ok(delta) = dir_size_human(&paths.upper)
         {

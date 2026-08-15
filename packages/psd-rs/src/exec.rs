@@ -1,8 +1,7 @@
 //! Subprocess execution helpers.
 //!
-//! Every external command goes through here so failures carry the
-//! program name, exit status, and captured stderr uniformly, instead
-//! of each call site hand-rolling (and varying) its error handling.
+//! Failures carry the program name, exit status, and captured stderr
+//! uniformly -- call sites never hand-roll their own.
 
 use std::process::Command;
 use std::process::Output;
@@ -11,8 +10,7 @@ use anyhow::Context;
 use anyhow::Result;
 use anyhow::bail;
 
-/// Run to completion; on non-success, error with program, exit code,
-/// and captured stderr. For commands whose only outcome is pass/fail.
+/// Run to completion; fail with exit code and stderr on non-success.
 pub fn run(cmd: &mut Command) -> Result<()> {
     let out = output(cmd)?;
     if !out.status.success() {
@@ -26,9 +24,8 @@ pub fn run(cmd: &mut Command) -> Result<()> {
     Ok(())
 }
 
-/// Run to completion, returning raw stdout/stderr. For callers that
-/// interpret specific exit codes or parse stdout (pgrep, mountpoint,
-/// `flatpak override --show`, du).
+/// Run to completion, returning the raw `Output` -- for callers that
+/// interpret exit codes or parse stdout.
 pub fn output(cmd: &mut Command) -> Result<Output> {
     cmd.output().with_context(|| {
         format!("spawning `{}`", cmd.get_program().to_string_lossy())

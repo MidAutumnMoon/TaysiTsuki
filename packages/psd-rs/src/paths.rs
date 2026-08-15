@@ -1,22 +1,16 @@
 //! Path resolution for a managed app profile.
 //!
-//! The 5-path model:
+//! - `DIR` - what the app sees; symlink to `TMP` while the session
+//!   is live
+//! - `BACKUP` - frozen original profile; the overlay's lowerdir
+//! - `BACK_OVFS` - writable on-disk mirror of the overlay view
+//! - `TMP` - overlay mountpoint in tmpfs
+//! - `UPPER`, `WORK` - overlay upper/work dirs in tmpfs (the delta)
 //!
-//! - `DIR` - what the app sees
-//! - `BACKUP` - frozen profile, renamed from `DIR` at startup;
-//!   overlay lowerdir (read-only while mounted)
-//! - `BACK_OVFS` - on-disk staging dir, writable while overlay is live;
-//!   receives periodic resyncs; merged into `BACKUP` at unsync
-//! - `TMP` - overlay mount point in tmpfs; `DIR` symlinks here
-//! - `UPPER` - tmpfs dir holding overlay writes (the delta)
-//! - `WORK` - overlay internal workdir
-//!
-//! Why `BACK_OVFS` exists: `BACKUP` is the overlay lowerdir, so writing
-//! to it while mounted is unsafe (cached inode listings desync from
-//! disk). `BACK_OVFS` sits outside the overlay, safe to write at any
-//! time. It bounds crash-loss to <=1 resync interval, and unsync hands
-//! it off atomically: it is a complete mirror of the overlay view, so
-//! it is renamed into place as `DIR` (no merge pass).
+//! `BACK_OVFS` exists because the lowerdir must not be written while
+//! its overlay is mounted. Kept outside the overlay, it is safe to
+//! update at any time, bounds crash loss to one resync interval, and
+//! unsync promotes it to `DIR` with a rename.
 
 use std::path::Path;
 use std::path::PathBuf;
@@ -25,19 +19,17 @@ use crate::apps::AppProfile;
 
 #[derive(Debug, Clone)]
 pub struct ProfilePaths {
-    /// What the app reads/writes. Symlink to `tmp` when active.
+    /// What the app sees; symlink to `tmp` while the session is live.
     pub dir: PathBuf,
-    /// Frozen original profile; overlay lowerdir while active. Deleted
-    /// at unsync (superseded by the renamed `back_ovfs`).
+    /// Frozen original profile; the overlay's lowerdir while live.
     pub backup: PathBuf,
-    /// Writable on-disk staging for resyncs; renamed into place as
-    /// `dir` at unsync (it is a complete mirror, so no merge needed).
+    /// On-disk mirror of the overlay view; promoted to `dir` at unsync.
     pub back_ovfs: PathBuf,
-    /// Overlay mount point in tmpfs; `dir` symlinks here.
+    /// Overlay mountpoint in tmpfs.
     pub tmp: PathBuf,
-    /// Overlay upperdir in tmpfs (the delta).
+    /// Overlay writes (the session delta) in tmpfs.
     pub upper: PathBuf,
-    /// Overlay workdir in tmpfs.
+    /// Overlay-internal workdir in tmpfs.
     pub work: PathBuf,
 }
 
@@ -56,8 +48,7 @@ impl ProfilePaths {
         );
         let tmp = volatile_root.join(&tag);
         let upper = volatile_root.join(format!("{tag}-rw"));
-        // WORK gets a dot prefix: fuse-overlayfs requires it to be empty,
-        // and the dot keeps it out of the way.
+        // Dot prefix keeps the internal workdir out of sight.
         let work = volatile_root.join(format!(".{tag}"));
 
         Self {
@@ -70,10 +61,9 @@ impl ProfilePaths {
         }
     }
 
-    /// True when `DIR` is a live overlay symlink (session is up).
-    ///
-    /// This is the liveness predicate for all commands: startup skips
-    /// live profiles, resync/unsync skip non-live ones.
+    /// True when `DIR` resolves to an existing path (the session looks
+    /// live). Does not verify the overlay is still mounted -- see
+    /// [`crate::sync::overlay_live`].
     pub fn is_live(&self) -> bool {
         self.dir.is_symlink() && self.dir.exists()
     }
