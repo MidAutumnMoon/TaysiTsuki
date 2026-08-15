@@ -35,7 +35,7 @@ function __moonstep_git_branch
     # See the note in __moonstep_git for why `-z` is a footgun here.
     command git branch --show-current 2>/dev/null \
         | read -f branch
-    printf '%s' ( set_color bryellow )"$branch"
+    printf '%s' (set_color bryellow)"$branch"
 end
 
 # Renders the git status indicators (stash/conflict/staged/dirty/
@@ -52,7 +52,7 @@ end
 #   "M"  -> staged
 #   " M" -> dirty
 function __moonstep_git_status
-    set -f reset ( set_color reset )
+    set -f reset (set_color reset)
     set -f git_cmd git --no-optional-locks
 
     set -f git_status (
@@ -64,48 +64,48 @@ function __moonstep_git_status
             --left-right "@{upstream}...HEAD" \
             2>/dev/null \
             # tab, not space
-            | string split --no-empty \t )
+            | string split --no-empty \t)
 
     set -f rendered
 
     # stash
-    set -l n ( command $git_cmd stash list 2>/dev/null | count )
+    set -l n (command $git_cmd stash list 2>/dev/null | count)
     test "$n" -gt 0
-    and set --append rendered ( set_color brmagenta )"Stash $n$reset"
+    and set --append rendered (set_color brmagenta)"Stash $n$reset"
 
     # conflict (all unmerged states)
-    set -l n ( string match -r '^(DD|AU|UD|UA|DU|AA|UU)' $git_status | count )
+    set -l n (string match -r '^(DD|AU|UD|UA|DU|AA|UU)' $git_status | count)
     test "$n" -gt 0
-    and set --append rendered ( set_color brred )"!!$n$reset"
+    and set --append rendered (set_color brred)"!!$n$reset"
 
     # staged
-    set -l n ( string match -r '^[ADMR]' $git_status | count )
+    set -l n (string match -r '^[ADMR]' $git_status | count)
     test "$n" -gt 0
-    and set --append rendered ( set_color brgreen )"+$n$reset"
+    and set --append rendered (set_color brgreen)"+$n$reset"
 
     # dirty
-    set -l n ( string match -r '^.[ADMR]' $git_status | count )
+    set -l n (string match -r '^.[ADMR]' $git_status | count)
     test "$n" -gt 0
-    and set --append rendered ( set_color bryellow )"~$n$reset"
+    and set --append rendered (set_color bryellow)"~$n$reset"
 
     # untracked
-    set -l n ( string match -r '^\?\?' $git_status | count )
+    set -l n (string match -r '^\?\?' $git_status | count)
     test "$n" -gt 0
-    and set --append rendered ( set_color brblue )"?$n$reset"
+    and set --append rendered (set_color brblue)"?$n$reset"
 
     # behind / ahead
-    if test ( count $behind_ahead ) -ge 1
+    if test (count $behind_ahead) -ge 1
         set -l n $behind_ahead[1]
         test "$n" -gt 0
-        and set --append rendered ( set_color cyan )"Behind $n$reset"
+        and set --append rendered (set_color cyan)"Behind $n$reset"
     end
-    if test ( count $behind_ahead ) -ge 2
+    if test (count $behind_ahead) -ge 2
         set -l n $behind_ahead[2]
         test "$n" -gt 0
-        and set --append rendered ( set_color cyan )"Ahead $n$reset"
+        and set --append rendered (set_color cyan)"Ahead $n$reset"
     end
 
-    printf '%s' ( string join ' ' $rendered )
+    printf '%s' (string join ' ' $rendered)
 
 end
 
@@ -115,5 +115,5 @@ end
 
 function __moonstep_jujutsu
     printf '%s' \
-        ( set_color purple )"jujutsu""(unimplemented)"
+        (set_color purple)"jujutsu""(unimplemented)"
 end
