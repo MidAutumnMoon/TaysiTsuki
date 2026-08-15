@@ -67,7 +67,8 @@ in {
 
         [core]
             quotePath = false
-            pager = "${lib.getExe pkgs.delta}"
+            # remove delta from closure but not the idea
+            # pager = "$ {lib.getExe pkgs.delta}"
             # untrackedCache = true
 
         [credential]

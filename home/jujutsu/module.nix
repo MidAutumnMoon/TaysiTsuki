@@ -23,17 +23,7 @@ in {
         # depend on them.
         [ui]
             conflict-marker-style = "git"
-
-        # git: core.pager = delta, diff.external = difftastic
-        # delta needs git-style diffs to render, so use :git as the
-        # diff formatter and pipe through delta as the pager.
-            pager = "${lib.getExe pkgs.delta}"
-            diff-formatter = ":git"
-
-        # git: difftastic as the external diff tool
-        [merge-tools.difftastic]
-            program = "${lib.getExe pkgs.difftastic}"
-            diff-args = ["--color=always", "$left", "$right"]
+            diff-formatter = ["${lib.getExe pkgs.difftastic}", "--color=always", "$left", "$right"]
 
         # git: commit.gpgSign = true, gpg.format = ssh,
         # user.signingKey = (private key path)
@@ -46,6 +36,18 @@ in {
             backend = "ssh"
             key = "~/.ssh/id_teapot.pub"
             backends.ssh.allowed-signers = "${allowedSigners}"
+
+        [templates]
+            draft_commit_description = ''''
+                concat(
+                    builtin_draft_commit_description,
+                    "\nJJ: ignore-rest\n",
+                    "JJ: ------------------------ >8 ------------------------\n",
+                    "JJ: Do not modify or remove the line above.\n",
+                    "JJ: Everything below it will be ignored.\n\n",
+                    diff.git()
+                )
+            ''''
     '';
 
 }
