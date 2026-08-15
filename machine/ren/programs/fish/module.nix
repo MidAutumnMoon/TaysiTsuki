@@ -10,6 +10,7 @@
         "ca" = "cargo";
         "g" = "git";
         "n" = "nix";
+        "j" = "jj";
         ".ns" = "nh os switch";
         ".nt" = "nh os test";
         ".nb" = "nh os boot";

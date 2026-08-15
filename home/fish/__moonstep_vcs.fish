@@ -122,9 +122,11 @@ end
 # tags each line with its role (AT/AHEAD/BEHIND/TRUNK) and emits
 # tab-separated fields.
 #
-# `--ignore-working-copy` prevents the prompt from snapshotting the
-# working copy or modifying repo state. Output is `--color=never`;
-# colors are applied here to match the moonstep palette.
+# Unlike the git prompt (which reads the working tree directly), jj
+# must snapshot the working copy into @ to see file changes. We let jj
+# snapshot on every prompt cycle so the status stays current. Output
+# is `--color=never`; colors are applied here to match the moonstep
+# palette.
 #
 # Field layout (tab-separated, role-prefixed):
 #   AT      change_id  bookmarks  conflict  divergent  empty  immutable  modified  added  deleted  conflicted_files
@@ -271,7 +273,7 @@ function __moonstep_jj_query
     # `concat` (not `separate`) preserves empty fields — `separate`
     # collapses empty middle arguments, losing tab boundaries and
     # shifting all subsequent field indices.
-    command jj log --no-graph --ignore-working-copy --no-pager \
+    command jj log --no-graph --no-pager \
         --color=never \
         -r '@ | trunk() | trunk()..@ | (::trunk() & ~::@)' \
         -T '
