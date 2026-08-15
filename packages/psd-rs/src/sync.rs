@@ -26,10 +26,11 @@
 //!   cleanly with the session fully intact.
 //! - fsync before the final rename, so a crash mid-unsync leaves a
 //!   consistent `BACK_OVFS` for next-boot recovery.
-//! - The PID file means "a session is live": removed only when no
-//!   overlay remains, so the resync timer keeps covering profiles left
-//!   live by unsync. It contains the actual PID, so stale detection is
-//!   possible.
+//! - Commands report outcomes (`UnsyncOutcome` etc.) instead of
+//!   erroring on "nothing to do"; profile liveness is the single
+//!   source of truth for session state -- and since a symlink can
+//!   outlive its mount, sync operations verify the overlay is still
+//!   mounted (`overlay_live`).
 //!
 //! ## TODO: dirty tracking
 //!
@@ -53,12 +54,10 @@ use tracing::warn;
 
 use crate::apps::AppKind;
 use crate::apps::AppProfile;
+use crate::exec;
 use crate::overlay;
 use crate::paths::ProfilePaths;
 use crate::paths::append_suffix;
-
-const FLAGGED: &str = ".flagged";
-const PID_FILE: &str = "psd.pid";
 
 /// Runtime state shared across operations. Cheap to clone.
 #[derive(Debug, Clone)]
@@ -79,88 +78,66 @@ impl State {
         })
     }
 
-    pub fn pid_file(&self) -> PathBuf {
-        self.volatile_root.join(PID_FILE)
-    }
-
-    pub fn is_active(&self) -> bool {
-        self.pid_file().exists()
-    }
-
-    /// Write a PID file containing the current PID (not just a marker,
-    /// so stale detection is possible).
-    pub fn mark_active(&self) -> Result<()> {
-        fs::create_dir_all(&self.volatile_root).with_context(|| {
-            format!("mkdir {}", self.volatile_root.display())
-        })?;
-        let pid = std::process::id();
-        fs::write(self.pid_file(), format!("{pid}\n")).with_context(
-            || format!("write {}", self.pid_file().display()),
-        )?;
-        Ok(())
-    }
-
-    pub fn mark_inactive(&self) {
-        if let Err(e) = fs::remove_file(self.pid_file())
-            && e.kind() != std::io::ErrorKind::NotFound
-        {
-            warn!(error = %e, "failed to remove pid file");
-        }
-    }
-
     pub fn paths_for(&self, profile: &AppProfile) -> ProfilePaths {
         ProfilePaths::new(profile, &self.volatile_root)
     }
 }
 
 /// True if the app's process is running for `user`.
-fn app_running(kind: AppKind, user: &str) -> Result<bool> {
+pub fn app_running(kind: AppKind, user: &str) -> Result<bool> {
     let psname = kind.process_name();
     // pgrep -x -u <user> <name>
-    let out = Command::new("pgrep")
-        .args(["-x", "-u", user, psname])
-        .output()
-        .context("spawning pgrep")?;
-    Ok(out.status.success())
+    let out = exec::output(
+        Command::new("pgrep").args(["-x", "-u", user, psname]),
+    )?;
+    // 0 = match, 1 = no match; anything else is pgrep itself failing,
+    // which must never masquerade as "not running".
+    match out.status.code() {
+        Some(0) => Ok(true),
+        Some(1) => Ok(false),
+        code => bail!(
+            "pgrep failed (exit {}): {}",
+            code.unwrap_or(-1),
+            String::from_utf8_lossy(&out.stderr).trim(),
+        ),
+    }
 }
 
-/// Refuse to proceed if the app is running, to avoid corrupting state
-/// under a writing app (we don't kill it).
-pub fn ensure_app_not_running(kind: AppKind, user: &str) -> Result<()> {
-    let psname = kind.process_name();
-    if app_running(kind, user)? {
-        bail!(
-            "{psname} is running (user={user}); refuse to proceed. \
-             Stop the app first."
-        );
+/// True when the profile's overlay is actually mounted.
+///
+/// `ProfilePaths::is_live` only checks that DIR resolves -- but the
+/// symlink can outlive its mount (unmount succeeded, then unsync
+/// failed before unlinking). Syncing that state would rsync from an
+/// empty dir and `--delete-after` would wipe `BACK_OVFS`, so sync
+/// operations must verify the mount.
+pub fn overlay_live(paths: &ProfilePaths) -> Result<bool> {
+    if !paths.is_live() {
+        return Ok(false);
     }
-    Ok(())
+    if !overlay::is_mountpoint(&paths.tmp)? {
+        warn!(
+            dir = %paths.dir.display(),
+            tmp = %paths.tmp.display(),
+            "DIR resolves but its overlay is not mounted (stale session?); \
+             remove the symlink and run `psd recover`, or reboot"
+        );
+        return Ok(false);
+    }
+    Ok(true)
 }
 
 /// Startup: mount overlay, symlink DIR -> TMP, create `BACK_OVFS`.
-/// Idempotent -- if already active, this is a no-op for that profile.
+///
+/// Precondition: the caller normalized state first -- it skipped
+/// live profiles and ran `crash::recover`. DIR must be a plain
+/// directory by the time it gets here.
 pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
     let paths = state.paths_for(profile);
 
-    if !paths.dir.is_dir() {
+    if paths.dir.is_symlink() || !paths.dir.is_dir() {
         bail!(
-            "{} does not exist or is not a directory; nothing to sync",
-            paths.dir.display()
-        );
-    }
-
-    // Already active for this profile?
-    if paths.dir.is_symlink() {
-        if paths.dir.exists() {
-            debug!(
-                dir = %paths.dir.display(),
-                "already symlinked; skipping startup"
-            );
-            return Ok(());
-        }
-        // Dangling -- crash recovery should have fixed this, but just in case.
-        bail!(
-            "{} is a dangling symlink; run `psd recover` or check journal",
+            "{} is not a plain directory; expected `recover` to have \
+             normalized it first",
             paths.dir.display()
         );
     }
@@ -209,10 +186,6 @@ pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
         },
     )?;
 
-    // .flagged lives inside the overlay (tmpfs), so its absence after a
-    // reboot signals ungraceful shutdown (see `crash::recover`).
-    touch(&paths.dir.join(FLAGGED))?;
-
     info!(app = %profile.kind.as_ref(), dir = %paths.dir.display(), "startup ok");
     Ok(())
 }
@@ -223,17 +196,24 @@ pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
 /// the timer run for the healthy ones.
 pub fn resync(state: &State, profile: &AppProfile) -> Result<()> {
     let paths = state.paths_for(profile);
-    if !paths.is_live() {
+    if !overlay_live(&paths)? {
         debug!(dir = %paths.dir.display(), "not live; skipping resync");
         return Ok(());
     }
-    rsync_sync(
-        &paths.dir,
-        &paths.back_ovfs,
-        /* exclude_flagged */ true,
-    )?;
+    rsync_sync(&paths.dir, &paths.back_ovfs)?;
     info!(app = %profile.kind.as_ref(), "resync ok");
     Ok(())
+}
+
+/// Per-profile result of [`unsync`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum UnsyncOutcome {
+    /// Torn down; the profile is back on disk as a plain directory.
+    TornDown,
+    /// App running: delta persisted, overlay left live.
+    LeftLive,
+    /// Not live; nothing to do.
+    Skipped,
 }
 
 /// Unsync: persist the delta, then tear down -- unless the app is
@@ -241,21 +221,24 @@ pub fn resync(state: &State, profile: &AppProfile) -> Result<()> {
 ///
 /// Non-live profiles are a no-op; teardown is rename-based:
 /// `BACK_OVFS` (a complete mirror) is renamed into place as `DIR`.
-pub fn unsync(state: &State, profile: &AppProfile) -> Result<()> {
+pub fn unsync(
+    state: &State,
+    profile: &AppProfile,
+) -> Result<UnsyncOutcome> {
     let paths = state.paths_for(profile);
-    if !paths.is_live() {
+    if !overlay_live(&paths)? {
         debug!(dir = %paths.dir.display(), "not live; unsync is a no-op");
-        return Ok(());
+        return Ok(UnsyncOutcome::Skipped);
     }
+
+    // Old versions kept a `.flagged` marker inside the overlay; drop
+    // it so the final resync can't carry it into the real profile.
+    let _ = fs::remove_file(paths.dir.join(".flagged"));
 
     // Persist the delta first: safe while the app runs (the resync
     // timer does the same thing), so the on-disk staging copy is fresh
     // no matter how the rest of this goes.
-    rsync_sync(
-        &paths.dir,
-        &paths.back_ovfs,
-        /* exclude_flagged */ true,
-    )?;
+    rsync_sync(&paths.dir, &paths.back_ovfs)?;
 
     // Busy profile: keep the overlay live. Tearing down under a
     // writing app would corrupt state, and a failed stop job would
@@ -266,16 +249,17 @@ pub fn unsync(state: &State, profile: &AppProfile) -> Result<()> {
             dir = %paths.dir.display(),
             "app running; delta persisted, leaving overlay live"
         );
-        return Ok(());
+        return Ok(UnsyncOutcome::LeftLive);
     }
+
+    // Durable before anything is torn down: a failure here (or at the
+    // unmount below) leaves the session fully live. Order between
+    // fsync and unmount is otherwise free.
+    fsync_dir(&paths.back_ovfs)?;
 
     // Unmount before unlinking the symlink: a busy mount (EBUSY) bails
     // here with the session fully intact instead of orphaning DIR.
     overlay::unmount(&paths.tmp)?;
-
-    // Durable before the rename: a crash past this point leaves a
-    // consistent BACK_OVFS for next-boot recovery.
-    fsync_dir(&paths.back_ovfs)?;
 
     fs::remove_file(&paths.dir)
         .with_context(|| format!("unlink {}", paths.dir.display()))?;
@@ -308,38 +292,24 @@ pub fn unsync(state: &State, profile: &AppProfile) -> Result<()> {
     }
 
     info!(app = %profile.kind.as_ref(), "unsync ok");
-    Ok(())
+    Ok(UnsyncOutcome::TornDown)
 }
 
 /// rsync wrapper used by both resync and unsync.
-fn rsync_sync(
-    src: &Path,
-    dst: &Path,
-    exclude_flagged: bool,
-) -> Result<()> {
+fn rsync_sync(src: &Path, dst: &Path) -> Result<()> {
     // Ensure dst exists.
     if !dst.exists() {
         fs::create_dir_all(dst)
             .with_context(|| format!("mkdir {}", dst.display()))?;
     }
     let mut cmd = Command::new("rsync");
-    cmd.args(["-aX", "--delete-after", "--inplace", "--no-whole-file"]);
-    if exclude_flagged {
-        cmd.args(["--exclude", FLAGGED]);
-    }
-    cmd.arg(format!("{}/", src.display())).arg(dst);
+    cmd.args(["-aX", "--delete-after", "--inplace", "--no-whole-file"])
+        .arg(format!("{}/", src.display()))
+        .arg(dst);
     debug!(cmd = ?cmd, "rsync");
-    let out = cmd.output().context("spawning rsync")?;
-    if !out.status.success() {
-        bail!(
-            "rsync {} -> {} failed (exit {}): {}",
-            src.display(),
-            dst.display(),
-            out.status.code().unwrap_or(-1),
-            String::from_utf8_lossy(&out.stderr).trim()
-        );
-    }
-    Ok(())
+    exec::run(&mut cmd).with_context(|| {
+        format!("rsync {} -> {}", src.display(), dst.display())
+    })
 }
 
 /// Copy permission bits from `src` to `dst`.
@@ -351,11 +321,6 @@ fn copy_mode(src: &Path, dst: &Path) -> Result<()> {
         .mode();
     fs::set_permissions(dst, fs::Permissions::from_mode(mode))
         .with_context(|| format!("chmod {}", dst.display()))?;
-    Ok(())
-}
-
-fn touch(p: &Path) -> Result<()> {
-    fs::write(p, b"").with_context(|| format!("touch {}", p.display()))?;
     Ok(())
 }
 

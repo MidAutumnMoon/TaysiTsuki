@@ -25,22 +25,31 @@ impl Config {
         let raw = std::fs::read_to_string(path).with_context(|| {
             format!("reading config {}", path.display())
         })?;
-        let cfg: Self = serde_json::from_str(&raw).with_context(|| {
-            format!("parsing config {}", path.display())
-        })?;
+        let mut cfg: Self =
+            serde_json::from_str(&raw).with_context(|| {
+                format!("parsing config {}", path.display())
+            })?;
         if cfg.apps.is_empty() {
             anyhow::bail!("config: `apps` must not be empty");
         }
+        // Duplicate entries would discover duplicate profiles; dedupe
+        // so config content can't cause double work.
+        cfg.apps.sort_unstable_by(|a, b| a.as_ref().cmp(b.as_ref()));
+        cfg.apps.dedup();
         Ok(cfg)
     }
 
-    /// Default config path: `$XDG_CONFIG_HOME/psd/config.json`,
-    /// falling back to `~/.config/psd/config.json`.
+    /// Default config path: `$XDG_CONFIG_HOME/psd/config.json` (only
+    /// when absolute, per the XDG spec), falling back to
+    /// `~/.config/psd/config.json`.
     pub fn default_path() -> Result<PathBuf> {
-        if let Ok(p) = std::env::var("XDG_CONFIG_HOME") {
+        if let Ok(p) = std::env::var("XDG_CONFIG_HOME")
+            && Path::new(&p).is_absolute()
+        {
             return Ok(PathBuf::from(p).join("psd/config.json"));
         }
-        let home = std::env::var("HOME").context("HOME is not set")?;
-        Ok(PathBuf::from(home).join(".config/psd/config.json"))
+        let home = std::env::home_dir()
+            .context("could not determine home directory")?;
+        Ok(home.join(".config/psd/config.json"))
     }
 }

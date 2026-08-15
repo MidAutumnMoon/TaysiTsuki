@@ -23,6 +23,7 @@ use tracing::warn;
 mod apps;
 mod config;
 mod crash;
+mod exec;
 mod flatpak;
 mod overlay;
 mod paths;
@@ -93,10 +94,15 @@ fn run(cli: &Cli) -> Result<()> {
 
     let state = State::new()?;
 
-    // Sync commands need config; preview scans all apps tolerantly (a
-    // broken install shouldn't hide the rest).
+    // Sync commands need config; preview scans all supported apps.
     let profiles = match cli.command {
-        Command::Preview => discover(&state, AppKind::iter(), true)?,
+        Command::Preview => {
+            let d = discover(&state, AppKind::iter())?;
+            for (kind, e) in &d.failures {
+                warn!(app = kind.as_ref(), error = %e, "discovery failed");
+            }
+            d.profiles
+        }
         _ => load_profiles(cli, &state)?,
     };
 
@@ -123,74 +129,81 @@ fn load_config(path: Option<&std::path::Path>) -> Result<Config> {
 
 fn load_profiles(cli: &Cli, state: &State) -> Result<Vec<AppProfile>> {
     let cfg = load_config(cli.config.as_deref())?;
-    let profiles = discover(state, cfg.apps.iter().copied(), false)?;
-    if profiles.is_empty() {
-        bail!("no app profiles found for configured apps");
+    let discovered = discover(state, cfg.apps.iter().copied())?;
+    // One broken install must not hide the rest: report its discovery
+    // failure, then carry on with what was found.
+    for (kind, e) in &discovered.failures {
+        error!(app = kind.as_ref(), error = %e, "discovery failed");
     }
-    Ok(profiles)
+    Ok(discovered.profiles)
 }
 
-/// Discover profiles for the given apps. When `tolerant`, discovery
-/// errors are logged as warnings instead of propagated (used by
-/// `preview`, which shouldn't hide working apps behind one broken
-/// install).
+/// Discovery results: profiles found, plus per-app failures. Callers
+/// decide how failures are reported -- discovery itself never aborts
+/// the whole scan over one app.
+#[derive(Debug)]
+struct Discovered {
+    profiles: Vec<AppProfile>,
+    failures: Vec<(AppKind, anyhow::Error)>,
+}
+
 fn discover(
     state: &State,
     kinds: impl Iterator<Item = AppKind>,
-    tolerant: bool,
-) -> Result<Vec<AppProfile>> {
-    let home = home_dir()?;
-    let mut out = Vec::new();
+) -> Result<Discovered> {
+    let home = std::env::home_dir()
+        .context("could not determine home directory")?;
+    let mut out = Discovered {
+        profiles: Vec::new(),
+        failures: Vec::new(),
+    };
     for kind in kinds {
         match AppProfile::discover(kind, &state.user, &home) {
-            Ok(found) => out.extend(found),
-            Err(e) if tolerant => {
-                warn!(app = kind.as_ref(), error = %e, "discovery failed");
-            }
-            Err(e) => {
-                return Err(e).with_context(|| {
-                    format!("discovering {} profiles", kind.as_ref())
-                });
-            }
+            Ok(found) => out.profiles.extend(found),
+            Err(e) => out.failures.push((kind, e)),
         }
     }
     Ok(out)
 }
 
-fn home_dir() -> Result<PathBuf> {
-    std::env::var_os("HOME")
-        .map(PathBuf::from)
-        .context("HOME is not set")
-}
-
 /// Run `op` on each profile independently: per-profile errors are
-/// logged and deferred (partial progress is a state the next run
-/// converges from), then reported as one error at the end.
-fn run_per_profile(
+/// logged (with which operation failed) and deferred -- partial
+/// progress is a state the next run converges from -- then reported
+/// as one error at the end. Returns each profile's outcome.
+fn run_per_profile<O>(
+    what: &'static str,
     state: &State,
     profiles: &[AppProfile],
-    op: impl Fn(&State, &AppProfile) -> Result<()>,
-) -> Result<()> {
+    op: impl Fn(&State, &AppProfile) -> Result<O>,
+) -> Result<Vec<O>> {
+    let mut outcomes = Vec::with_capacity(profiles.len());
     let mut failed = Vec::new();
     for p in profiles {
-        if let Err(e) = op(state, p) {
-            error!(
-                app = %p.kind.as_ref(),
-                dir = %p.path.display(),
-                error = %e,
-                "profile operation failed"
-            );
-            failed.push(p.path.display().to_string());
+        match op(state, p) {
+            Ok(o) => outcomes.push(o),
+            Err(e) => {
+                error!(
+                    op = what,
+                    app = %p.kind.as_ref(),
+                    dir = %p.path.display(),
+                    error = %e,
+                    "profile operation failed"
+                );
+                failed.push(p.path.display().to_string());
+            }
         }
     }
     if failed.is_empty() {
-        Ok(())
+        Ok(outcomes)
     } else {
-        bail!("failed for: {}", failed.join(", "))
+        bail!("{what} failed for: {}", failed.join(", "))
     }
 }
 
 fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
+    if profiles.is_empty() {
+        bail!("no app profiles found; nothing to manage");
+    }
     overlay::check_dependencies()?;
 
     // Grant flatpak sandboxes access to the psd tmpfs before mounting.
@@ -206,17 +219,12 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
         }
     }
 
-    // Write PID file first so resync/unsync see us as active during
-    // startup. If startup fails partway, the PID file existing is
-    // correct -- the session is partially live.
-    state.mark_active()?;
-
-    run_per_profile(state, profiles, |state, p| {
+    run_per_profile("startup", state, profiles, |state, p| {
         let paths = state.paths_for(p);
         // Converge: an already-live profile (e.g. systemd restart on a
         // NixOS switch, with the app open) is a success -- and must
         // skip the app-running check below.
-        if paths.is_live() {
+        if sync::overlay_live(&paths)? {
             debug!(
                 app = %p.kind.as_ref(),
                 dir = %paths.dir.display(),
@@ -224,9 +232,17 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
             );
             return Ok(());
         }
-        // Recover first (no-op when clean or live).
+        // Normalize any ungraceful state first (no-op when clean).
         crash::recover(&paths)?;
-        sync::ensure_app_not_running(p.kind, &state.user)?;
+        // Mounting under a running app would corrupt its state.
+        if sync::app_running(p.kind, &state.user)? {
+            bail!(
+                "{} is running (user={}); refusing to mount -- stop the \
+                 app first",
+                p.kind.process_name(),
+                state.user
+            );
+        }
         sync::startup(state, p)
     })?;
 
@@ -235,42 +251,51 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
 }
 
 fn cmd_resync(state: &State, profiles: &[AppProfile]) -> Result<()> {
-    // Non-live profiles are skipped inside sync::resync; liveness (not
-    // the PID file) decides what gets synced.
-    run_per_profile(state, profiles, sync::resync)
+    // Non-live profiles are skipped inside sync::resync; liveness
+    // decides what gets synced.
+    run_per_profile("resync", state, profiles, sync::resync)?;
+    Ok(())
 }
 
 fn cmd_unsync(state: &State, profiles: &[AppProfile]) -> Result<()> {
-    run_per_profile(state, profiles, sync::unsync)?;
-
-    // The PID file means "a session is live" (it gates resync): keep
-    // it while any overlay remains -- whether left live deliberately
-    // (app running) or by a partial failure.
-    if profiles.iter().any(|p| state.paths_for(p).is_live()) {
-        info!("unsync complete; some profiles left live (apps running?)");
+    let outcomes =
+        run_per_profile("unsync", state, profiles, sync::unsync)?;
+    let left_live = outcomes
+        .iter()
+        .filter(|o| matches!(o, sync::UnsyncOutcome::LeftLive))
+        .count();
+    if left_live > 0 {
+        info!(
+            left_live,
+            "unsync complete; live overlays remain (apps running)"
+        );
     } else {
-        state.mark_inactive();
         info!("unsync complete");
     }
     Ok(())
 }
 
 fn cmd_recover(state: &State, profiles: &[AppProfile]) -> Result<()> {
-    run_per_profile(state, profiles, |state, p| {
+    run_per_profile("recover", state, profiles, |state, p| {
         let paths = state.paths_for(p);
-        let recovered = crash::recover(&paths)?;
+        let outcome = crash::recover(&paths)?;
         info!(
             dir = %paths.dir.display(),
-            recovered,
+            recovered = matches!(outcome, crash::RecoverOutcome::Recovered),
             "recover done"
         );
         Ok(())
-    })
+    })?;
+    Ok(())
 }
 
 fn cmd_preview(state: &State, profiles: &[AppProfile]) {
+    let live = profiles
+        .iter()
+        .filter(|p| state.paths_for(p).is_live())
+        .count();
     println!("psd");
-    println!("  active: {}", state.is_active());
+    println!("  profiles: {}/{} live", live, profiles.len());
     println!("  volatile root: {}", state.volatile_root.display());
     println!("  profiles:");
     for p in profiles {
@@ -279,9 +304,9 @@ fn cmd_preview(state: &State, profiles: &[AppProfile]) {
         println!("      dir:     {}", paths.dir.display());
         println!("      backup:  {}", paths.backup.display());
         println!("      tmp:     {}", paths.tmp.display());
-        // UPPER is the overlay delta in tmpfs -- only exists when active.
-        // This is the actual RAM cost of the session.
-        if state.is_active()
+        // UPPER is the overlay delta in tmpfs -- only exists while
+        // live. This is the actual RAM cost of the session.
+        if paths.is_live()
             && let Ok(delta) = dir_size_human(&paths.upper)
         {
             println!("      delta:   {delta}");

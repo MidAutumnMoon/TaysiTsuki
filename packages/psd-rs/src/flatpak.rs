@@ -11,8 +11,9 @@ use std::process::Command;
 
 use anyhow::Context;
 use anyhow::Result;
-use anyhow::bail;
 use tracing::info;
+
+use crate::exec;
 
 /// Ensure the flatpak `app_id` has filesystem access to `psd_path`
 /// (the psd tmpfs root). No-op if already granted.
@@ -24,31 +25,58 @@ pub fn ensure_psd_access(app_id: &str, psd_path: &Path) -> Result<()> {
     }
 
     info!(app_id, path = %psd_path, "granting flatpak filesystem access");
-    let status = Command::new("flatpak")
-        .args([
-            "override",
-            "--user",
-            app_id,
-            &format!("--filesystem={psd_path}"),
-        ])
-        .status()
-        .context("spawning flatpak override")?;
-    if !status.success() {
-        bail!(
-            "flatpak override failed for {app_id} (exit {})",
-            status.code().unwrap_or(-1)
-        );
-    }
-    Ok(())
+    exec::run(Command::new("flatpak").args([
+        "override",
+        "--user",
+        app_id,
+        &format!("--filesystem={psd_path}"),
+    ]))
+    .with_context(|| format!("flatpak override for {app_id}"))
 }
 
-/// True if `flatpak override --user --show <app_id>` already mentions `path`.
+/// True if `flatpak override --user --show <app_id>` already grants
+/// `path`.
 fn has_filesystem(app_id: &str, path: &str) -> Result<bool> {
-    let out = Command::new("flatpak")
-        .args(["override", "--user", "--show", app_id])
-        .output()
-        .context("spawning flatpak override --show")?;
+    let out = exec::output(
+        Command::new("flatpak")
+            .args(["override", "--user", "--show", app_id]),
+    )?;
     // Non-zero exit just means no overrides set yet.
     let text = String::from_utf8_lossy(&out.stdout);
-    Ok(text.contains(path))
+    Ok(parse_has_filesystem(&text, path))
+}
+
+/// `flatpak override --show` prints `filesystems=a;b;` under
+/// `[Context]`; require an exact token match -- a substring test
+/// would false-positive on longer paths and skip a needed grant.
+fn parse_has_filesystem(show_output: &str, path: &str) -> bool {
+    show_output
+        .lines()
+        .filter_map(|l| l.trim().strip_prefix("filesystems="))
+        .any(|v| v.split(';').any(|t| t.trim() == path))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn exact_token_matches() {
+        let show = "[Context]\nfilesystems=host;/run/user/1000/psd;\n";
+        assert!(parse_has_filesystem(show, "/run/user/1000/psd"));
+    }
+
+    #[test]
+    fn substring_is_not_a_match() {
+        let show = "[Context]\nfilesystems=/run/user/1000/psd-other;\n";
+        assert!(!parse_has_filesystem(show, "/run/user/1000/psd"));
+    }
+
+    #[test]
+    fn absent_without_filesystems_line() {
+        assert!(!parse_has_filesystem(
+            "[Context]\nshared=network;\n",
+            "/run/user/1000/psd"
+        ));
+    }
 }

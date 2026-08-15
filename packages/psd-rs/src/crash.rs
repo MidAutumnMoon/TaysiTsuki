@@ -29,21 +29,28 @@ use tracing::warn;
 
 use crate::paths::ProfilePaths;
 
+/// What [`recover`] found.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RecoverOutcome {
+    /// Ungraceful state detected and normalized.
+    Recovered,
+    /// Nothing to do: `DIR` is a real directory or a live symlink.
+    Already,
+}
+
 /// Detect and normalize ungraceful state for one profile.
-///
-/// Returns `true` if recovery was performed.
-pub fn recover(paths: &ProfilePaths) -> Result<bool> {
+/// Live sessions and clean profiles are healthy -- no-op.
+pub fn recover(paths: &ProfilePaths) -> Result<RecoverOutcome> {
     // A real (non-symlink) DIR means unsync completed or psd never ran.
     // Note: `is_dir()` follows symlinks, so we check `!is_symlink()` too.
     if paths.dir.is_dir() && !paths.dir.is_symlink() {
-        return Ok(false);
+        return Ok(RecoverOutcome::Already);
     }
 
-    // DIR is a symlink resolving to an existing path: the session is
-    // live and healthy. Nothing to recover -- and nothing we may
-    // safely touch.
-    if paths.dir.is_symlink() && paths.dir.exists() {
-        return Ok(false);
+    // DIR resolves: the session is live and healthy. Nothing to
+    // recover -- and nothing we may safely touch.
+    if paths.is_live() {
+        return Ok(RecoverOutcome::Already);
     }
 
     // DIR is a dangling symlink (or missing). BACKUP must exist for recovery.
@@ -59,7 +66,7 @@ pub fn recover(paths: &ProfilePaths) -> Result<bool> {
                 format!("unlink {}", paths.dir.display())
             })?;
         }
-        return Ok(false);
+        return Ok(RecoverOutcome::Already);
     }
 
     info!(dir = %paths.dir.display(), "ungraceful state detected, recovering");
@@ -91,7 +98,7 @@ pub fn recover(paths: &ProfilePaths) -> Result<bool> {
             .with_context(|| format!("remove {}", other.display()))?;
     }
 
-    Ok(true)
+    Ok(RecoverOutcome::Recovered)
 }
 
 /// Pick the newer of `backup` / `back_ovfs` by mtime.
@@ -108,6 +115,9 @@ fn pick_recovery_target<'a>(
         return backup;
     }
     match (mtime(backup), mtime(back_ovfs)) {
+        // Ties go to BACK_OVFS: equal mtimes mean the last resync
+        // copied without changes (or timestamp granularity flapping),
+        // and the mirror is never stale relative to its source.
         (Some(b), Some(o)) if o >= b => back_ovfs,
         _ => backup,
     }
@@ -117,6 +127,8 @@ fn mtime(p: &Path) -> Option<SystemTime> {
     fs::metadata(p).and_then(|m| m.modified()).ok()
 }
 
+/// Unreadable counts as empty: we then fall back to `backup`, the
+/// safe direction (never pick a directory we couldn't inspect).
 fn is_empty_dir(p: &Path) -> bool {
     fs::read_dir(p).map_or(true, |mut it| it.next().is_none())
 }
@@ -127,15 +139,18 @@ mod tests {
 
     use tempfile::tempdir;
 
+    use crate::apps::AppKind;
+    use crate::apps::AppProfile;
+
+    /// Build real paths so tests track the actual naming scheme.
     fn make_paths(root: &Path) -> ProfilePaths {
-        ProfilePaths {
-            dir: root.join("dir"),
-            backup: root.join("dir-backup"),
-            back_ovfs: root.join("dir-back-ovfs"),
-            tmp: root.join("dir-tmp"),
-            upper: root.join("dir-rw"),
-            work: root.join(".dir"),
-        }
+        let profile = AppProfile {
+            kind: AppKind::Firefox,
+            user: "u".to_owned(),
+            path: root.join("dir"),
+            suffix: "dir".to_owned(),
+        };
+        ProfilePaths::new(&profile, root)
     }
 
     fn make_dangling(paths: &ProfilePaths) {
@@ -151,7 +166,7 @@ mod tests {
         std::fs::create_dir(&paths.tmp).unwrap();
         std::os::unix::fs::symlink(&paths.tmp, &paths.dir).unwrap();
 
-        assert!(!recover(&paths).unwrap());
+        assert_eq!(recover(&paths).unwrap(), RecoverOutcome::Already);
         assert!(paths.dir.is_symlink());
     }
 
@@ -168,7 +183,7 @@ mod tests {
         std::fs::write(paths.back_ovfs.join("data"), b"new").unwrap();
         make_dangling(&paths);
 
-        assert!(recover(&paths).unwrap());
+        assert_eq!(recover(&paths).unwrap(), RecoverOutcome::Recovered);
         assert_eq!(
             std::fs::read(paths.dir.join("data")).unwrap(),
             b"new".as_slice()
@@ -187,7 +202,7 @@ mod tests {
         std::fs::create_dir(&paths.back_ovfs).unwrap();
         make_dangling(&paths);
 
-        assert!(recover(&paths).unwrap());
+        assert_eq!(recover(&paths).unwrap(), RecoverOutcome::Recovered);
         assert_eq!(
             std::fs::read(paths.dir.join("data")).unwrap(),
             b"old".as_slice()
@@ -202,7 +217,7 @@ mod tests {
         let paths = make_paths(tmp.path());
         make_dangling(&paths);
 
-        assert!(!recover(&paths).unwrap());
+        assert_eq!(recover(&paths).unwrap(), RecoverOutcome::Already);
         assert!(paths.dir.symlink_metadata().is_err());
     }
 }
