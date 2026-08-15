@@ -34,7 +34,6 @@
     '';
 
     programs.fish.interactiveInit = /*fish*/ ''
-        ${builtins.readFile ./git-abbr.fish}
         ${lib.bakeInit pkgs pkgs.atuin "fish" "atuin init fish"}
     '';
 
