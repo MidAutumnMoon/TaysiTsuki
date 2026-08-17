@@ -8,16 +8,16 @@
 
 tsuki.rust.buildRustPackage (drvSelf: {
     pname = "nushell";
-    version = "0.114.1";
+    version = "0.115.0";
 
     src = fetchFromGitHub {
         owner = "nushell";
         repo = "nushell";
         tag = drvSelf.version;
-        hash = "sha256-EpcbOnEcu8llVNC9zGEo62dHIHUJnyRRxP4sV8kSUwY=";
+        hash = "sha256-9QzdbNP8S9TmW8MRUVqvVRAi6dxTP3T2WY3+wuypsck=";
     };
 
-    cargoHash = "sha256-KZSWYJpyeN1fTeBSpuJ5r4HKZZ8a9k5KVft9uKqOJIE=";
+    cargoHash = "sha256-Vby1x3/W1IUs73bFz/+AZpn4IepWScqrGp0tXlF6an4=";
 
     nativeBuildInputs = [
         pkg-config
