@@ -28,6 +28,7 @@ in {
         a = ["abandon"]
         s = ["status"]
         sh = ["show"]
+        l = ["log"]
 
         # Fast logs
         mine = ["log", "-r", "mine()"]
@@ -39,6 +40,7 @@ in {
         [ui]
         conflict-marker-style = "git"
         diff-formatter = ["${lib.getExe pkgs.difftastic}", "--color=always", "$left", "$right"]
+        default-command = "log"
 
         # git: commit.gpgSign = true, gpg.format = ssh,
         # user.signingKey = (private key path)
