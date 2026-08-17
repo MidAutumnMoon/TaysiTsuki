@@ -1,9 +1,19 @@
 #!/usr/bin/env nu
 
 def main [] {
-    let toplevel = (^git rev-parse --show-toplevel | str trim)
+    let toplevel = (^jj workspace root | str trim)
+    let flake_lock = $"($toplevel)/flake.lock"
+
+    # jj has no path-limited commit; split the flake.lock change out of the
+    # working-copy commit (@) instead. Guard first: split would happily
+    # rewrite @ as an empty commit when the fileset matches no changes.
+    let changed = (^jj diff --summary -r @ $flake_lock | str trim)
+    if ($changed | is-empty) {
+        error make {msg: $"flake.lock has no changes in @"}
+    }
+
     let date_str = (date now | format date "%Y/%b/%d")
     let commit_msg = $"flake update: ($date_str)"
 
-    ^git commit -m $commit_msg -- $"($toplevel)/flake.lock"
+    ^jj split -m $commit_msg $flake_lock
 }
