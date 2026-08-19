@@ -163,6 +163,11 @@ allUnique <| withValidate <|
         group = gs.go_2;
     }
     {
+        attr = tsuki "octopus";
+        group = gs.go_2;
+        update = {};
+    }
+    {
         attr = tsuki "sing-box";
         group = gs.small_1;
         update = {};
