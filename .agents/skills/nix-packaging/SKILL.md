@@ -9,46 +9,99 @@ Use when adding or updating a package in `packages/`.
 
 ## Conventions
 
-- New packages go in `packages/<name>/package.nix`. `packages/default.nix` discovers them automatically; do not register them there.
-- Add every cache-worthy package to `packages/tsuki.nix` so CI builds/updates it.
-- Reuse existing toolchain helpers when applicable (e.g. `tsuki.rust` for Rust, existing Go builders for Go).
-- Match the existing formatting: top-level `=` alignment, module-level `with`, `let`/`in` for locals.
+- One package per directory: `packages/<name>/package.nix`, auto-exposed as
+  `tsuki.<name>`. No registration needed. Other files in the dir are private —
+  load them with `callPackage ./foo.nix` inside `package.nix` if needed.
+- Depend on other repo packages through the `tsuki` argument:
+  `{ tsuki }: tsuki.rust.buildRustPackage ...`.
+- Register cache-worthy packages in `packages/tsuki.nix`:
+  - `group` (`go_1`, `go_2`, `rust_1`, `rust_2`, `small_1`) only splits CI build
+    jobs — pick a fitting one.
+  - `update = {}` opts into scheduled `nix-update`; omit it for repo-pinned
+    versions (workspace crates, flake inputs). Further knobs when needed:
+    `version_regex`, `unstable_branch`, `preview_release`, `pinned`, `subpackages`.
+- Unstable branches version as `0-unstable-YYYY-MM-DD`. Tests off by default
+  (`doCheck = false`).
+- Style: 4-space indent, aligned `=`, pipe operators (`|>`, `<|`) from latest nix, `drvSelf:`
+  argument for self-reference, `/*sh*/` before phase strings.
 
-## Few-Shot Patterns
+## Patterns
 
-A generic package:
+Upstream Rust — always `tsuki.rust` (rust-overlay toolchain), never nixpkgs
+`rustPlatform`; static builds via `pkgsStatic.tsuki.rust`:
 
 ```nix
-{
-    lib, stdenv, fetchFromGitHub,
-    # other deps
-}:
+{ lib, stdenv, fetchFromGitHub, tsuki }:
 
-stdenv.mkDerivation rec {
+tsuki.rust.buildRustPackage (drvSelf: {
     pname = "example";
-    version = "1.0.0";
+    version = "1.2.3";
+
     src = fetchFromGitHub {
-        owner = "..."; repo = "..."; tag = "v${version}";
+        owner = "..."; repo = "...";
+        tag = "v${drvSelf.version}";
         hash = "sha256-...";
     };
-    meta.mainProgram = "example";
+    cargoHash = "sha256-...";
+    doCheck = false;
+    RUSTFLAGS = with stdenv;
+        lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3";
+})
+```
+
+Rust crate from this repo's Cargo workspace:
+
+```nix
+{ tsuki }:
+
+tsuki.rust.buildRustPackage rec {
+    pname = "my-crate";
+    version = "0.1.0";
+    inherit (tsuki.workspace) src cargoLock;
+    cargoBuildFlags = "-p ${pname}";
+    doCheck = false;
 }
 ```
 
-A Rust package uses `tsuki.rust.buildRustPackage` and usually needs `cargoHash` (or `cargoLock`) plus `tsuki.rust.bindgenHook` when vendored C libraries are involved.
-
-Its maintenance entry:
+Prebuilt GitHub-release binary — `stdenv.mkDerivation` + `autoPatchelfHook`
+(`stdenv.cc.cc.lib` in `buildInputs` for glibc-linked binaries):
 
 ```nix
-{ attr = tsuki "example"; group = gs.rust_1; update = {}; }
+src = tsuki.fetchGitHubRelease {
+    owner = "..."; repo = "..."; tag = "v${version}";
+    file = "example-linux-x86_64.tar.gz";
+    hash = "sha256-...";
+};
 ```
+
+Go — plain nixpkgs `buildGoModule` + `vendorHash`; conventionally
+`env.CGO_ENABLED = 0` and `env.GOAMD64 = "v3"`.
 
 ## Gotchas
 
-- **New files must be `git add`ed before Nix sees them.** The flake uses `git+file://`; untracked files are invisible to `nix build`/`nix run`.
-- **`cargoHash` placeholder trick.** For Rust packages, start from `sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=` and copy the "got:" hash from the build error.
-- **Upstream Rust linker configs.** Some Rust repos force `clang` + `mold` in `.cargo/config.toml`. Strip or override it if linking fails with "cannot find 'ld'".
-- **Bindgen crates need `tsuki.rust.bindgenHook`.** If a vendored C dependency panics on "Unable to find libclang", add it.
-- **Base32 prefetch output.** `nix-prefetch-url --unpack` returns base32; convert with `nix-hash --to-sri --type sha256 ...` before pasting into `hash`.
+### Git visibility
 
-Avoid `nix flake show` and `nixos-rebuild` unless explicitly requested.
+- **New files must be `git add`ed before Nix sees them** — the flake is a
+  `git+file` tree; untracked files are invisible to `nix build`/`nix run`.
+- **`tsuki.workspace` src is `gitTracked` ∩ workspace files** — untracked crate
+  sources silently fall out of the build input.
+
+### Hashes
+
+- **`cargoHash` placeholder trick** — start from
+  `sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=`, copy the "got:" hash
+  from the build error.
+- **`nix-prefetch-url --unpack` returns base32** — convert with
+  `nix-hash --to-sri --type sha256` before pasting into `hash`.
+
+### Rust builds
+
+- **Bindgen crates need `tsuki.rust.bindgenHook`** — vendored C dependency
+  panicking on "Unable to find libclang" → add to `nativeBuildInputs`.
+- **Upstream `.cargo/config.toml` linker configs** (forced `clang`+`mold`) break
+  the stdenv linker ("cannot find 'ld'") — strip via `postPatch`.
+
+### Update quirks
+
+- **Odd tags need `version_regex`** — `hysteria` (`app/v(.*)`), `playwright-cli`
+  (deprecated stub tags sort above real ones; pinned to `v(0\.1\..*)`).
