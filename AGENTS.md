@@ -16,14 +16,11 @@ Do not pipe any command output through `head` or `tail`, tools will properly han
 
 ## Fitting New Code
 
-- Read the surrounding code before writing. Extend an existing abstraction over
-  duplicating; if the new feature doesn't fit, reshape the surrounding code to
-  make a place for it rather than force-fitting.
-- Reshapes must stay behavior-preserving for other consumers. `nixos/` and
-  `tsukilib/` are used by multiple machines - call out any behavior change.
-- Don't over-refactor: scale the reshape to the feature.
-- No bolt-ons: special-case flags, parallel implementations, copy-paste,
-  "refactor later" patches.
+- Recover the domain truth before choosing a shape: valid states, natural owner, boundaries, and relevant failure or resource constraints.
+- Give each fact one authoritative home. Prefer representations and APIs that enforce invariants over comments or caller discipline.
+- Read the surrounding code first. Extend an abstraction only when the new behavior shares its policy and ownership; otherwise reshape proportionally instead of adding special cases, parallel paths, or copied logic.
+- Keep dependencies and data flow explicit. Do not recover required context from ambient state or reconstruct information discarded earlier.
+- Design for real pressures, not hypothetical reuse. Preserve existing behavior unless a change is requested; consolidate experiments before landing.
 
 ## How to Work Here
 
