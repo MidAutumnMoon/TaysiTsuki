@@ -240,8 +240,9 @@ fn par2_volumes(parent: &Path, name: &str) -> Result<Vec<PathBuf>> {
     let mut accu = vec![];
     for file in collect_read_dir(parent)? {
         let basename = basename_of(&file)?;
-        if basename.starts_with(&format!("{name}.vol"))
-            && basename.ends_with("par2")
+        if basename
+            .strip_circumfix(&format!("{name}.vol"), "par2")
+            .is_some()
         {
             accu.push(file);
         }

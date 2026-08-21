@@ -60,7 +60,7 @@ fn parse_profiles_ini(ini: &Path, base: &Path) -> Result<Vec<PathBuf>> {
         {
             continue;
         }
-        if line.starts_with('[') && line.ends_with(']') {
+        if line.strip_circumfix("[", "]").is_some() {
             // New section: flush previous.
             if let (Some(p), Some(rel)) =
                 (current_path.take(), current_is_relative.take())
