@@ -147,8 +147,7 @@ mod tests {
         let paths = make_paths(tmp.path());
         std::fs::create_dir(&paths.tmp).unwrap();
         std::os::unix::fs::symlink(&paths.tmp, &paths.dir).unwrap();
-
-        assert_eq!(recover(&paths).unwrap(), RecoverOutcome::Already);
+        std::assert_matches!(recover(&paths).unwrap(), RecoverOutcome::Already);
         assert!(paths.dir.is_symlink());
     }
 
@@ -164,8 +163,7 @@ mod tests {
         std::fs::create_dir(&paths.back_ovfs).unwrap();
         std::fs::write(paths.back_ovfs.join("data"), b"new").unwrap();
         make_dangling(&paths);
-
-        assert_eq!(recover(&paths).unwrap(), RecoverOutcome::Recovered);
+        std::assert_matches!(recover(&paths).unwrap(), RecoverOutcome::Recovered);
         assert_eq!(
             std::fs::read(paths.dir.join("data")).unwrap(),
             b"new".as_slice()
@@ -183,8 +181,7 @@ mod tests {
         std::fs::write(paths.backup.join("data"), b"old").unwrap();
         std::fs::create_dir(&paths.back_ovfs).unwrap();
         make_dangling(&paths);
-
-        assert_eq!(recover(&paths).unwrap(), RecoverOutcome::Recovered);
+        std::assert_matches!(recover(&paths).unwrap(), RecoverOutcome::Recovered);
         assert_eq!(
             std::fs::read(paths.dir.join("data")).unwrap(),
             b"old".as_slice()
@@ -198,8 +195,7 @@ mod tests {
         let tmp = tempdir().unwrap();
         let paths = make_paths(tmp.path());
         make_dangling(&paths);
-
-        assert_eq!(recover(&paths).unwrap(), RecoverOutcome::Already);
+        std::assert_matches!(recover(&paths).unwrap(), RecoverOutcome::Already);
         assert!(paths.dir.symlink_metadata().is_err());
     }
 }
