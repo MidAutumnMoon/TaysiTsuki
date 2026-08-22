@@ -1,13 +1,13 @@
 ---
 name: code-cultivation
-description: Review and refactor code for semantic coherence, explicit invariants, clear ownership, and maintainable structure. Use when the user asks for clean-code or architecture review, root-cause refactoring, API/test/comment audit, or help fitting new behavior into an existing design.
+description: Review and refactor code for semantic coherence, explicit invariants, clear ownership, and maintainable structure. Use when the user asks for clean-code or architecture review, root-cause refactoring, API/configuration/schema/test/documentation audit, or help fitting new behavior into an existing design.
 ---
 
 # Code cultivation: make the structure tell the truth
 
 Beautiful code minimizes the distance between what must be true and how that truth is represented. Review is causal model repair: recover the truth, find where the code contradicts it, fix the model where the invariant belongs, and make that truth hard to lose again.
 
-The unit of review is the causal chain, not the file or diff. Use this doctrine to decide; do not recite it to the user unless asked. Findings and changes must stay concrete.
+Review the causal chain, not the file or diff. Keep that reasoning internal; report concrete findings and changes.
 
 ## Taste
 
@@ -23,9 +23,13 @@ When qualities conflict, use this order by default:
 6. Precise, readable expression.
 7. Superficial uniformity, lower nesting, or fewer lines.
 
-Explicit domain, compatibility, security, and resource constraints may override this order; name the tradeoff when they do. Repeated syntax may encode different knowledge. Terse code may still be complicated. Thin wrappers can own real context.
+Domain, compatibility, security, and resource constraints may change this order; name the tradeoff. Similar syntax may encode different knowledge. Terse code can still be complicated. A thin wrapper may still own real context.
 
-A smell is a hypothesis, not a verdict. Taste opens the investigation; evidence decides it. Match the intervention to the evidence and the cost of being wrong. Expensive or hard-to-reverse changes need stronger proof; under uncertainty, prefer a reversible probe that settles the question.
+Correctness covers normal transitions and user workflows. A set of valid snapshots is not enough.
+
+A smell is a lead, not a verdict. Evidence decides whether it matters. Match the fix to the evidence and the cost of being wrong. For risky changes, start with a reversible probe.
+
+Match certainty to evidence. A sample, inference, or metadata check can be useful; it does not prove an exact claim unless the contract defines it that way.
 
 ## Modes
 
@@ -37,10 +41,12 @@ Infer the mode from the request. In review mode, report only material findings, 
 
 Recover intent before judging shape.
 
-- Establish intended behavior and record what the code does now. Preserve the intended behavior; treat any gap between the two as evidence.
-- Identify only the relevant domain facts, valid states, ownership, trust boundaries, persistence, failure behavior, and resource constraints.
-- Read the implementation and its callers, tests, and comments. Inspect history when the code looks half-migrated.
-- Before changing an exported symbol, compute its references. Blast radius is a query, not a guess.
+- Write down intended behavior, normal transitions, and current behavior. A gap is evidence.
+- Record the domain facts and valid states. Note who owns them and which boundaries, persistence rules, failure modes, or resource limits matter.
+- Separate exact facts from estimates and review hints. Do not enforce more certainty than the evidence supports.
+- For persisted or generated artifacts, trace the whole lifecycle: creation, editing, validation, execution, and resume or migration.
+- Read the implementation, callers, tests, help, examples, and docs. Inspect history when the code looks half-migrated.
+- Before changing an exported symbol or persisted shape, find its consumers. Blast radius is a query, not a guess.
 
 Assume surprising code may encode a constraint until the causal chain proves otherwise. The current implementation is evidence of intent, not its authority.
 
@@ -50,10 +56,13 @@ Follow the relevant chain from input to representation to decision to effect. Pr
 
 Look for downstream code compensating for an upstream mismatch:
 
-- coupled flags or collections that must stay synchronized;
+- flags, fields, or collections that must stay synchronized;
+- claims named "exact", "safe", or "identical" but backed only by samples, metadata, or defaults;
+- fields that become ignored or contradictory in some modes;
+- mutable policy copied into identifiers, schemas, tests, or docs;
+- validators that make a routine transition require coordinated edits;
 - special cases, magic offsets, or cleanup after the fact;
-- multiple constants, schemas, comments, or tests carrying one fact;
-- ambient reads, wrappers around wrappers, or awkward fixture setup;
+- ambient reads, unexplained wrappers, or awkward fixtures;
 - dead dependents left by an earlier migration.
 
 The root may be the wrong representation or owner, a missing or needless distinction, a semantic lie, or an absent seam. It is not necessarily the oldest line, largest function, or most connected symbol.
@@ -66,10 +75,12 @@ Before acting, ask:
 
 - What is the strongest case for keeping this code?
 - What policy, context, capability, or protected invariant does this abstraction add?
-- Is it redundant globally or only when viewed locally?
-- What else changes if this code moves or disappears?
-- Is the probe, fixture, or measurement trustworthy?
-- Does a real requirement demand this generality, or only a hypothetical future?
+- Is it redundant globally, or only from this local viewpoint?
+- Is the state truly invalid, or is the model making a valid transition awkward?
+- Does the evidence support an exact claim, or only a useful hint?
+- Is the probe, fixture, selector, or measurement trustworthy?
+- Who else depends on this behavior?
+- Does a real requirement demand this generality, or only hypothetical reuse?
 
 State confidence. If you cannot show the causal link, downgrade or drop the finding.
 
@@ -77,38 +88,45 @@ State confidence. If you cannot show the causal link, downgrade or drop the find
 
 Repair in the layer responsible for enforcing the invariant. Prefer moves that reduce the facts a maintainer must keep in sync:
 
-- choose a representation that excludes invalid states;
-- merge independently maintained facts, not merely similar syntax;
-- introduce a missing distinction or remove an unnecessary one;
+- choose a representation that excludes invalid states and keeps normal transitions local;
+- merge independently maintained facts; add or remove distinctions when the domain requires it;
 - move responsibility to its natural owner and expose ambient dependencies;
+- keep mutable policy in data rather than labels;
+- remove knobs that are ignored or have no proven purpose;
+- keep exact facts separate from heuristic inputs when both are needed;
 - remove an abstraction with no semantic delta, or add the seam whose absence generates compensation.
 
-Make a clean cutover: migrate callers and remove obsolete paths, parallel implementations, and stale explanations. Compatibility is a domain constraint, not an automatic virtue; preserve it only for real external consumers or an explicit requirement.
+Make a clean cutover: migrate callers and remove obsolete paths, parallel implementations, and stale explanations. Compatibility is a requirement to prove, not a default. If stored data changes, choose and document migration, explicit version rejection, or compatibility.
 
 Scale the reshape to the evidence. Permission for architectural or breaking change is not a mandate to rewrite unrelated code.
 
-During exploration, optimize for learning and reversibility. Once the direction works, consolidate: remove probes, reconcile duplicated mechanisms, normalize names, and leave one coherent representation.
+While exploring, favor reversible changes that teach you something. Once the direction works, remove probes, reconcile duplicate mechanisms, normalize names, and leave one coherent design.
 
 ### 5. Re-scan
 
-After changing ownership, dependencies, or representation, inspect the affected causal chain:
+After changing ownership, dependencies, validation, or representation, inspect the affected causal chain:
 
 - Which compensations and second-order dependents are now dead?
 - Did the change expose a missing seam or create another representation of the same fact?
-- Are names, tests, comments, schemas, and persisted-data assumptions still true?
+- Replay the simplest normal edit or state transition. Does it still work locally?
+- If stricter validation breaks a normal workflow, is the input wrong or the model?
+- Do code, tests, schemas, help, and docs still agree, including versions and stated limits?
 - Does the next plausible change now have one obvious home?
 
-Re-scan once. Continue only when new evidence exposes another material cause. This bounded second pass is the heart of chain-reaction review.
+Re-scan once. Continue only if the second pass uncovers another material cause. This catches fallout without turning review into an endless rewrite.
 
 ### 6. Prove and guard
 
 Verify intended behavior against the observed baseline. A green build proves validity, not behavior.
 
-- Exercise the real flow for behavior and state changes.
+- Reproduce the suspected failure or contradiction with the narrowest trustworthy probe before changing it.
+- Exercise the real flow, including ordinary edits, persistence, transitions, and recovery.
+- If the contract says "exact", inspect all relevant data or use a check with the same guarantee. Measure heuristics separately.
+- At external boundaries, inspect the resulting artifact or state; a return value or exit code is insufficient.
 - Test affected boundaries, failure paths, scale, and concurrency.
-- For UI or layout, verify the actual surface and measure relationships or invariants, not isolated values.
-- For removals and renames, prove no live callers remain.
-- When evidence surprises, rule out a bad selector, fixture, state, or probe before diagnosing the code.
+- For UI or layout, verify the actual surface and measure relationships, not isolated values.
+- For removals and renames, prove no live callers or persisted references remain.
+- When evidence surprises, check the selector, fixture, environment, and probe before blaming the code.
 
 Guard recurrence-prone invariants at the strongest practical layer:
 
@@ -124,15 +142,15 @@ Dead residue needs no memorial. Add a test only when an observable contract lack
 
 Use only those suggested by the evidence.
 
-- **Semantics:** Do names, contracts, and behavior agree?
-- **State:** Can invalid combinations exist or coupled values drift?
+- **Semantics and evidence:** Do names, contracts, behavior, and certainty agree?
+- **State:** Can invalid combinations exist, or do valid transitions require coordinated mutation?
 - **Ownership:** Is the invariant enforced by its natural owner or recovered through ambient knowledge?
 - **Abstraction:** What policy, context, capability, or protected invariant does this layer add?
 - **Information flow:** Is information carried forward or reconstructed after being discarded?
 - **Change topology:** How many places encode one fact, and where would the next plausible change land?
-- **Operational contract:** Do resource use, I/O volume, latency, cancellation, concurrency, persistence, and failure behavior match the contract and expected scale?
-- **Tests and comments:** Do they protect stable promises or narrate incidental implementation?
-- **Time:** Is this live intent, migration residue, or persisted legacy shape?
+- **Operational contract:** Do I/O, latency, cancellation, concurrency, persistence, recovery, and external effects match the contract?
+- **Evolution:** Can schemas, versions, generated artifacts, and routine user edits change deliberately?
+- **Tests and docs:** Do tests, help, examples, comments, and docs agree on the stable promises?
 
 ## Reporting
 
@@ -179,8 +197,8 @@ Decision: keep them. Thinness is not absence of value; the wrappers own context.
 
 This skill covers structural and semantic quality. Run specialist security, performance, accessibility, and domain passes when those claims matter.
 
-Metrics are signals, not objectives. Do not extract code just to lower nesting or file length, or merge semantic roles because their values happen to match. Do not introduce generality without real pressure or replace clear local code with a framework for hypothetical consistency. Do not patch a symptom while its generator is reachable, and do not force every investigation to end in a refactor.
+Metrics are signals, not objectives. Do not extract code merely to lower nesting or file length, and do not merge roles because their values happen to match. Do not give a heuristic an exact-sounding name or add generality without real pressure. Do not patch a symptom while its generator is reachable.
 
-A one-off is acceptable when it is honestly local and creates no duplicated knowledge or cascade. Verbose code is acceptable when it exposes a real constraint. Deletion is evidence of simplification, not its definition.
+A local one-off is fine if it stays local and duplicates no policy. Verbose code is fine when it exposes a real constraint. Delete stale explanations; preserve live constraints and state current limits.
 
-Stop when the relevant truth has one authoritative home, misuse is structurally difficult, the affected causal chain is clean, behavior is proven, and remaining discomfort points to no concrete failure or future change cost.
+Stop when each relevant truth has one owner, normal transitions stay local, code and user-facing material agree, and behavior is proven. Remaining discomfort needs a concrete failure or change cost before more work.

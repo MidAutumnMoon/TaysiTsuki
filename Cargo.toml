@@ -24,18 +24,81 @@ lto = "thin"
 strip = "debuginfo"
 
 [workspace.lints.clippy]
-all = { priority = -1, level = "warn" }
-pedantic = { priority = -1, level = "warn" }
-nursery = { priority = -1, level = "warn" }
 
+# Broad groups: lowest priority
+all = { level = "warn", priority = -2 }
+pedantic = { level = "warn", priority = -2 }
+nursery = { level = "warn", priority = -2 }
+restriction = { level = "warn", priority = -2 }
+# cargo = { level = "warn", priority = -2 }
+
+# Override part of `all`
+correctness = { level = "deny", priority = -1 }
+
+# Suppress Clippy's warning about enabling all restriction lints.
+blanket_clippy_restriction_lints = "allow"
+
+# Too annoying!
 cognitive_complexity = "allow"
-literal_string_with_formatting_args = "allow"
-missing_const_for_fn = "allow"
+missing_const_for_fn = "allow" # has bug
 too_many_lines = "allow"
 
-unwrap_used = "warn"
-panic = "warn"
-indexing_slicing = "warn"
-unreachable = "warn"
-undocumented_unsafe_blocks = "warn"
-unwrap_in_result = "warn"
+missing_errors_doc = "warn"
+
+# Noah allows
+struct_excessive_bools = "allow"
+
+# Allow quite few lints from correctness group, these can be useful
+# in some specific cases but generally they are dumb.
+implicit_return = "allow"
+default_numeric_fallback = "allow"
+question_mark_used = "allow"
+print_stderr = "allow"
+print_stdout = "allow"
+arbitrary_source_item_ordering = "allow"
+missing_docs_in_private_items = "allow"
+missing_inline_in_public_items = "allow"
+missing_trait_methods = "allow"
+single_call_fn = "allow"
+non_ascii_literal = "allow"
+inline_modules = "allow"
+integer_division_remainder_used = "allow"
+as_conversions = "allow"
+mod_module_files = "allow"
+
+# Shadow is useful, clippy's lints on shadow_same and shadow_reuse
+# are unreasonable, though shadow_unrelated can be useful.
+shadow_same = "allow"
+shadow_reuse = "allow"
+shadow_unrelated = "warn"
+
+# Useful when writting no_std codes, but annoying in general codes.
+std_instead_of_alloc = "allow"
+std_instead_of_core = "allow"
+
+# I prefer 1_u64 style
+separated-literal-suffix = "allow"
+
+# Useful in embedded environments, but annoying in general codes.
+float_arithmetic = "allow"
+
+# I prefer semicolon inside block style,
+# i.e.
+# {
+#     f();
+# }
+semicolon_outside_block = "allow"
+
+# I like it
+impl_trait_in_params = "allow"
+
+# Too annoying for normal Rust apps, seletively enable for specific module,
+# see tomato.rs for an example.
+arithmetic_side_effects = "allow"
+
+# Prefer match ergonomics or explicit ownership like as_ref().
+pattern_type_mismatch = "allow"
+
+# I prefer pub(crate) shorthand
+pub_with_shorthand = "allow"
+
