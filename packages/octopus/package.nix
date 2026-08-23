@@ -10,13 +10,13 @@
 }:
 
 let
-    version = "0.10.3";
+    version = "0.11.0";
 
     src = fetchFromGitHub {
         owner = "bestruirui";
         repo = "octopus";
         rev = "v${version}";
-        sha256 = "sha256-KEwWVJl+UIhHbE9R/JldlaEJ/WzhCw4qSFcygVtcEvY=";
+        sha256 = "sha256-h61zt5p3fwqRtlx0akFOT+C6VpAt+4oBsayHLOg5AFM=";
     };
 
     pnpm = pnpm_11;
