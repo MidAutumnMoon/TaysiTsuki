@@ -55,7 +55,6 @@
 
         Homepage.StartPage = "previous-session";
         HttpsOnlyMode = "enabled";
-        NetworkPrediction = false;
         NewTabPage = false;
         NoDefaultBookmarks = true;
         PopupBlocking.Default = true;
@@ -65,10 +64,6 @@
             Camera.BlockNewRequests = true;
             Microphone.BlockNewRequests = true;
             Location.BlockNewRequests = true;
-        };
-
-        SanitizeOnShutdown = {
-            Cache = true;
         };
 
         SearchSuggestEnabled = false;
@@ -148,12 +143,9 @@
         "geo.enabled" = false;
         "gfx.webrender.all" = true;
 
-        "javascript.options.baselinejit.threshold" = 50;
-
         "media.autoplay.default" = 5;
         "media.autoplay.blocking_policy" = 2;
         # 16GiB in KiB
-        "media.memory_cache_max_size" = 16777216;
         "media.peerconnection.enabled" = false;
         "media.webspeech.recognition.enable" = false;
         "media.webspeech.synth.enabled" = false;

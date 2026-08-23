@@ -90,6 +90,9 @@ in rec {
         inherit (tsuki) deno;
     };
 
+    # 154 has bugs, keep 153.0.4 from the pinned nixpkgs.
+    firefox = (legacyFrom "nixpkgs-firefox").firefox;
+
     zram-generator =
         lib.onceride prev.zram-generator
         { rustPlatform = tsuki.rust; }

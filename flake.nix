@@ -42,6 +42,11 @@
             inputs.flake-parts.follows = "flake-parts";
         };
 
+        # Pinned: firefox 154 has bugs; keep 153.0.4 from before the bump
+        # (nixpkgs PR #553655).
+        nixpkgs-firefox.url =
+            "github:NixOS/nixpkgs/c3100230c433c5bcaaba02001d99ac50c16f7bbb";
+
         # tangled = {
         #     url = "git+https://tangled.org/tangled.org/core?shallow=1";
         #     inputs = {
