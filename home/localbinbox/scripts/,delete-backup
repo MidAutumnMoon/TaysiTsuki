@@ -1,8 +1,8 @@
 #!/usr/bin/env fish
 
 fd \
-    --type directory \
     --no-ignore \
     --hidden \
-    '.backup' \
+    '.backup|.imgo-review|imgo-plan.json' \
     -x rm -rvf
+    # -x echo
