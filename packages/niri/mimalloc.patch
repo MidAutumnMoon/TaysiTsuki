@@ -1,0 +1,82 @@
+diff --git i/Cargo.lock w/Cargo.lock
+index b03ba15c..4148d4e3 100644
+--- i/Cargo.lock
++++ w/Cargo.lock
+@@ -2017,6 +2017,15 @@ version = "0.2.16"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "b6d2cec3eae94f9f509c767b45932f1ada8350c4bdb85af2fcab4a3c14807981"
+ 
++[[package]]
++name = "libmimalloc-sys"
++version = "0.1.49"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "6a45a52f43e1c16f667ccfe4dd8c85b7f7c204fd5e3bf46c5b0db9a5c3c0b8e9"
++dependencies = [
++ "cc",
++]
++
+ [[package]]
+ name = "libredox"
+ version = "0.1.16"
+@@ -2187,6 +2196,15 @@ dependencies = [
+  "syn 2.0.117",
+ ]
+ 
++[[package]]
++name = "mimalloc"
++version = "0.1.52"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "2d4139bb28d14ad1facf21d5eb8825051b326e172d216b39f6d31df53cc97862"
++dependencies = [
++ "libmimalloc-sys",
++]
++
+ [[package]]
+ name = "minimal-lexical"
+ version = "0.2.1"
+@@ -2264,6 +2282,7 @@ dependencies = [
+  "libc",
+  "libdisplay-info",
+  "log",
++ "mimalloc",
+  "niri-config",
+  "niri-ipc",
+  "ordered-float",
+diff --git i/Cargo.toml w/Cargo.toml
+index fa7164e9..e2bcbd62 100644
+--- i/Cargo.toml
++++ w/Cargo.toml
+@@ -21,7 +21,7 @@ clap = { version = "4.6.1", features = ["derive"] }
+ insta = "1.47.2"
+ serde = { version = "1.0.228", features = ["derive"] }
+ serde_json = "1.0.149"
+-tracing = { version = "0.1.44", features = ["max_level_trace", "release_max_level_debug"] }
++tracing = { version = "0.1.44", features = ["max_level_warn", "release_max_level_warn"] }
+ tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+ tracy-client = { version = "0.18.4", default-features = false }
+ 
+@@ -78,6 +78,7 @@ keyframe = { version = "1.1.1", default-features = false }
+ libc = "0.2.185"
+ libdisplay-info = "0.3.0"
+ log = { version = "0.4.29", features = ["max_level_trace", "release_max_level_debug"] }
++mimalloc = { version = "0.1.52", features = ["override"] }
+ niri-config = { version = "26.4.0", path = "niri-config" }
+ niri-ipc = { version = "26.4.0", path = "niri-ipc", features = ["clap"] }
+ ordered-float = "5.3.0"
+diff --git i/src/main.rs w/src/main.rs
+index e80992ee..7aaefec5 100644
+--- i/src/main.rs
++++ w/src/main.rs
+@@ -38,6 +38,12 @@ const DEFAULT_LOG_FILTER: &str = "niri=debug,smithay::backend::renderer::gles=er
+ static GLOBAL: tracy_client::ProfiledAllocator<std::alloc::System> =
+     tracy_client::ProfiledAllocator::new(std::alloc::System, 100);
+ 
++use mimalloc::MiMalloc;
++
++#[cfg(not(feature = "profile-with-tracy-allocations"))]
++#[global_allocator]
++static GLOBAL: MiMalloc = MiMalloc;
++
+ fn main() -> Result<(), Box<dyn std::error::Error>> {
+     // Set backtrace defaults if not set.
+     if env::var_os("RUST_BACKTRACE").is_none() {

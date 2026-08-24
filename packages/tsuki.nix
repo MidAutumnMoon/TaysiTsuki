@@ -52,6 +52,7 @@ let
         small_1 = "Small_Trivial_1";
         rust_1 = "Rust_1";
         rust_2 = "Rust_2";
+        niri = "Niri";
         # kernel = "Cachy_Kernel";
     };
 
@@ -230,5 +231,6 @@ allUnique <| withValidate <|
     { attr = "nixd"; group = "Nixd"; }
     { attr = "lix"; group = "Lix"; }
     { attr = "colmena"; group = "Colmena"; }
+    { attr = "tsuki.niri"; group = "Niri"; }
 
 ]

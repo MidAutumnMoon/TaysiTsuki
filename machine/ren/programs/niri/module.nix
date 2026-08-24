@@ -11,6 +11,7 @@ let
 in {
     programs.niri.enable = true;
     programs.niri.useNautilus = false;
+    programs.niri.package = pkgs.tsuki.niri;
 
     environment.systemPackages = with pkgs; [
         kdePackages.breeze
