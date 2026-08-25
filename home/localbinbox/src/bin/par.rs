@@ -114,6 +114,7 @@ fn par(path: &Path) -> Result<()> {
             // 5% of redundancy
             .arg("-r5")
             .arg("-q")
+            .arg("--")
             // N.B. chdir above
             .arg(basename)
             .spawn()

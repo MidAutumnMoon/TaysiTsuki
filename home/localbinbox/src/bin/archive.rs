@@ -133,15 +133,24 @@ fn archive_using_7z(src: &Path, dst: &Path) -> Result<()> {
     let status = Command::new(CFG_7Z_PATH.unwrap_or("7zz"))
         // a : archive
         .arg("a")
-        .args(["-slp", "-ssp"])
-        // 7z archive
+        // Prevent changing source file' last access time.
+        .arg("-ssp")
+        // Stop archive if can't open source file.
+        .arg("-sse")
+        // Disable wildcard
+        .arg("-spd")
+        // it's 7z archive
         .arg("-t7z")
         // 7z lzma2
         .arg("-m0=lzma2")
-        // level of compression
+        // level of compression (x) and analysis (yx)
         .args(["-mx9", "-myx9"])
-        // 15GiB solid block
+        // Threads, less threads can yield better compression ratio.
+        .arg("-mmt=2")
+        // 16GiB solid block
         .arg("-ms=16G")
+        // Sort files in solid archive
+        .arg("-mqs=on")
         // dictionary size
         .arg("-md=3840M")
         .arg("--")
