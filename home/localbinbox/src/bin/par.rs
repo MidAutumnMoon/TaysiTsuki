@@ -1,11 +1,8 @@
 use std::env::current_dir;
 use std::env::set_current_dir;
-use std::io::BufRead as _;
-use std::io::BufReader;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
-use std::process::Stdio;
 
 use anyhow::Context as _;
 use anyhow::Result;
@@ -17,8 +14,6 @@ use ino_color::fg::Yellow;
 use ino_iter::InoIter as _;
 use itertools::Itertools as _;
 use localbinbox::collect_read_dir;
-use tap::Pipe as _;
-use tap::Tap as _;
 
 const CFG_PAR2: Option<&str> = option_env!("CFG_PAR2");
 
@@ -53,15 +48,14 @@ fn main() -> Result<()> {
     };
 
     for p in paths {
-        par_sum(&p).context("Error while processing path")?;
+        par(&p).context("Error while processing path")?;
     }
 
     Ok(())
 }
 
-/// Generate par2archive and checksum the generated files.
-#[expect(clippy::too_many_lines)]
-fn par_sum(path: &Path) -> Result<()> {
+/// Generate par2archive files.
+fn par(path: &Path) -> Result<()> {
     enum PathType {
         File,
         Dir,
@@ -146,71 +140,6 @@ fn par_sum(path: &Path) -> Result<()> {
         std::fs::rename(&par2_volume, parent.join(par2_index_name))
             .context("Failed to rename par2 index file")?;
     }
-
-    ceprintln!(Blue, "Checksum for {}", basename_of(path)?);
-
-    let checksum_file = match path_type {
-        PathType::Dir => {
-            set_current_dir(path)?;
-            path.join("__directory.sha256sum")
-        }
-        PathType::File => {
-            let parent = parent_of(path)?;
-            let basename = basename_of(path)?;
-            set_current_dir(parent)?;
-            parent.join(format!("{basename}.sha256sum"))
-        }
-    };
-
-    let checksum = {
-        // Duplicate src_files and add `.par2` to each one.
-        let src_files = {
-            let mut src_files_par2 = vec![];
-            for f in src_files.clone() {
-                let basename = basename_of(&f)?;
-                let par2 = format!("{basename}.par2");
-                f.tap_mut(|f| f.set_file_name(par2))
-                    .pipe(|v| src_files_par2.push(v));
-            }
-            src_files.tap_mut(|s| s.append(&mut src_files_par2))
-        };
-
-        let basenames = src_files
-            .into_iter()
-            .map(|v| basename_of(&v).map(str::to_owned))
-            .collect::<Result<Vec<_>>>()?
-            .into_iter()
-            .sorted()
-            .collect::<Vec<_>>();
-
-        let mut checksum = String::with_capacity(4 * 1000);
-
-        // N.B. chdir above.
-        // Paths in the checksum file will be relative.
-        // Maybe implement it in Rust would be more performant...
-        let mut child = Command::new("sha256sum")
-            .arg("--")
-            .args(&basenames)
-            .stdout(Stdio::piped())
-            .spawn()
-            .context("Failed to spawn sha256sum")?;
-
-        let stdout = child.stdout.take().ok_or_else(|| {
-            anyhow::anyhow!("[BUG] Can not take child stdout")
-        })?;
-
-        for line in BufReader::new(stdout).lines() {
-            let line = format!("{}\n", line?);
-            checksum.push_str(&line);
-            eprint!("{line}");
-        }
-
-        ensure!(child.wait()?.success(), "sha256sum exited with error");
-
-        checksum
-    };
-
-    std::fs::write(&checksum_file, checksum)?;
 
     Ok(())
 }
