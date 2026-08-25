@@ -20,6 +20,7 @@ use tracing::info;
 use tracing::warn;
 
 mod apps;
+mod checkpoint;
 mod config;
 mod crash;
 mod exec;
@@ -184,6 +185,9 @@ fn validate_profiles(
             );
         }
         let paths = state.paths_for(profile);
+        for path in [&paths.backup, &paths.upper, &paths.work] {
+            validate_overlay_option_path(path)?;
+        }
         for other in rest {
             if profile.path == other.path {
                 bail!(
@@ -216,9 +220,29 @@ fn validate_profiles(
     Ok(())
 }
 
-/// Run `op` on each profile independently; log and collect errors,
-/// then fail once at the end. Partial progress stands -- the next run
-/// converges from it. Returns each profile's outcome.
+fn validate_overlay_option_path(path: &std::path::Path) -> Result<()> {
+    let value = path.to_str().with_context(|| {
+        format!(
+            "overlay path is not valid UTF-8 and cannot be encoded safely: {}",
+            path.display()
+        )
+    })?;
+    if value
+        .bytes()
+        .any(|byte| matches!(byte, b',' | b':' | b'\\'))
+    {
+        bail!(
+            "overlay path contains `,`, `:`, or `\\`, which fuse-overlayfs \
+             treats as option syntax: {}",
+            path.display()
+        );
+    }
+    Ok(())
+}
+
+/// Run `op` on every profile, log each failure, then return one aggregate
+/// error. Successful mount operations remain independently supervised and
+/// healthy while the failed profile is repaired on a later run.
 fn run_per_profile<O>(
     what: &'static str,
     state: &State,
@@ -309,31 +333,32 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
 }
 
 fn cmd_resync(state: &State, profiles: &[AppProfile]) -> Result<()> {
-    run_per_profile("resync", state, profiles, |state, profile| {
-        reconnect_if_disconnected(state, profile)?;
-        sync::resync(state, profile)
-    })?;
+    let outcomes =
+        run_per_profile("resync", state, profiles, |state, profile| {
+            reconnect_if_disconnected(state, profile)?;
+            sync::resync(state, profile)
+        })?;
+    let source_changed = outcomes
+        .iter()
+        .filter(|outcome| {
+            matches!(outcome, sync::ResyncOutcome::SourceChanged)
+        })
+        .count();
+    if source_changed > 0 {
+        bail!(
+            "{source_changed} profile checkpoint(s) were not advanced because \
+             their source changed; previous committed checkpoints remain safe"
+        );
+    }
     Ok(())
 }
 
 fn cmd_unsync(state: &State, profiles: &[AppProfile]) -> Result<()> {
-    let outcomes =
-        run_per_profile("unsync", state, profiles, |state, profile| {
-            reconnect_if_disconnected(state, profile)?;
-            sync::unsync(state, profile)
-        })?;
-    let left_live = outcomes
-        .iter()
-        .filter(|outcome| matches!(outcome, sync::UnsyncOutcome::LeftLive))
-        .count();
-    if left_live > 0 {
-        info!(
-            left_live,
-            "unsync complete; live overlays remain (apps running)"
-        );
-    } else {
-        info!("unsync complete");
-    }
+    run_per_profile("unsync", state, profiles, |state, profile| {
+        reconnect_if_disconnected(state, profile)?;
+        sync::unsync(state, profile)
+    })?;
+    info!("unsync complete");
     Ok(())
 }
 
@@ -381,30 +406,60 @@ fn cmd_preview(state: &State, profiles: &[AppProfile]) -> Result<()> {
                 profile.path.display()
             )
         })?;
+        let committed_at =
+            checkpoint::committed_at(&paths).with_context(|| {
+                format!(
+                    "inspect checkpoint for {}",
+                    profile.path.display()
+                )
+            })?;
         if session == paths::SessionState::Live {
             live += 1;
         }
-        states.push((profile, paths, session));
+        states.push((profile, paths, session, committed_at));
     }
 
     println!("psd");
     println!("  profiles: {live}/{} live", profiles.len());
     println!("  volatile root: {}", state.volatile_root.display());
     println!("  profiles:");
-    for (profile, paths, session) in states {
-        println!("    - app:     {}", profile.kind.as_ref());
-        println!("      state:   {session}");
-        println!("      dir:     {}", paths.dir.display());
-        println!("      backup:  {}", paths.backup.display());
-        println!("      tmp:     {}", paths.tmp.display());
+    for (profile, paths, session, committed_at) in states {
+        println!("    - app:        {}", profile.kind.as_ref());
+        println!("      state:      {session}");
+        println!(
+            "      checkpoint: {}",
+            format_checkpoint_age(committed_at)
+        );
+        println!("      dir:        {}", paths.dir.display());
+        println!("      backup:     {}", paths.backup.display());
+        println!("      tmp:        {}", paths.tmp.display());
         // UPPER is the session's RAM cost; it only exists while live.
         if session == paths::SessionState::Live
             && let Ok(delta) = dir_size_human(&paths.upper)
         {
-            println!("      delta:   {delta}");
+            println!("      delta:      {delta}");
         }
     }
     Ok(())
+}
+
+fn format_checkpoint_age(
+    modified: Option<std::time::SystemTime>,
+) -> String {
+    let Some(modified) = modified else {
+        return "none".to_owned();
+    };
+    let Ok(age) = std::time::SystemTime::now().duration_since(modified)
+    else {
+        return "in the future (clock changed)".to_owned();
+    };
+    let seconds = age.as_secs();
+    match seconds {
+        0..=59 => format!("{seconds}s ago"),
+        60..=3599 => format!("{}m ago", seconds / 60),
+        3600..=86_399 => format!("{}h ago", seconds / 3600),
+        _ => format!("{}d ago", seconds / 86_400),
+    }
 }
 
 fn dir_size_human(p: &std::path::Path) -> Result<String> {
@@ -417,4 +472,39 @@ fn dir_size_human(p: &std::path::Path) -> Result<String> {
     // prints the size -- parse stdout regardless of exit code.
     let line = String::from_utf8_lossy(&out.stdout);
     Ok(line.split_whitespace().next().unwrap_or("?").to_owned())
+}
+
+#[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "Tests")]
+mod tests {
+    use std::ffi::OsString;
+    use std::os::unix::ffi::OsStringExt as _;
+
+    use super::*;
+
+    #[test]
+    fn overlay_option_paths_reject_fuse_delimiters() {
+        validate_overlay_option_path(std::path::Path::new(
+            "/home/user/profile",
+        ))
+        .unwrap();
+        for path in [
+            "/home/user/pro,file",
+            "/home/user/pro:file",
+            "/home/user/pro\\file",
+        ] {
+            assert!(
+                validate_overlay_option_path(std::path::Path::new(path))
+                    .is_err()
+            );
+        }
+    }
+
+    #[test]
+    fn overlay_option_paths_reject_non_utf8() {
+        let path = std::path::PathBuf::from(OsString::from_vec(vec![
+            b'/', b't', b'm', b'p', b'/', 0xff,
+        ]));
+        assert!(validate_overlay_option_path(&path).is_err());
+    }
 }

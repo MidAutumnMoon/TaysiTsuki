@@ -1,16 +1,14 @@
 //! Path resolution for a managed app profile.
 //!
-//! - `DIR` - what the app sees; symlink to `TMP` while the session
-//!   is live
-//! - `BACKUP` - frozen original profile; the overlay's lowerdir
-//! - `BACK_OVFS` - writable on-disk mirror of the overlay view
+//! - `DIR` - what the app sees; symlink to `TMP` while live
+//! - `BACKUP` - frozen original profile; the overlay lowerdir
+//! - `BACK_OVFS` - last complete on-disk checkpoint
+//! - `BACK_OVFS_STAGE` - incomplete checkpoint under construction
 //! - `TMP` - overlay mountpoint in tmpfs
-//! - `UPPER`, `WORK` - overlay upper/work dirs in tmpfs (the delta)
+//! - `UPPER`, `WORK` - overlay upper/work dirs in tmpfs
 //!
-//! `BACK_OVFS` exists because the lowerdir must not be written while
-//! its overlay is mounted. Kept outside the overlay, it is safe to
-//! update at any time, bounds crash loss to one resync interval, and
-//! unsync promotes it to `DIR` with a rename.
+//! The frozen lowerdir is never modified while mounted. Checkpoints are built
+//! beside `BACK_OVFS` and atomically exchanged only after completion.
 
 use std::fmt;
 use std::fs;
@@ -33,12 +31,12 @@ pub struct ProfilePaths {
     pub dir: PathBuf,
     /// Frozen original profile; the overlay's lowerdir while live.
     pub backup: PathBuf,
-    /// On-disk mirror of the overlay view; promoted to `dir` at unsync.
+    /// Last atomically committed on-disk mirror of the overlay view.
     pub back_ovfs: PathBuf,
     /// Fresh checkpoint under construction; never a recovery source.
     pub back_ovfs_stage: PathBuf,
-    /// Sidecar proving `back_ovfs` came from a completed checkpoint.
-    pub back_ovfs_committed: PathBuf,
+    /// Sidecar marker written by the previous checkpoint format.
+    pub legacy_back_ovfs_committed: PathBuf,
     /// Overlay mountpoint in tmpfs.
     pub tmp: PathBuf,
     /// Overlay writes (the session delta) in tmpfs.
@@ -87,7 +85,7 @@ impl ProfilePaths {
         let backup = append_suffix(&dir, "-backup");
         let back_ovfs = append_suffix(&dir, "-back-ovfs");
         let back_ovfs_stage = append_suffix(&dir, "-back-ovfs-staging");
-        let back_ovfs_committed =
+        let legacy_back_ovfs_committed =
             append_suffix(&dir, "-back-ovfs-committed");
 
         let tag = format!(
@@ -106,7 +104,7 @@ impl ProfilePaths {
             backup,
             back_ovfs,
             back_ovfs_stage,
-            back_ovfs_committed,
+            legacy_back_ovfs_committed,
             tmp,
             upper,
             work,

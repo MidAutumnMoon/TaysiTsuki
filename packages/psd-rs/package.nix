@@ -7,6 +7,7 @@
     coreutils,
     util-linux,
     procps,
+    systemd,
     flatpak,
     installShellFiles,
 }:
@@ -19,7 +20,6 @@ tsuki.rust.buildRustPackage rec {
         src cargoLock;
 
     cargoBuildFlags = "-p ${pname}";
-    doCheck = false;
 
     # Wrap psd with store-path runtime deps so it works without polluting
     # global PATH. fusermount3 is NOT included here -- it needs SUID and
@@ -45,7 +45,7 @@ tsuki.rust.buildRustPackage rec {
         # the service environment).
         wrapProgram $out/bin/psd \
             --prefix PATH : ${lib.makeBinPath [
-                rsync fuse-overlayfs coreutils util-linux procps flatpak
+                rsync fuse-overlayfs coreutils util-linux procps flatpak systemd
             ]}
     '';
 

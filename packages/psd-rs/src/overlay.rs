@@ -4,6 +4,9 @@ use std::fs;
 use std::io::ErrorKind;
 use std::path::Path;
 use std::process::Command;
+use std::thread::sleep;
+use std::time::Duration;
+use std::time::Instant;
 
 use anyhow::Context as _;
 use anyhow::Result;
@@ -33,6 +36,8 @@ pub fn check_dependencies() -> Result<()> {
         "fusermount3",
         "mountpoint",
         "pgrep",
+        "systemd-run",
+        "systemctl",
     ] {
         which(bin).with_context(|| {
             format!("required binary `{bin}` not found on PATH")
@@ -55,27 +60,77 @@ pub fn mount(
         work.display()
     );
     debug!(opts = %opts, mountpoint = %mountpoint.display(), "mounting overlay");
-    let result = exec::run(
-        Command::new("fuse-overlayfs")
+    let fuse_overlayfs = which("fuse-overlayfs")
+        .context("locating fuse-overlayfs for transient service")?;
+    let unit = format!(
+        "psd-overlay-{}-{}.service",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .context("system clock is before the Unix epoch")?
+            .as_nanos()
+    );
+    exec::run(
+        Command::new("systemd-run")
+            .args([
+                "--user",
+                "--quiet",
+                "--collect",
+                "--service-type=exec",
+                "--expand-environment=no",
+            ])
+            .arg(format!("--unit={unit}"))
+            .arg(format!(
+                "--description=psd overlay at {}",
+                mountpoint.display()
+            ))
+            .arg(fuse_overlayfs)
+            .arg("-f")
             .arg("-o")
             .arg(&opts)
             .arg(mountpoint),
     )
     .with_context(|| {
-        format!("mounting overlay at {}", mountpoint.display())
-    });
-    let state = mount_state(mountpoint)?;
-    match (result, state) {
-        (Ok(()), MountState::Mounted) => Ok(()),
-        (Ok(()), MountState::Unmounted) => bail!(
-            "mount reported success but {} is not mounted",
+        format!(
+            "starting transient overlay service {unit} for {}",
             mountpoint.display()
-        ),
-        (Ok(()), MountState::Disconnected) => bail!(
-            "overlay at {} disconnected immediately after mounting",
-            mountpoint.display()
-        ),
-        (Err(error), _) => Err(error),
+        )
+    })?;
+
+    let deadline = Instant::now() + Duration::from_secs(5);
+    loop {
+        match mount_state(mountpoint)? {
+            MountState::Mounted => return Ok(()),
+            MountState::Disconnected => {
+                stop_transient_unit(&unit);
+                bail!(
+                    "overlay at {} disconnected immediately after mounting",
+                    mountpoint.display()
+                );
+            }
+            MountState::Unmounted if Instant::now() < deadline => {
+                sleep(Duration::from_millis(20));
+            }
+            MountState::Unmounted => {
+                stop_transient_unit(&unit);
+                bail!(
+                    "transient service {unit} did not mount {} within 5s",
+                    mountpoint.display()
+                );
+            }
+        }
+    }
+}
+
+fn stop_transient_unit(unit: &str) {
+    if let Err(error) =
+        exec::run(Command::new("systemctl").args(["--user", "stop", unit]))
+    {
+        warn!(
+            unit,
+            error = %format_args!("{error:#}"),
+            "failed to stop unsuccessful transient overlay service"
+        );
     }
 }
 

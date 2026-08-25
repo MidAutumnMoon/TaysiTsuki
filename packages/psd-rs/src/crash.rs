@@ -18,6 +18,7 @@ use anyhow::bail;
 use tracing::info;
 use tracing::warn;
 
+use crate::checkpoint;
 use crate::overlay;
 use crate::paths::ProfilePaths;
 use crate::paths::SessionState;
@@ -71,9 +72,10 @@ fn recover_state(
         }
         SessionState::PlainDirectory => {
             ensure_empty_unmounted_mountpoint(paths)?;
-            remove_directory_if_present(&paths.back_ovfs_stage)?;
+            checkpoint::discard_staging(paths)?;
+            checkpoint::remove_marker(&paths.dir)?;
             if !paths.back_ovfs.exists() {
-                remove_file_if_present(&paths.back_ovfs_committed)?;
+                checkpoint::remove_legacy_marker(paths)?;
             }
             cleanup_runtime(paths)?;
             return Ok(RecoverOutcome::Already);
@@ -83,7 +85,7 @@ fn recover_state(
     ensure_empty_unmounted_mountpoint(paths)?;
     // A killed resync may leave a partial staging tree. It is never a
     // recovery source.
-    remove_directory_if_present(&paths.back_ovfs_stage)?;
+    checkpoint::discard_staging(paths)?;
 
     // Validate recovery artifacts before unlinking the app-visible path.
     let target = pick_recovery_target(paths)?;
@@ -96,7 +98,7 @@ fn recover_state(
 
     let Some(target) = target else {
         remove_directory_if_present(&paths.back_ovfs)?;
-        remove_file_if_present(&paths.back_ovfs_committed)?;
+        checkpoint::remove_legacy_marker(paths)?;
         cleanup_runtime(paths)?;
         if state == SessionState::StaleSymlink {
             warn!(
@@ -122,7 +124,8 @@ fn recover_state(
         format!("rename {} -> {}", target.display(), paths.dir.display())
     })?;
     remove_directory_if_present(other)?;
-    remove_file_if_present(&paths.back_ovfs_committed)?;
+    checkpoint::remove_marker(&paths.dir)?;
+    checkpoint::remove_legacy_marker(paths)?;
     cleanup_runtime(paths)?;
 
     Ok(RecoverOutcome::Recovered)
@@ -233,7 +236,7 @@ fn require_plain_directory(path: &Path) -> Result<()> {
 /// Prefer a checkpoint explicitly committed by the current implementation.
 /// Without a marker, retain the legacy mtime heuristic for migration.
 fn pick_recovery_target(paths: &ProfilePaths) -> Result<Option<&Path>> {
-    let checkpoint_committed = marker_exists(&paths.back_ovfs_committed)?;
+    let checkpoint_committed = checkpoint::is_committed(paths)?;
     let frozen_mtime = directory_mtime(&paths.backup, false)?;
     let mirror_mtime =
         directory_mtime(&paths.back_ovfs, !checkpoint_committed)?;
@@ -252,18 +255,6 @@ fn pick_recovery_target(paths: &ProfilePaths) -> Result<Option<&Path>> {
         }
         (Some(_), _) => Some(&paths.backup),
     })
-}
-
-fn marker_exists(path: &Path) -> Result<bool> {
-    match fs::symlink_metadata(path) {
-        Ok(metadata) if metadata.is_file() => Ok(true),
-        Ok(_) => {
-            bail!("{} is not psd's checkpoint marker", path.display())
-        }
-        Err(error) if error.kind() == ErrorKind::NotFound => Ok(false),
-        Err(error) => Err(error)
-            .with_context(|| format!("inspect {}", path.display())),
-    }
 }
 
 fn directory_mtime(
@@ -336,17 +327,6 @@ fn remove_directory_if_present(path: &Path) -> Result<()> {
         Ok(_) => {
             bail!("{} is not psd's managed directory", path.display())
         }
-        Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
-        Err(error) => Err(error)
-            .with_context(|| format!("inspect {}", path.display())),
-    }
-}
-
-fn remove_file_if_present(path: &Path) -> Result<()> {
-    match fs::symlink_metadata(path) {
-        Ok(metadata) if metadata.is_file() => fs::remove_file(path)
-            .with_context(|| format!("remove {}", path.display())),
-        Ok(_) => bail!("{} is not psd's managed marker", path.display()),
         Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
         Err(error) => Err(error)
             .with_context(|| format!("inspect {}", path.display())),
@@ -484,7 +464,8 @@ mod tests {
         let paths = make_paths(temp.path());
         create_dir_all(&paths.back_ovfs).unwrap();
         write(paths.back_ovfs.join("data"), b"committed").unwrap();
-        write(&paths.back_ovfs_committed, b"committed").unwrap();
+        write(paths.back_ovfs.join(checkpoint::MARKER_NAME), b"committed")
+            .unwrap();
         sleep(Duration::from_millis(10));
         create_dir_all(&paths.backup).unwrap();
         write(paths.backup.join("data"), b"newer-mtime").unwrap();
@@ -498,7 +479,7 @@ mod tests {
             fs::read(paths.dir.join("data")).unwrap(),
             b"committed".as_slice()
         );
-        assert!(!paths.back_ovfs_committed.exists());
+        assert!(!paths.dir.join(checkpoint::MARKER_NAME).exists());
     }
 
     #[test]

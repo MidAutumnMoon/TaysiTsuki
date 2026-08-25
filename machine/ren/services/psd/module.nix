@@ -15,6 +15,10 @@ let
             apps = [ "firefox" "telegram" "cherrystudio" ];
         });
 
+    # The live profile set is not reconciled across reloads. Before changing
+    # this list or Firefox profile discovery, close the affected apps and run
+    # `psd unsync`, or log out so the current session is checkpointed first.
+
     # Common invocation prefix.
     invoke = "${lib.getExe psd} --config ${configFile}";
 
@@ -29,9 +33,8 @@ in {
         # Login commonly launches Firefox immediately. Persistence starts
         # from the timer only, after the profile has had time to settle.
 
-        # fuse-overlayfs daemons stay in this unit's cgroup. Restarting the
-        # unit would kill every mount after ExecStop, so apply switch-time
-        # updates through the idempotent startup path instead.
+        # Overlay daemons run as independent transient user services. Reload
+        # this coordinator rather than tearing down healthy mounts.
         reloadIfChanged = true;
 
         serviceConfig = {
@@ -43,9 +46,10 @@ in {
             TimeoutStopSec = "10min";
             ExecStart = "${invoke} startup";
             # Persistence runs in psd-resync.service so a copy failure cannot
-            # tear down healthy mounts.
+            # tear down healthy mounts. Stop only checkpoints; explicit
+            # `psd unsync` owns destructive teardown.
             ExecReload = "${invoke} startup";
-            ExecStop = "${invoke} unsync";
+            ExecStop = "${invoke} resync";
             # fusermount3
             Environment = "PATH=/run/wrappers/bin";
         };
@@ -53,7 +57,6 @@ in {
 
     systemd.user.services."psd-resync" = {
         description = "psd: timed resync";
-        requires = [ "psd.service" ];
         after = [ "psd.service" ];
 
         serviceConfig = {
@@ -69,10 +72,10 @@ in {
         wantedBy = [ "timers.target" ];
 
         timerConfig = {
-            # First checkpoint is five minutes after login; subsequent
-            # checkpoints are thirty minutes apart.
+            # First checkpoint is five minutes after login; wait thirty
+            # minutes after each completed attempt before trying again.
             OnActiveSec = "5min";
-            OnUnitActiveSec = "30min";
+            OnUnitInactiveSec = "30min";
         };
     };
 }
