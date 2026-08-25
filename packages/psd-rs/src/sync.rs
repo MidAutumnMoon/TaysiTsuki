@@ -32,6 +32,7 @@ use std::env;
 use std::fs;
 use std::fs::remove_dir_all;
 use std::io::ErrorKind;
+use std::io::Write as _;
 use std::os::unix::fs::symlink;
 use std::path::Path;
 use std::path::PathBuf;
@@ -40,6 +41,9 @@ use std::process::Command;
 use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
+use rustix::fs::CWD;
+use rustix::fs::RenameFlags;
+use rustix::fs::renameat_with;
 use tracing::debug;
 use tracing::info;
 use tracing::warn;
@@ -304,7 +308,7 @@ pub fn resync(state: &State, profile: &AppProfile) -> Result<()> {
         debug!(dir = %paths.dir.display(), "not live; skipping resync");
         return Ok(());
     }
-    match rsync_sync(&paths.dir, &paths.back_ovfs)? {
+    match checkpoint(&paths)? {
         RsyncOutcome::Complete => {
             info!(app = %profile.kind.as_ref(), "resync ok");
         }
@@ -350,14 +354,14 @@ pub fn unsync(
 
     // Persist first -- safe under a running app -- so the staging copy
     // is fresh no matter what follows.
-    let mut sync_outcome = rsync_sync(&paths.dir, &paths.back_ovfs)?;
+    let mut sync_outcome = checkpoint(&paths)?;
     if sync_outcome == RsyncOutcome::SourceChanged {
         if app_running(profile.kind, &state.user)? {
             warn!(
                 app = %profile.kind.as_ref(),
                 dir = %paths.dir.display(),
-                "app changed files during persistence; partial mirror kept \
-                 and overlay left live"
+                "app changed files during persistence; no partial checkpoint \
+                 promoted and overlay left live"
             );
             return Ok(UnsyncOutcome::LeftLive);
         }
@@ -365,7 +369,7 @@ pub fn unsync(
             app = %profile.kind.as_ref(),
             "source changed during persistence after the app exited; retrying"
         );
-        sync_outcome = rsync_sync(&paths.dir, &paths.back_ovfs)?;
+        sync_outcome = checkpoint(&paths)?;
         if sync_outcome == RsyncOutcome::SourceChanged {
             bail!(
                 "{} kept changing during persistence; refusing to unmount",
@@ -408,6 +412,21 @@ pub fn unsync(
             paths.dir.display()
         )
     })?;
+    fsync_parent(&paths.dir)?;
+    if let Err(error) = remove_managed_file(&paths.back_ovfs_committed) {
+        warn!(
+            marker = %paths.back_ovfs_committed.display(),
+            error = %format_args!("{error:#}"),
+            "plain profile restored but checkpoint marker could not be removed"
+        );
+    }
+    if let Err(error) = discard_staging(&paths) {
+        warn!(
+            staging = %paths.back_ovfs_stage.display(),
+            error = %format_args!("{error:#}"),
+            "plain profile restored but stale staging could not be removed"
+        );
+    }
     // Superseded. Removal failure is non-fatal: the next startup
     // rotates a stale BACKUP aside.
     if paths.backup.exists()
@@ -424,39 +443,195 @@ pub fn unsync(
     Ok(UnsyncOutcome::TornDown)
 }
 
-/// Mirror `src`/ into `dst`/.
-fn rsync_sync(src: &Path, dst: &Path) -> Result<RsyncOutcome> {
-    if !dst.exists() {
-        fs::create_dir_all(dst)
-            .with_context(|| format!("mkdir {}", dst.display()))?;
+/// Build a fresh mirror and publish it only after a complete transfer.
+fn checkpoint(paths: &ProfilePaths) -> Result<RsyncOutcome> {
+    prepare_staging(paths)?;
+    let outcome = match rsync_to_staging(paths) {
+        Ok(outcome) => outcome,
+        Err(error) => {
+            return match discard_staging(paths) {
+                Ok(()) => Err(error),
+                Err(cleanup_error) => Err(error.context(format!(
+                    "also failed to discard incomplete checkpoint: \
+                     {cleanup_error:#}"
+                ))),
+            };
+        }
+    };
+
+    if outcome == RsyncOutcome::SourceChanged {
+        discard_staging(paths)?;
+        return Ok(outcome);
     }
+
+    commit_staging(paths)?;
+    Ok(RsyncOutcome::Complete)
+}
+
+fn prepare_staging(paths: &ProfilePaths) -> Result<()> {
+    discard_staging(paths)?;
+    fs::create_dir(&paths.back_ovfs_stage).with_context(|| {
+        format!("mkdir {}", paths.back_ovfs_stage.display())
+    })?;
+    let _ = plain_directory_exists(&paths.back_ovfs)?;
+    Ok(())
+}
+
+/// Transfer into an empty sibling. `--link-dest` reuses unchanged files
+/// without allowing an interrupted run to mutate the committed mirror.
+fn rsync_to_staging(paths: &ProfilePaths) -> Result<RsyncOutcome> {
     let mut command = Command::new("rsync");
+    command.args([
+        "-aX",
+        "--checksum",
+        "--checksum-choice=xxh128",
+        "--fsync",
+    ]);
+    if plain_directory_exists(&paths.back_ovfs)? {
+        command.arg(format!("--link-dest={}", paths.back_ovfs.display()));
+    }
     command
-        .args(["-aX", "--delete-after", "--inplace", "--no-whole-file"])
-        .arg(format!("{}/", src.display()))
-        .arg(dst);
-    debug!(cmd = ?command, "rsync");
+        .arg(format!("{}/", paths.dir.display()))
+        .arg(&paths.back_ovfs_stage);
+    debug!(cmd = ?command, "rsync checkpoint");
     let output = exec::output(&mut command).with_context(|| {
-        format!("rsync {} -> {}", src.display(), dst.display())
+        format!(
+            "rsync {} -> {}",
+            paths.dir.display(),
+            paths.back_ovfs_stage.display()
+        )
     })?;
     match accepted_rsync_outcome(output.status.code()) {
         Some(RsyncOutcome::Complete) => Ok(RsyncOutcome::Complete),
         Some(RsyncOutcome::SourceChanged) => {
             warn!(
-                src = %src.display(),
-                dst = %dst.display(),
+                src = %paths.dir.display(),
+                staging = %paths.back_ovfs_stage.display(),
                 detail = %String::from_utf8_lossy(&output.stderr).trim(),
-                "rsync source changed during transfer"
+                "rsync source changed; discarding incomplete checkpoint"
             );
             Ok(RsyncOutcome::SourceChanged)
         }
         None => bail!(
             "rsync {} -> {} failed (exit {}): {}",
-            src.display(),
-            dst.display(),
+            paths.dir.display(),
+            paths.back_ovfs_stage.display(),
             output.status.code().unwrap_or(-1),
             String::from_utf8_lossy(&output.stderr).trim()
         ),
+    }
+}
+
+fn commit_staging(paths: &ProfilePaths) -> Result<()> {
+    fsync_dir(&paths.back_ovfs_stage)?;
+    if plain_directory_exists(&paths.back_ovfs)? {
+        renameat_with(
+            CWD,
+            &paths.back_ovfs_stage,
+            CWD,
+            &paths.back_ovfs,
+            RenameFlags::EXCHANGE,
+        )
+        .with_context(|| {
+            format!(
+                "atomically exchange {} and {}",
+                paths.back_ovfs_stage.display(),
+                paths.back_ovfs.display()
+            )
+        })?;
+    } else {
+        fs::rename(&paths.back_ovfs_stage, &paths.back_ovfs)
+            .with_context(|| {
+                format!(
+                    "commit {} -> {}",
+                    paths.back_ovfs_stage.display(),
+                    paths.back_ovfs.display()
+                )
+            })?;
+    }
+    fsync_parent(&paths.back_ovfs)?;
+    write_commit_marker(paths)?;
+
+    // After an exchange the staging name contains the previous complete
+    // generation. Failure to reclaim it does not invalidate the commit.
+    if let Err(error) = discard_staging(paths) {
+        warn!(
+            staging = %paths.back_ovfs_stage.display(),
+            error = %format_args!("{error:#}"),
+            "checkpoint committed but previous generation could not be removed"
+        );
+    }
+    Ok(())
+}
+
+fn write_commit_marker(paths: &ProfilePaths) -> Result<()> {
+    let temporary = append_suffix(&paths.back_ovfs_committed, ".tmp");
+    remove_managed_file(&temporary)?;
+    let mut marker = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&temporary)
+        .with_context(|| format!("create {}", temporary.display()))?;
+    marker
+        .write_all(b"psd-rs committed checkpoint\n")
+        .with_context(|| format!("write {}", temporary.display()))?;
+    marker
+        .sync_all()
+        .with_context(|| format!("fsync {}", temporary.display()))?;
+    fs::rename(&temporary, &paths.back_ovfs_committed).with_context(
+        || {
+            format!(
+                "commit marker {} -> {}",
+                temporary.display(),
+                paths.back_ovfs_committed.display()
+            )
+        },
+    )?;
+    fsync_parent(&paths.back_ovfs_committed)
+}
+
+fn discard_staging(paths: &ProfilePaths) -> Result<()> {
+    remove_managed_directory(&paths.back_ovfs_stage)
+}
+
+fn remove_managed_directory(path: &Path) -> Result<()> {
+    match fs::symlink_metadata(path) {
+        Ok(metadata) if metadata.is_dir() => fs::remove_dir_all(path)
+            .with_context(|| format!("remove {}", path.display())),
+        Ok(_) => {
+            bail!("{} is not psd's staging directory", path.display())
+        }
+        Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
+        Err(error) => Err(error)
+            .with_context(|| format!("inspect {}", path.display())),
+    }
+}
+
+fn plain_directory_exists(path: &Path) -> Result<bool> {
+    match fs::symlink_metadata(path) {
+        Ok(metadata) if metadata.is_dir() => Ok(true),
+        Ok(_) => bail!("{} is not a plain directory", path.display()),
+        Err(error) if error.kind() == ErrorKind::NotFound => Ok(false),
+        Err(error) => Err(error)
+            .with_context(|| format!("inspect {}", path.display())),
+    }
+}
+
+fn fsync_parent(path: &Path) -> Result<()> {
+    let parent = path.parent().with_context(|| {
+        format!("{} has no parent directory", path.display())
+    })?;
+    fsync_dir(parent)
+}
+
+fn remove_managed_file(path: &Path) -> Result<()> {
+    match fs::symlink_metadata(path) {
+        Ok(metadata) if metadata.is_file() => fs::remove_file(path)
+            .with_context(|| format!("remove {}", path.display())),
+        Ok(_) => bail!("{} is not psd's marker file", path.display()),
+        Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
+        Err(error) => Err(error)
+            .with_context(|| format!("inspect {}", path.display())),
     }
 }
 
@@ -501,8 +676,27 @@ fn fsync_dir(dir_path: &Path) -> Result<()> {
 }
 
 #[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "Tests")]
 mod tests {
+    use std::fs::create_dir_all;
+    use std::fs::read;
+    use std::fs::write;
+
     use super::*;
+
+    use tempfile::tempdir;
+
+    use crate::apps::AppKind;
+
+    fn make_paths(root: &Path) -> ProfilePaths {
+        let profile = AppProfile {
+            kind: AppKind::Firefox,
+            user: "user".to_owned(),
+            path: root.join("profile"),
+            suffix: "profile".to_owned(),
+        };
+        ProfilePaths::new(&profile, root)
+    }
 
     #[test]
     fn vanished_live_files_are_a_retryable_rsync_outcome() {
@@ -516,5 +710,21 @@ mod tests {
         );
         assert_eq!(accepted_rsync_outcome(Some(23)), None);
         assert_eq!(accepted_rsync_outcome(None), None);
+    }
+
+    #[test]
+    fn commit_atomically_replaces_the_previous_mirror() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.back_ovfs).unwrap();
+        write(paths.back_ovfs.join("data"), b"old").unwrap();
+        create_dir_all(&paths.back_ovfs_stage).unwrap();
+        write(paths.back_ovfs_stage.join("data"), b"new").unwrap();
+
+        commit_staging(&paths).unwrap();
+
+        assert_eq!(read(paths.back_ovfs.join("data")).unwrap(), b"new");
+        assert!(paths.back_ovfs_committed.is_file());
+        assert!(!paths.back_ovfs_stage.exists());
     }
 }

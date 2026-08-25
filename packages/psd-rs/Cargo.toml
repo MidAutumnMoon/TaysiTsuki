@@ -17,6 +17,7 @@ tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 which = "8"
 strum = { version = "0.28.0", features = ["derive"] }
 ino_tracing = "0.1.1"
+rustix = { version = "1.1.4", features = ["fs"] }
 
 [dev-dependencies]
 regex = "1"

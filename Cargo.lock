@@ -978,6 +978,7 @@ dependencies = [
  "clap_complete",
  "ino_tracing",
  "regex",
+ "rustix",
  "serde",
  "serde_json",
  "strum",

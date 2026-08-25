@@ -35,6 +35,10 @@ pub struct ProfilePaths {
     pub backup: PathBuf,
     /// On-disk mirror of the overlay view; promoted to `dir` at unsync.
     pub back_ovfs: PathBuf,
+    /// Fresh checkpoint under construction; never a recovery source.
+    pub back_ovfs_stage: PathBuf,
+    /// Sidecar proving `back_ovfs` came from a completed checkpoint.
+    pub back_ovfs_committed: PathBuf,
     /// Overlay mountpoint in tmpfs.
     pub tmp: PathBuf,
     /// Overlay writes (the session delta) in tmpfs.
@@ -82,6 +86,9 @@ impl ProfilePaths {
         let dir = profile.path.clone();
         let backup = append_suffix(&dir, "-backup");
         let back_ovfs = append_suffix(&dir, "-back-ovfs");
+        let back_ovfs_stage = append_suffix(&dir, "-back-ovfs-staging");
+        let back_ovfs_committed =
+            append_suffix(&dir, "-back-ovfs-committed");
 
         let tag = format!(
             "{}-{}-{}",
@@ -98,6 +105,8 @@ impl ProfilePaths {
             dir,
             backup,
             back_ovfs,
+            back_ovfs_stage,
+            back_ovfs_committed,
             tmp,
             upper,
             work,

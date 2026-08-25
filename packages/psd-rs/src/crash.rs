@@ -71,15 +71,22 @@ fn recover_state(
         }
         SessionState::PlainDirectory => {
             ensure_empty_unmounted_mountpoint(paths)?;
+            remove_directory_if_present(&paths.back_ovfs_stage)?;
+            if !paths.back_ovfs.exists() {
+                remove_file_if_present(&paths.back_ovfs_committed)?;
+            }
             cleanup_runtime(paths)?;
             return Ok(RecoverOutcome::Already);
         }
         SessionState::Missing | SessionState::StaleSymlink => {}
     }
     ensure_empty_unmounted_mountpoint(paths)?;
+    // A killed resync may leave a partial staging tree. It is never a
+    // recovery source.
+    remove_directory_if_present(&paths.back_ovfs_stage)?;
 
     // Validate recovery artifacts before unlinking the app-visible path.
-    let target = pick_recovery_target(&paths.backup, &paths.back_ovfs)?;
+    let target = pick_recovery_target(paths)?;
 
     if state == SessionState::StaleSymlink {
         fs::remove_file(&paths.dir).with_context(|| {
@@ -89,6 +96,7 @@ fn recover_state(
 
     let Some(target) = target else {
         remove_directory_if_present(&paths.back_ovfs)?;
+        remove_file_if_present(&paths.back_ovfs_committed)?;
         cleanup_runtime(paths)?;
         if state == SessionState::StaleSymlink {
             warn!(
@@ -114,6 +122,7 @@ fn recover_state(
         format!("rename {} -> {}", target.display(), paths.dir.display())
     })?;
     remove_directory_if_present(other)?;
+    remove_file_if_present(&paths.back_ovfs_committed)?;
     cleanup_runtime(paths)?;
 
     Ok(RecoverOutcome::Recovered)
@@ -221,26 +230,40 @@ fn require_plain_directory(path: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Pick the newer complete directory. An empty `back_ovfs` cannot win:
-/// startup may have created it before the first successful resync.
-fn pick_recovery_target<'path>(
-    backup: &'path Path,
-    back_ovfs: &'path Path,
-) -> Result<Option<&'path Path>> {
-    let frozen_mtime = directory_mtime(backup, false)?;
-    let mirror_mtime = directory_mtime(back_ovfs, true)?;
+/// Prefer a checkpoint explicitly committed by the current implementation.
+/// Without a marker, retain the legacy mtime heuristic for migration.
+fn pick_recovery_target(paths: &ProfilePaths) -> Result<Option<&Path>> {
+    let checkpoint_committed = marker_exists(&paths.back_ovfs_committed)?;
+    let frozen_mtime = directory_mtime(&paths.backup, false)?;
+    let mirror_mtime =
+        directory_mtime(&paths.back_ovfs, !checkpoint_committed)?;
+    if checkpoint_committed && mirror_mtime.is_some() {
+        return Ok(Some(&paths.back_ovfs));
+    }
     Ok(match (frozen_mtime, mirror_mtime) {
         (None, None) => None,
-        (None, Some(_)) => Some(back_ovfs),
-        // Ties go to `back_ovfs`: it is the periodic mirror and therefore
-        // never intentionally older than the frozen lowerdir.
+        (None, Some(_)) => Some(&paths.back_ovfs),
+        // Legacy mirrors had no commit marker. Ties go to the periodic
+        // mirror, which was never intentionally older than the lowerdir.
         (Some(frozen_time), Some(mirror_time))
             if mirror_time >= frozen_time =>
         {
-            Some(back_ovfs)
+            Some(&paths.back_ovfs)
         }
-        (Some(_), _) => Some(backup),
+        (Some(_), _) => Some(&paths.backup),
     })
+}
+
+fn marker_exists(path: &Path) -> Result<bool> {
+    match fs::symlink_metadata(path) {
+        Ok(metadata) if metadata.is_file() => Ok(true),
+        Ok(_) => {
+            bail!("{} is not psd's checkpoint marker", path.display())
+        }
+        Err(error) if error.kind() == ErrorKind::NotFound => Ok(false),
+        Err(error) => Err(error)
+            .with_context(|| format!("inspect {}", path.display())),
+    }
 }
 
 fn directory_mtime(
@@ -307,11 +330,26 @@ fn ensure_empty_unmounted_mountpoint(paths: &ProfilePaths) -> Result<()> {
 }
 
 fn remove_directory_if_present(path: &Path) -> Result<()> {
-    match fs::remove_dir_all(path) {
-        Ok(()) => Ok(()),
+    match fs::symlink_metadata(path) {
+        Ok(metadata) if metadata.is_dir() => fs::remove_dir_all(path)
+            .with_context(|| format!("remove {}", path.display())),
+        Ok(_) => {
+            bail!("{} is not psd's managed directory", path.display())
+        }
         Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
         Err(error) => Err(error)
+            .with_context(|| format!("inspect {}", path.display())),
+    }
+}
+
+fn remove_file_if_present(path: &Path) -> Result<()> {
+    match fs::symlink_metadata(path) {
+        Ok(metadata) if metadata.is_file() => fs::remove_file(path)
             .with_context(|| format!("remove {}", path.display())),
+        Ok(_) => bail!("{} is not psd's managed marker", path.display()),
+        Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
+        Err(error) => Err(error)
+            .with_context(|| format!("inspect {}", path.display())),
     }
 }
 
@@ -438,6 +476,29 @@ mod tests {
         );
         assert!(!paths.back_ovfs.exists());
         assert!(!paths.backup.exists());
+    }
+
+    #[test]
+    fn committed_checkpoint_beats_legacy_mtime_heuristic() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.back_ovfs).unwrap();
+        write(paths.back_ovfs.join("data"), b"committed").unwrap();
+        write(&paths.back_ovfs_committed, b"committed").unwrap();
+        sleep(Duration::from_millis(10));
+        create_dir_all(&paths.backup).unwrap();
+        write(paths.backup.join("data"), b"newer-mtime").unwrap();
+        make_managed_symlink(&paths);
+
+        assert_eq!(
+            recover_with_mount(&paths, false).unwrap(),
+            RecoverOutcome::Recovered
+        );
+        assert_eq!(
+            fs::read(paths.dir.join("data")).unwrap(),
+            b"committed".as_slice()
+        );
+        assert!(!paths.back_ovfs_committed.exists());
     }
 
     #[test]

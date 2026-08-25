@@ -26,11 +26,8 @@ in {
     systemd.user.services."psd" = {
         description = "psd: app profile sync to tmpfs";
         wantedBy = [ "default.target" ];
-        # Initial persistence is a separate unit: a live profile may change
-        # while rsync scans it, but that must never fail the mount-owning
-        # service and kill its fuse-overlayfs daemons.
-        wants = [ "psd-resync.service" ];
-        before = [ "psd-resync.service" ];
+        # Login commonly launches Firefox immediately. Persistence starts
+        # from the timer only, after the profile has had time to settle.
 
         # fuse-overlayfs daemons stay in this unit's cgroup. Restarting the
         # unit would kill every mount after ExecStop, so apply switch-time
@@ -45,8 +42,8 @@ in {
             TimeoutStartSec = "10min";
             TimeoutStopSec = "10min";
             ExecStart = "${invoke} startup";
-            # Initial and periodic persistence run in psd-resync.service so a
-            # copy failure cannot tear down healthy mounts.
+            # Persistence runs in psd-resync.service so a copy failure cannot
+            # tear down healthy mounts.
             ExecReload = "${invoke} startup";
             ExecStop = "${invoke} unsync";
             # fusermount3
@@ -72,8 +69,10 @@ in {
         wantedBy = [ "timers.target" ];
 
         timerConfig = {
-            OnCalendar = "*:0/30";
-            Persistent = true;
+            # First checkpoint is five minutes after login; subsequent
+            # checkpoints are thirty minutes apart.
+            OnActiveSec = "5min";
+            OnUnitActiveSec = "30min";
         };
     };
 }
