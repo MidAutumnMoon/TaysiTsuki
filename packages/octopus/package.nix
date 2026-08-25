@@ -10,13 +10,13 @@
 }:
 
 let
-    version = "0.11.0";
+    version = "0.12.0";
 
     src = fetchFromGitHub {
         owner = "bestruirui";
         repo = "octopus";
         rev = "v${version}";
-        sha256 = "sha256-h61zt5p3fwqRtlx0akFOT+C6VpAt+4oBsayHLOg5AFM=";
+        sha256 = "sha256-AQxmnSa+YrMCadMXVu8ujO2Ry5Qv9m4q1dgXiY0ToKo=";
     };
 
     pnpm = pnpm_11;
@@ -73,7 +73,7 @@ buildGoModule rec {
     '';
 
     proxyVendor = true;
-    vendorHash = "sha256-uHSa7JfFyumqR34FpwlivG6RVlqDncclhYBezQHxjHw=";
+    vendorHash = "sha256-PSjt5NwUL1A/FJ1jwX6/R8zmDHNNiHfaA3IQbqwtbic=";
 
     tags = [ "jsoniter" ];
     ldflags = [
