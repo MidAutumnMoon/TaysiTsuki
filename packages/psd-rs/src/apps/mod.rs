@@ -11,7 +11,7 @@ pub mod telegram;
 use std::path::Path;
 use std::path::PathBuf;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use serde::Deserialize;
 use strum::AsRefStr;
@@ -37,14 +37,38 @@ pub enum AppKind {
     CherryStudio,
 }
 
+/// How procps `pgrep` can identify an application's process.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProcessMatch {
+    /// Exact `/proc/PID/stat` process name.
+    Name(&'static str),
+    /// Exact extended regular expression over `/proc/PID/cmdline`.
+    CommandLine(&'static str),
+}
+
 impl AppKind {
     /// Process name for the running-app check.
     pub const fn process_name(self) -> &'static str {
         match self {
             Self::Firefox => "firefox",
             Self::Chromium => "chromium",
-            Self::Telegram => "telegram-desktop",
+            Self::Telegram => "Telegram",
             Self::CherryStudio => "CherryStudio",
+        }
+    }
+
+    /// Matcher for the running-app safety check.
+    pub const fn process_match(self) -> ProcessMatch {
+        match self {
+            // Linux process names are limited to 15 bytes. nixpkgs runs
+            // Telegram through `.Telegram-wrapped`; other installations use
+            // `Telegram` or `telegram-desktop`. Match the complete argv.
+            Self::Telegram => ProcessMatch::CommandLine(
+                "(^|.*/)([.]Telegram-wrapped|Telegram|telegram-desktop)([[:space:]].*)?",
+            ),
+            Self::Firefox | Self::Chromium | Self::CherryStudio => {
+                ProcessMatch::Name(self.process_name())
+            }
         }
     }
 
@@ -102,4 +126,43 @@ pub fn with_suffix(
         path,
         suffix,
     })
+}
+
+#[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "Test")]
+mod tests {
+    use super::*;
+
+    use regex::Regex;
+
+    #[test]
+    fn telegram_matcher_covers_nixpkgs_command_lines() {
+        let ProcessMatch::CommandLine(pattern) =
+            AppKind::Telegram.process_match()
+        else {
+            panic!("Telegram must use full-command-line matching");
+        };
+        let matcher = Regex::new(&format!("^(?:{pattern})$")).unwrap();
+
+        for command_line in [
+            "/nix/store/hash-telegram-desktop-7.0.2/bin/.Telegram-wrapped",
+            "/nix/store/hash-telegram-desktop-7.0.2/bin/Telegram -workdir /home/user",
+            "/usr/bin/telegram-desktop --startintray",
+        ] {
+            assert!(
+                matcher.is_match(command_line),
+                "did not match {command_line}"
+            );
+        }
+        assert!(!matcher.is_match("/usr/bin/bash -c Telegram"));
+        assert!(!matcher.is_match("/usr/bin/.Telegram-wrapped-helper"));
+    }
+
+    #[test]
+    fn short_process_name_uses_stat_name() {
+        assert_eq!(
+            AppKind::Firefox.process_match(),
+            ProcessMatch::Name("firefox")
+        );
+    }
 }

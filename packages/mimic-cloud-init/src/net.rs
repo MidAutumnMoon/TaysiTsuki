@@ -7,9 +7,8 @@ use anyhow::Context;
 use anyhow::Result as AnyResult;
 use anyhow::ensure;
 
-static SYSTEMD_NETWORK_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
-    PathBuf::from("/run/systemd/network")
-});
+static SYSTEMD_NETWORK_DIR: LazyLock<PathBuf> =
+    LazyLock::new(|| PathBuf::from("/run/systemd/network"));
 
 const PREFIX: &str = "00-mimic-cloud-init";
 

@@ -100,17 +100,17 @@ fn resolve_profile_path(
 }
 
 #[cfg(test)]
+#[expect(clippy::unwrap_used, clippy::indexing_slicing, reason = "Test")]
 mod tests {
     use super::*;
+    use std::fs::write;
 
     #[test]
-    #[expect(clippy::unwrap_used)]
-    #[expect(clippy::indexing_slicing)]
     fn parses_relative_and_absolute() {
         let tmp = tempfile::tempdir().unwrap();
         let base = tmp.path();
         let ini = base.join("profiles.ini");
-        std::fs::write(
+        write(
             &ini,
             "[Profile0]\nName=default\nIsRelative=1\nPath=abc.def\n\n\
              [Profile1]\nName=other\nIsRelative=0\nPath=/opt/other\n",

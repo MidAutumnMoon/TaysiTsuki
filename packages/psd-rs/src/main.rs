@@ -75,8 +75,10 @@ fn main() -> ExitCode {
     let cli = Cli::parse();
     match run(&cli) {
         Ok(()) => ExitCode::SUCCESS,
-        Err(e) => {
-            error!("{e:?}");
+        Err(error) => {
+            // Alternate Display includes anyhow's context chain without the
+            // debug backtrace, which is noise for normal operational errors.
+            error!("{error:#}");
             ExitCode::FAILURE
         }
     }
@@ -92,25 +94,30 @@ fn run(cli: &Cli) -> Result<()> {
     }
 
     let state = State::new()?;
-
+    let _lock = if matches!(&cli.command, Command::Preview) {
+        None
+    } else {
+        Some(state.acquire_lock()?)
+    };
     // Sync commands need config; preview scans all supported apps.
     let profiles = match cli.command {
         Command::Preview => {
             let d = discover(&state, AppKind::iter())?;
             for (kind, e) in &d.failures {
-                warn!(app = kind.as_ref(), error = %e, "discovery failed");
+                warn!(app = kind.as_ref(), error = %format_args!("{e:#}"), "discovery failed");
             }
             d.profiles
         }
         _ => load_profiles(cli, &state)?,
     };
+    validate_profiles(&state, &profiles)?;
 
     match cli.command {
         Command::Startup => cmd_startup(&state, &profiles)?,
         Command::Resync => cmd_resync(&state, &profiles)?,
         Command::Unsync => cmd_unsync(&state, &profiles)?,
         Command::Recover => cmd_recover(&state, &profiles)?,
-        Command::Preview => cmd_preview(&state, &profiles),
+        Command::Preview => cmd_preview(&state, &profiles)?,
         #[allow(clippy::unreachable)]
         Command::Completions { .. } => unreachable!(),
     }
@@ -131,7 +138,7 @@ fn load_profiles(cli: &Cli, state: &State) -> Result<Vec<AppProfile>> {
     let discovered = discover(state, cfg.apps.iter().copied())?;
     // Report broken installs but carry on with what was found.
     for (kind, e) in &discovered.failures {
-        error!(app = kind.as_ref(), error = %e, "discovery failed");
+        error!(app = kind.as_ref(), error = %format_args!("{e:#}"), "discovery failed");
     }
     Ok(discovered.profiles)
 }
@@ -164,6 +171,51 @@ fn discover(
     Ok(out)
 }
 
+fn validate_profiles(
+    state: &State,
+    profiles: &[AppProfile],
+) -> Result<()> {
+    let mut remaining = profiles;
+    while let Some((profile, rest)) = remaining.split_first() {
+        if !profile.path.is_absolute() {
+            bail!(
+                "profile path must be absolute: {}",
+                profile.path.display()
+            );
+        }
+        let paths = state.paths_for(profile);
+        for other in rest {
+            if profile.path == other.path {
+                bail!(
+                    "profile {} was discovered more than once",
+                    profile.path.display()
+                );
+            }
+            if profile.path.starts_with(&other.path)
+                || other.path.starts_with(&profile.path)
+            {
+                bail!(
+                    "nested profiles are unsafe to manage together: {} and {}",
+                    profile.path.display(),
+                    other.path.display()
+                );
+            }
+            let other_paths = state.paths_for(other);
+            if paths.tmp == other_paths.tmp {
+                bail!(
+                    "profiles {} and {} map to the same volatile path {}; \
+                     rename one profile",
+                    profile.path.display(),
+                    other.path.display(),
+                    paths.tmp.display()
+                );
+            }
+        }
+        remaining = rest;
+    }
+    Ok(())
+}
+
 /// Run `op` on each profile independently; log and collect errors,
 /// then fail once at the end. Partial progress stands -- the next run
 /// converges from it. Returns each profile's outcome.
@@ -183,7 +235,7 @@ fn run_per_profile<O>(
                     op = what,
                     app = %p.kind.as_ref(),
                     dir = %p.path.display(),
-                    error = %e,
+                    error = %format_args!("{e:#}"),
                     "profile operation failed"
                 );
                 failed.push(p.path.display().to_string());
@@ -218,17 +270,27 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
 
     run_per_profile("startup", state, profiles, |state, p| {
         let paths = state.paths_for(p);
-        // Already live (e.g. switch restart with the app open): a
-        // success, and must skip the running check below.
-        if sync::overlay_live(&paths)? {
-            debug!(
-                app = %p.kind.as_ref(),
-                dir = %paths.dir.display(),
-                "already live; skipping startup"
-            );
-            return Ok(());
+        match crash::recover(&paths)? {
+            crash::RecoverOutcome::Live
+            | crash::RecoverOutcome::Reattached => {
+                debug!(
+                    app = %p.kind.as_ref(),
+                    dir = %paths.dir.display(),
+                    "already live; skipping startup"
+                );
+                return Ok(());
+            }
+            crash::RecoverOutcome::Absent => {
+                warn!(
+                    app = %p.kind.as_ref(),
+                    dir = %paths.dir.display(),
+                    "no durable profile found; skipping startup"
+                );
+                return Ok(());
+            }
+            crash::RecoverOutcome::Already
+            | crash::RecoverOutcome::Recovered => {}
         }
-        crash::recover(&paths)?;
         // Mounting under a running app would corrupt its state.
         if sync::app_running(p.kind, &state.user)? {
             bail!(
@@ -274,7 +336,7 @@ fn cmd_recover(state: &State, profiles: &[AppProfile]) -> Result<()> {
         let outcome = crash::recover(&paths)?;
         info!(
             dir = %paths.dir.display(),
-            recovered = matches!(outcome, crash::RecoverOutcome::Recovered),
+            ?outcome,
             "recover done"
         );
         Ok(())
@@ -282,28 +344,42 @@ fn cmd_recover(state: &State, profiles: &[AppProfile]) -> Result<()> {
     Ok(())
 }
 
-fn cmd_preview(state: &State, profiles: &[AppProfile]) {
-    let live = profiles
-        .iter()
-        .filter(|p| state.paths_for(p).is_live())
-        .count();
+fn cmd_preview(state: &State, profiles: &[AppProfile]) -> Result<()> {
+    let mut live = 0;
+    let mut states = Vec::with_capacity(profiles.len());
+    for profile in profiles {
+        let paths = state.paths_for(profile);
+        let session = paths.session_state().with_context(|| {
+            format!(
+                "inspect {} profile at {}",
+                profile.kind.as_ref(),
+                profile.path.display()
+            )
+        })?;
+        if session == paths::SessionState::Live {
+            live += 1;
+        }
+        states.push((profile, paths, session));
+    }
+
     println!("psd");
-    println!("  profiles: {}/{} live", live, profiles.len());
+    println!("  profiles: {live}/{} live", profiles.len());
     println!("  volatile root: {}", state.volatile_root.display());
     println!("  profiles:");
-    for p in profiles {
-        let paths = state.paths_for(p);
-        println!("    - app:     {}", p.kind.as_ref());
+    for (profile, paths, session) in states {
+        println!("    - app:     {}", profile.kind.as_ref());
+        println!("      state:   {session}");
         println!("      dir:     {}", paths.dir.display());
         println!("      backup:  {}", paths.backup.display());
         println!("      tmp:     {}", paths.tmp.display());
         // UPPER is the session's RAM cost; it only exists while live.
-        if paths.is_live()
+        if session == paths::SessionState::Live
             && let Ok(delta) = dir_size_human(&paths.upper)
         {
             println!("      delta:   {delta}");
         }
     }
+    Ok(())
 }
 
 fn dir_size_human(p: &std::path::Path) -> Result<String> {

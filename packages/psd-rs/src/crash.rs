@@ -1,73 +1,102 @@
 //! Ungraceful-state normalization.
 //!
-//! After a crash (tmpfs gone), `DIR` is a dangling symlink and the
-//! real data sits in `BACKUP` / `BACK_OVFS`. Recovery restores the
-//! newer of the two as `DIR`; healthy states (real `DIR`, live
-//! symlink) are no-ops.
-//!
-//! No snapshot is taken before recovery: it wouldn't save a wrong
-//! pick, and max data loss is one resync interval anyway.
+//! A stopped FUSE daemon can leave `DIR` pointing to an ordinary `TMP`
+//! directory, so symlink resolution alone does not prove a session is live.
+//! Recovery classifies both the directory entry and the actual mount before
+//! touching data. It restores the newer durable copy and clears stale tmpfs
+//! state before another overlay is mounted.
 
 use std::fs;
+use std::io::ErrorKind;
+use std::os::unix::fs::symlink;
 use std::path::Path;
 use std::time::SystemTime;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
+use anyhow::bail;
 use tracing::info;
 use tracing::warn;
 
 use crate::paths::ProfilePaths;
+use crate::paths::SessionState;
 
 /// What [`recover`] found.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RecoverOutcome {
-    /// Ungraceful state detected and normalized.
+    /// An unmounted session was restored as a plain profile directory.
     Recovered,
-    /// Nothing to do: `DIR` is a real directory or a live symlink.
+    /// A mounted overlay missing only its app-visible symlink was reattached.
+    Reattached,
+    /// `DIR` was already a plain profile directory.
     Already,
+    /// The overlay and its managed symlink are live.
+    Live,
+    /// No profile data exists; a stale managed symlink was removed.
+    Absent,
 }
 
-/// Normalize ungraceful state for one profile; healthy profiles are
-/// a no-op.
+/// Normalize ungraceful state for one profile; healthy profiles are a no-op.
 pub fn recover(paths: &ProfilePaths) -> Result<RecoverOutcome> {
-    // A real directory: unsync completed or psd never ran. (`is_dir()`
-    // follows symlinks, hence the explicit symlink guard.)
-    if paths.dir.is_dir() && !paths.dir.is_symlink() {
-        return Ok(RecoverOutcome::Already);
-    }
+    recover_state(paths, paths.session_state()?)
+}
 
-    // Live session: nothing to recover, and nothing we may safely
-    // touch.
-    if paths.is_live() {
-        return Ok(RecoverOutcome::Already);
-    }
-
-    // Dangling (or missing) DIR: recovery needs a backup.
-    if !paths.backup.exists() {
-        if paths.dir.is_symlink() {
-            // Nothing to restore: drop the symlink and let the app
-            // recreate its profile.
-            warn!(
-                dir = %paths.dir.display(),
-                "dangling symlink with no backup; removing symlink"
-            );
-            std::fs::remove_file(&paths.dir).with_context(|| {
-                format!("unlink {}", paths.dir.display())
+fn recover_state(
+    paths: &ProfilePaths,
+    state: SessionState,
+) -> Result<RecoverOutcome> {
+    match state {
+        SessionState::Live => return Ok(RecoverOutcome::Live),
+        SessionState::OrphanMount => {
+            symlink(&paths.tmp, &paths.dir).with_context(|| {
+                format!(
+                    "reattach {} -> {}",
+                    paths.dir.display(),
+                    paths.tmp.display()
+                )
             })?;
+            info!(
+                dir = %paths.dir.display(),
+                tmp = %paths.tmp.display(),
+                "reattached orphaned overlay"
+            );
+            return Ok(RecoverOutcome::Reattached);
         }
-        return Ok(RecoverOutcome::Already);
+        SessionState::PlainDirectory => {
+            ensure_empty_unmounted_mountpoint(paths)?;
+            cleanup_runtime(paths)?;
+            return Ok(RecoverOutcome::Already);
+        }
+        SessionState::Missing | SessionState::StaleSymlink => {}
     }
+    ensure_empty_unmounted_mountpoint(paths)?;
 
-    info!(dir = %paths.dir.display(), "ungraceful state detected, recovering");
+    // Validate recovery artifacts before unlinking the app-visible path.
+    let target = pick_recovery_target(&paths.backup, &paths.back_ovfs)?;
 
-    if paths.dir.is_symlink() {
-        std::fs::remove_file(&paths.dir).with_context(|| {
-            format!("unlink dangling {}", paths.dir.display())
+    if state == SessionState::StaleSymlink {
+        fs::remove_file(&paths.dir).with_context(|| {
+            format!("unlink stale {}", paths.dir.display())
         })?;
     }
 
-    let target = pick_recovery_target(&paths.backup, &paths.back_ovfs);
+    let Some(target) = target else {
+        remove_directory_if_present(&paths.back_ovfs)?;
+        cleanup_runtime(paths)?;
+        if state == SessionState::StaleSymlink {
+            warn!(
+                dir = %paths.dir.display(),
+                "stale managed symlink had no durable profile to restore"
+            );
+        }
+        return Ok(RecoverOutcome::Absent);
+    };
+
+    info!(
+        dir = %paths.dir.display(),
+        source = %target.display(),
+        "ungraceful state detected, recovering"
+    );
     let other = if target == paths.backup {
         &paths.back_ovfs
     } else {
@@ -77,46 +106,121 @@ pub fn recover(paths: &ProfilePaths) -> Result<RecoverOutcome> {
     fs::rename(target, &paths.dir).with_context(|| {
         format!("rename {} -> {}", target.display(), paths.dir.display())
     })?;
-
-    if other.exists() {
-        fs::remove_dir_all(other)
-            .with_context(|| format!("remove {}", other.display()))?;
-    }
+    remove_directory_if_present(other)?;
+    cleanup_runtime(paths)?;
 
     Ok(RecoverOutcome::Recovered)
 }
 
-/// Pick the newer of the two by mtime, falling back to `backup`.
-///
-/// An empty or missing `back_ovfs` never wins: it can be an artifact
-/// of a startup that never got to resync, and picking it would lose
-/// the real profile.
-fn pick_recovery_target<'a>(
-    backup: &'a Path,
-    back_ovfs: &'a Path,
-) -> &'a Path {
-    if !back_ovfs.is_dir() || is_empty_dir(back_ovfs) {
-        return backup;
+/// Pick the newer complete directory. An empty `back_ovfs` cannot win:
+/// startup may have created it before the first successful resync.
+fn pick_recovery_target<'path>(
+    backup: &'path Path,
+    back_ovfs: &'path Path,
+) -> Result<Option<&'path Path>> {
+    let frozen_mtime = directory_mtime(backup, false)?;
+    let mirror_mtime = directory_mtime(back_ovfs, true)?;
+    Ok(match (frozen_mtime, mirror_mtime) {
+        (None, None) => None,
+        (None, Some(_)) => Some(back_ovfs),
+        // Ties go to `back_ovfs`: it is the periodic mirror and therefore
+        // never intentionally older than the frozen lowerdir.
+        (Some(frozen_time), Some(mirror_time))
+            if mirror_time >= frozen_time =>
+        {
+            Some(back_ovfs)
+        }
+        (Some(_), _) => Some(backup),
+    })
+}
+
+fn directory_mtime(
+    path: &Path,
+    reject_empty: bool,
+) -> Result<Option<SystemTime>> {
+    let metadata = match fs::symlink_metadata(path) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == ErrorKind::NotFound => {
+            return Ok(None);
+        }
+        Err(error) => {
+            return Err(error)
+                .with_context(|| format!("inspect {}", path.display()));
+        }
+    };
+    if !metadata.is_dir() {
+        bail!("{} is not a plain recovery directory", path.display());
     }
-    match (mtime(backup), mtime(back_ovfs)) {
-        // Ties go to `back_ovfs`: equal mtimes are timestamp-granularity
-        // noise, and the mirror is never stale relative to its source.
-        (Some(b), Some(o)) if o >= b => back_ovfs,
-        _ => backup,
+    if reject_empty
+        && fs::read_dir(path)
+            .with_context(|| format!("read {}", path.display()))?
+            .next()
+            .is_none()
+    {
+        return Ok(None);
+    }
+    metadata
+        .modified()
+        .map(Some)
+        .with_context(|| format!("read mtime for {}", path.display()))
+}
+
+fn ensure_empty_unmounted_mountpoint(paths: &ProfilePaths) -> Result<()> {
+    let metadata = match fs::symlink_metadata(&paths.tmp) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == ErrorKind::NotFound => return Ok(()),
+        Err(error) => {
+            return Err(error).with_context(|| {
+                format!("inspect {}", paths.tmp.display())
+            });
+        }
+    };
+    if !metadata.is_dir() {
+        bail!(
+            "unmounted runtime path {} is not a directory",
+            paths.tmp.display()
+        );
+    }
+    if fs::read_dir(&paths.tmp)
+        .with_context(|| format!("read {}", paths.tmp.display()))?
+        .next()
+        .transpose()
+        .with_context(|| format!("read entry in {}", paths.tmp.display()))?
+        .is_some()
+    {
+        bail!(
+            "{} contains data after its overlay disappeared; refusing \
+             recovery to preserve possible post-unmount writes",
+            paths.tmp.display()
+        );
+    }
+    Ok(())
+}
+
+fn remove_directory_if_present(path: &Path) -> Result<()> {
+    match fs::remove_dir_all(path) {
+        Ok(()) => Ok(()),
+        Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
+        Err(error) => Err(error)
+            .with_context(|| format!("remove {}", path.display())),
     }
 }
 
-fn mtime(p: &Path) -> Option<SystemTime> {
-    fs::metadata(p).and_then(|m| m.modified()).ok()
-}
-
-/// Unreadable counts as empty, so the picker falls back to `backup`.
-fn is_empty_dir(p: &Path) -> bool {
-    fs::read_dir(p).map_or(true, |mut it| it.next().is_none())
+fn cleanup_runtime(paths: &ProfilePaths) -> Result<()> {
+    for path in [&paths.tmp, &paths.upper, &paths.work] {
+        remove_directory_if_present(path)?;
+    }
+    Ok(())
 }
 
 #[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "Tests")]
 mod tests {
+    use std::fs::create_dir_all;
+    use std::fs::write;
+    use std::thread::sleep;
+    use std::time::Duration;
+
     use super::*;
 
     use tempfile::tempdir;
@@ -135,37 +239,86 @@ mod tests {
         ProfilePaths::new(&profile, root)
     }
 
-    fn make_dangling(paths: &ProfilePaths) {
-        // tmp never created -> symlink dangles (tmpfs gone after crash).
-        std::os::unix::fs::symlink(&paths.tmp, &paths.dir).unwrap();
+    fn recover_with_mount(
+        paths: &ProfilePaths,
+        overlay_mounted: bool,
+    ) -> Result<RecoverOutcome> {
+        recover_state(paths, paths.classify_session(overlay_mounted)?)
+    }
+
+    fn make_managed_symlink(paths: &ProfilePaths) {
+        symlink(&paths.tmp, &paths.dir).unwrap();
     }
 
     #[test]
-    #[expect(clippy::unwrap_used)]
     fn live_symlink_is_noop() {
-        let tmp = tempdir().unwrap();
-        let paths = make_paths(tmp.path());
-        std::fs::create_dir(&paths.tmp).unwrap();
-        std::os::unix::fs::symlink(&paths.tmp, &paths.dir).unwrap();
-        std::assert_matches!(recover(&paths).unwrap(), RecoverOutcome::Already);
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.tmp).unwrap();
+        make_managed_symlink(&paths);
+
+        assert_eq!(
+            recover_with_mount(&paths, true).unwrap(),
+            RecoverOutcome::Live
+        );
         assert!(paths.dir.is_symlink());
     }
 
     #[test]
-    #[expect(clippy::unwrap_used)]
-    fn dangling_picks_newer_back_ovfs() {
-        let tmp = tempdir().unwrap();
-        let paths = make_paths(tmp.path());
-        std::fs::create_dir(&paths.backup).unwrap();
-        std::fs::write(paths.backup.join("data"), b"old").unwrap();
-        // Ensure strictly newer mtime so the pick is deterministic.
-        std::thread::sleep(std::time::Duration::from_millis(10));
-        std::fs::create_dir(&paths.back_ovfs).unwrap();
-        std::fs::write(paths.back_ovfs.join("data"), b"new").unwrap();
-        make_dangling(&paths);
-        std::assert_matches!(recover(&paths).unwrap(), RecoverOutcome::Recovered);
+    fn resolving_stale_symlink_is_recovered() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.tmp).unwrap();
+        create_dir_all(&paths.backup).unwrap();
+        write(paths.backup.join("data"), b"saved").unwrap();
+        make_managed_symlink(&paths);
+
         assert_eq!(
-            std::fs::read(paths.dir.join("data")).unwrap(),
+            recover_with_mount(&paths, false).unwrap(),
+            RecoverOutcome::Recovered
+        );
+        assert_eq!(
+            fs::read(paths.dir.join("data")).unwrap(),
+            b"saved".as_slice()
+        );
+        assert!(!paths.dir.is_symlink());
+        assert!(!paths.tmp.exists());
+    }
+
+    #[test]
+    fn stale_mountpoint_writes_are_preserved() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.tmp).unwrap();
+        write(paths.tmp.join("late-write"), b"new").unwrap();
+        create_dir_all(&paths.backup).unwrap();
+        write(paths.backup.join("data"), b"saved").unwrap();
+        make_managed_symlink(&paths);
+
+        let error = recover_with_mount(&paths, false).unwrap_err();
+        assert!(error.to_string().contains("post-unmount writes"));
+        assert!(paths.dir.is_symlink());
+        assert!(paths.tmp.join("late-write").exists());
+        assert!(paths.backup.exists());
+    }
+
+    #[test]
+    fn dangling_picks_newer_back_ovfs() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.backup).unwrap();
+        write(paths.backup.join("data"), b"old").unwrap();
+        sleep(Duration::from_millis(10));
+        create_dir_all(&paths.back_ovfs).unwrap();
+        write(paths.back_ovfs.join("data"), b"new").unwrap();
+        make_managed_symlink(&paths);
+
+        assert_eq!(
+            recover_with_mount(&paths, false).unwrap(),
+            RecoverOutcome::Recovered
+        );
+        assert_eq!(
+            fs::read(paths.dir.join("data")).unwrap(),
             b"new".as_slice()
         );
         assert!(!paths.back_ovfs.exists());
@@ -173,29 +326,79 @@ mod tests {
     }
 
     #[test]
-    #[expect(clippy::unwrap_used)]
     fn empty_back_ovfs_falls_back_to_backup() {
-        let tmp = tempdir().unwrap();
-        let paths = make_paths(tmp.path());
-        std::fs::create_dir(&paths.backup).unwrap();
-        std::fs::write(paths.backup.join("data"), b"old").unwrap();
-        std::fs::create_dir(&paths.back_ovfs).unwrap();
-        make_dangling(&paths);
-        std::assert_matches!(recover(&paths).unwrap(), RecoverOutcome::Recovered);
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.backup).unwrap();
+        write(paths.backup.join("data"), b"old").unwrap();
+        create_dir_all(&paths.back_ovfs).unwrap();
+        make_managed_symlink(&paths);
+
         assert_eq!(
-            std::fs::read(paths.dir.join("data")).unwrap(),
+            recover_with_mount(&paths, false).unwrap(),
+            RecoverOutcome::Recovered
+        );
+        assert_eq!(
+            fs::read(paths.dir.join("data")).unwrap(),
             b"old".as_slice()
         );
         assert!(!paths.back_ovfs.exists());
     }
 
     #[test]
-    #[expect(clippy::unwrap_used)]
-    fn missing_backup_removes_dangling_symlink() {
-        let tmp = tempdir().unwrap();
-        let paths = make_paths(tmp.path());
-        make_dangling(&paths);
-        std::assert_matches!(recover(&paths).unwrap(), RecoverOutcome::Already);
-        assert!(paths.dir.symlink_metadata().is_err());
+    fn lone_back_ovfs_is_recovered() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.back_ovfs).unwrap();
+        write(paths.back_ovfs.join("data"), b"saved").unwrap();
+        make_managed_symlink(&paths);
+
+        assert_eq!(
+            recover_with_mount(&paths, false).unwrap(),
+            RecoverOutcome::Recovered
+        );
+        assert_eq!(
+            fs::read(paths.dir.join("data")).unwrap(),
+            b"saved".as_slice()
+        );
+    }
+
+    #[test]
+    fn missing_copies_remove_stale_symlink() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        make_managed_symlink(&paths);
+
+        assert_eq!(
+            recover_with_mount(&paths, false).unwrap(),
+            RecoverOutcome::Absent
+        );
+        paths.dir.symlink_metadata().unwrap_err();
+    }
+
+    #[test]
+    fn orphan_mount_is_reattached() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.tmp).unwrap();
+
+        assert_eq!(
+            recover_with_mount(&paths, true).unwrap(),
+            RecoverOutcome::Reattached
+        );
+        assert_eq!(fs::read_link(&paths.dir).unwrap(), paths.tmp);
+    }
+
+    #[test]
+    fn unrelated_symlink_is_never_removed() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        let unrelated = temp.path().join("unrelated");
+        create_dir_all(&unrelated).unwrap();
+        symlink(&unrelated, &paths.dir).unwrap();
+
+        let error = paths.classify_session(false).unwrap_err();
+        assert!(error.to_string().contains("refusing to modify"));
+        assert_eq!(fs::read_link(&paths.dir).unwrap(), unrelated);
     }
 }

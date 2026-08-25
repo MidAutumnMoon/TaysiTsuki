@@ -1,0 +1,17 @@
+○ psd.service - psd: app profile sync to tmpfs
+     Loaded: loaded (/etc/systemd/user/psd.service; enabled; preset: ignored)
+     Active: inactive (dead) since Tue 2026-08-25 15:59:57 CST; 1min 34s ago
+ Invocation: 3f5b25d798414ef7a60521c2d8ccbda2
+    Process: 1566 ExecStart=/nix/store/kjp9ny7zy4gc8dr1khzx9v192hsilnid-psd-rs-0.1.0/bin/psd --config /nix/store/mghn1v9hdssb9fil65xkgynwgfkawxs7-psd-config.json startup (code=exited, status=1/FAILURE)
+   Main PID: 1566 (code=exited, status=1/FAILURE)
+   Mem peak: 11.8M
+        CPU: 32ms
+
+Aug 25 15:59:57 ren systemd[1519]: Starting psd: app profile sync to tmpfs...
+Aug 25 15:59:57 ren psd[1566]: 2026-08-25T07:59:57.365507Z ERROR psd: profile operation failed op="startup" app=cherrystudio dir=/home/teapot/.var/app/com.cherry_ai.CherryStudio/config/CherryStudio error=`mountpoint` failed (exit 1):
+Aug 25 15:59:57 ren psd[1566]: 2026-08-25T07:59:57.366625Z ERROR psd: profile operation failed op="startup" app=firefox dir=/home/teapot/.mozilla/firefox/eiluxnob.default error=`mountpoint` failed (exit 1):
+Aug 25 15:59:57 ren psd[1566]: 2026-08-25T07:59:57.367631Z ERROR psd: profile operation failed op="startup" app=telegram dir=/home/teapot/.local/share/TelegramDesktop error=`mountpoint` failed (exit 1):
+Aug 25 15:59:57 ren psd[1566]: 2026-08-25T07:59:57.367646Z ERROR psd: startup failed for: /home/teapot/.var/app/com.cherry_ai.CherryStudio/config/CherryStudio, /home/teapot/.mozilla/firefox/eiluxnob.default, /home/teapot/.local/share/TelegramDesktop
+Aug 25 15:59:57 ren systemd[1519]: psd.service: Main process exited, code=exited, status=1/FAILURE
+Aug 25 15:59:57 ren systemd[1519]: psd.service: Failed with result 'exit-code'.
+Aug 25 15:59:57 ren systemd[1519]: Failed to start psd: app profile sync to tmpfs.

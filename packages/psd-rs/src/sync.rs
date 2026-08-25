@@ -11,29 +11,33 @@
 //! Invariants:
 //!
 //! - Commands converge: a profile already in the target state is a
-//!   success, not an error. systemd restarts this unit on NixOS
-//!   switches (`ExecStop` -> `ExecStart`), so unsync followed by
-//!   startup on a live session must succeed.
+//!   success, not an error. NixOS switches reload the owning systemd
+//!   unit without killing its FUSE daemons; explicit stop/start cycles
+//!   still recover from every completed filesystem transition.
 //! - Never write a lowerdir (`BACKUP`) while its overlay is mounted.
 //! - Never tear down under a running app: unsync persists the delta
 //!   and leaves the profile live instead of failing.
 //! - Unsync promotes `BACK_OVFS` -- a complete mirror -- to `DIR` with
 //!   an atomic rename, fsynced first so a crash mid-unsync leaves it
 //!   consistent for recovery.
-//! - Unmount before unlinking `DIR`, so a busy mount fails while the
-//!   session is still intact.
+//! - Unmount before unlinking `DIR`, and verify the postcondition before
+//!   advancing to the next transition.
 //!
 //! ## TODO: dirty tracking
 //!
 //! Unsync rescans the whole profile even when clean; tracking overlay
 //! writes would skip that scan.
 
+use std::env;
 use std::fs;
+use std::fs::remove_dir_all;
+use std::io::ErrorKind;
+use std::os::unix::fs::symlink;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
 use tracing::debug;
@@ -42,9 +46,11 @@ use tracing::warn;
 
 use crate::apps::AppKind;
 use crate::apps::AppProfile;
+use crate::apps::ProcessMatch;
 use crate::exec;
 use crate::overlay;
 use crate::paths::ProfilePaths;
+use crate::paths::SessionState;
 use crate::paths::append_suffix;
 
 /// Runtime state shared across operations. Cheap to clone.
@@ -56,14 +62,41 @@ pub struct State {
 
 impl State {
     pub fn new() -> Result<Self> {
-        let user = std::env::var("USER")
+        let user = env::var("USER")
             .context("USER is not set; refusing to run")?;
-        let xdg_runtime = std::env::var("XDG_RUNTIME_DIR")
-            .context("XDG_RUNTIME_DIR is not set; refusing to run")?;
+        let runtime_dir = PathBuf::from(
+            env::var("XDG_RUNTIME_DIR")
+                .context("XDG_RUNTIME_DIR is not set; refusing to run")?,
+        );
+        if !runtime_dir.is_absolute() {
+            bail!(
+                "XDG_RUNTIME_DIR must be absolute, got {}",
+                runtime_dir.display()
+            );
+        }
         Ok(Self {
-            volatile_root: PathBuf::from(xdg_runtime).join("psd"),
+            volatile_root: runtime_dir.join("psd"),
             user,
         })
+    }
+
+    /// Serialize every mutating command for this user session.
+    pub fn acquire_lock(&self) -> Result<fs::File> {
+        fs::create_dir_all(&self.volatile_root).with_context(|| {
+            format!("mkdir {}", self.volatile_root.display())
+        })?;
+        let lock_path = self.volatile_root.join(".lock");
+        let lock = fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(false)
+            .open(&lock_path)
+            .with_context(|| {
+                format!("open lock {}", lock_path.display())
+            })?;
+        lock.lock()
+            .with_context(|| format!("lock {}", lock_path.display()))?;
+        Ok(lock)
     }
 
     pub fn paths_for(&self, profile: &AppProfile) -> ProfilePaths {
@@ -73,48 +106,57 @@ impl State {
 
 /// True if the app's process is running for `user`.
 pub fn app_running(kind: AppKind, user: &str) -> Result<bool> {
-    let psname = kind.process_name();
-    let out = exec::output(
-        Command::new("pgrep").args(["-x", "-u", user, psname]),
-    )?;
+    let mut command = Command::new("pgrep");
+    command.arg("-u").arg(user);
+    match kind.process_match() {
+        ProcessMatch::Name(name) => {
+            command.args(["-x", name]);
+        }
+        ProcessMatch::CommandLine(pattern) => {
+            command.args(["-f", "-x", pattern]);
+        }
+    }
+    let output = exec::output(&mut command)?;
     // 0 = match, 1 = no match; other codes mean pgrep itself failed
     // and must not look like "not running".
-    match out.status.code() {
+    match output.status.code() {
         Some(0) => Ok(true),
         Some(1) => Ok(false),
         code => bail!(
             "pgrep failed (exit {}): {}",
             code.unwrap_or(-1),
-            String::from_utf8_lossy(&out.stderr).trim(),
+            String::from_utf8_lossy(&output.stderr).trim(),
         ),
     }
 }
 
-/// True when `DIR` resolves *and* its overlay is still mounted.
-///
-/// A symlink can outlive its mount (unmount succeeded, then unsync
-/// failed before unlinking). Treating that state as live would rsync
-/// from an empty dir, and `--delete-after` would wipe `BACK_OVFS`.
+/// True only when the managed symlink and actual overlay mount are live.
 pub fn overlay_live(paths: &ProfilePaths) -> Result<bool> {
-    if !paths.is_live() {
-        return Ok(false);
+    match paths.session_state()? {
+        SessionState::Live => Ok(true),
+        SessionState::PlainDirectory | SessionState::Missing => Ok(false),
+        SessionState::StaleSymlink => {
+            warn!(
+                dir = %paths.dir.display(),
+                tmp = %paths.tmp.display(),
+                "managed symlink outlived its overlay; startup recovery required"
+            );
+            Ok(false)
+        }
+        SessionState::OrphanMount => {
+            bail!(
+                "{} is mounted without {}; run `psd recover` before syncing",
+                paths.tmp.display(),
+                paths.dir.display()
+            );
+        }
     }
-    if !overlay::is_mountpoint(&paths.tmp)? {
-        warn!(
-            dir = %paths.dir.display(),
-            tmp = %paths.tmp.display(),
-            "DIR resolves but its overlay is not mounted (stale session?); \
-             remove the symlink and run `psd recover`, or reboot"
-        );
-        return Ok(false);
-    }
-    Ok(true)
 }
 
 /// Startup: mount the overlay and symlink DIR -> TMP.
 ///
-/// Precondition: the caller skipped live profiles and ran
-/// `crash::recover` -- DIR must be a plain directory here.
+/// Precondition: the caller serialized commands, skipped live profiles, and
+/// ran `crash::recover`; `DIR` must be a plain directory here.
 pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
     let paths = state.paths_for(profile);
 
@@ -127,17 +169,17 @@ pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
     }
 
     // Tmpfs dirs inherit DIR's mode.
-    for d in [&paths.tmp, &paths.upper, &paths.work] {
-        if !d.exists() {
-            fs::create_dir_all(d)
-                .with_context(|| format!("mkdir {}", d.display()))?;
-            copy_mode(&paths.dir, d)?;
+    for directory in [&paths.tmp, &paths.upper, &paths.work] {
+        if !directory.exists() {
+            fs::create_dir_all(directory).with_context(|| {
+                format!("mkdir {}", directory.display())
+            })?;
+            copy_mode(&paths.dir, directory)?;
         }
     }
 
     if paths.backup.exists() {
-        // Stale backup from a failed startup: rotate aside, never
-        // clobber.
+        // Stale backup from a failed startup: rotate aside, never clobber.
         warn!(
             backup = %paths.backup.display(),
             "stale BACKUP exists; moving aside (prior startup failed?)"
@@ -156,20 +198,83 @@ pub fn startup(state: &State, profile: &AppProfile) -> Result<()> {
         )
     })?;
 
-    overlay::mount(&paths.backup, &paths.upper, &paths.work, &paths.tmp)?;
+    if let Err(error) = overlay::mount(
+        &paths.backup,
+        &paths.upper,
+        &paths.work,
+        &paths.tmp,
+    ) {
+        return Err(rollback_failed_startup(&paths, error));
+    }
 
     // The app sees the overlay through this symlink.
-    std::os::unix::fs::symlink(&paths.tmp, &paths.dir).with_context(
-        || {
+    if let Err(error) =
+        symlink(&paths.tmp, &paths.dir).with_context(|| {
             format!(
                 "symlink {} -> {}",
                 paths.dir.display(),
                 paths.tmp.display()
             )
-        },
-    )?;
+        })
+    {
+        return Err(rollback_failed_startup(&paths, error));
+    }
 
     info!(app = %profile.kind.as_ref(), dir = %paths.dir.display(), "startup ok");
+    Ok(())
+}
+
+fn rollback_failed_startup(
+    paths: &ProfilePaths,
+    error: anyhow::Error,
+) -> anyhow::Error {
+    match rollback_startup(paths) {
+        Ok(()) => error,
+        Err(rollback_error) => error.context(format!(
+            "startup rollback also failed: {rollback_error:#}"
+        )),
+    }
+}
+
+fn rollback_startup(paths: &ProfilePaths) -> Result<()> {
+    if overlay::is_mountpoint(&paths.tmp)? {
+        overlay::unmount(&paths.tmp)?;
+    }
+
+    match fs::symlink_metadata(&paths.dir) {
+        Err(error) if error.kind() == ErrorKind::NotFound => {}
+        Err(error) => {
+            return Err(error).with_context(|| {
+                format!("inspect {}", paths.dir.display())
+            });
+        }
+        Ok(_) => {
+            bail!(
+                "{} appeared during startup; refusing to replace it while \
+                 rolling back",
+                paths.dir.display()
+            );
+        }
+    }
+    fs::rename(&paths.backup, &paths.dir).with_context(|| {
+        format!(
+            "restore {} -> {}",
+            paths.backup.display(),
+            paths.dir.display()
+        )
+    })?;
+
+    for directory in [&paths.tmp, &paths.upper, &paths.work] {
+        match remove_dir_all(directory) {
+            Ok(()) => {}
+            Err(error) if error.kind() == ErrorKind::NotFound => {}
+            Err(error) => {
+                return Err(error).with_context(|| {
+                    format!("remove {}", directory.display())
+                });
+            }
+        }
+    }
     Ok(())
 }
 
@@ -242,9 +347,9 @@ pub fn unsync(
         .with_context(|| format!("unlink {}", paths.dir.display()))?;
     // Best-effort: durable state is in BACK_OVFS, and tmpfs dies on
     // reboot anyway.
-    let _ = fs::remove_dir_all(&paths.tmp);
-    let _ = fs::remove_dir_all(&paths.upper);
-    let _ = fs::remove_dir_all(&paths.work);
+    let _ = remove_dir_all(&paths.tmp);
+    let _ = remove_dir_all(&paths.upper);
+    let _ = remove_dir_all(&paths.work);
 
     // The mirror replaces DIR wholesale -- atomic, no merge pass.
     fs::rename(&paths.back_ovfs, &paths.dir).with_context(|| {
@@ -261,7 +366,7 @@ pub fn unsync(
     {
         warn!(
             dir = %paths.backup.display(),
-            error = %e,
+            error = ?e,
             "failed to remove superseded backup"
         );
     }
@@ -288,7 +393,7 @@ fn rsync_sync(src: &Path, dst: &Path) -> Result<()> {
 
 /// Copy permission bits from `src` to `dst`.
 fn copy_mode(src: &Path, dst: &Path) -> Result<()> {
-    use std::os::unix::fs::PermissionsExt;
+    use std::os::unix::fs::PermissionsExt as _;
     let mode = fs::metadata(src)
         .with_context(|| format!("stat {}", src.display()))?
         .permissions()
@@ -298,10 +403,20 @@ fn copy_mode(src: &Path, dst: &Path) -> Result<()> {
     Ok(())
 }
 
-fn fsync_dir(p: &Path) -> Result<()> {
-    let f = fs::File::open(p)
-        .with_context(|| format!("open {}", p.display()))?;
-    // best-effort fsync; ignore EINVAL (some filesystems don't support it)
-    let _ = f.sync_all();
-    Ok(())
+fn fsync_dir(dir_path: &Path) -> Result<()> {
+    let file = fs::File::open(dir_path)
+        .with_context(|| format!("open {}", dir_path.display()))?;
+    match file.sync_all() {
+        Ok(()) => Ok(()),
+        // Some filesystems reject fsync on directories.
+        Err(error) if error.kind() == ErrorKind::InvalidInput => {
+            warn!(
+                dir = %dir_path.display(),
+                "filesystem does not support syncing directories"
+            );
+            Ok(())
+        }
+        Err(error) => Err(error)
+            .with_context(|| format!("fsync {}", dir_path.display())),
+    }
 }

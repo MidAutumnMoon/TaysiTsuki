@@ -6,7 +6,7 @@
 use std::process::Command;
 use std::process::Output;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
 

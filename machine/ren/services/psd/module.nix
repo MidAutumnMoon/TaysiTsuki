@@ -27,15 +27,21 @@ in {
         description = "psd: app profile sync to tmpfs";
         wantedBy = [ "default.target" ];
 
+        # fuse-overlayfs daemons stay in this unit's cgroup. Restarting the
+        # unit would kill every mount after ExecStop, so apply switch-time
+        # updates through the idempotent startup path instead.
+        reloadIfChanged = true;
+
         serviceConfig = {
             Type = "oneshot";
             RemainAfterExit = true;
-            # Give unsync time to finish the rsync merge. The default
-            # 90s is too short for large profiles and leaves the session
-            # ungraceful on reboot.
+            # Startup, reload, and unsync can all wait for a timed resync and
+            # copy large profiles.
+            TimeoutStartSec = "10min";
             TimeoutStopSec = "10min";
             ExecStart = "${invoke} startup";
             ExecStartPost = "${invoke} resync";
+            ExecReload = "${invoke} startup";
             ExecStop = "${invoke} unsync";
             # fusermount3
             Environment = "PATH=/run/wrappers/bin";
@@ -48,6 +54,7 @@ in {
         serviceConfig = {
             Type = "oneshot";
             ExecStart = "${invoke} resync";
+            TimeoutStartSec = "10min";
             Environment = "PATH=/run/wrappers/bin";
         };
     };
