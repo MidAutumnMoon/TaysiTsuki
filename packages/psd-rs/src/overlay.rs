@@ -14,6 +14,17 @@ use which::which;
 
 use crate::exec;
 
+/// Kernel-visible state of the expected FUSE mount.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MountState {
+    /// No mount exists at the path.
+    Unmounted,
+    /// The mount exists and its userspace daemon is responding.
+    Mounted,
+    /// The kernel mount remains, but its FUSE daemon has exited.
+    Disconnected,
+}
+
 /// Verify required external binaries are on PATH.
 pub fn check_dependencies() -> Result<()> {
     for bin in [
@@ -53,11 +64,15 @@ pub fn mount(
     .with_context(|| {
         format!("mounting overlay at {}", mountpoint.display())
     });
-    let mounted = is_mountpoint(mountpoint)?;
-    match (result, mounted) {
-        (Ok(()), true) => Ok(()),
-        (Ok(()), false) => bail!(
-            "mount reported success but {} is not a mountpoint",
+    let state = mount_state(mountpoint)?;
+    match (result, state) {
+        (Ok(()), MountState::Mounted) => Ok(()),
+        (Ok(()), MountState::Unmounted) => bail!(
+            "mount reported success but {} is not mounted",
+            mountpoint.display()
+        ),
+        (Ok(()), MountState::Disconnected) => bail!(
+            "overlay at {} disconnected immediately after mounting",
             mountpoint.display()
         ),
         (Err(error), _) => Err(error),
@@ -75,15 +90,21 @@ pub fn unmount(mountpoint: &Path) -> Result<()> {
             .with_context(|| {
                 format!("unmounting {}", mountpoint.display())
             });
-    let mounted = is_mountpoint(mountpoint)?;
-    match (result, mounted) {
-        (Ok(()), false) => Ok(()),
-        (Ok(()), true) => bail!(
+    let state = mount_state(mountpoint)?;
+    match (result, state) {
+        (Ok(()), MountState::Unmounted) => Ok(()),
+        (Ok(()), MountState::Mounted) => bail!(
             "unmount reported success but {} is still mounted",
             mountpoint.display()
         ),
-        (Err(error), true) => Err(error),
-        (Err(error), false) => {
+        (Ok(()), MountState::Disconnected) => bail!(
+            "unmount reported success but {} is still a disconnected mount",
+            mountpoint.display()
+        ),
+        (Err(error), MountState::Mounted | MountState::Disconnected) => {
+            Err(error)
+        }
+        (Err(error), MountState::Unmounted) => {
             warn!(
                 mountpoint = %mountpoint.display(),
                 error = %format_args!("{error:#}"),
@@ -94,13 +115,23 @@ pub fn unmount(mountpoint: &Path) -> Result<()> {
     }
 }
 
-pub fn is_mountpoint(path: &Path) -> Result<bool> {
-    if !entry_exists(path)? {
-        debug!(
-            path = %path.display(),
-            "runtime mountpoint is absent; treating it as unmounted"
-        );
-        return Ok(false);
+pub fn mount_state(path: &Path) -> Result<MountState> {
+    match runtime_entry_state(path)? {
+        RuntimeEntryState::Missing => {
+            debug!(
+                path = %path.display(),
+                "runtime mountpoint is absent; treating it as unmounted"
+            );
+            return Ok(MountState::Unmounted);
+        }
+        RuntimeEntryState::Disconnected => {
+            warn!(
+                path = %path.display(),
+                "FUSE mount is disconnected from its userspace daemon"
+            );
+            return Ok(MountState::Disconnected);
+        }
+        RuntimeEntryState::Present => {}
     }
 
     // Keep command output so genuine failures have a diagnostic. `-q`
@@ -110,53 +141,103 @@ pub fn is_mountpoint(path: &Path) -> Result<bool> {
             format!("checking mount state for {}", path.display())
         })?;
     match output.status.code() {
-        Some(0) => Ok(true),
+        Some(0) => probe_connected_mount(path),
         // util-linux mountpoint(1): 32 means "not a mountpoint".
         Some(32) => {
             debug!(path = %path.display(), "runtime path is not mounted");
-            Ok(false)
+            Ok(MountState::Unmounted)
         }
-        code if !entry_exists(path)? => {
-            // The runtime directory can disappear between the metadata check
-            // and mountpoint(1), especially while a FUSE daemon is exiting.
-            debug!(
-                path = %path.display(),
-                exit = code.unwrap_or(-1),
-                "runtime mountpoint disappeared during inspection"
-            );
-            Ok(false)
-        }
-        code => {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            let stdout = String::from_utf8_lossy(&output.stdout);
-            let diagnostic = stderr.trim();
-            let diagnostic = if diagnostic.is_empty() {
-                stdout.trim()
-            } else {
-                diagnostic
-            };
-            let diagnostic = if diagnostic.is_empty() {
-                "no diagnostic output"
-            } else {
-                diagnostic
-            };
-            bail!(
-                "could not determine whether {} is mounted: `mountpoint` \
-                 exited {} ({diagnostic})",
-                path.display(),
-                code.unwrap_or(-1)
-            );
-        }
+        code => match runtime_entry_state(path)? {
+            RuntimeEntryState::Missing => {
+                debug!(
+                    path = %path.display(),
+                    exit = code.unwrap_or(-1),
+                    "runtime mountpoint disappeared during inspection"
+                );
+                Ok(MountState::Unmounted)
+            }
+            RuntimeEntryState::Disconnected => {
+                warn!(
+                    path = %path.display(),
+                    "FUSE mount disconnected during inspection"
+                );
+                Ok(MountState::Disconnected)
+            }
+            RuntimeEntryState::Present => {
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                let stdout = String::from_utf8_lossy(&output.stdout);
+                let diagnostic = stderr.trim();
+                let diagnostic = if diagnostic.is_empty() {
+                    stdout.trim()
+                } else {
+                    diagnostic
+                };
+                let diagnostic = if diagnostic.is_empty() {
+                    "no diagnostic output"
+                } else {
+                    diagnostic
+                };
+                bail!(
+                    "could not determine whether {} is mounted: `mountpoint` \
+                     exited {} ({diagnostic})",
+                    path.display(),
+                    code.unwrap_or(-1)
+                );
+            }
+        },
     }
 }
 
-fn entry_exists(path: &Path) -> Result<bool> {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum RuntimeEntryState {
+    Missing,
+    Present,
+    Disconnected,
+}
+
+fn runtime_entry_state(path: &Path) -> Result<RuntimeEntryState> {
     match fs::symlink_metadata(path) {
-        Ok(_) => Ok(true),
-        Err(error) if error.kind() == ErrorKind::NotFound => Ok(false),
+        Ok(_) => Ok(RuntimeEntryState::Present),
+        Err(error) if error.kind() == ErrorKind::NotFound => {
+            Ok(RuntimeEntryState::Missing)
+        }
+        Err(error) if error.kind() == ErrorKind::NotConnected => {
+            Ok(RuntimeEntryState::Disconnected)
+        }
         Err(error) => Err(error).with_context(|| {
             format!("inspect runtime path {}", path.display())
         }),
+    }
+}
+
+fn probe_connected_mount(path: &Path) -> Result<MountState> {
+    let mut entries = match fs::read_dir(path) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == ErrorKind::NotConnected => {
+            warn!(
+                path = %path.display(),
+                "FUSE mount exists but its userspace daemon is disconnected"
+            );
+            return Ok(MountState::Disconnected);
+        }
+        Err(error) => {
+            return Err(error).with_context(|| {
+                format!("probe mounted path {}", path.display())
+            });
+        }
+    };
+    match entries.next() {
+        Some(Err(error)) if error.kind() == ErrorKind::NotConnected => {
+            warn!(
+                path = %path.display(),
+                "FUSE mount disconnected while probing it"
+            );
+            Ok(MountState::Disconnected)
+        }
+        Some(Err(error)) => Err(error).with_context(|| {
+            format!("read mounted path {}", path.display())
+        }),
+        Some(Ok(_)) | None => Ok(MountState::Mounted),
     }
 }
 
@@ -168,8 +249,11 @@ mod tests {
     use tempfile::tempdir;
 
     #[test]
-    fn absent_runtime_path_is_not_a_mountpoint() {
+    fn absent_runtime_path_is_unmounted() {
         let temp = tempdir().unwrap();
-        assert!(!is_mountpoint(&temp.path().join("missing")).unwrap());
+        assert_eq!(
+            mount_state(&temp.path().join("missing")).unwrap(),
+            MountState::Unmounted
+        );
     }
 }

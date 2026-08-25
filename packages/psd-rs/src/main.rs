@@ -272,11 +272,12 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
         let paths = state.paths_for(p);
         match crash::recover(&paths)? {
             crash::RecoverOutcome::Live
-            | crash::RecoverOutcome::Reattached => {
+            | crash::RecoverOutcome::Reattached
+            | crash::RecoverOutcome::Reconnected => {
                 debug!(
                     app = %p.kind.as_ref(),
                     dir = %paths.dir.display(),
-                    "already live; skipping startup"
+                    "profile overlay is live; skipping startup"
                 );
                 return Ok(());
             }
@@ -308,16 +309,22 @@ fn cmd_startup(state: &State, profiles: &[AppProfile]) -> Result<()> {
 }
 
 fn cmd_resync(state: &State, profiles: &[AppProfile]) -> Result<()> {
-    run_per_profile("resync", state, profiles, sync::resync)?;
+    run_per_profile("resync", state, profiles, |state, profile| {
+        reconnect_if_disconnected(state, profile)?;
+        sync::resync(state, profile)
+    })?;
     Ok(())
 }
 
 fn cmd_unsync(state: &State, profiles: &[AppProfile]) -> Result<()> {
     let outcomes =
-        run_per_profile("unsync", state, profiles, sync::unsync)?;
+        run_per_profile("unsync", state, profiles, |state, profile| {
+            reconnect_if_disconnected(state, profile)?;
+            sync::unsync(state, profile)
+        })?;
     let left_live = outcomes
         .iter()
-        .filter(|o| matches!(o, sync::UnsyncOutcome::LeftLive))
+        .filter(|outcome| matches!(outcome, sync::UnsyncOutcome::LeftLive))
         .count();
     if left_live > 0 {
         info!(
@@ -326,6 +333,24 @@ fn cmd_unsync(state: &State, profiles: &[AppProfile]) -> Result<()> {
         );
     } else {
         info!("unsync complete");
+    }
+    Ok(())
+}
+
+fn reconnect_if_disconnected(
+    state: &State,
+    profile: &AppProfile,
+) -> Result<()> {
+    let paths = state.paths_for(profile);
+    if paths.session_state()? == paths::SessionState::DisconnectedMount {
+        let outcome = crash::recover(&paths)?;
+        if outcome != crash::RecoverOutcome::Reconnected {
+            bail!(
+                "expected disconnected profile {} to reconnect, got \
+                 {outcome:?}",
+                profile.path.display()
+            );
+        }
     }
     Ok(())
 }

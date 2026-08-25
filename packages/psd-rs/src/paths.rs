@@ -25,6 +25,7 @@ use tracing::debug;
 
 use crate::apps::AppProfile;
 use crate::overlay;
+use crate::overlay::MountState;
 
 #[derive(Debug, Clone)]
 pub struct ProfilePaths {
@@ -58,6 +59,8 @@ pub enum SessionState {
     StaleSymlink,
     /// `TMP` is mounted, but the managed `DIR` symlink is missing.
     OrphanMount,
+    /// The kernel mount remains, but its FUSE daemon has exited.
+    DisconnectedMount,
 }
 
 impl fmt::Display for SessionState {
@@ -68,6 +71,7 @@ impl fmt::Display for SessionState {
             Self::Live => "live",
             Self::StaleSymlink => "stale-symlink",
             Self::OrphanMount => "orphan-mount",
+            Self::DisconnectedMount => "disconnected",
         })
     }
 }
@@ -102,19 +106,19 @@ impl ProfilePaths {
 
     /// Classify the complete session state, including the actual mount.
     pub fn session_state(&self) -> Result<SessionState> {
-        let overlay_mounted = overlay::is_mountpoint(&self.tmp)
-            .with_context(|| {
+        let mount_state =
+            overlay::mount_state(&self.tmp).with_context(|| {
                 format!(
                     "inspect overlay mount {} for profile {}",
                     self.tmp.display(),
                     self.dir.display()
                 )
             })?;
-        let state = self.classify_session(overlay_mounted)?;
+        let state = self.classify_session(mount_state)?;
         debug!(
             dir = %self.dir.display(),
             tmp = %self.tmp.display(),
-            mounted = overlay_mounted,
+            ?mount_state,
             state = %state,
             "classified profile session"
         );
@@ -127,7 +131,7 @@ impl ProfilePaths {
     /// creating real FUSE mounts.
     pub(crate) fn classify_session(
         &self,
-        overlay_mounted: bool,
+        mount_state: MountState,
     ) -> Result<SessionState> {
         let metadata = match fs::symlink_metadata(&self.dir) {
             Ok(metadata) => Some(metadata),
@@ -140,10 +144,12 @@ impl ProfilePaths {
         };
 
         let Some(metadata) = metadata else {
-            return Ok(if overlay_mounted {
-                SessionState::OrphanMount
-            } else {
-                SessionState::Missing
+            return Ok(match mount_state {
+                MountState::Unmounted => SessionState::Missing,
+                MountState::Mounted => SessionState::OrphanMount,
+                MountState::Disconnected => {
+                    SessionState::DisconnectedMount
+                }
             });
         };
 
@@ -160,10 +166,12 @@ impl ProfilePaths {
                     self.tmp.display()
                 );
             }
-            return Ok(if overlay_mounted {
-                SessionState::Live
-            } else {
-                SessionState::StaleSymlink
+            return Ok(match mount_state {
+                MountState::Unmounted => SessionState::StaleSymlink,
+                MountState::Mounted => SessionState::Live,
+                MountState::Disconnected => {
+                    SessionState::DisconnectedMount
+                }
             });
         }
 
@@ -173,15 +181,25 @@ impl ProfilePaths {
                 self.dir.display()
             );
         }
-        if overlay_mounted {
-            bail!(
-                "{} is mounted while {} is a plain directory; refusing to \
-                 guess which contains current data",
-                self.tmp.display(),
-                self.dir.display()
-            );
+        match mount_state {
+            MountState::Unmounted => Ok(SessionState::PlainDirectory),
+            MountState::Mounted => {
+                bail!(
+                    "{} is mounted while {} is a plain directory; refusing to \
+                     guess which contains current data",
+                    self.tmp.display(),
+                    self.dir.display()
+                );
+            }
+            MountState::Disconnected => {
+                bail!(
+                    "{} is a disconnected mount while {} is a plain \
+                     directory; refusing automatic recovery",
+                    self.tmp.display(),
+                    self.dir.display()
+                );
+            }
         }
-        Ok(SessionState::PlainDirectory)
     }
 }
 

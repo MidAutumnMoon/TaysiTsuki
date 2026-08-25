@@ -26,6 +26,11 @@ in {
     systemd.user.services."psd" = {
         description = "psd: app profile sync to tmpfs";
         wantedBy = [ "default.target" ];
+        # Initial persistence is a separate unit: a live profile may change
+        # while rsync scans it, but that must never fail the mount-owning
+        # service and kill its fuse-overlayfs daemons.
+        wants = [ "psd-resync.service" ];
+        before = [ "psd-resync.service" ];
 
         # fuse-overlayfs daemons stay in this unit's cgroup. Restarting the
         # unit would kill every mount after ExecStop, so apply switch-time
@@ -40,7 +45,8 @@ in {
             TimeoutStartSec = "10min";
             TimeoutStopSec = "10min";
             ExecStart = "${invoke} startup";
-            ExecStartPost = "${invoke} resync";
+            # Initial and periodic persistence run in psd-resync.service so a
+            # copy failure cannot tear down healthy mounts.
             ExecReload = "${invoke} startup";
             ExecStop = "${invoke} unsync";
             # fusermount3
@@ -50,6 +56,8 @@ in {
 
     systemd.user.services."psd-resync" = {
         description = "psd: timed resync";
+        requires = [ "psd.service" ];
+        after = [ "psd.service" ];
 
         serviceConfig = {
             Type = "oneshot";

@@ -18,6 +18,7 @@ use anyhow::bail;
 use tracing::info;
 use tracing::warn;
 
+use crate::overlay;
 use crate::paths::ProfilePaths;
 use crate::paths::SessionState;
 
@@ -28,6 +29,8 @@ pub enum RecoverOutcome {
     Recovered,
     /// A mounted overlay missing only its app-visible symlink was reattached.
     Reattached,
+    /// A disconnected FUSE mount was remounted with its existing upperdir.
+    Reconnected,
     /// `DIR` was already a plain profile directory.
     Already,
     /// The overlay and its managed symlink are live.
@@ -61,6 +64,10 @@ fn recover_state(
                 "reattached orphaned overlay"
             );
             return Ok(RecoverOutcome::Reattached);
+        }
+        SessionState::DisconnectedMount => {
+            reconnect_disconnected(paths)?;
+            return Ok(RecoverOutcome::Reconnected);
         }
         SessionState::PlainDirectory => {
             ensure_empty_unmounted_mountpoint(paths)?;
@@ -110,6 +117,108 @@ fn recover_state(
     cleanup_runtime(paths)?;
 
     Ok(RecoverOutcome::Recovered)
+}
+
+fn reconnect_disconnected(paths: &ProfilePaths) -> Result<()> {
+    let link_missing = managed_link_missing(paths)?;
+    for directory in [&paths.backup, &paths.upper, &paths.work] {
+        require_plain_directory(directory)?;
+    }
+
+    warn!(
+        dir = %paths.dir.display(),
+        tmp = %paths.tmp.display(),
+        upper = %paths.upper.display(),
+        "FUSE daemon exited; reconnecting the existing overlay without \
+         discarding its in-memory delta"
+    );
+    overlay::unmount(&paths.tmp)
+        .context("detach disconnected FUSE mount")?;
+
+    match fs::symlink_metadata(&paths.tmp) {
+        Ok(metadata) if metadata.is_dir() => {}
+        Ok(_) => {
+            bail!(
+                "{} is not a plain mountpoint after detaching the \
+                 disconnected overlay",
+                paths.tmp.display()
+            );
+        }
+        Err(error) if error.kind() == ErrorKind::NotFound => {
+            fs::create_dir_all(&paths.tmp).with_context(|| {
+                format!("recreate mountpoint {}", paths.tmp.display())
+            })?;
+        }
+        Err(error) => {
+            return Err(error).with_context(|| {
+                format!(
+                    "inspect detached mountpoint {}",
+                    paths.tmp.display()
+                )
+            });
+        }
+    }
+
+    overlay::mount(&paths.backup, &paths.upper, &paths.work, &paths.tmp)
+        .context("remount existing overlay state")?;
+    if link_missing {
+        symlink(&paths.tmp, &paths.dir).with_context(|| {
+            format!(
+                "reattach {} -> {}",
+                paths.dir.display(),
+                paths.tmp.display()
+            )
+        })?;
+    }
+
+    info!(
+        dir = %paths.dir.display(),
+        tmp = %paths.tmp.display(),
+        "reconnected disconnected overlay"
+    );
+    Ok(())
+}
+
+fn managed_link_missing(paths: &ProfilePaths) -> Result<bool> {
+    let metadata = match fs::symlink_metadata(&paths.dir) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == ErrorKind::NotFound => {
+            return Ok(true);
+        }
+        Err(error) => {
+            return Err(error).with_context(|| {
+                format!("inspect {}", paths.dir.display())
+            });
+        }
+    };
+    if !metadata.file_type().is_symlink() {
+        bail!(
+            "{} is not psd's managed symlink; refusing to reconnect over it",
+            paths.dir.display()
+        );
+    }
+    let target = fs::read_link(&paths.dir).with_context(|| {
+        format!("read symlink {}", paths.dir.display())
+    })?;
+    if target != paths.tmp {
+        bail!(
+            "{} points to {}, not psd's expected {}; refusing to reconnect",
+            paths.dir.display(),
+            target.display(),
+            paths.tmp.display()
+        );
+    }
+    Ok(false)
+}
+
+fn require_plain_directory(path: &Path) -> Result<()> {
+    let metadata = fs::symlink_metadata(path).with_context(|| {
+        format!("inspect required directory {}", path.display())
+    })?;
+    if !metadata.is_dir() {
+        bail!("{} is not a plain directory", path.display());
+    }
+    Ok(())
 }
 
 /// Pick the newer complete directory. An empty `back_ovfs` cannot win:
@@ -227,6 +336,7 @@ mod tests {
 
     use crate::apps::AppKind;
     use crate::apps::AppProfile;
+    use crate::overlay::MountState;
 
     /// Build real paths so tests track the actual naming scheme.
     fn make_paths(root: &Path) -> ProfilePaths {
@@ -243,7 +353,12 @@ mod tests {
         paths: &ProfilePaths,
         overlay_mounted: bool,
     ) -> Result<RecoverOutcome> {
-        recover_state(paths, paths.classify_session(overlay_mounted)?)
+        let mount_state = if overlay_mounted {
+            MountState::Mounted
+        } else {
+            MountState::Unmounted
+        };
+        recover_state(paths, paths.classify_session(mount_state)?)
     }
 
     fn make_managed_symlink(paths: &ProfilePaths) {
@@ -397,8 +512,22 @@ mod tests {
         create_dir_all(&unrelated).unwrap();
         symlink(&unrelated, &paths.dir).unwrap();
 
-        let error = paths.classify_session(false).unwrap_err();
+        let error =
+            paths.classify_session(MountState::Unmounted).unwrap_err();
         assert!(error.to_string().contains("refusing to modify"));
         assert_eq!(fs::read_link(&paths.dir).unwrap(), unrelated);
+    }
+
+    #[test]
+    fn disconnected_managed_symlink_is_classified_for_reconnection() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.tmp).unwrap();
+        make_managed_symlink(&paths);
+
+        assert_eq!(
+            paths.classify_session(MountState::Disconnected).unwrap(),
+            SessionState::DisconnectedMount
+        );
     }
 }

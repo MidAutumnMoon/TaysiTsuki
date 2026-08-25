@@ -150,6 +150,13 @@ pub fn overlay_live(paths: &ProfilePaths) -> Result<bool> {
                 paths.dir.display()
             );
         }
+        SessionState::DisconnectedMount => {
+            bail!(
+                "overlay for {} is disconnected because its fuse-overlayfs \
+                 daemon exited; run `psd startup` to reconnect it",
+                paths.dir.display()
+            );
+        }
     }
 }
 
@@ -237,7 +244,10 @@ fn rollback_failed_startup(
 }
 
 fn rollback_startup(paths: &ProfilePaths) -> Result<()> {
-    if overlay::is_mountpoint(&paths.tmp)? {
+    if matches!(
+        overlay::mount_state(&paths.tmp)?,
+        overlay::MountState::Mounted | overlay::MountState::Disconnected
+    ) {
         overlay::unmount(&paths.tmp)?;
     }
 
@@ -278,6 +288,13 @@ fn rollback_startup(paths: &ProfilePaths) -> Result<()> {
     Ok(())
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum RsyncOutcome {
+    Complete,
+    /// A source entry vanished while the live application was mutating it.
+    SourceChanged,
+}
+
 /// Resync: refresh `BACK_OVFS` from the overlay view. Safe while
 /// mounted -- the target sits outside the overlay. Non-live profiles
 /// are skipped.
@@ -287,8 +304,19 @@ pub fn resync(state: &State, profile: &AppProfile) -> Result<()> {
         debug!(dir = %paths.dir.display(), "not live; skipping resync");
         return Ok(());
     }
-    rsync_sync(&paths.dir, &paths.back_ovfs)?;
-    info!(app = %profile.kind.as_ref(), "resync ok");
+    match rsync_sync(&paths.dir, &paths.back_ovfs)? {
+        RsyncOutcome::Complete => {
+            info!(app = %profile.kind.as_ref(), "resync ok");
+        }
+        RsyncOutcome::SourceChanged => {
+            warn!(
+                app = %profile.kind.as_ref(),
+                dir = %paths.dir.display(),
+                "profile changed during resync; keeping the overlay live and \
+                 retrying on the next scheduled resync"
+            );
+        }
+    }
     Ok(())
 }
 
@@ -322,10 +350,31 @@ pub fn unsync(
 
     // Persist first -- safe under a running app -- so the staging copy
     // is fresh no matter what follows.
-    rsync_sync(&paths.dir, &paths.back_ovfs)?;
+    let mut sync_outcome = rsync_sync(&paths.dir, &paths.back_ovfs)?;
+    if sync_outcome == RsyncOutcome::SourceChanged {
+        if app_running(profile.kind, &state.user)? {
+            warn!(
+                app = %profile.kind.as_ref(),
+                dir = %paths.dir.display(),
+                "app changed files during persistence; partial mirror kept \
+                 and overlay left live"
+            );
+            return Ok(UnsyncOutcome::LeftLive);
+        }
+        warn!(
+            app = %profile.kind.as_ref(),
+            "source changed during persistence after the app exited; retrying"
+        );
+        sync_outcome = rsync_sync(&paths.dir, &paths.back_ovfs)?;
+        if sync_outcome == RsyncOutcome::SourceChanged {
+            bail!(
+                "{} kept changing during persistence; refusing to unmount",
+                paths.dir.display()
+            );
+        }
+    }
 
-    // Busy: leave live (tearing down under a writer corrupts state,
-    // and a failed stop job wedges switches).
+    // Busy: leave live (tearing down under a writer corrupts state).
     if app_running(profile.kind, &state.user)? {
         warn!(
             app = %profile.kind.as_ref(),
@@ -376,19 +425,49 @@ pub fn unsync(
 }
 
 /// Mirror `src`/ into `dst`/.
-fn rsync_sync(src: &Path, dst: &Path) -> Result<()> {
+fn rsync_sync(src: &Path, dst: &Path) -> Result<RsyncOutcome> {
     if !dst.exists() {
         fs::create_dir_all(dst)
             .with_context(|| format!("mkdir {}", dst.display()))?;
     }
-    let mut cmd = Command::new("rsync");
-    cmd.args(["-aX", "--delete-after", "--inplace", "--no-whole-file"])
+    let mut command = Command::new("rsync");
+    command
+        .args(["-aX", "--delete-after", "--inplace", "--no-whole-file"])
         .arg(format!("{}/", src.display()))
         .arg(dst);
-    debug!(cmd = ?cmd, "rsync");
-    exec::run(&mut cmd).with_context(|| {
+    debug!(cmd = ?command, "rsync");
+    let output = exec::output(&mut command).with_context(|| {
         format!("rsync {} -> {}", src.display(), dst.display())
-    })
+    })?;
+    match accepted_rsync_outcome(output.status.code()) {
+        Some(RsyncOutcome::Complete) => Ok(RsyncOutcome::Complete),
+        Some(RsyncOutcome::SourceChanged) => {
+            warn!(
+                src = %src.display(),
+                dst = %dst.display(),
+                detail = %String::from_utf8_lossy(&output.stderr).trim(),
+                "rsync source changed during transfer"
+            );
+            Ok(RsyncOutcome::SourceChanged)
+        }
+        None => bail!(
+            "rsync {} -> {} failed (exit {}): {}",
+            src.display(),
+            dst.display(),
+            output.status.code().unwrap_or(-1),
+            String::from_utf8_lossy(&output.stderr).trim()
+        ),
+    }
+}
+
+/// rsync(1) exit 24 means source files vanished during transfer. That is
+/// routine for a live browser profile, not an I/O failure.
+fn accepted_rsync_outcome(code: Option<i32>) -> Option<RsyncOutcome> {
+    match code {
+        Some(0) => Some(RsyncOutcome::Complete),
+        Some(24) => Some(RsyncOutcome::SourceChanged),
+        Some(_) | None => None,
+    }
 }
 
 /// Copy permission bits from `src` to `dst`.
@@ -418,5 +497,24 @@ fn fsync_dir(dir_path: &Path) -> Result<()> {
         }
         Err(error) => Err(error)
             .with_context(|| format!("fsync {}", dir_path.display())),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn vanished_live_files_are_a_retryable_rsync_outcome() {
+        assert_eq!(
+            accepted_rsync_outcome(Some(24)),
+            Some(RsyncOutcome::SourceChanged)
+        );
+        assert_eq!(
+            accepted_rsync_outcome(Some(0)),
+            Some(RsyncOutcome::Complete)
+        );
+        assert_eq!(accepted_rsync_outcome(Some(23)), None);
+        assert_eq!(accepted_rsync_outcome(None), None);
     }
 }
