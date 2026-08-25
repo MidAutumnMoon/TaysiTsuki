@@ -2,9 +2,9 @@ use std::fs::read_to_string;
 use std::path::Path;
 use std::process::Command;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result as AnyResult;
-use tap::Pipe;
+use tap::Pipe as _;
 use tempfile::TempDir;
 
 pub struct MountAndRead {
@@ -16,7 +16,7 @@ impl MountAndRead {
         eprintln!("mount drive");
         let temp = TempDir::new()
             .context("Failed to create tempdir as mountpoint")?;
-        dbg!(temp.path());
+        temp.path();
         Command::new("mount")
             .arg(drive)
             .arg(temp.path())
@@ -28,9 +28,9 @@ impl MountAndRead {
     }
 
     pub fn read_file(&self, path: &str) -> AnyResult<String> {
-        dbg!(&path);
+        &path;
         let full_path = self.mountpoint.path().join(path);
-        dbg!(&full_path);
+        &full_path;
         read_to_string(&full_path)
             .context("Failed to read file")?
             .pipe(Ok)

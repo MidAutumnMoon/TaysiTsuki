@@ -2,7 +2,7 @@
 
 use std::process::Command;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use phia_maintenance::RCLONE_CONF;
 

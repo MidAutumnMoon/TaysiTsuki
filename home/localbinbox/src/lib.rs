@@ -3,10 +3,10 @@ use std::fs::read_dir;
 use std::path::Path;
 use std::path::PathBuf;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
-use itertools::Itertools;
-use tap::Pipe;
+use itertools::Itertools as _;
+use tap::Pipe as _;
 
 pub mod sops;
 

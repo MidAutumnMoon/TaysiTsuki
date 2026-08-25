@@ -1,11 +1,11 @@
 use std::path::Path;
 use std::str::FromStr;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
-use itertools::Itertools;
+use itertools::Itertools as _;
 use serde::Deserialize;
-use tap::Pipe;
+use tap::Pipe as _;
 use tracing::debug;
 use tracing::instrument;
 

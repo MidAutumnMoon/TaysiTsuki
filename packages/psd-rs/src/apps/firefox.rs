@@ -6,7 +6,7 @@
 use std::path::Path;
 use std::path::PathBuf;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use tracing::debug;
 use tracing::warn;

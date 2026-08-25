@@ -7,7 +7,7 @@
 use std::path::Path;
 use std::process::Command;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use tracing::info;
 

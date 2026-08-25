@@ -3,7 +3,7 @@ use std::fs::create_dir_all;
 use std::path::PathBuf;
 use std::sync::LazyLock;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result as AnyResult;
 use anyhow::ensure;
 
@@ -48,7 +48,7 @@ pub fn render_network_config(conf_str: &str) -> AnyResult<()> {
     let config: NetworkConfig = serde_yaml_ng::from_str(conf_str)
         .context("Failed to parse network config yaml")?;
     ensure!(config.version == 2, "This tool only supports v2");
-    dbg!(&config);
+    &config;
 
     let mut networkd_configs: Vec<(String, String)> = vec![];
 
@@ -110,7 +110,7 @@ pub fn render_network_config(conf_str: &str) -> AnyResult<()> {
 
         for (name, content) in networkd_configs {
             let full_path = &SYSTEMD_NETWORK_DIR.join(name);
-            dbg!(&full_path);
+            &full_path;
             std::fs::write(full_path, content).with_context(|| {
                 format!(
                     "Failed to write networkd config {}",

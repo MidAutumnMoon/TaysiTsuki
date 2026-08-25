@@ -1,24 +1,24 @@
 use std::env::current_dir;
 use std::env::set_current_dir;
-use std::io::BufRead;
+use std::io::BufRead as _;
 use std::io::BufReader;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 use std::process::Stdio;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
 use anyhow::ensure;
 use ino_color::ceprintln;
 use ino_color::fg::Blue;
 use ino_color::fg::Yellow;
-use ino_iter::InoIter;
-use itertools::Itertools;
+use ino_iter::InoIter as _;
+use itertools::Itertools as _;
 use localbinbox::collect_read_dir;
-use tap::Pipe;
-use tap::Tap;
+use tap::Pipe as _;
+use tap::Tap as _;
 
 const CFG_PAR2: Option<&str> = option_env!("CFG_PAR2");
 
@@ -134,7 +134,7 @@ fn par_sum(path: &Path) -> Result<()> {
         std::fs::remove_file(Path::new(&par2_index_name))
             .context("Failed to remove par2 index file")?;
 
-        let par2_volume = match &par2_volumes(parent, basename)?[..] {
+        let par2_volume = match &*par2_volumes(parent, basename)? {
             [v] => v.clone(),
             [_v, ..] => bail!("[BUG] Found multiple par2 volume"),
             [] => bail!("[BUG] No par2 volume found"),

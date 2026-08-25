@@ -2,29 +2,29 @@ use std::collections::HashSet;
 use std::path::PathBuf;
 use std::process::Command;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result as AnyResult;
 use anyhow::bail;
-use tap::Pipe;
+use tap::Pipe as _;
 
 pub fn find_config_drive() -> AnyResult<Option<PathBuf>> {
     eprintln!("find_config_drive");
 
     // TODO: handle upper case "cidata"?
     let cidata_devs = devices_match_label("cidata")?;
-    dbg!(&cidata_devs);
+    &cidata_devs;
 
     // TODO: handle "vfat" type?
     let iso9660_devs = devices_match_fstype("iso9660")?;
-    dbg!(&iso9660_devs);
+    &iso9660_devs;
 
     let devs = cidata_devs
         .intersection(&iso9660_devs)
         .map(PathBuf::from)
         .collect::<Vec<_>>();
-    dbg!(&devs);
+    &devs;
 
-    let dev = match &devs[..] {
+    let dev = match (&*devs) {
         [] => return Ok(None),
         [dev] => dev.clone(),
         // TODO: handle multiple drives
@@ -32,7 +32,7 @@ pub fn find_config_drive() -> AnyResult<Option<PathBuf>> {
             "Found multiple config drive, but this tool currently only supports one"
         ),
     };
-    dbg!(&dev);
+    &dev;
 
     Ok(Some(dev))
 }
@@ -68,7 +68,7 @@ pub fn devices_match_fstype(fstype: &str) -> AnyResult<HashSet<String>> {
 /// Run `blkid` and capture the output. By the way this is also
 /// how cloud-init implements it.
 pub fn blkid(params: &[&str]) -> AnyResult<Option<String>> {
-    dbg!(&params);
+    &params;
     let output = Command::new("blkid")
         .args(params)
         .output()

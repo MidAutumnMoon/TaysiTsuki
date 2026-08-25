@@ -1,11 +1,11 @@
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
 use niri_ipc::Action;
 use niri_ipc::Request;
 use niri_ipc::Response;
 use niri_ipc::socket::Socket;
-use tap::Pipe;
+use tap::Pipe as _;
 
 use std::fs::read_link;
 use std::fs::read_to_string;
@@ -28,7 +28,7 @@ fn main() -> Result<()> {
         .and_then(shell_cwd);
 
     let action_cmd = {
-        let mut command = vec!["foot".to_string()];
+        let mut command = vec!["foot".to_owned()];
         if let Some(cwd) = cwd {
             command.extend_from_slice(&["-D".into(), cwd]);
         }

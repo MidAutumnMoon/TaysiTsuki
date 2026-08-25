@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
-use tap::Pipe;
+use tap::Pipe as _;
 use tracing::debug;
 
 use crate::manifest::Manifest;

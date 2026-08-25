@@ -3,13 +3,13 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::ensure;
 use ino_color::ceprintln;
 use ino_color::fg::Yellow;
-use ino_iter::InoIter;
-use itertools::Itertools;
+use ino_iter::InoIter as _;
+use itertools::Itertools as _;
 use localbinbox::collect_read_dir;
 
 const CFG_7Z_PATH: Option<&str> = option_env!("CFG_7Z_PATH");
@@ -82,7 +82,7 @@ fn main() -> Result<()> {
             .collect_vec()
     };
 
-    dbg!(&dirs_to_archive);
+    &dirs_to_archive;
 
     for dir in dirs_to_archive {
         // Paths are absolute, they can't not have a basename or parent.

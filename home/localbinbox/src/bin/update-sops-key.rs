@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::bail;
 use anyhow::ensure;
 use ino_color::ceprintln;

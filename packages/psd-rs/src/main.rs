@@ -6,10 +6,10 @@ use std::io::stdout;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
-use clap::CommandFactory;
+use clap::CommandFactory as _;
 use clap::Parser;
 use clap::Subcommand;
 use clap_complete::Shell;
@@ -32,7 +32,7 @@ mod sync;
 use apps::AppKind;
 use apps::AppProfile;
 use config::Config;
-use strum::IntoEnumIterator;
+use strum::IntoEnumIterator as _;
 use sync::State;
 
 #[derive(Debug, Parser)]
@@ -119,7 +119,7 @@ fn run(cli: &Cli) -> Result<()> {
         Command::Unsync => cmd_unsync(&state, &profiles)?,
         Command::Recover => cmd_recover(&state, &profiles)?,
         Command::Preview => cmd_preview(&state, &profiles)?,
-        #[allow(clippy::unreachable)]
+        #[expect(clippy::unreachable)]
         Command::Completions { .. } => unreachable!(),
     }
     Ok(())
@@ -532,7 +532,7 @@ mod tests {
             (
                 vec![
                     profile(duplicate.clone(), "duplicate"),
-                    profile(duplicate.clone(), "duplicate"),
+                    profile(duplicate, "duplicate"),
                 ],
                 "discovered more than once",
             ),

@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 use std::process::Command;
-use std::str::FromStr;
+use std::str::FromStr as _;
 use std::sync::LazyLock;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
 use anyhow::ensure;

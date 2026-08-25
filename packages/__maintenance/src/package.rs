@@ -6,14 +6,14 @@ use std::process::Command;
 use std::sync::Arc;
 use std::sync::mpsc::channel;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
 use anyhow::ensure;
 use itertools::izip;
 use parking_lot::Mutex;
 use rayon::ThreadPoolBuilder;
-use tap::Pipe;
+use tap::Pipe as _;
 use tempfile::NamedTempFile;
 use tracing::debug;
 use tracing::debug_span;

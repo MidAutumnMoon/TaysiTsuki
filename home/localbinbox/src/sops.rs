@@ -3,7 +3,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use ignore::WalkBuilder;
-use saphyr::LoadableYamlNode;
+use saphyr::LoadableYamlNode as _;
 use saphyr::Yaml;
 use tracing::debug;
 use tracing::instrument;

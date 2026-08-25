@@ -7,7 +7,7 @@
 use std::collections::BTreeMap;
 use std::path::Path;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use serde::Deserialize;
 use serde::de::IgnoredAny;
@@ -51,6 +51,6 @@ struct Profile {
     // Keys are profile dir names; values ignored. (`IgnoredAny` is
     // zero-sized and a set can't deserialize from a JSON object.)
     #[serde(default)]
-    #[allow(clippy::zero_sized_map_values)]
+    #[expect(clippy::zero_sized_map_values)]
     info_cache: BTreeMap<String, IgnoredAny>,
 }

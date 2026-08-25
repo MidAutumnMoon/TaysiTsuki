@@ -2,10 +2,10 @@ use std::ffi::OsStr;
 use std::path::PathBuf;
 use std::process::Command;
 
-use anyhow::Context;
+use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
-use tap::Pipe;
+use tap::Pipe as _;
 use tracing::debug;
 use tracing::instrument;
 
