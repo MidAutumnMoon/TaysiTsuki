@@ -128,6 +128,19 @@ pub fn with_suffix(
     })
 }
 
+/// Discover a single fixed profile path, including a dangling managed
+/// symlink left after the runtime tmpfs disappeared.
+pub fn discover_fixed(
+    kind: AppKind,
+    user: &str,
+    path: PathBuf,
+) -> Result<Vec<AppProfile>> {
+    if !path.is_dir() && !path.is_symlink() {
+        return Ok(Vec::new());
+    }
+    Ok(vec![with_suffix(kind, user, path)?])
+}
+
 #[cfg(test)]
 #[expect(clippy::unwrap_used, reason = "Test")]
 mod tests {
@@ -159,10 +172,28 @@ mod tests {
     }
 
     #[test]
-    fn short_process_name_uses_stat_name() {
-        assert_eq!(
-            AppKind::Firefox.process_match(),
-            ProcessMatch::Name("firefox")
+    fn fixed_profile_discovers_dangling_managed_path() {
+        use std::fs::create_dir_all;
+        use std::os::unix::fs::symlink;
+
+        let temp = tempfile::tempdir().unwrap();
+        let profile = temp.path().join("app/profile");
+        create_dir_all(profile.parent().unwrap()).unwrap();
+        symlink(temp.path().join("missing-runtime"), &profile).unwrap();
+
+        let discovered =
+            discover_fixed(AppKind::Telegram, "user", profile.clone())
+                .unwrap();
+        assert_eq!(discovered.len(), 1);
+        assert_eq!(discovered.first().unwrap().path, profile);
+        assert!(
+            discover_fixed(
+                AppKind::Telegram,
+                "user",
+                temp.path().join("missing")
+            )
+            .unwrap()
+            .is_empty()
         );
     }
 }

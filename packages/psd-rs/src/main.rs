@@ -507,4 +507,55 @@ mod tests {
         ]));
         assert!(validate_overlay_option_path(&path).is_err());
     }
+
+    fn profile(path: std::path::PathBuf, suffix: &str) -> AppProfile {
+        AppProfile {
+            kind: AppKind::Firefox,
+            user: "user".to_owned(),
+            path,
+            suffix: suffix.to_owned(),
+        }
+    }
+
+    #[test]
+    fn profile_validation_rejects_conflicting_layouts() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path();
+        let state = State {
+            volatile_root: root.join("runtime"),
+            user: "user".to_owned(),
+        };
+        let duplicate = root.join("duplicate");
+        let nested_parent = root.join("nested");
+
+        for (profiles, expected) in [
+            (
+                vec![
+                    profile(duplicate.clone(), "duplicate"),
+                    profile(duplicate.clone(), "duplicate"),
+                ],
+                "discovered more than once",
+            ),
+            (
+                vec![
+                    profile(nested_parent.clone(), "nested"),
+                    profile(nested_parent.join("child"), "child"),
+                ],
+                "nested profiles",
+            ),
+            (
+                vec![
+                    profile(root.join("one/shared"), "shared"),
+                    profile(root.join("two/shared"), "shared"),
+                ],
+                "same volatile path",
+            ),
+        ] {
+            let error = validate_profiles(&state, &profiles).unwrap_err();
+            assert!(
+                error.to_string().contains(expected),
+                "expected {expected:?}, got {error:#}"
+            );
+        }
+    }
 }

@@ -409,4 +409,47 @@ mod tests {
         assert!(!paths.back_ovfs_stage.exists());
         assert!(!paths.legacy_back_ovfs_committed.exists());
     }
+
+    #[test]
+    fn ordinary_rsync_error_discards_staging_and_preserves_commit() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.dir).unwrap();
+        create_dir_all(&paths.back_ovfs).unwrap();
+        write(paths.back_ovfs.join("data"), b"committed").unwrap();
+        write(marker_path(&paths.back_ovfs), b"format 1").unwrap();
+
+        let error = run_with(&paths, |_| {
+            write(paths.back_ovfs_stage.join("data"), b"partial").unwrap();
+            Ok(output(23, "partial transfer"))
+        })
+        .unwrap_err();
+
+        assert!(error.to_string().contains("exit 23"));
+        assert_eq!(
+            read(paths.back_ovfs.join("data")).unwrap(),
+            b"committed"
+        );
+        assert!(marker_path(&paths.back_ovfs).is_file());
+        assert!(!paths.back_ovfs_stage.exists());
+    }
+
+    #[test]
+    fn first_checkpoint_publishes_without_a_previous_mirror() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.dir).unwrap();
+
+        let outcome = run_with(&paths, |_| {
+            write(paths.back_ovfs_stage.join("data"), b"first").unwrap();
+            Ok(output(0, ""))
+        })
+        .unwrap();
+
+        assert_eq!(outcome, Outcome::Committed);
+        assert_eq!(read(paths.back_ovfs.join("data")).unwrap(), b"first");
+        assert!(marker_path(&paths.back_ovfs).is_file());
+        assert!(committed_at(&paths).unwrap().is_some());
+        assert!(!paths.back_ovfs_stage.exists());
+    }
 }

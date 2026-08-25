@@ -261,7 +261,10 @@ fn rollback_startup(paths: &ProfilePaths) -> Result<()> {
     ) {
         overlay::unmount(&paths.tmp)?;
     }
+    rollback_detached_startup(paths)
+}
 
+fn rollback_detached_startup(paths: &ProfilePaths) -> Result<()> {
     match fs::symlink_metadata(&paths.dir) {
         Err(error) if error.kind() == ErrorKind::NotFound => {}
         Err(error) => {
@@ -393,18 +396,21 @@ pub fn unsync(
         );
     }
 
-    // Durable first; a failure from here on leaves the session fully
-    // live.
+    // The committed mirror is durable before the destructive transition.
     fsync_dir(&paths.back_ovfs)?;
 
-    // Unmount first: EBUSY then bails while the session is still
-    // intact.
+    // Unmount first: EBUSY then bails while the session is still intact.
     overlay::unmount(&paths.tmp)?;
+    promote_unmounted_checkpoint(&paths)?;
 
+    info!(app = %profile.kind.as_ref(), "unsync ok");
+    Ok(UnsyncOutcome::TornDown)
+}
+
+fn promote_unmounted_checkpoint(paths: &ProfilePaths) -> Result<()> {
     fs::remove_file(&paths.dir)
         .with_context(|| format!("unlink {}", paths.dir.display()))?;
-    // Best-effort: durable state is in BACK_OVFS, and tmpfs dies on
-    // reboot anyway.
+    // Best-effort: durable state is in BACK_OVFS, and tmpfs dies on reboot.
     let _ = remove_dir_all(&paths.tmp);
     let _ = remove_dir_all(&paths.upper);
     let _ = remove_dir_all(&paths.work);
@@ -425,34 +431,32 @@ pub fn unsync(
             "plain profile restored but checkpoint marker could not be removed"
         );
     }
-    if let Err(error) = checkpoint::remove_legacy_marker(&paths) {
+    if let Err(error) = checkpoint::remove_legacy_marker(paths) {
         warn!(
             marker = %paths.legacy_back_ovfs_committed.display(),
             error = %format_args!("{error:#}"),
             "plain profile restored but legacy marker could not be removed"
         );
     }
-    if let Err(error) = checkpoint::discard_staging(&paths) {
+    if let Err(error) = checkpoint::discard_staging(paths) {
         warn!(
             staging = %paths.back_ovfs_stage.display(),
             error = %format_args!("{error:#}"),
             "plain profile restored but stale staging could not be removed"
         );
     }
-    // Superseded. Removal failure is non-fatal: the next startup
-    // rotates a stale BACKUP aside.
+    // Superseded. Removal failure is non-fatal: the next startup rotates a
+    // stale BACKUP aside.
     if paths.backup.exists()
-        && let Err(e) = fs::remove_dir_all(&paths.backup)
+        && let Err(error) = fs::remove_dir_all(&paths.backup)
     {
         warn!(
             dir = %paths.backup.display(),
-            error = ?e,
+            error = ?error,
             "failed to remove superseded backup"
         );
     }
-
-    info!(app = %profile.kind.as_ref(), "unsync ok");
-    Ok(UnsyncOutcome::TornDown)
+    Ok(())
 }
 
 /// Copy permission bits from `src` to `dst`.
@@ -523,10 +527,26 @@ fn fsync_dir(dir_path: &Path) -> Result<()> {
 #[expect(clippy::unwrap_used, reason = "Tests")]
 mod tests {
     use std::fs::create_dir;
+    use std::fs::create_dir_all;
+    use std::fs::read;
+    use std::fs::write;
+    use std::os::unix::fs::symlink;
 
     use super::*;
 
     use tempfile::tempdir;
+
+    use crate::apps::AppKind;
+
+    fn make_paths(root: &Path) -> ProfilePaths {
+        let profile = AppProfile {
+            kind: AppKind::Firefox,
+            user: "user".to_owned(),
+            path: root.join("profile"),
+            suffix: "profile".to_owned(),
+        };
+        ProfilePaths::new(&profile, root)
+    }
 
     #[test]
     fn stale_backup_rotation_never_clobbers_an_existing_generation() {
@@ -539,5 +559,70 @@ mod tests {
             next_stale_backup(&backup).unwrap(),
             append_suffix(&backup, "-stale-2")
         );
+    }
+
+    #[test]
+    fn detached_startup_rollback_restores_profile_and_cleans_runtime() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.backup).unwrap();
+        write(paths.backup.join("data"), b"saved").unwrap();
+        for directory in [&paths.tmp, &paths.upper, &paths.work] {
+            create_dir_all(directory).unwrap();
+            write(directory.join("artifact"), b"temporary").unwrap();
+        }
+
+        rollback_detached_startup(&paths).unwrap();
+
+        assert_eq!(read(paths.dir.join("data")).unwrap(), b"saved");
+        assert!(!paths.backup.exists());
+        assert!(!paths.tmp.exists());
+        assert!(!paths.upper.exists());
+        assert!(!paths.work.exists());
+    }
+
+    #[test]
+    fn detached_startup_rollback_never_replaces_an_appeared_profile() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.backup).unwrap();
+        create_dir_all(&paths.dir).unwrap();
+
+        let error = rollback_detached_startup(&paths).unwrap_err();
+
+        assert!(error.to_string().contains("appeared during startup"));
+        assert!(paths.backup.is_dir());
+        assert!(paths.dir.is_dir());
+    }
+
+    #[test]
+    fn unmounted_checkpoint_promotion_restores_a_plain_clean_profile() {
+        let temp = tempdir().unwrap();
+        let paths = make_paths(temp.path());
+        create_dir_all(&paths.backup).unwrap();
+        write(paths.backup.join("data"), b"old").unwrap();
+        create_dir_all(&paths.back_ovfs).unwrap();
+        write(paths.back_ovfs.join("data"), b"new").unwrap();
+        write(paths.back_ovfs.join(checkpoint::MARKER_NAME), b"format 1")
+            .unwrap();
+        create_dir_all(&paths.back_ovfs_stage).unwrap();
+        write(&paths.legacy_back_ovfs_committed, b"legacy").unwrap();
+        for directory in [&paths.tmp, &paths.upper, &paths.work] {
+            create_dir_all(directory).unwrap();
+        }
+        symlink(&paths.tmp, &paths.dir).unwrap();
+
+        promote_unmounted_checkpoint(&paths).unwrap();
+
+        assert_eq!(read(paths.dir.join("data")).unwrap(), b"new");
+        assert!(paths.dir.is_dir());
+        assert!(!paths.dir.is_symlink());
+        assert!(!paths.dir.join(checkpoint::MARKER_NAME).exists());
+        assert!(!paths.backup.exists());
+        assert!(!paths.back_ovfs_stage.exists());
+        assert!(!paths.legacy_back_ovfs_committed.exists());
+        assert!(!paths.tmp.exists());
+        assert!(!paths.upper.exists());
+        assert!(!paths.work.exists());
     }
 }

@@ -59,22 +59,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn exact_token_matches() {
-        let show = "[Context]\nfilesystems=host;/run/user/1000/psd;\n";
-        assert!(parse_has_filesystem(show, "/run/user/1000/psd"));
-    }
-
-    #[test]
-    fn substring_is_not_a_match() {
-        let show = "[Context]\nfilesystems=/run/user/1000/psd-other;\n";
-        assert!(!parse_has_filesystem(show, "/run/user/1000/psd"));
-    }
-
-    #[test]
-    fn absent_without_filesystems_line() {
-        assert!(!parse_has_filesystem(
-            "[Context]\nshared=network;\n",
-            "/run/user/1000/psd"
-        ));
+    fn filesystem_tokens_match_exactly() {
+        for (show, expected) in [
+            ("[Context]\nfilesystems=host;/run/user/1000/psd;\n", true),
+            ("[Context]\nfilesystems=/run/user/1000/psd-other;\n", false),
+            ("[Context]\nshared=network;\n", false),
+        ] {
+            assert_eq!(
+                parse_has_filesystem(show, "/run/user/1000/psd"),
+                expected
+            );
+        }
     }
 }
