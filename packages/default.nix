@@ -103,6 +103,16 @@ in rec {
         { rustPlatform = tsuki.rust; }
         { doCheck = false; }; # tests fail on github workflow
 
+    # qtwebengine is only used for the stupid sougo online dict
+    kdePackages = prev.kdePackages.overrideScope (_self: kdeSuper: {
+        fcitx5-chinese-addons =
+            lib.onceride kdeSuper.fcitx5-chinese-addons
+            { qtwebengine = null; }
+            (old: {
+                cmakeFlags = (old.cmakeFlags or []) ++ [ "-DENABLE_BROWSER=Off" ];
+            });
+    });
+
     #
     # Lix overrides
     #
