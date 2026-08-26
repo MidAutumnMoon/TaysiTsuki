@@ -15,16 +15,15 @@ let
         };
 
     toolchain = mkToolchain "stable"
-        [ "clippy" ] [ "wasm32-unknown-unknown" ];
+        [ "clippy" ] [ ];
 
     toolchainForDev =
         mkToolchain "stable" [
             "rust-src"
-            "llvm-tools-preview"
             "rustfmt"
             "clippy"
         ] [
-            "wasm32-unknown-unknown"
+            # "wasm32-unknown-unknown"
         ];
 
     platform = makeRustPlatform {
