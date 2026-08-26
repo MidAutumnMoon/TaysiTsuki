@@ -57,13 +57,16 @@ tsuki.rust.buildRustPackage {
         let
             canExe = with stdenv;
                 buildPlatform.canExecute hostPlatform;
-        in lib.optionalString canExe ''
+        in ''
+            rm -v "$out/bin/xsleep"
+            rm -v "$out/bin/xecho"
+        '' + (lib.optionalString canExe ''
             bin="$out/bin/i"
             installShellCompletion --cmd i \
                 --bash <("$bin" gen-complete -s bash) \
                 --fish <("$bin" gen-complete -s fish) \
                 --zsh <("$bin" gen-complete -s zsh)
-        '';
+        '');
 
     meta = {
         homepage = "https://github.com/MidAutumnMoon/InOri";
