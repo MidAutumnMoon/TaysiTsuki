@@ -8,19 +8,21 @@
 let
 
     mkToolchain = channel: extensions: targets:
-        let inherit ( flakes.rust-overlay.lib ) mkRustBin ; in
+        let inherit (flakes.rust-overlay.lib) mkRustBin ; in
         let bin = mkRustBin {} buildPackages; in
-        bin.${channel}.latest.default.override {
+        bin.${channel}.latest.minimal.override {
             inherit extensions targets;
         };
 
     toolchain = mkToolchain "stable"
-        [] [ "wasm32-unknown-unknown" ];
+        [ "clippy" ] [ "wasm32-unknown-unknown" ];
 
     toolchainForDev =
         mkToolchain "stable" [
             "rust-src"
             "llvm-tools-preview"
+            "rustfmt"
+            "clippy"
         ] [
             "wasm32-unknown-unknown"
         ];
