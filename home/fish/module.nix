@@ -1,15 +1,14 @@
-# lny module — installs fish; symlinks repo home/fish (dir) -> $XDG_CONFIG_HOME/fish/functions
-# and repo home/fish/conf.d/{__moonstep,git-abbr}.fish -> $XDG_CONFIG_HOME/fish/conf.d/
+# lny module
+# 1. installs fish
+# 2. symlinks repo home/fish/functions -> $XDG_CONFIG_HOME/fish/functions
+# 3. symlinks repo home/fish/conf.d -> $XDG_CONFIG_HOME/fish/conf.d
 { dots, pkgs, ... }:
 
 {
 
     packages = [ pkgs.fish ];
 
-    xdg_config."fish/functions".src = dots.get "fish";
-    xdg_config."fish/conf.d/__moonstep.fish".src =
-        dots.get "fish/conf.d/__moonstep.fish";
-    xdg_config."fish/conf.d/git-abbr.fish".src =
-        dots.get "fish/conf.d/git-abbr.fish";
+    xdg_config."fish/functions".src = dots.get "fish/functions";
+    xdg_config."fish/conf.d".src = dots.get "fish/conf.d";
 
 }
