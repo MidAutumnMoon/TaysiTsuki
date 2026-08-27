@@ -1,4 +1,5 @@
 use std::fmt::Debug;
+use std::fs::read_to_string;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -8,6 +9,7 @@ use saphyr::Yaml;
 use tracing::debug;
 use tracing::instrument;
 
+#[expect(clippy::module_name_repetitions, reason = "More descriptive")]
 #[derive(Debug)]
 pub struct SopsFile {
     path: PathBuf,
@@ -23,7 +25,7 @@ impl SopsFile {
 /// Find all files within `toplevel` that looks like
 /// to be encrypted by sops. This is best effort as it doesn't really matter
 /// if gets it wrong.
-#[expect(clippy::missing_errors_doc)]
+#[expect(clippy::missing_errors_doc, reason = "Don't care")]
 #[instrument]
 pub fn find_sops_encrypted_files(
     toplevel: impl AsRef<Path> + Debug,
@@ -33,10 +35,10 @@ pub fn find_sops_encrypted_files(
     let mut accu = vec![];
 
     // No way near to be a performance problem at this scale.
-    for f in files {
-        let content = std::fs::read_to_string(&f)?;
+    for file in files {
+        let content = read_to_string(&file)?;
         if guess_encrypted(&content) {
-            accu.push(SopsFile { path: f });
+            accu.push(SopsFile { path: file });
         }
     }
     Ok(accu)
@@ -73,12 +75,12 @@ fn collect_files(toplevel: &Path) -> anyhow::Result<Vec<PathBuf>> {
         .standard_filters(true)
         .follow_links(false)
         .hidden(false)
-        .filter_entry(|e| e.file_name() != ".git")
+        .filter_entry(|entry| entry.file_name() != ".git")
         .current_dir(toplevel)
         .build()
     {
         let entry = entry?;
-        if entry.file_type().is_some_and(|t| t.is_file()) {
+        if entry.file_type().is_some_and(|filetype| !filetype.is_dir()) {
             accu.push(entry.path().to_owned());
         }
     }

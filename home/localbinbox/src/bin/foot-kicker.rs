@@ -19,7 +19,7 @@ fn main() -> Result<()> {
     let focused_win = match socket.send(Request::FocusedWindow)? {
         Ok(Response::FocusedWindow(w)) => w,
         Ok(_) => bail!("unexpected response"),
-        Err(e) => bail!("niri error: {e}"),
+        Err(err) => bail!("niri error: {err}"),
     };
 
     let cwd = focused_win
@@ -37,7 +37,7 @@ fn main() -> Result<()> {
 
     socket
         .send(Request::Action(action_cmd))?
-        .map_err(|e| anyhow::anyhow!("niri error: {e}"))?;
+        .map_err(|err| anyhow::anyhow!("niri error: {err}"))?;
 
     Ok(())
 }

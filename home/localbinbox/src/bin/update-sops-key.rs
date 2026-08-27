@@ -1,24 +1,28 @@
+use std::env::current_dir;
 use std::process::Command;
 
 use anyhow::Context as _;
 use anyhow::bail;
 use anyhow::ensure;
+use gix_discover::repository;
 use ino_color::ceprintln;
 use ino_color::fg::Yellow;
 use localbinbox::sops::find_sops_encrypted_files;
 use tracing::debug;
 
 fn main() -> anyhow::Result<()> {
-    ino_tracing::init_tracing_subscriber();
+    let _log_guard = ino_tracing::init_tracing_subscriber();
 
     let toplevel = {
         debug!("Get git repository toplevel");
-        let cwd = std::env::current_dir()?;
+        let cwd = current_dir()?;
         // trust discarded
         let (path, _) = gix_discover::upwards(&cwd)
             .context("Failed to locate git repo toplevel")?;
+
+        #[expect(clippy::wildcard_enum_match_arm, reason = "Don't care")]
         match path {
-            gix_discover::repository::Path::WorkTree(p) => p,
+            repository::Path::WorkTree(path) => path,
             _ => bail!("Other types of repo are not handled"),
         }
     };
@@ -33,11 +37,11 @@ fn main() -> anyhow::Result<()> {
         sops_files.len()
     );
 
-    for f in sops_files {
+    for file in sops_files {
         let ret = Command::new("sops")
             .arg("updatekeys")
             .arg("-y")
-            .arg(f.path())
+            .arg(file.path())
             .spawn()
             .context("Failed to spawn sops command")?
             .wait()

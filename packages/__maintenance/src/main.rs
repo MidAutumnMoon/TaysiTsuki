@@ -70,7 +70,7 @@ enum App {
 }
 
 fn main() -> Result<()> {
-    ino_tracing::init_tracing_subscriber();
+    let _log_guard = ino_tracing::init_tracing_subscriber();
 
     let app = <App as clap::Parser>::parse();
 
@@ -92,8 +92,8 @@ fn main() -> Result<()> {
                 manifest
                     .list_groups()
                     .collect::<Vec<_>>()
-                    .pipe(|v| serde_json::json!(v))
-                    .pipe(|j| println!("{j}"));
+                    .pipe(|groups| serde_json::json!(groups))
+                    .pipe(|json| println!("{json}"));
                 return Ok(());
             }
             if let Some(group) = group {
