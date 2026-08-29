@@ -39,8 +39,13 @@ in {
         # depend on them.
         [ui]
         conflict-marker-style = "git"
-        diff-formatter = ["${lib.getExe pkgs.difftastic}", "--color=always", "$left", "$right"]
         default-command = "log"
+        diff-formatter = "difftastic"
+
+        [merge-tools.difftastic]
+        program = "${lib.getExe pkgs.difftastic}"
+        diff-args = ["--color=always", "$left", "$right"]
+        diff-invocation-mode = "file-by-file"
 
         # git: commit.gpgSign = true, gpg.format = ssh,
         # user.signingKey = (private key path)
