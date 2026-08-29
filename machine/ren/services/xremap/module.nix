@@ -16,6 +16,7 @@
                     "firefox"
                     "org.telegram.desktop" 
                     "CherryStudio"
+                    "zcode"
                 ];
                 remap = {
                     "C-w" = "C-Backspace";
