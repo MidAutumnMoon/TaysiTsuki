@@ -21,8 +21,6 @@ in {
         recommendedServices.enable = false;
     };
 
-    services.system76-scheduler.enable = true;
-
     environment.systemPackages = with pkgs; [
         kdePackages.breeze
         kdePackages.breeze-icons
@@ -57,5 +55,25 @@ in {
         script = ''
             ${lib.getExe pkgs.kdePackages.kservice} --noincremental
         '';
+    };
+
+    services.system76-scheduler.enable = true;
+
+    # systemd.services."system76-scheduler" = {
+    #     environment = {
+    #         RUST_LOG = "debug";
+    #     };
+    # };
+
+    systemd.user.services."system76-scheduler-niri" = {
+        description = "Niri integration for system76-scheduler";
+        after = [ "niri.service" ];
+        requires = [ "niri.service" ];
+        wantedBy = [ "default.target" ];
+        serviceConfig = {
+            Type = "simple";
+            ExecStart = lib.getExe pkgs.tsuki.system76-scheduler-niri;
+            Restart = "on-failure";
+        };
     };
 }
