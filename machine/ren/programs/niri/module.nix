@@ -26,13 +26,6 @@ in {
     hardware.i2c.enable = true;
     services.udisks2.enable = true;
 
-    xdg.portal = {
-        extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde ];
-        config.niri = {
-            "org.freedesktop.impl.portal.FileChooser" = lib.mkForce "kde";
-        };
-    };
-
     xdg.icons.enable = true;
     xdg.icons.fallbackCursorThemes = [ "breeze_cursors" ];
 

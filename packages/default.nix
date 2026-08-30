@@ -29,6 +29,10 @@ in rec {
         localbinbox = callPackage ../home/localbinbox {};
         portableTest = callPackage ./portable/test.nix {};
 
+        kde = callPackage ./kde/package.nix {
+            kdePackages = prev.kdePackages;
+        };
+
         # Using lib.fileset to avoid unnecessary non-rust rebuilds.
         workspace =
             let
@@ -103,15 +107,7 @@ in rec {
         { rustPlatform = tsuki.rust; }
         { doCheck = false; }; # tests fail on github workflow
 
-    # qtwebengine is only used for the stupid sougo online dict
-    kdePackages = prev.kdePackages.overrideScope (_self: kdeSuper: {
-        fcitx5-chinese-addons =
-            lib.onceride kdeSuper.fcitx5-chinese-addons
-            { qtwebengine = null; }
-            (old: {
-                cmakeFlags = (old.cmakeFlags or []) ++ [ "-DENABLE_BROWSER=Off" ];
-            });
-    });
+    kdePackages = tsuki.kde;
 
     #
     # Lix overrides
