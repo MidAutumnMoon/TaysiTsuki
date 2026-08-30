@@ -13,16 +13,16 @@
 tsuki.rust.buildRustPackage {
 
     pname = "inori";
-    version = "0-unstable-2026-08-27";
+    version = "0-unstable-2026-08-29";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "InOri";
-        rev = "36bdb61ead8bcb5a6e5859539307c3adf9668c75";
-        hash = "sha256-5gtGg8GXTXXB+nPmwU76DnfNsjYkYd0ptajCscsiL7A=";
+        rev = "8cec59ee5fb30948d38bab907a0f22877e19f453";
+        hash = "sha256-5Pw4n3H41E4OhVr4UY29hYmNKPrrhxKSyEUG1BBILZo=";
     };
 
-    cargoHash = "sha256-ySB54vQqpXn+3Y0l6IHyryQOt0vEJjIAfzosdwhlwOk=";
+    cargoHash = "sha256-Fygc0B6wbHpCy4ehIP20cGFUceb9lXpZKtO4s4Vb0dI=";
 
     doCheck = false;
 
