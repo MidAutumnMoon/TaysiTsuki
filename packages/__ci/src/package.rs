@@ -1,24 +1,22 @@
-use std::env::set_current_dir;
 use std::fs::read_to_string;
-use std::iter::repeat;
 use std::path::Path;
 use std::process::Command;
-use std::sync::Arc;
-use std::sync::mpsc::channel;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
 
 use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
 use anyhow::ensure;
-use itertools::izip;
-use parking_lot::Mutex;
+use itertools::Itertools as _;
 use rayon::ThreadPoolBuilder;
+use rayon::iter::IntoParallelIterator as _;
+use rayon::iter::ParallelIterator as _;
 use tap::Pipe as _;
 use tempfile::NamedTempFile;
 use tracing::debug;
 use tracing::debug_span;
 use tracing::instrument;
-use tracing::warn;
 
 use crate::cmd::git_toplevel;
 use crate::manifest::Package;
@@ -55,18 +53,11 @@ pub fn build_packages<'a>(
         .arg("build")
         .args(NIX_BUILD_OPTS)
         .args(attrs)
-        .spawn()
-        .context("Failed to spawn nix build command")?
-        .wait()
-        .context("Failed waiting nix build child process")?;
+        .status()
+        .context("Failed to run nix build command")?;
 
     ensure!(status.success(), "Nix build failed");
     Ok(())
-}
-
-enum Permit {
-    GoAhead,
-    Cancel,
 }
 
 #[instrument(skip_all)]
@@ -75,64 +66,58 @@ pub fn update_all_packages<'a>(
 ) -> Result<String> {
     debug!("Update packages");
 
+    let toplevel = git_toplevel().context("Failed to get git toplevel")?;
+    let packages = packages.into_iter().collect::<Vec<_>>();
+
     let pool = ThreadPoolBuilder::new()
         .num_threads(6)
         .build()
         .context("Failed to create threadpool")?;
 
-    pool.scope(move |scope| {
-        let permit = Mutex::new(Permit::GoAhead).pipe(Arc::new);
-        let (res_sender, res_receiver) = channel::<Result<String>>();
+    // Stop starting new nix-update runs once one fails. Ones already
+    // running still finish, as child processes can't be preempted.
+    let cancelled = AtomicBool::new(false);
 
-        let Ok(toplevel) = git_toplevel() else {
-            debug!("Failed to get git toplevel");
-            *permit.lock() = Permit::Cancel;
-            bail!("Failed to get git toplevel")
-        };
+    let results = pool.install(move || {
+        packages
+            .into_par_iter()
+            .map(|package| {
+                if cancelled.load(Ordering::Relaxed) {
+                    debug!(?package, "Cancelled by earlier failure");
+                    return Ok(None);
+                }
+                let res = debug_span!("update_package", ?package)
+                    .in_scope(|| update_one_package(package, &toplevel))
+                    .with_context(|| {
+                        format!("Failed to update {}", package.attr)
+                    });
+                if res.is_err() {
+                    cancelled.store(true, Ordering::Relaxed);
+                }
+                res
+            })
+            .collect::<Vec<_>>()
+    });
 
-        for (package, permit, sender, toplevel) in izip!(
-            packages,
-            repeat(permit),
-            repeat(res_sender),
-            repeat(toplevel)
-        ) {
-            scope.spawn(move |_| {
-                let _s = debug_span!("update_package", ?package).entered();
-                if matches!(*permit.lock(), Permit::Cancel) {
-                    return;
-                }
-                match update_one_package(package, &toplevel) {
-                    Ok(Some(summary)) => {
-                        let _ = sender.send(Ok(summary));
-                    }
-                    // If error, cancel future tasks, best effort as
-                    // it doesn't really matter that much.
-                    Err(err) => {
-                        debug!(?package, "Failed to update package");
-                        *permit.lock() = Permit::Cancel;
-                        let _ = sender.send(Err(err));
-                    }
-                    Ok(None) => (),
-                }
-            });
+    let mut summaries = Vec::new();
+    let mut errors = Vec::new();
+
+    for res in results {
+        match res {
+            Ok(Some(summary)) => summaries.push(summary),
+            Ok(None) => (),
+            Err(err) => errors.push(err),
         }
+    }
 
-        let mut accu = String::new();
+    ensure!(
+        errors.is_empty(),
+        "Failed to update {} package(s):\n{}",
+        errors.len(),
+        errors.iter().map(|e| format!("{e:#}")).join("\n"),
+    );
 
-        for res in res_receiver {
-            match res {
-                Ok(summary) => {
-                    accu.push('\n');
-                    accu.push_str(&summary);
-                }
-                Err(e) => {
-                    return Err(e.context("Error while updating package"));
-                }
-            }
-        }
-
-        Ok(accu)
-    })
+    Ok(summaries.join("\n\n"))
 }
 
 #[instrument]
@@ -150,8 +135,6 @@ fn update_one_package(
         return Ok(None);
     }
 
-    set_current_dir(toplevel).context("Failed to switch working dir")?;
-
     let commit_message_file = NamedTempFile::new()
         .context("Failed to create tempfile to store update summary")?;
 
@@ -161,6 +144,7 @@ fn update_one_package(
     );
 
     match Command::new("nix-update")
+        .current_dir(toplevel)
         .args(update.as_nix_update_args())
         .arg("--use-github-releases")
         .arg("--write-commit-message")
