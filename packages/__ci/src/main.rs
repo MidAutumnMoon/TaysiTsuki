@@ -31,10 +31,6 @@ struct CommonOpts {
 enum App {
     /// Update packages.
     Update {
-        /// Write update summary to file.
-        #[arg(long, short)]
-        write_update_summary: Option<PathBuf>,
-
         #[command(flatten)]
         common: CommonOpts,
     },
@@ -125,10 +121,7 @@ fn main() -> Result<()> {
             bail!("Nothing to do");
         }
 
-        App::Update {
-            common,
-            write_update_summary,
-        } => {
+        App::Update { common } => {
             let manifest = common
                 .manifest
                 // TODO: Check extension
@@ -139,12 +132,7 @@ fn main() -> Result<()> {
                 .package_need_update()
                 .pipe(update_all_packages)
                 .context("Failed to update package")?;
-            if let Some(report) = write_update_summary {
-                std::fs::write(&report, &summary)
-                    .context("Failed to write update summary to file")?;
-            } else {
-                println!("{summary}");
-            }
+            println!("{summary}");
             Ok(())
         }
     }

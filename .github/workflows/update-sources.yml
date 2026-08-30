@@ -25,28 +25,19 @@ jobs:
           cachix_token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: Run nix-update
-        id: nix_update
+        id: commit_date
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          F="$(mktemp)"
+          echo "date=$( date '+%Y-%b-%d' )" >> "$GITHUB_OUTPUT"
           TOOL=".#tsuki.__ci"
           nix build --print-build-logs "$TOOL"
           conf="$HOME/.config/nix/nix.conf"
           sed -i '/^experimental-features/s/$/ pipe-operators/' "$conf"
+          # Logs go to stderr, stdout is only the update summary.
           RUST_LOG=trace nix shell nixpkgs#nix-update -c \
-            nix run "$TOOL" -- update -m "packages/tsuki.nix" -w "$F"
-          # idiot bash (eye roll)
-          {
-            echo "update_summary<<F6EAA0BA8653"
-            cat "$F"
-            echo "F6EAA0BA8653"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Get Date
-        id: commit_date
-        run: |
-          echo "date=$( date '+%Y-%b-%d' )" >> "$GITHUB_OUTPUT"
+            nix run "$TOOL" -- update -m "packages/tsuki.nix" \
+            > "$RUNNER_TEMP/summary.md"
 
       - name: Open PR
         uses: peter-evans/create-pull-request@v8
@@ -54,7 +45,5 @@ jobs:
           sign-commits: true
           add-paths: "packages"
           title: "pkgs: ${{ steps.commit_date.outputs.date }}"
-          body: ${{ steps.nix_update.outputs.update_summary }}
-          commit-message: |
-            pkgs: ${{ steps.commit_date.outputs.date }}
-            ${{ steps.nix_update.outputs.update_summary }}
+          body-path: ${{ runner.temp }}/summary.md
+          commit-message: "pkgs: ${{ steps.commit_date.outputs.date }}"
