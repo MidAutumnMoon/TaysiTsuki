@@ -1345,6 +1345,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "system76-scheduler-niri"
+version = "0.1.0"
+
+[[package]]
 name = "tap"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

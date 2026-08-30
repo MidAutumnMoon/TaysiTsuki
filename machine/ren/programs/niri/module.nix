@@ -21,6 +21,8 @@ in {
         recommendedServices.enable = false;
     };
 
+    services.system76-scheduler.enable = true;
+
     environment.systemPackages = with pkgs; [
         kdePackages.breeze
         kdePackages.breeze-icons

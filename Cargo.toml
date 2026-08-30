@@ -5,6 +5,7 @@ members = [
     "packages/mimic-cloud-init",
     "packages/__ci",
     "packages/psd-rs",
+    "packages/system76-scheduler-niri",
     "machine/phia/environment/maintenance",
 ]
 
