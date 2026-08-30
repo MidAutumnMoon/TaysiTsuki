@@ -4,6 +4,7 @@
     "runtime.version": "LuaJIT",
     "workspace.library": [
         "${env:HOME}/.config/nvim/lua",
-        "/etc/profiles/per-user/${env:USER}/share/nvim/runtime/lua"
+        "/etc/profiles/per-user/${env:USER}/share/nvim/runtime/lua",
+        "/nix/store/h7ny7wcsn7v73hppdgn84s4i6kqrhqnb-neovim/share/nvim/runtime/lua/"
     ]
 }

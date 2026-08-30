@@ -3,13 +3,13 @@ use std::str::FromStr;
 
 use anyhow::Context as _;
 use anyhow::Result;
+use ino_shell::Shell;
+use ino_shell::cmd;
 use itertools::Itertools as _;
 use serde::Deserialize;
 use tap::Pipe as _;
 use tracing::debug;
 use tracing::instrument;
-
-use crate::cmd::capture_cmd_output;
 
 #[derive(Debug)]
 pub struct Manifest {
@@ -30,17 +30,12 @@ impl Manifest {
     #[instrument]
     pub fn from_eval_nix(nix_file: &Path) -> Result<Self> {
         debug!("Try to eval nix file");
-        capture_cmd_output(
-            "nix",
-            &[
-                "eval",
-                "--extra-experimental-features",
-                "pipe-operator",
-                "--json",
-                "--file",
-                &nix_file.to_string_lossy(),
-            ],
+        let sh = Shell::new()?;
+        cmd!(
+            sh,
+            "nix eval --extra-experimental-features pipe-operator --json --file {nix_file}"
         )
+        .read()
         .context("Failed to eval manifest nix")?
         .pipe_as_ref(Self::from_str)
     }

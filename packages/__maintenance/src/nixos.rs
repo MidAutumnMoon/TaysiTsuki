@@ -6,9 +6,10 @@ use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::ensure;
 use docstr::docstr;
+use ino_shell::Shell;
+use ino_shell::cmd;
 use tracing::debug;
 
-use crate::cmd::capture_cmd_output;
 use crate::cmd::git_toplevel;
 use crate::package::NIX_BUILD_OPTS;
 
@@ -24,10 +25,8 @@ pub fn eval_hostnames() -> Result<String> {
         /// assert hasAttr "nixosConfigurations" flake;
         /// attrNames flake.nixosConfigurations
     );
-    capture_cmd_output(
-        "nix",
-        &["eval", "--impure", "--json", "--expr", &driver],
-    )
+    let sh = Shell::new()?;
+    Ok(cmd!(sh, "nix eval --impure --json --expr {driver}").read()?)
 }
 
 pub fn build_nixos(hostname: &str) -> Result<()> {

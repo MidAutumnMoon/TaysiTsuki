@@ -671,6 +671,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f0194bc536e732bf8d5ee3c47e5fa23b0013687061fd453bbd73096f52cb70d"
 
 [[package]]
+name = "ino_shell"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "99e161a7c8dfbd10cee9b05b2f1bdbc50ff2de4bc99d31d91989df463d8acc60"
+dependencies = [
+ "ino_shell-macros",
+]
+
+[[package]]
+name = "ino_shell-macros"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d063597238d63ef9064fccf65e8a583abbeb99abdc51f191129d392e09bbe321"
+
+[[package]]
 name = "ino_tracing"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -910,6 +925,7 @@ dependencies = [
  "clap",
  "docstr",
  "gix-discover",
+ "ino_shell",
  "ino_tracing",
  "itertools",
  "parking_lot",

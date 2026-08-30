@@ -8,6 +8,7 @@ anyhow.workspace = true
 clap = { version = "4.5.48", features = ["derive"] }
 docstr = "0.4.6"
 gix-discover.workspace = true
+ino_shell = "1.0.0"
 ino_tracing = "1.0.0"
 itertools = "0.15.0"
 parking_lot = "0.12.5"

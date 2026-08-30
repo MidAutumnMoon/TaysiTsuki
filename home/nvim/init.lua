@@ -15,7 +15,7 @@ vim.g.loaded_ruby_provide = 0
 
 -- Quit vim
 vim.keymap.set(
-    -- save and quit
+-- save and quit
     "n", "<Leader>q",
     function()
         vim.cmd.wall()
@@ -23,7 +23,7 @@ vim.keymap.set(
     end
 )
 vim.keymap.set(
-    -- force quit without save
+-- force quit without save
     "n", "<LocalLeader>q",
     function()
         vim.cmd.qa { bang = true }
@@ -38,15 +38,15 @@ vim.keymap.set("n", "k", "gk")
 vim.keymap.set("n", "<Leader>A", "ggVG")
 
 -- Jump to end of line without far reach
-vim.keymap.set({"n", "o", "v"}, "<A-a>", "$")
+vim.keymap.set({ "n", "o", "v" }, "<A-a>", "$")
 vim.keymap.set("i", "<A-a>", "<C-o>$")
 
 -- Move up and down without reaching for arrow key
-vim.keymap.set({"c", "i"}, "<A-j>", "<Down>")
-vim.keymap.set({"c", "i"}, "<A-k>", "<Up>")
+vim.keymap.set({ "c", "i" }, "<A-j>", "<Down>")
+vim.keymap.set({ "c", "i" }, "<A-k>", "<Up>")
 
 -- "shift+5" is out of reach
-vim.keymap.set({"n", "o", "v"}, "<Enter>", "%")
+vim.keymap.set({ "n", "o", "v" }, "<Enter>", "%")
 
 -- Scroll faster
 vim.keymap.set("n", "<C-e>", "3<C-e>")
@@ -71,8 +71,8 @@ for num = 1, 9 do
 end
 
 -- Cycle through splits
-vim.keymap.set("n", "<Tab>", ":wincmd w<CR>", {silent = true})
-vim.keymap.set("n", "<S-Tab>", ":wincmd W<CR>", {silent = true})
+vim.keymap.set("n", "<Tab>", ":wincmd w<CR>", { silent = true })
+vim.keymap.set("n", "<S-Tab>", ":wincmd W<CR>", { silent = true })
 
 --
 -- Options
@@ -123,7 +123,7 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
-vim.opt.shortmess:append( "Imr" )
+vim.opt.shortmess:append("Imr")
 vim.opt.formatoptions:append("1,j")
 vim.opt.virtualedit = "block"
 vim.opt.whichwrap = "b,s,<,>,[,]"
@@ -150,12 +150,12 @@ vim.opt.wildmode = "full:lastused"
 -- Flash yanked area
 --
 
-vim.api.nvim_create_autocmd( "TextYankPost", {
+vim.api.nvim_create_autocmd("TextYankPost", {
     pattern = "*",
     callback = function()
         vim.hl.on_yank()
     end
-} )
+})
 
 --
 -- Restore cursor position
@@ -163,13 +163,13 @@ vim.api.nvim_create_autocmd( "TextYankPost", {
 
 vim.api.nvim_create_autocmd("BufReadPost", {
     desc = "Restore cursor position",
-    callback = function (opts)
+    callback = function(opts)
         local buf = opts.buf
 
-        local exclude_ft = { 
-            "gitcommit", 
-            "gitrebase", 
-            "commit", 
+        local exclude_ft = {
+            "gitcommit",
+            "gitrebase",
+            "commit",
             "svn",
             "helo"
         }
@@ -233,10 +233,10 @@ vim.api.nvim_create_autocmd(
 local M = {}
 
 function M.close_floating()
-    for _, winid in ipairs( vim.api.nvim_list_wins() ) do
-        local winconf = vim.api.nvim_win_get_config( winid )
+    for _, winid in ipairs(vim.api.nvim_list_wins()) do
+        local winconf = vim.api.nvim_win_get_config(winid)
         if winconf.relative ~= "" then
-            vim.api.nvim_win_close( winid, false )
+            vim.api.nvim_win_close(winid, false)
         end
     end
 end
