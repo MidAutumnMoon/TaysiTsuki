@@ -16,13 +16,14 @@ env:
     CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
 jobs:
-    list_groups:
-        name: List package groups
+    list_matrix:
+        name: List build matrix
         runs-on: ubuntu-latest
         defaults:
             run: { shell: bash }
         outputs:
-            groups: ${{ steps.list_groups_step.outputs.groups }}
+            groups: ${{ steps.list_matrix_step.outputs.groups }}
+            hostnames: ${{ steps.list_matrix_step.outputs.hostnames }}
         steps:
             - name: Checkout
               uses: actions/checkout@v7
@@ -32,14 +33,19 @@ jobs:
               with:
                   cachix_token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-            - name: List Groups
-              id: list_groups_step
+            - name: List Matrix
+              id: list_matrix_step
               run: |
                   TOOL=".#tsuki.__ci"
                   nix build --print-build-logs "$TOOL"
-                  OUT=$( nix run "$TOOL" \
+                  # N.B. Don't use "GROUPS", in Github Action environment
+                  # $GROUPS is already set, so bash errors out if this
+                  # re-declares GROUPS.
+                  PACKAGE_GROUPS=$( nix run "$TOOL" \
                       -- build -m "packages/tsuki.nix" -l )
-                  echo "groups=${OUT}" >> "$GITHUB_OUTPUT"
+                  NIXOS_HOSTS=$( nix run "$TOOL" -- nixos -l )
+                  echo "groups=${PACKAGE_GROUPS}" >> "$GITHUB_OUTPUT"
+                  echo "hostnames=${NIXOS_HOSTS}" >> "$GITHUB_OUTPUT"
 
     build_packages:
         name: Build Packages
@@ -47,10 +53,10 @@ jobs:
         defaults:
             run: { shell: bash }
         needs:
-            - list_groups
+            - list_matrix
         strategy:
             matrix:
-                group: ${{ fromJSON(needs.list_groups.outputs.groups) }}
+                group: ${{ fromJSON(needs.list_matrix.outputs.groups) }}
             fail-fast: false
         steps:
             - name: Checkout
@@ -68,42 +74,17 @@ jobs:
                       -m "packages/tsuki.nix" \
                       -g "${{ matrix.group }}"
 
-    list_nixos:
-        name: List NixOS hostnames
-        runs-on: ubuntu-latest
-        defaults:
-            run: { shell: bash }
-        needs:
-            - build_packages
-        outputs:
-            hostnames: ${{ steps.hostnames_step.outputs.hostnames }}
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v7
-
-            - name: Setup nix
-              uses: ./.github/actions/nix-pieces
-              with:
-                  cachix_token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-
-            - name: List NixOS Hostnames
-              id: hostnames_step
-              run: |
-                  TOOL=".#tsuki.__ci"
-                  nix build --print-build-logs "$TOOL"
-                  OUT=$( nix run "$TOOL" -- nixos -l )
-                  echo "hostnames=${OUT}" >> "$GITHUB_OUTPUT"
-
     build_nixos:
         name: Build NixOS
         runs-on: ubuntu-latest
         needs:
-            - list_nixos
+            - build_packages
+            - list_matrix
         defaults:
             run: { shell: bash }
         strategy:
             matrix:
-                hostname: ${{fromJSON(needs.list_nixos.outputs.hostnames)}}
+                hostname: ${{ fromJSON(needs.list_matrix.outputs.hostnames) }}
             fail-fast: false
         steps:
             - name: Checkout
