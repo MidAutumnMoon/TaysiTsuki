@@ -35,7 +35,7 @@ jobs:
             - name: List Groups
               id: list_groups_step
               run: |
-                  TOOL=".#tsuki.__maintenance"
+                  TOOL=".#tsuki.__ci"
                   nix build --print-build-logs "$TOOL"
                   OUT=$( nix run "$TOOL" \
                       -- build -m "packages/tsuki.nix" -l )
@@ -62,7 +62,7 @@ jobs:
 
             - name: Build Packages from Group
               run: |
-                  TOOL=".#tsuki.__maintenance"
+                  TOOL=".#tsuki.__ci"
                   nix flake update
                   nix run "$TOOL" -- build \
                       -m "packages/tsuki.nix" \
@@ -89,7 +89,7 @@ jobs:
             - name: List NixOS Hostnames
               id: hostnames_step
               run: |
-                  TOOL=".#tsuki.__maintenance"
+                  TOOL=".#tsuki.__ci"
                   nix build --print-build-logs "$TOOL"
                   OUT=$( nix run "$TOOL" -- nixos -l )
                   echo "hostnames=${OUT}" >> "$GITHUB_OUTPUT"
@@ -115,7 +115,7 @@ jobs:
 
             - name: Build NixOS
               run: |
-                  TOOL=".#tsuki.__maintenance"
+                  TOOL=".#tsuki.__ci"
                   nix flake update
                   nix build --print-build-logs "$TOOL"
                   nix run "$TOOL" -- nixos -n "${{ matrix.hostname }}"

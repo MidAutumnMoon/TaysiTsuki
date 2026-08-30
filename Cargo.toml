@@ -3,7 +3,7 @@ resolver = "2"
 members = [
     "home/localbinbox",
     "packages/mimic-cloud-init",
-    "packages/__maintenance",
+    "packages/__ci",
     "packages/psd-rs",
     "machine/phia/environment/maintenance",
 ]

@@ -3,7 +3,7 @@
 }:
 
 tsuki.rust.buildRustPackage rec {
-    pname = "package_maintenance";
+    pname = "ci-driver";
     version = "0.1.0";
 
     inherit (tsuki.workspace)

@@ -30,7 +30,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           F="$(mktemp)"
-          TOOL=".#tsuki.__maintenance"
+          TOOL=".#tsuki.__ci"
           nix build --print-build-logs "$TOOL"
           conf="$HOME/.config/nix/nix.conf"
           sed -i '/^experimental-features/s/$/ pipe-operators/' "$conf"
