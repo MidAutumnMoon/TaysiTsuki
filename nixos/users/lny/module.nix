@@ -45,9 +45,7 @@ let
     blueprintNameOf =
         username: "lny-blueprint-${username}.json";
 
-    lnyExe =
-        lib.getOutput "lny" pkgs.tsuki.inori
-        |> ( it: lib.getExe' it "lny" );
+    lnyExe = "${pkgs.tsuki.inori}/bin/lny";
 
     usersWithLny =
         config.users.users

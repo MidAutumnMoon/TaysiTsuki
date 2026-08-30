@@ -26,11 +26,6 @@ tsuki.rust.buildRustPackage {
 
     doCheck = false;
 
-    outputs = [
-        "out"
-        "lny"
-    ];
-
     nativeBuildInputs = [
         installShellFiles
     ];
@@ -40,17 +35,10 @@ tsuki.rust.buildRustPackage {
     env.CFG_MAGICK_PATH = lib.getExe' imagemagick "magick";
 
     RUSTFLAGS = with stdenv;
-        lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v2"
+        lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
     ;
 
     postFixup = /*sh*/ ''
-        # coruma
-        ln -sv "$out/bin/coruma-reverse" "$out/bin/,?"
-
-        # lny
-        declare -r LNY_BIN_DIR="$lny/bin"
-        mkdir -pv "$LNY_BIN_DIR"
-        mv -v "$out/bin/lny" -t "$LNY_BIN_DIR"
     '';
 
     postInstall =
@@ -58,14 +46,16 @@ tsuki.rust.buildRustPackage {
             canExe = with stdenv;
                 buildPlatform.canExecute hostPlatform;
         in ''
+            ln -sv "$out/bin/derputils" "$out/bin/,?"
+
             rm -v "$out/bin/xsleep"
             rm -v "$out/bin/xecho"
         '' + (lib.optionalString canExe ''
             bin="$out/bin/i"
             installShellCompletion --cmd i \
-                --bash <("$bin" completion -s bash) \
-                --fish <("$bin" completion -s fish) \
-                --zsh <("$bin" completion -s zsh)
+                --bash <("$bin" completion bash) \
+                --fish <("$bin" completion fish) \
+                --zsh <("$bin" completion zsh)
         '');
 
     meta = {
