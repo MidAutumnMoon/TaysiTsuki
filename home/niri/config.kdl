@@ -493,7 +493,7 @@ debug {
 
 blur {
     passes 3
-    offset 3
+    offset 2
     noise 0.2
-    saturation 1.7
+    saturation 1.6
 }
