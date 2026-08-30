@@ -40,7 +40,7 @@ pub fn build_packages<'pkg>(
 
     let attrs = packages
         .into_iter()
-        .map(|package| format!(".#{}", package.attr))
+        .map(|package| format!(".#{}", package.attrpath))
         .collect::<Vec<_>>();
 
     if attrs.is_empty() {
@@ -89,7 +89,7 @@ pub fn update_all_packages<'pkg>(
                 let res = debug_span!("update_package", ?package)
                     .in_scope(|| update_one_package(package, &toplevel))
                     .with_context(|| {
-                        format!("Failed to update {}", package.attr)
+                        format!("Failed to update {}", package.attrpath)
                     });
                 if res.is_err() {
                     cancelled.store(true, Ordering::Relaxed);
@@ -125,15 +125,10 @@ fn update_one_package(
     package: &Package,
     toplevel: &Path,
 ) -> Result<Option<String>> {
-    let Some(update) = &package.update else {
-        debug!("Package not opt into update");
+    let Some(track) = &package.track else {
+        debug!("Package does not track upstream");
         return Ok(None);
     };
-
-    if update.pinned {
-        debug!("Package pinned");
-        return Ok(None);
-    }
 
     let commit_message_file = NamedTempFile::new()
         .context("Failed to create tempfile to store update summary")?;
@@ -145,12 +140,12 @@ fn update_one_package(
 
     match Command::new("nix-update")
         .current_dir(toplevel)
-        .args(update.as_nix_update_args())
+        .args(track.as_nix_update_args())
         .arg("--use-github-releases")
         .arg("--write-commit-message")
         .arg(commit_message_file.path())
         .arg("--flake")
-        .arg(&package.attr)
+        .arg(&package.attrpath)
         .output()
     {
         Ok(output) => {

@@ -14,12 +14,15 @@ Use when adding or updating a package in `packages/`.
   load them with `callPackage ./foo.nix` inside `package.nix` if needed.
 - Depend on other repo packages through the `tsuki` argument:
   `{ tsuki }: tsuki.rust.buildRustPackage ...`.
-- Register cache-worthy packages in `packages/tsuki.nix`:
-  - `group` (`go_1`, `go_2`, `rust_1`, `rust_2`, `small_1`) only splits CI build
-    jobs — pick a fitting one.
-  - `update = {}` opts into scheduled `nix-update`; omit it for repo-pinned
-    versions (workspace crates, flake inputs). Further knobs when needed:
-    `version_regex`, `unstable_branch`, `preview_release`, `pinned`, `subpackages`.
+- Register cache-worthy packages in `packages/tsuki.nix`. Groups only
+  split CI build jobs (pick a fitting one); entries are what gets built:
+  - `tsuki "name"` — overlay package, tracked by scheduled `nix-update`.
+  - `tsuki "name" { version = ...; }` — `version` picks how the next
+    version is found: `"branch"` default branch, `"unstable"`
+    pre-releases, `version.regex = "..."` custom extraction regex.
+  - `tsuki "name" null` — build only: workspace crates and nixpkgs
+    wrappers whose version moves with `flake.lock`.
+  - `pkgs "attr"` — plain nixpkgs / flake-input package, never tracked.
 - Unstable branches version as `0-unstable-YYYY-MM-DD`. Tests off by default
   (`doCheck = false`).
 - Style: 4-space indent, aligned `=`, pipe operators (`|>`, `<|`) from latest nix, `drvSelf:`
@@ -103,5 +106,5 @@ Go — plain nixpkgs `buildGoModule` + `vendorHash`; conventionally
 
 ### Update quirks
 
-- **Odd tags need `version_regex`** — `hysteria` (`app/v(.*)`), `playwright-cli`
+- **Odd tags need `version.regex`** — `hysteria` (`app/v(.*)`), `playwright-cli`
   (deprecated stub tags sort above real ones; pinned to `v(0\.1\..*)`).
