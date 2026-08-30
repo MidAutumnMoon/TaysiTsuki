@@ -70,27 +70,9 @@ pub fn mount(
             .context("system clock is before the Unix epoch")?
             .as_nanos()
     );
-    exec::run(
-        Command::new("systemd-run")
-            .args([
-                "--user",
-                "--quiet",
-                "--collect",
-                "--service-type=exec",
-                "--expand-environment=no",
-            ])
-            .arg(format!("--unit={unit}"))
-            .arg(format!(
-                "--description=psd overlay at {}",
-                mountpoint.display()
-            ))
-            .arg(fuse_overlayfs)
-            .arg("-f")
-            .arg("-o")
-            .arg(&opts)
-            .arg(mountpoint),
-    )
-    .with_context(|| {
+    let mut command =
+        transient_mount_command(&unit, &fuse_overlayfs, &opts, mountpoint);
+    exec::run(&mut command).with_context(|| {
         format!(
             "starting transient overlay service {unit} for {}",
             mountpoint.display()
@@ -120,6 +102,36 @@ pub fn mount(
             }
         }
     }
+}
+
+fn transient_mount_command(
+    unit: &str,
+    fuse_overlayfs: &Path,
+    opts: &str,
+    mountpoint: &Path,
+) -> Command {
+    let mut command = Command::new("systemd-run");
+    command
+        .args([
+            "--user",
+            "--quiet",
+            "--collect",
+            "--service-type=exec",
+            "--expand-environment=no",
+            // App shutdown must not kill the mount before persistence.
+            "--slice=session.slice",
+        ])
+        .arg(format!("--unit={unit}"))
+        .arg(format!(
+            "--description=psd overlay at {}",
+            mountpoint.display()
+        ))
+        .arg(fuse_overlayfs)
+        .arg("-f")
+        .arg("-o")
+        .arg(opts)
+        .arg(mountpoint);
+    command
 }
 
 fn stop_transient_unit(unit: &str) {
@@ -309,6 +321,22 @@ mod tests {
         assert_eq!(
             mount_state(&temp.path().join("missing")).unwrap(),
             MountState::Unmounted
+        );
+    }
+
+    #[test]
+    fn transient_overlay_runs_outside_app_slice() {
+        let command = transient_mount_command(
+            "psd-overlay-test.service",
+            Path::new("/bin/fuse-overlayfs"),
+            "lowerdir=/lower,upperdir=/upper,workdir=/work",
+            Path::new("/run/user/1000/psd/profile"),
+        );
+
+        assert!(
+            command
+                .get_args()
+                .any(|argument| argument == "--slice=session.slice")
         );
     }
 }

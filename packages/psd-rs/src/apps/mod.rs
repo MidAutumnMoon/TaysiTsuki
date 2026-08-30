@@ -60,13 +60,16 @@ impl AppKind {
     /// Matcher for the running-app safety check.
     pub const fn process_match(self) -> ProcessMatch {
         match self {
-            // Linux process names are limited to 15 bytes. nixpkgs runs
-            // Telegram through `.Telegram-wrapped`; other installations use
-            // `Telegram` or `telegram-desktop`. Match the complete argv.
+            // Linux process names are limited to 15 bytes. nixpkgs wrapper
+            // names therefore differ from the public Firefox and Telegram
+            // executables; match their complete argv instead.
+            Self::Firefox => {
+                ProcessMatch::CommandLine("(^|.*/)firefox([[:space:]].*)?")
+            }
             Self::Telegram => ProcessMatch::CommandLine(
                 "(^|.*/)([.]Telegram-wrapped|Telegram|telegram-desktop)([[:space:]].*)?",
             ),
-            Self::Firefox | Self::Chromium | Self::CherryStudio => {
+            Self::Chromium | Self::CherryStudio => {
                 ProcessMatch::Name(self.process_name())
             }
         }
@@ -147,6 +150,29 @@ mod tests {
     use super::*;
 
     use regex::Regex;
+
+    #[test]
+    #[expect(clippy::panic, reason = "Test invariant")]
+    fn firefox_matcher_covers_nixpkgs_wrapper_command_line() {
+        let ProcessMatch::CommandLine(pattern) =
+            AppKind::Firefox.process_match()
+        else {
+            panic!("Firefox must use full-command-line matching");
+        };
+        let matcher = Regex::new(&format!("^(?:{pattern})$")).unwrap();
+
+        for command_line in [
+            "/run/current-system/sw/bin/firefox",
+            "/nix/store/hash-firefox-142.0/bin/firefox --name firefox",
+        ] {
+            assert!(
+                matcher.is_match(command_line),
+                "did not match {command_line}"
+            );
+        }
+        assert!(!matcher.is_match("/usr/bin/bash -c firefox"));
+        assert!(!matcher.is_match("/usr/bin/firefox-helper"));
+    }
 
     #[test]
     fn telegram_matcher_covers_nixpkgs_command_lines() {

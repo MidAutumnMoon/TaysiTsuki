@@ -5,6 +5,9 @@
 use std::io::stdout;
 use std::path::PathBuf;
 use std::process::ExitCode;
+use std::thread::sleep;
+use std::time::Duration;
+use std::time::Instant;
 
 use anyhow::Context as _;
 use anyhow::Result;
@@ -35,6 +38,9 @@ use config::Config;
 use strum::IntoEnumIterator as _;
 use sync::State;
 
+const APP_EXIT_TIMEOUT: Duration = Duration::from_secs(120);
+const APP_EXIT_POLL_INTERVAL: Duration = Duration::from_millis(250);
+
 #[derive(Debug, Parser)]
 #[command(
     name = "psd",
@@ -56,9 +62,10 @@ enum Command {
     Startup,
     /// Rsync overlay view -> back-ovfs.
     Resync,
-    /// Persist the delta; tear down unless the app is running (then
-    /// the profile is persisted and left live).
+    /// Persist the delta and tear down; refuses while the app is running.
     Unsync,
+    /// Wait for terminating apps, then persist and tear down.
+    Shutdown,
     /// Detect and normalize ungraceful state.
     Recover,
     /// Generate shell completions to stdout.
@@ -117,6 +124,7 @@ fn run(cli: &Cli) -> Result<()> {
         Command::Startup => cmd_startup(&state, &profiles)?,
         Command::Resync => cmd_resync(&state, &profiles)?,
         Command::Unsync => cmd_unsync(&state, &profiles)?,
+        Command::Shutdown => cmd_shutdown(&state, &profiles)?,
         Command::Recover => cmd_recover(&state, &profiles)?,
         Command::Preview => cmd_preview(&state, &profiles)?,
         #[expect(clippy::unreachable)]
@@ -362,6 +370,61 @@ fn cmd_unsync(state: &State, profiles: &[AppProfile]) -> Result<()> {
     Ok(())
 }
 
+fn cmd_shutdown(state: &State, profiles: &[AppProfile]) -> Result<()> {
+    run_per_profile("shutdown", state, profiles, |state, profile| {
+        reconnect_if_disconnected(state, profile)?;
+        if !sync::overlay_live(&state.paths_for(profile))? {
+            return Ok(sync::UnsyncOutcome::Skipped);
+        }
+        wait_for_app_exit(state, profile)?;
+        sync::unsync(state, profile)
+    })?;
+    info!("shutdown sync complete");
+    Ok(())
+}
+
+fn wait_for_app_exit(state: &State, profile: &AppProfile) -> Result<()> {
+    wait_for_app_exit_with(
+        profile,
+        APP_EXIT_TIMEOUT,
+        APP_EXIT_POLL_INTERVAL,
+        || sync::app_running(profile.kind, &state.user),
+    )
+}
+
+fn wait_for_app_exit_with(
+    profile: &AppProfile,
+    timeout: Duration,
+    poll_interval: Duration,
+    mut app_running: impl FnMut() -> Result<bool>,
+) -> Result<()> {
+    if !app_running()? {
+        return Ok(());
+    }
+
+    info!(
+        app = %profile.kind.as_ref(),
+        process = profile.kind.process_name(),
+        "waiting for app to exit before shutdown persistence"
+    );
+    let deadline = Instant::now() + timeout;
+    while Instant::now() < deadline {
+        sleep(poll_interval);
+        if !app_running()? {
+            info!(
+                app = %profile.kind.as_ref(),
+                "app exited; continuing shutdown persistence"
+            );
+            return Ok(());
+        }
+    }
+    bail!(
+        "{} is still running after {}s; refusing shutdown teardown",
+        profile.kind.process_name(),
+        timeout.as_secs()
+    )
+}
+
 fn reconnect_if_disconnected(
     state: &State,
     profile: &AppProfile,
@@ -515,6 +578,39 @@ mod tests {
             path,
             suffix: suffix.to_owned(),
         }
+    }
+
+    #[test]
+    fn shutdown_waits_until_the_app_exits() {
+        let profile =
+            profile(std::path::PathBuf::from("/tmp/profile"), "profile");
+        let mut observations = [true, false].into_iter();
+
+        wait_for_app_exit_with(
+            &profile,
+            Duration::from_secs(1),
+            Duration::ZERO,
+            || Ok(observations.next().unwrap_or(false)),
+        )
+        .unwrap();
+
+        assert!(observations.next().is_none());
+    }
+
+    #[test]
+    fn shutdown_wait_refuses_an_app_that_does_not_exit() {
+        let profile =
+            profile(std::path::PathBuf::from("/tmp/profile"), "profile");
+
+        let error = wait_for_app_exit_with(
+            &profile,
+            Duration::ZERO,
+            Duration::ZERO,
+            || Ok(true),
+        )
+        .unwrap_err();
+
+        assert!(error.to_string().contains("still running after 0s"));
     }
 
     #[test]

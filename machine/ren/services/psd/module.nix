@@ -27,29 +27,54 @@ in {
     environment.systemPackages = [ psd ];
     programs.fuse.enable = true;
 
+    # Every transient overlay starts before the lifetime coordinator and
+    # therefore stops after its ExecStop has finished.
+    systemd.user.units."psd-overlay-.service" = {
+        overrideStrategy = "asDropin";
+        text = ''
+            [Unit]
+            Before=psd.service
+        '';
+    };
+
+    # Mount in a prerequisite unit: starting an overlay ordered before the
+    # unit whose ExecStart creates it would deadlock the start transaction.
+    systemd.user.services."psd-startup" = {
+        description = "psd: mount app profiles";
+
+        serviceConfig = {
+            Type = "oneshot";
+            Slice = "session.slice";
+            ExecStart = "${invoke} startup";
+            TimeoutStartSec = "30min";
+            # fusermount3
+            Environment = "PATH=/run/wrappers/bin";
+        };
+    };
+
     systemd.user.services."psd" = {
         description = "psd: app profile sync to tmpfs";
         wantedBy = [ "default.target" ];
-        # Login commonly launches Firefox immediately. Persistence starts
-        # from the timer only, after the profile has had time to settle.
+        requires = [ "psd-startup.service" ];
+        after = [ "psd-startup.service" ];
 
-        # Overlay daemons run as independent transient user services. Reload
-        # this coordinator rather than tearing down healthy mounts.
+        # Reload the coordinator to reconcile profiles without tearing down
+        # healthy mounts during a configuration switch.
         reloadIfChanged = true;
 
         serviceConfig = {
             Type = "oneshot";
             RemainAfterExit = true;
-            # Startup, reload, and unsync can all wait for a timed resync and
-            # copy large profiles.
-            TimeoutStartSec = "10min";
-            TimeoutStopSec = "10min";
-            ExecStart = "${invoke} startup";
-            # Persistence runs in psd-resync.service so a copy failure cannot
-            # tear down healthy mounts. Stop only checkpoints; explicit
-            # `psd unsync` owns destructive teardown.
+            Slice = "session.slice";
+            # Reload and shutdown can wait for a timed resync and copy large
+            # profiles.
+            TimeoutStartSec = "30min";
+            TimeoutStopSec = "30min";
+            ExecStart = "${pkgs.coreutils}/bin/true";
             ExecReload = "${invoke} startup";
-            ExecStop = "${invoke} resync";
+            # Wait for terminating apps; persist and tear down while every
+            # psd-overlay-* service is still live.
+            ExecStop = "${invoke} shutdown";
             # fusermount3
             Environment = "PATH=/run/wrappers/bin";
         };
@@ -61,8 +86,9 @@ in {
 
         serviceConfig = {
             Type = "oneshot";
+            Slice = "session.slice";
             ExecStart = "${invoke} resync";
-            TimeoutStartSec = "10min";
+            TimeoutStartSec = "30min";
             Environment = "PATH=/run/wrappers/bin";
         };
     };

@@ -15,8 +15,7 @@
 //! - Commands converge: a profile already in the target state is a success.
 //! - Each FUSE daemon is owned by an independent transient user service.
 //! - Never write a lowerdir (`BACKUP`) while its overlay is mounted.
-//! - Automatic systemd stop only checkpoints. Destructive `unsync` is an
-//!   explicit command and refuses when a known app process is running.
+//! - Never tear down while a known app process is running.
 //! - Unsync promotes a committed `BACK_OVFS` to `DIR` with an atomic rename.
 //! - Unmount before unlinking `DIR`, and verify the mount postcondition before
 //!   advancing to the next transition.
@@ -387,8 +386,8 @@ pub fn unsync(
         }
     }
 
-    // This is a guard for an explicit destructive command, not a
-    // synchronization primitive: automatic systemd stop only checkpoints.
+    // Final guard against an app launch after the caller established
+    // quiescence.
     if app_running(profile.kind, &state.user)? {
         bail!(
             "{} is running; close it before `psd unsync`",
