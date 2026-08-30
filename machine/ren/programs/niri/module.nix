@@ -1,4 +1,4 @@
-{ pkgs, lib, config,... }:
+{ pkgs, lib, ... }:
 
 let
 
@@ -9,9 +9,17 @@ let
     '';
 
 in {
-    programs.niri.enable = true;
-    programs.niri.useNautilus = false;
-    programs.niri.package = pkgs.tsuki.niri;
+    programs.niri = {
+        enable = true;
+        useNautilus = false;
+        package = pkgs.tsuki.niri;
+    };
+
+    programs.noctalia = {
+        enable = true;
+        systemd.enable = true;
+        recommendedServices.enable = false;
+    };
 
     environment.systemPackages = with pkgs; [
         kdePackages.breeze

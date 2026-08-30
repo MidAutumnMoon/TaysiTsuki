@@ -12,25 +12,25 @@ in
 {
 
     packages = [
-        noctalia
+        # noctalia
     ];
 
-    xdg_config."noctalia".src = dots.get "noctalia";
+    # xdg_config."noctalia".src = dots.get "noctalia";
 
-    xdg_config."systemd/user/noctalia.service".text = ''
-        [Unit]
-        Description=Noctalia Shell Service
-        Requisite=graphical-session.target
-        After=graphical-session.target
-        ConditionEnvironment=WAYLAND_DISPLAY
+    # xdg_config."systemd/user/noctalia.service".text = ''
+    #     [Unit]
+    #     Description=Noctalia Shell Service
+    #     Requisite=graphical-session.target
+    #     After=graphical-session.target
+    #     ConditionEnvironment=WAYLAND_DISPLAY
 
-        [Service]
-        ExecStart=${lib.getExe noctalia}
-        Restart=on-failure
-        RestartSec=1
+    #     [Service]
+    #     ExecStart=${lib.getExe noctalia}
+    #     Restart=on-failure
+    #     RestartSec=1
 
-        [Install]
-        WantedBy=graphical-session.target
-    '';
+    #     [Install]
+    #     WantedBy=graphical-session.target
+    # '';
 
 }

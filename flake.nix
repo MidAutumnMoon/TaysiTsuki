@@ -64,7 +64,7 @@
         # };
 
         noctalia = {
-            url = "github:noctalia-dev/noctalia-shell/legacy-v4";
+            url = "github:noctalia-dev/noctalia-shell";
             inputs.nixpkgs.follows = "nixpkgs";
         };
 
@@ -145,8 +145,10 @@
         in {
             ren = nixos "x86_64-linux" <| (
                 lib.listAllModules ./machine/ren
-                ++ [ flakes.xremap.nixosModules.default ]
-            );
+                ++ (with flakes; [
+                    xremap.nixosModules.default
+                    noctalia.nixosModules.default
+                ]));
             # phia = nixos "x86_64-linux" <| lib.listAllModules ./machine/phia;
             uk-01 = nixos "x86_64-linux" <| (
                 lib.listAllModules ./machine/uk-01

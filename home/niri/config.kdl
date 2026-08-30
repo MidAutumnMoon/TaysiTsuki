@@ -5,7 +5,6 @@
 
 include "rules.kdl"
 include "workspaces.kdl"
-include "./noctalia.kdl"
 
 // Input device configuration.
 // Find the full list of options on the wiki:
