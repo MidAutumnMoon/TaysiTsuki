@@ -1,0 +1,130 @@
+config_version = 13
+
+[accessibility]
+ui_scale = 1.1500000096857548
+
+[backdrop]
+enabled = true
+tint_intensity = 0.25999999418854713
+
+[bar]
+order = [ "Main" ]
+
+    [bar.Main]
+    background_opacity = 0.79999998211860657
+    end = [ "media", "tray", "notifications", "volume", "brightness" ]
+    padding = 13
+    position = "left"
+    scale = 1.2500000111758709
+    start = [ "clipboard", "cat", "workspaces", "wallpaper", "taskbar" ]
+    thickness = 45
+    widget_spacing = 10
+
+[calendar]
+enabled = true
+
+[control_center]
+hidden_tabs = [ "network" ]
+
+[desktop_widgets]
+enabled = false
+
+[dock]
+position = "left"
+
+[lockscreen_widgets]
+enabled = false
+schema_version = 2
+widget_order = [ "lockscreen-login-box@DP-2" ]
+
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 1067.0
+    cy = 1077.0
+    output = "DP-2"
+    placement_height = 1200.0
+    placement_width = 2133.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@DP-2".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+[notification]
+position = "bottom_left"
+
+[osd]
+background_opacity = 0.84999998100101948
+offset_y = 20
+scale = 1.1000000089406967
+
+[plugins]
+enabled = [ "dotnetrob/cat" ]
+
+[shell]
+niri_overview_type_to_launch_enabled = true
+ui_scale = 1.0500000081956387
+
+    [shell.animation]
+    enabled = false
+
+    [shell.panel]
+    open_near_click_control_center = true
+    transparency_mode = "glass"
+
+[theme]
+mode = "light"
+
+    [theme.templates]
+    enable_builtin_templates = false
+
+[wallpaper]
+directory = "/home/teapot/Pictures/Wallpapers"
+
+    [wallpaper.default]
+    path = "/home/teapot/Pictures/Wallpapers/05 January 2013.jpg"
+
+    [wallpaper.last]
+    path = "/home/teapot/Pictures/Wallpapers/05 January 2013.jpg"
+
+[weather]
+enabled = false
+
+[widget.cat]
+type = "dotnetrob/cat:cat"
+
+[widget.clipboard]
+capsule = true
+
+[widget.launcher]
+capsule = true
+
+[widget.taskbar]
+group_by_workspace = true
+minimal = true
+
+[widget.wallpaper]
+enabled = false
+
+[widget.workspaces]
+capsule = true
+enabled = false
