@@ -10,7 +10,7 @@ use ino_shell::Shell;
 use ino_shell::cmd;
 use tracing::debug;
 
-use crate::cmd::git_toplevel;
+use crate::git_toplevel;
 use crate::package::NIX_BUILD_OPTS;
 
 pub fn eval_hostnames() -> Result<String> {

@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use anyhow::Context as _;
 use anyhow::Result;
 use anyhow::bail;
+use gix_discover::repository;
 use tap::Pipe as _;
 use tracing::debug;
 
@@ -12,7 +13,6 @@ use crate::nixos::eval_hostnames;
 use crate::package::build_packages;
 use crate::package::update_all_packages;
 
-mod cmd;
 mod manifest;
 mod nixos;
 mod package;
@@ -146,6 +146,22 @@ fn main() -> Result<()> {
                 println!("{summary}");
             }
             Ok(())
+        }
+    }
+}
+
+#[tracing::instrument]
+fn git_toplevel() -> Result<PathBuf> {
+    debug!("Get git repository toplevel");
+    let cwd = std::env::current_dir()?;
+    // trust discarded
+    let (path, _) = gix_discover::upwards(&cwd)
+        .context("Failed to locate git repo toplevel")?;
+    match path {
+        repository::Path::WorkTree(path) => Ok(path),
+        repository::Path::LinkedWorkTree { .. }
+        | repository::Path::Repository(_) => {
+            bail!("Other types of repo are not handled")
         }
     }
 }

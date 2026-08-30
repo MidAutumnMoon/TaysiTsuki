@@ -18,7 +18,7 @@ use tracing::debug;
 use tracing::debug_span;
 use tracing::instrument;
 
-use crate::cmd::git_toplevel;
+use crate::git_toplevel;
 use crate::manifest::Package;
 
 #[rustfmt::skip]
@@ -33,14 +33,14 @@ pub static NIX_BUILD_OPTS: &[&str] = &[
 ];
 
 #[instrument(skip_all)]
-pub fn build_packages<'a>(
-    packages: impl IntoIterator<Item = &'a Package>,
+pub fn build_packages<'pkg>(
+    packages: impl IntoIterator<Item = &'pkg Package>,
 ) -> Result<()> {
     debug!("Build packages");
 
     let attrs = packages
         .into_iter()
-        .map(|p| format!(".#{}", p.attr))
+        .map(|package| format!(".#{}", package.attr))
         .collect::<Vec<_>>();
 
     if attrs.is_empty() {
@@ -61,8 +61,8 @@ pub fn build_packages<'a>(
 }
 
 #[instrument(skip_all)]
-pub fn update_all_packages<'a>(
-    packages: impl IntoIterator<Item = &'a Package> + Send,
+pub fn update_all_packages<'pkg>(
+    packages: impl IntoIterator<Item = &'pkg Package> + Send,
 ) -> Result<String> {
     debug!("Update packages");
 
@@ -114,7 +114,7 @@ pub fn update_all_packages<'a>(
         errors.is_empty(),
         "Failed to update {} package(s):\n{}",
         errors.len(),
-        errors.iter().map(|e| format!("{e:#}")).join("\n"),
+        errors.iter().map(|error| format!("{error:#}")).join("\n"),
     );
 
     Ok(summaries.join("\n\n"))
@@ -130,7 +130,7 @@ fn update_one_package(
         return Ok(None);
     };
 
-    if matches!(update.pinned, Some(true)) {
+    if update.pinned {
         debug!("Package pinned");
         return Ok(None);
     }
@@ -162,13 +162,13 @@ fn update_one_package(
             }
             read_to_string(commit_message_file.path())
                 .context("Failed to read commit message from file")?
-                .pipe(|s| {
-                    if s.trim().is_empty() {
+                .pipe(|message| {
+                    if message.trim().is_empty() {
                         None
                     } else {
                         // Add Markdown heading so that it looks nicer in
                         // pull request.
-                        Some(format!("## {s}"))
+                        Some(format!("## {message}"))
                     }
                 })
                 .pipe(Ok)

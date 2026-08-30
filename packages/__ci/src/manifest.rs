@@ -43,7 +43,7 @@ impl Manifest {
     pub fn list_groups(&self) -> impl Iterator<Item = &str> {
         self.packages
             .iter()
-            .map(|p| p.group.as_str())
+            .map(|package| package.group.as_str())
             .unique()
             .sorted()
     }
@@ -52,11 +52,15 @@ impl Manifest {
         &self,
         name: &str,
     ) -> impl Iterator<Item = &Package> {
-        self.packages.iter().filter(move |p| p.group == name)
+        self.packages
+            .iter()
+            .filter(move |package| package.group == name)
     }
 
     pub fn package_need_update(&self) -> impl Iterator<Item = &Package> {
-        self.packages.iter().filter(|p| p.update.is_some())
+        self.packages
+            .iter()
+            .filter(|package| package.update.is_some())
     }
 }
 
@@ -68,24 +72,69 @@ pub struct Package {
     pub update: Option<Update>,
 }
 
+/// How to determine the version to update to. At most one can be
+/// configured, enforced when deserializing.
 #[derive(Debug)]
-#[derive(Deserialize)]
-pub struct Update {
+pub enum VersionSource {
     /// Custom nix-update version extract regex.
-    pub version_regex: Option<String>,
+    Regex(String),
 
     /// Update source from unstable development branch.
-    pub unstable_branch: Option<bool>,
+    Branch,
 
     /// Update to pre-release versions.
-    pub preview_release: Option<bool>,
+    Unstable,
+}
+
+#[derive(Debug)]
+#[derive(Deserialize)]
+#[serde(try_from = "RawUpdate")]
+pub struct Update {
+    /// How to determine the version to update to.
+    pub version: Option<VersionSource>,
 
     /// Skip the update.
-    pub pinned: Option<bool>,
+    pub pinned: bool,
 
     /// List of subpackages to also update, the attr name of
     /// the parent package is prepended to it.
-    pub subpackages: Option<Vec<String>>,
+    pub subpackages: Vec<String>,
+}
+
+#[derive(Deserialize)]
+struct RawUpdate {
+    version_regex: Option<String>,
+    unstable_branch: Option<bool>,
+    preview_release: Option<bool>,
+    pinned: Option<bool>,
+    subpackages: Option<Vec<String>>,
+}
+
+impl TryFrom<RawUpdate> for Update {
+    type Error = String;
+
+    fn try_from(raw: RawUpdate) -> Result<Self, Self::Error> {
+        let branch = raw.unstable_branch.unwrap_or(false);
+        let unstable = raw.preview_release.unwrap_or(false);
+
+        let version = match (raw.version_regex, branch, unstable) {
+            (None, false, false) => None,
+            (Some(regex), false, false) => {
+                Some(VersionSource::Regex(regex))
+            }
+            (None, true, false) => Some(VersionSource::Branch),
+            (None, false, true) => Some(VersionSource::Unstable),
+            _ => {
+                return Err("At most one version source can be set".into());
+            }
+        };
+
+        Ok(Self {
+            version,
+            pinned: raw.pinned.unwrap_or(false),
+            subpackages: raw.subpackages.unwrap_or_default(),
+        })
+    }
 }
 
 impl Update {
@@ -93,28 +142,75 @@ impl Update {
     pub fn as_nix_update_args(&self) -> Vec<String> {
         let mut accu = vec![];
 
-        if let Some(r) = &self.version_regex {
-            accu.push("--version-regex".into());
-            accu.push(r.into());
-        } else if let Some(b) = &self.unstable_branch
-            && *b
-        {
-            accu.push("--version".into());
-            accu.push("branch".into());
-        } else if let Some(b) = &self.preview_release
-            && *b
-        {
-            accu.push("--version".into());
-            accu.push("unstable".into());
+        match &self.version {
+            Some(VersionSource::Regex(regex)) => {
+                accu.push("--version-regex".into());
+                accu.push(regex.clone());
+            }
+            Some(VersionSource::Branch) => {
+                accu.push("--version".into());
+                accu.push("branch".into());
+            }
+            Some(VersionSource::Unstable) => {
+                accu.push("--version".into());
+                accu.push("unstable".into());
+            }
+            None => (),
         }
 
-        if let Some(subs) = &self.subpackages {
-            for p in subs {
-                accu.push("--subpackage".into());
-                accu.push(p.into());
-            }
+        for sub in &self.subpackages {
+            accu.push("--subpackage".into());
+            accu.push(sub.into());
         }
 
         accu
+    }
+}
+
+#[cfg(test)]
+#[expect(clippy::unwrap_used, reason = "Tests")]
+mod tests {
+    use serde_json::json;
+
+    use super::{Update, VersionSource};
+
+    fn parse(raw: serde_json::Value) -> Update {
+        serde_json::from_value(raw).unwrap()
+    }
+
+    #[test]
+    fn empty_update_gets_defaults() {
+        let update = parse(json!({}));
+
+        assert!(update.version.is_none());
+        assert!(!update.pinned);
+        assert!(update.subpackages.is_empty());
+    }
+
+    #[test]
+    fn version_sources_parse() {
+        assert!(matches!(
+            parse(json!({ "version_regex": "v(0\\.1\\..*)" })).version,
+            Some(VersionSource::Regex(_))
+        ));
+
+        assert!(matches!(
+            parse(json!({ "unstable_branch": true })).version,
+            Some(VersionSource::Branch)
+        ));
+
+        assert!(matches!(
+            parse(json!({ "preview_release": true })).version,
+            Some(VersionSource::Unstable)
+        ));
+    }
+
+    #[test]
+    fn conflicting_version_sources_rejected() {
+        serde_json::from_value::<Update>(json!({
+            "version_regex": "v(.*)",
+            "unstable_branch": true,
+        }))
+        .unwrap_err();
     }
 }
