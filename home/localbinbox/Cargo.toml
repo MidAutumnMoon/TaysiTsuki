@@ -14,11 +14,11 @@ ino_color = "5.0.0"
 ino_iter = "0.1.0"
 ino_tracing = "1.0.0"
 itertools = "0.15.0"
+niri-ipc.workspace = true
 rootcause.workspace = true
 saphyr = "0.0.12"
 tap = "1.0.1"
 tracing = "0.1.43"
-niri-ipc = "=26.4.0"
 
 [lints]
 workspace = true
