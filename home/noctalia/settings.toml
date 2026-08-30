@@ -1,7 +1,7 @@
 config_version = 13
 
 [accessibility]
-ui_scale = 1.15
+ui_scale = 1.1499999999999999
 
 [backdrop]
 enabled = true
@@ -11,7 +11,7 @@ tint_intensity = 0.25
 order = [ "Main" ]
 
     [bar.Main]
-    background_opacity = 0.8
+    background_opacity = 0.80000000000000004
     end = [ "media", "tray", "notifications", "volume", "brightness" ]
     padding = 13
     position = "left"
@@ -41,6 +41,24 @@ enabled = false
 
 [dock]
 position = "left"
+
+[idle]
+behavior_order = [ "lock", "screen-off", "lock-and-suspend" ]
+
+    [idle.behavior.lock]
+    action = "lock"
+    enabled = false
+    timeout = 600.0
+
+    [idle.behavior.lock-and-suspend]
+    action = "lock_and_suspend"
+    enabled = false
+    timeout = 900.0
+
+    [idle.behavior.screen-off]
+    action = "screen_off"
+    enabled = true
+    timeout = 360.0
 
 [lockscreen_widgets]
 enabled = false
@@ -83,7 +101,7 @@ widget_order = [ "lockscreen-login-box@DP-2" ]
 position = "bottom_left"
 
 [osd]
-background_opacity = 0.85
+background_opacity = 0.84999999999999998
 offset_y = 20
 scale = 1.1000000089406967
 
@@ -130,11 +148,11 @@ capsule = true
 
 [widget.network_rx]
 network_speed_compact = true
-scale = 0.6
+scale = 0.59999999999999998
 
 [widget.network_tx]
 network_speed_compact = true
-scale = 0.6
+scale = 0.59999999999999998
 
 [widget.taskbar]
 group_by_workspace = true
