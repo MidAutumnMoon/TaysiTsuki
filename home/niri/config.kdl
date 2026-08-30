@@ -251,8 +251,8 @@ binds {
 
     // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+T hotkey-overlay-title="Open a Terminal: foot" { spawn ",foot-kicker"; }
-    Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
-    Alt+Space { spawn "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
+    // Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
+    Alt+Space { spawn-sh "noctalia msg panel-toggle launcher"; }
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
     // Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.
@@ -261,22 +261,15 @@ binds {
     // The allow-when-locked=true property makes them work even when the session is locked.
     // Using spawn-sh allows to pass multiple arguments together with the command.
     // "-l 1.0" limits the volume to 100%.
-    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume increase"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume decrease"; }
-    XF86AudioMute        allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume muteOutput"; }
-    XF86AudioMicMute     allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume muteInput"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "noctalia msg volume-up"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "noctalia msg volume-down"; }
+    XF86AudioMute        allow-when-locked=true { spawn-sh "noctalia msg volume-mute"; }
 
     // Example media keys mapping using playerctl.
     // This will work with any MPRIS-enabled media player.
-    XF86AudioPlay allow-when-locked=true { spawn-sh "noctalia-shell ipc call media playPause"; }
-    XF86AudioPrev allow-when-locked=true { spawn-sh "noctalia-shell ipc call media previous"; }
-    XF86AudioNext allow-when-locked=true { spawn-sh "noctalia-shell ipc call media next"; }
-
-    // Example brightness key mappings for brightnessctl.
-    // You can use regular spawn with multiple arguments too (to avoid going through "sh"),
-    // but you need to manually put each argument in separate "" quotes.
-    XF86MonBrightnessUp allow-when-locked=true { spawn-sh "noctalia-shell ipc call brightness increase"; }
-    XF86MonBrightnessDown allow-when-locked=true { spawn-sh "noctalia-shell ipc call brightness decrease"; }
+    XF86AudioPlay allow-when-locked=true { spawn-sh "noctalia msg media pause"; }
+    XF86AudioPrev allow-when-locked=true { spawn-sh "noctalia msg media previous"; }
+    XF86AudioNext allow-when-locked=true { spawn-sh "noctalia msg media next"; }
 
     // Open/close the Overview: a zoomed-out view of workspaces and windows.
     // You can also move the mouse into the top-left hot corner,
@@ -447,7 +440,7 @@ binds {
     Mod+Shift+A { switch-focus-between-floating-and-tiling; }
 
     Mod+V {
-        spawn "noctalia-shell" "ipc" "call" "launcher" "clipboard";
+        spawn-sh "noctalia msg panel-toggle clipboard";
     }
 
     // Toggle tabbed column display mode.
@@ -479,7 +472,7 @@ binds {
 
     // The quit action will show a confirmation dialog to avoid accidental exits.
     Ctrl+Alt+Delete {
-        spawn-sh "noctalia-shell ipc call sessionMenu toggle";
+        spawn-sh "noctalia msg panel-toggle session";
     }
 
     // Powers off the monitors. To turn them back on, do any input like
