@@ -63,9 +63,9 @@ tsuki.rust.buildRustPackage {
         '' + (lib.optionalString canExe ''
             bin="$out/bin/i"
             installShellCompletion --cmd i \
-                --bash <("$bin" gen-complete -s bash) \
-                --fish <("$bin" gen-complete -s fish) \
-                --zsh <("$bin" gen-complete -s zsh)
+                --bash <("$bin" completion -s bash) \
+                --fish <("$bin" completion -s fish) \
+                --zsh <("$bin" completion -s zsh)
         '');
 
     meta = {
