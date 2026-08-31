@@ -76,4 +76,30 @@ in {
             Restart = "on-failure";
         };
     };
+
+    services.displayManager.noctalia-greeter = {
+        enable = true;
+        settings = {
+            user.default = "teapot";
+            auth.allow_empty_password = true;
+        };
+    };
+
+    services.orca.enable = false;
+    services.geoclue2.enable = false;
+    services.fwupd.enable = false;
+    services.speechd.enable = false;
+
+    i18n.inputMethod = {
+        enable = true;
+        type = "fcitx5";
+        fcitx5 = {
+            addons = with pkgs; [
+                fcitx5-mozc
+                kdePackages.fcitx5-chinese-addons
+            ];
+            waylandFrontend = true;
+        };
+    };
+
 }

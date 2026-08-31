@@ -60,10 +60,13 @@ behavior_order = [ "lock", "screen-off", "lock-and-suspend" ]
     enabled = true
     timeout = 360.0
 
+[lockscreen]
+allow_empty_password = true
+
 [lockscreen_widgets]
-enabled = false
+enabled = true
 schema_version = 2
-widget_order = [ "lockscreen-login-box@DP-2" ]
+widget_order = [ "lockscreen-login-box@DP-2", "lockscreen-widget-0000000000000001" ]
 
     [lockscreen_widgets.grid]
     cell_size = 16
@@ -73,8 +76,8 @@ widget_order = [ "lockscreen-login-box@DP-2" ]
     [lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
     box_height = 196.0
     box_width = 810.0
-    cx = 1067.0
-    cy = 1077.0
+    cx = 1066.5
+    cy = 1078.0
     output = "DP-2"
     placement_height = 1200.0
     placement_width = 2133.0
@@ -97,6 +100,25 @@ widget_order = [ "lockscreen-login-box@DP-2" ]
         show_unlock_hint = true
         show_weather = true
 
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000001]
+    box_height = 256.0
+    box_width = 704.0
+    cx = 1050.5
+    cy = 552.0
+    output = "DP-2"
+    placement_height = 1200.0
+    placement_width = 2133.0
+    rotation = 0.0
+    type = "clock"
+
+        [lockscreen_widgets.widget.lockscreen-widget-0000000000000001.settings]
+        background = false
+        background_opacity = 0.5
+        center_text = true
+        clock_style = "digital"
+        font_family = ""
+        shadow = true
+
 [notification]
 position = "bottom_left"
 
@@ -110,6 +132,8 @@ enabled = [ "dotnetrob/cat" ]
 
 [shell]
 niri_overview_type_to_launch_enabled = true
+polkit_agent = true
+telemetry_enabled = true
 ui_scale = 1.05
 
     [shell.animation]
