@@ -162,7 +162,6 @@ finalize {
     # Others, built only to make sure being cached
     #
     Lix = [ (pkgs "lix") ];
-    Colmena = [ (pkgs "colmena") ];
     # nixpkgs niri with local patches; version moves with flake.lock.
     Niri = [ (tsuki "niri" null) ];
 }

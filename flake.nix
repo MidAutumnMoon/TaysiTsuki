@@ -27,15 +27,6 @@
 
         # Some packages
 
-        colmena = {
-            url = "github:zhaofengli/colmena";
-            inputs.nixpkgs.follows = "nixpkgs";
-            inputs.flake-utils.follows = "flake-utils";
-            inputs.flake-compat.follows = "empty";
-            inputs.stable.follows = "empty";
-            inputs.nix-github-actions.follows = "empty";
-        };
-
         llm-agents = {
             url = "github:numtide/llm-agents.nix";
             inputs.nixpkgs.follows = "nixpkgs";

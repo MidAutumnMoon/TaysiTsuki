@@ -16,7 +16,7 @@ order = [ "Main" ]
     padding = 13
     position = "left"
     scale = 1.2500000111758709
-    start = [ "group:g1", "cat", "workspaces", "wallpaper", "taskbar" ]
+    start = [ "group:g1", "ram", "cat", "workspaces", "wallpaper", "taskbar" ]
     thickness = 45
     widget_spacing = 10
 
@@ -144,7 +144,10 @@ ui_scale = 1.05
     transparency_mode = "glass"
 
 [theme]
+community_palette = "Oxocarbon"
 mode = "light"
+source = "wallpaper"
+wallpaper_scheme = "m3-content"
 
     [theme.templates]
     enable_builtin_templates = false
@@ -152,11 +155,18 @@ mode = "light"
 [wallpaper]
 directory = "/home/teapot/Pictures/Wallpapers"
 
+    [wallpaper.automation]
+    enabled = true
+    interval_seconds = 300
+
     [wallpaper.default]
-    path = "/home/teapot/Pictures/Wallpapers/05 January 2013.jpg"
+    path = "/home/teapot/Pictures/Wallpapers/__luo_tianyi_vocaloid_and_1_more_drawn_by_william_chacha__761bc1c586c2275526bf386d78f45a50.jpg"
 
     [wallpaper.last]
-    path = "/home/teapot/Pictures/Wallpapers/05 January 2013.jpg"
+    path = "/home/teapot/Pictures/Wallpapers/__luo_tianyi_vocaloid_and_1_more_drawn_by_william_chacha__761bc1c586c2275526bf386d78f45a50.jpg"
+
+    [wallpaper.monitors.DP-2]
+    path = "/home/teapot/Pictures/Wallpapers/__luo_tianyi_vocaloid_and_1_more_drawn_by_william_chacha__761bc1c586c2275526bf386d78f45a50.jpg"
 
 [weather]
 enabled = false
@@ -177,6 +187,10 @@ scale = 0.59999999999999998
 [widget.network_tx]
 network_speed_compact = true
 scale = 0.59999999999999998
+
+[widget.ram]
+label_show_units = false
+scale = 0.60000000000000009
 
 [widget.taskbar]
 group_by_workspace = true

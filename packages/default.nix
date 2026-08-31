@@ -128,13 +128,6 @@ in rec {
 
     nixForLinking = prev.nixVersions.stable;
 
-    # TODO: get rid of colmena flake
-    colmena =
-        (pkgsFrom "colmena").colmena.override {
-            nix-eval-jobs = final.nix-eval-jobs;
-            rustPlatform = final.tsuki.rust;
-        };
-
     nix-direnv =
         prev.nix-direnv.override { nix = final.lix; };
 
