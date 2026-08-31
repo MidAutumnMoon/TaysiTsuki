@@ -8,16 +8,12 @@
         "ldd" = "libtree";
         "sys" = "systemctl";
         "ca" = "cargo";
-        "g" = "git";
         "n" = "nix";
         "j" = "jj";
-        ".ns" = "nh os switch";
-        ".nt" = "nh os test";
-        ".nb" = "nh os boot";
-        ".nbd" = "nh os build";
-        ".npl" = "nh os repl";
-        "cm" = "colmena";
-        "m" = "mix";
+        ".ns" = "nh switch";
+        ".nt" = "nh test";
+        ".nb" = "nh boot";
+        ".nbd" = "nh build";
     };
 
     programs.fish.init = /* fish */ ''
@@ -39,30 +35,7 @@
 
     programs.fish.functions = {
 
-        "git".body = /* fish */ ''
-            # if git is invoked with no arguments,
-            # jump to the repo's root dir
-            if test ( count $argv ) -eq 0
-                set -f top ( command git rev-parse --show-toplevel 2> /dev/null )
-                test $status = 0
-                and cd -- "$top"
-                and return
-            end
-            command git $argv
-        '';
-
         "ip".body = /*fish*/ "command ip --color=auto $argv";
-
-        "nix".body = /*fish*/ ''
-            # Check whether the repo has flake.
-            if command nix flake metadata &> /dev/null
-                # if the workspace has flake and git status is dirty
-                if [ -n "$( git status --porcelain 2> /dev/null )" ]
-                    command git add --all --intent-to-add
-                end
-            end
-            command nix $argv
-        '';
 
         "ytdl".body = /*fish*/ ''
             command "${lib.getExe pkgs.yt-dlp}" \
