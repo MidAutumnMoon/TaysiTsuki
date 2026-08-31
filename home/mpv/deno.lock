@@ -1,8 +1,8 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@rsbuild/core@2": "2.1.13",
-    "npm:@rspack/cli@2": "2.1.10_@rspack+core@2.1.10__@swc+helpers@0.5.23",
+    "npm:@rsbuild/core@2": "2.2.1",
+    "npm:@rspack/cli@2": "2.2.1_@rspack+core@2.2.1",
     "npm:@types/mpv-script@~0.32.8": "0.32.15",
     "npm:esbuild-register@^3.6.0": "3.6.0_esbuild@0.28.2",
     "npm:esbuild@0.28": "0.28.2",
@@ -197,8 +197,8 @@
         "tslib"
       ]
     },
-    "@jsonjoy.com/fs-core@4.68.1_tslib@2.8.1": {
-      "integrity": "sha512-V5oZ4Gt9WJKyQef0n9cAd0N9qjSkIBm3E4MYsgNIWBk5aINCDPKxMPo1i29rBxqiT4Ixf1epklqV9VJMKIxwlw==",
+    "@jsonjoy.com/fs-core@4.68.2_tslib@2.8.1": {
+      "integrity": "sha512-PoBeUNEbjyLKKwCap2z8LkkqdhdfttS4rTHCALVuP65BdF+sAoyBqHo1m+uGTRBiQWv3H7MGfr8f7lY4pDwanw==",
       "dependencies": [
         "@jsonjoy.com/fs-node-builtins",
         "@jsonjoy.com/fs-node-utils",
@@ -206,8 +206,8 @@
         "tslib"
       ]
     },
-    "@jsonjoy.com/fs-fsa@4.68.1_tslib@2.8.1": {
-      "integrity": "sha512-HCG72UioncuO7Gw09XNVG+S85e3cq2hrUC/mexBrsWsa3mI7eePkkqWie3uVYbtsb64OR9YGQs5SqaufDRYBcg==",
+    "@jsonjoy.com/fs-fsa@4.68.2_tslib@2.8.1": {
+      "integrity": "sha512-h6eGXlLGGMyPfNliDQrbuHKTB9Z29ksCLjreAmdBqrDOBdfrTrHssi+b9WLfrF+J2KzAbIt9OMjJu6AEpTnYkg==",
       "dependencies": [
         "@jsonjoy.com/fs-core",
         "@jsonjoy.com/fs-node-builtins",
@@ -216,14 +216,14 @@
         "tslib"
       ]
     },
-    "@jsonjoy.com/fs-node-builtins@4.68.1_tslib@2.8.1": {
-      "integrity": "sha512-HK1BTksysokNZxNspqDH0yPaqN9YgR/AYIlYiIaU2Ys4BOk5CdybI7r6BgiZuiiPiV8n4sK/kZdice7Znpy2Kw==",
+    "@jsonjoy.com/fs-node-builtins@4.68.2_tslib@2.8.1": {
+      "integrity": "sha512-V8WzQsW2YIrH3RxBGY6HZisxn+dDUltHgksVRuCdPEOXEkAfXuhL/01eHFrabNu84Dn13XuLqvcQUKOYVKAUOA==",
       "dependencies": [
         "tslib"
       ]
     },
-    "@jsonjoy.com/fs-node-to-fsa@4.68.1_tslib@2.8.1": {
-      "integrity": "sha512-lpKmU4X9e/oh8GIuAI7EXaS5QiLNM3KD15CkdhfS6PYmrGvoJqKQcyEfnLgnnaGslh/PFUMYSIZBCf2ejJGw8g==",
+    "@jsonjoy.com/fs-node-to-fsa@4.68.2_tslib@2.8.1": {
+      "integrity": "sha512-4O1K4w5G4oJIpKpoa3WSLG83AsQYVnGv+aUSBGOvIUph9Axm6bB1mPlvldkNg2tBx/4dkiTlZnqNrK5SQ21Wtg==",
       "dependencies": [
         "@jsonjoy.com/fs-fsa",
         "@jsonjoy.com/fs-node-builtins",
@@ -231,16 +231,16 @@
         "tslib"
       ]
     },
-    "@jsonjoy.com/fs-node-utils@4.68.1_tslib@2.8.1": {
-      "integrity": "sha512-/GxfW1DWm9SCdkfbvqevLO/P5duobQfmKkHXxdMIDbcZMQeAgooAstIfZhkXpATzq9QbCQsnoWFM/dGHdZfndw==",
+    "@jsonjoy.com/fs-node-utils@4.68.2_tslib@2.8.1": {
+      "integrity": "sha512-CxFwyG9fJr7dAKAd1uanNRNrRMtDDqbYJA8do53+M4LY7SxcBEEmMjC1zi9MOsBlVLHTXvA7OP9+n639UqtIcw==",
       "dependencies": [
         "@jsonjoy.com/fs-node-builtins",
         "glob-to-regex.js",
         "tslib"
       ]
     },
-    "@jsonjoy.com/fs-node@4.68.1_tslib@2.8.1": {
-      "integrity": "sha512-R5D9mWtqdURzcOWj1vdXr3APCwX0xchtFT+kmW7fXLNDifWdDrnh26jSID8pdnUfFBxTyfHtFtTL/NWKzIH7kQ==",
+    "@jsonjoy.com/fs-node@4.68.2_tslib@2.8.1": {
+      "integrity": "sha512-Kpj519Qk4OXG4+mZ8vTf9BEflliJrPueIDEVcbx8tAOufMJJ8IxR0WwdbcEvJol2KQog3PJjtALXVclorE+xbQ==",
       "dependencies": [
         "@jsonjoy.com/fs-core",
         "@jsonjoy.com/fs-node-builtins",
@@ -252,16 +252,16 @@
         "tslib"
       ]
     },
-    "@jsonjoy.com/fs-print@4.68.1_tslib@2.8.1": {
-      "integrity": "sha512-oGeZOGPYKK9v1CgeVeEDsLomH1lCnslSpqUN5GmPzrmAVGQlsmsdcXNA2O4lV8Y4xkuSuynx2ITBkUHJVaTbow==",
+    "@jsonjoy.com/fs-print@4.68.2_tslib@2.8.1": {
+      "integrity": "sha512-cBABQmZJXig6bahwNka3+yPNGUF1GeMWbR76ZM1N2ajgCd+S+twZigCoe9+0ueZmkhM9xd2a7688Gy/ch7T+2w==",
       "dependencies": [
         "@jsonjoy.com/fs-node-utils",
         "tree-dump",
         "tslib"
       ]
     },
-    "@jsonjoy.com/fs-snapshot@4.68.1_tslib@2.8.1": {
-      "integrity": "sha512-XZfP0FDZN32bbc4t2bZN2qRrYHg5AktJnzk22HRoKGK4BprrbNRH2k5ceSNS/kupKYcofCs+O841+xaAbjnxwQ==",
+    "@jsonjoy.com/fs-snapshot@4.68.2_tslib@2.8.1": {
+      "integrity": "sha512-Aix7+NM38LzvewM0T3PICSgFdF5BVCtVgsjNsrlDPGc9hiMgJzReTDDl2/elgl0A9USMl3QP27x5WwxZSOtrfw==",
       "dependencies": [
         "@jsonjoy.com/buffers@17.67.0_tslib@2.8.1",
         "@jsonjoy.com/fs-node-utils",
@@ -386,10 +386,10 @@
     "@polka/url@1.0.0-next.29": {
       "integrity": "sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww=="
     },
-    "@rsbuild/core@2.1.13": {
-      "integrity": "sha512-Z+6MzmjOio4+bFZQ24k+7ge/oNCOdXIunAssrswTNE8AIf6mcyXpJZevRXRiOEMZasRPA8VNyh+9JngQLg729Q==",
+    "@rsbuild/core@2.2.1": {
+      "integrity": "sha512-JcGtG4bo7PBihj6fBL6gaxaJihqLf7nGWW/t4zEmXpMJkV6XNdr1jAo9B0xI4mLAOmtFeva8cUbn9SE2ZEmAIw==",
       "dependencies": [
-        "@rspack/core@2.1.10_@swc+helpers@0.5.23",
+        "@rspack/core@2.2.1_@swc+helpers@0.5.23",
         "@swc/helpers"
       ],
       "bin": true
@@ -399,8 +399,8 @@
       "os": ["darwin"],
       "cpu": ["arm64"]
     },
-    "@rspack/binding-darwin-arm64@2.1.10": {
-      "integrity": "sha512-DZlcTpbIb2mjeS1aSG4k01UH33Zj7T+k8ZylPK6HmsKs4JvK4wgpWFC78WVv3p/Aj3MZS6DwtDLwpZ2Ihj/fpg==",
+    "@rspack/binding-darwin-arm64@2.2.1": {
+      "integrity": "sha512-Y/Naw/7V76QiUYdYRuBzBZtzRjt/3fjDUuF8GK0+/BO7BP1RrpY4tk1ln+iiqegRUD8u9uGn08fi8No1rwfyUg==",
       "os": ["darwin"],
       "cpu": ["arm64"]
     },
@@ -409,8 +409,8 @@
       "os": ["darwin"],
       "cpu": ["x64"]
     },
-    "@rspack/binding-darwin-x64@2.1.10": {
-      "integrity": "sha512-my/0h2LwxCRT6cg3oDDC2e0ZOxQLVajAdIcv0fqnQk5JRNvVuL89PuTutitnSqie1A0/JSL8OQz5XHwmoS3kow==",
+    "@rspack/binding-darwin-x64@2.2.1": {
+      "integrity": "sha512-rTIG/xZIW7RbEEuMR9hnNn5dv3fDBpX0N4FAQUwfhUYy3tN2+3vibTTq/Nj1Sd9Vn4yWydbWIEwBX6m/aGejig==",
       "os": ["darwin"],
       "cpu": ["x64"]
     },
@@ -419,8 +419,8 @@
       "os": ["linux"],
       "cpu": ["arm64"]
     },
-    "@rspack/binding-linux-arm64-gnu@2.1.10": {
-      "integrity": "sha512-laevn9g+E5PAUEGqiKe6Ju5KApsuQYp+bPI17XS3Lkl8eqL5pS/BmHYU7QMlst4GzV8+wlruVTMh//+st6Vqzg==",
+    "@rspack/binding-linux-arm64-gnu@2.2.1": {
+      "integrity": "sha512-53rAMU6Hqiat21IMU1hTt4Si2F33h+ZbXOt+Y18W39AFjcwmleIBId2u7beqJeGXLJuBgIAm31jcbJj/PN7mWQ==",
       "os": ["linux"],
       "cpu": ["arm64"]
     },
@@ -429,28 +429,28 @@
       "os": ["linux"],
       "cpu": ["arm64"]
     },
-    "@rspack/binding-linux-arm64-musl@2.1.10": {
-      "integrity": "sha512-V71+Qz5G72+ROZXrJn5zxOszdG1AEbO8pcC/itXXtf4yRR6a3bVHKNKGhipBNxb8eI6cnD/01FH1h3ZG655jLw==",
+    "@rspack/binding-linux-arm64-musl@2.2.1": {
+      "integrity": "sha512-o7zFiWkt4MqSfSdTbxUdF27fcrWKpRizcuVB8H3yd2G6xW9V2OfYbhVGQnOlbKi+GK74RkCmoJtANB+QboIqKQ==",
       "os": ["linux"],
       "cpu": ["arm64"]
     },
-    "@rspack/binding-linux-ppc64-gnu@2.1.10": {
-      "integrity": "sha512-U7HlNzHcDtZ+LYOtOJmtx67kHEybZzUUAaP7aEXjGYO5WTCgh/176sW2UYP0rmZLrgUNFUuzn+B98RLaClNaVg==",
+    "@rspack/binding-linux-ppc64-gnu@2.2.1": {
+      "integrity": "sha512-pvx1oeg1z7cr8OcNt7PAt1SJTHzdsN/pvu7HkGnfks2fWE7GDs9DLL2KvN7tUkzQvJm6bGgUwqSCOrqV4uSwAg==",
       "os": ["linux"],
       "cpu": ["ppc64"]
     },
-    "@rspack/binding-linux-riscv64-gnu@2.1.10": {
-      "integrity": "sha512-GMGTJpy9/ecE+5F5IfxZH4bXv0Wx/b2TiehTlCbTksbL+pKpLHYy0rwGdjWDKbmBkhxMMqPiC7PDnn9LbdnnLA==",
+    "@rspack/binding-linux-riscv64-gnu@2.2.1": {
+      "integrity": "sha512-WQ6P94Wz2tgwOsgifTWP2/bV63iZH5+rkxngQwF22FC8KmIXXy/Yug7lyMH1ld8Hzg4p1qXjBBr4i1cCyJTR+w==",
       "os": ["linux"],
       "cpu": ["riscv64"]
     },
-    "@rspack/binding-linux-riscv64-musl@2.1.10": {
-      "integrity": "sha512-rkurnAWc04vIbzG1QCrPBWSJadZvaOt1mazFH3EdiJO8VUiu0I1T9zdiwuDOPrd50lOKIZlcTXbd5aaAkWEnvQ==",
+    "@rspack/binding-linux-riscv64-musl@2.2.1": {
+      "integrity": "sha512-GEFUFHQkjKU7OYyHXnrIo8wWcUHM7jeKov5z6Lxd3i+3hKo11yBOgb7b+uD94Rx2tPuWF4jyFdWmcNu46Njb/A==",
       "os": ["linux"],
       "cpu": ["riscv64"]
     },
-    "@rspack/binding-linux-s390x-gnu@2.1.10": {
-      "integrity": "sha512-X+DyxkriZEAF/wihI7ERDv+CAS0mbMv36aEuQ+vXzTlvS6cSmpou/r29AHbvIF3NlG1UeAbDVlOs9QrMBZjpUQ==",
+    "@rspack/binding-linux-s390x-gnu@2.2.1": {
+      "integrity": "sha512-Cqw2UjSmFGZaw1EjQXClKDud86ThynGEEIazy2PZfPzZG4WjICK1WjdeFCJd7xWsSbUQ3jGyzb7/EHiDVa+sKA==",
       "os": ["linux"],
       "cpu": ["s390x"]
     },
@@ -459,8 +459,8 @@
       "os": ["linux"],
       "cpu": ["x64"]
     },
-    "@rspack/binding-linux-x64-gnu@2.1.10": {
-      "integrity": "sha512-Fat09V6jUuyo9qG7Wyj9cQ31VDfLmokXyBtGqKxY5OvSWHereB7QUub5btbPXHwbp6Iq4aAQyUbbLTzvR1YaBw==",
+    "@rspack/binding-linux-x64-gnu@2.2.1": {
+      "integrity": "sha512-QX+gRxg2CS9ri2fUG5eNurdsrOCWoJ56SsD2O7kcVGiRm+S2+muNb/QhkdkAdt/u/m++7Ve5TMIpHTnaKYCpCw==",
       "os": ["linux"],
       "cpu": ["x64"]
     },
@@ -469,8 +469,8 @@
       "os": ["linux"],
       "cpu": ["x64"]
     },
-    "@rspack/binding-linux-x64-musl@2.1.10": {
-      "integrity": "sha512-lhHOnIJ4ClpIlA1f1L8aoxEZivYLjnjq5A6jKKz7BKsm+cHK8kqqEm6lO5KqA5xQT0Lonq1o28bmKHEj6JHInw==",
+    "@rspack/binding-linux-x64-musl@2.2.1": {
+      "integrity": "sha512-mBZQl1NdGbEB3y5M9d0tkuF7RL1GLz3Hb3gqFa3QRZBymP9PCV83Jiji8s2PJimNUJIVcdZRIw8+VGYs/35c2A==",
       "os": ["linux"],
       "cpu": ["x64"]
     },
@@ -481,8 +481,8 @@
       ],
       "cpu": ["wasm32"]
     },
-    "@rspack/binding-wasm32-wasi@2.1.10": {
-      "integrity": "sha512-KY5YbWbuvYcoaLXnV+vzZOvGRCeb6jt4EpVpKdph1h1IJjwX/ju15EQ+GOe3iecZEdf0OttQcNVcwBkLkFT9ag==",
+    "@rspack/binding-wasm32-wasi@2.2.1": {
+      "integrity": "sha512-/d2ImKDS+lT+FJ07MxKBeUkTat84tr2Nm2+nIRt8HmZK7/N8odkQml9vb4MHr8E7oYOp4B+jm6W5frdRzKrkJQ==",
       "dependencies": [
         "@emnapi/core",
         "@emnapi/runtime",
@@ -495,8 +495,8 @@
       "os": ["win32"],
       "cpu": ["arm64"]
     },
-    "@rspack/binding-win32-arm64-msvc@2.1.10": {
-      "integrity": "sha512-z4GWzMLofaDGpAt9Z+MlN88LlUBDm+zM6R2GdOOPM6/4g/h3/+47OP7casmSL3AwTGYBEJqogwt08sRSosB6Cg==",
+    "@rspack/binding-win32-arm64-msvc@2.2.1": {
+      "integrity": "sha512-TfmaKPF3KC7uoZb6A+8ZUbLS8g8P5EdeXFGLCaJ+UgdkJ20TsapcfJXZXWNnKzFEkV8dUO/t5oNxNLYy2URusw==",
       "os": ["win32"],
       "cpu": ["arm64"]
     },
@@ -505,8 +505,8 @@
       "os": ["win32"],
       "cpu": ["ia32"]
     },
-    "@rspack/binding-win32-ia32-msvc@2.1.10": {
-      "integrity": "sha512-7qcWdsZ+GuGtzKjqgy7wTN7Dso/ezIY8yhx1r2yIbcczdmXj4FhaEampMDp/25HwtKwIGBBoh6HHSt3JWxpTUg==",
+    "@rspack/binding-win32-ia32-msvc@2.2.1": {
+      "integrity": "sha512-rdBXayngvpQFMSUIC4b71FDZrSBJszSHNEkln/Nis3a17DMAE7IkgJcqe7SqLWbk2OPF/N920AOWmBEDQQCaMg==",
       "os": ["win32"],
       "cpu": ["ia32"]
     },
@@ -515,8 +515,8 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@rspack/binding-win32-x64-msvc@2.1.10": {
-      "integrity": "sha512-pgp23pLrzfhGnKycxzr7ifP17lAbWZEfnx1bX8gXtYrnpJ66DRNyTKSzxB6sa/HBWjS1L8PX5TjMZ44WfPydqQ==",
+    "@rspack/binding-win32-x64-msvc@2.2.1": {
+      "integrity": "sha512-l3K4s7nrQJc+3LacPFjZGjX8Jk1sf8Q4TK6IXAsdSucOjTqYSpD8PMl2NUXCBDXOl8T2V4v323z1LfxwW8BPmA==",
       "os": ["win32"],
       "cpu": ["x64"]
     },
@@ -535,23 +535,23 @@
         "@rspack/binding-win32-x64-msvc@1.7.12"
       ]
     },
-    "@rspack/binding@2.1.10": {
-      "integrity": "sha512-vnu/UP5HnrND15lO9+VeG6eUrbTyycHNQNQ3XEiRiFojuoiGZkIZC3Hbzr8qQH44C6vScPODEPvvIVvLcO2LpQ==",
+    "@rspack/binding@2.2.1": {
+      "integrity": "sha512-56TqztuEMd+aHGv1jDXnkJQGSLTb4NoO146flFxJqPG8931UdXPO2pNR9M0Q2Pz+GvmO0fLHGPLYBHoRVrRlHw==",
       "optionalDependencies": [
-        "@rspack/binding-darwin-arm64@2.1.10",
-        "@rspack/binding-darwin-x64@2.1.10",
-        "@rspack/binding-linux-arm64-gnu@2.1.10",
-        "@rspack/binding-linux-arm64-musl@2.1.10",
+        "@rspack/binding-darwin-arm64@2.2.1",
+        "@rspack/binding-darwin-x64@2.2.1",
+        "@rspack/binding-linux-arm64-gnu@2.2.1",
+        "@rspack/binding-linux-arm64-musl@2.2.1",
         "@rspack/binding-linux-ppc64-gnu",
         "@rspack/binding-linux-riscv64-gnu",
         "@rspack/binding-linux-riscv64-musl",
         "@rspack/binding-linux-s390x-gnu",
-        "@rspack/binding-linux-x64-gnu@2.1.10",
-        "@rspack/binding-linux-x64-musl@2.1.10",
-        "@rspack/binding-wasm32-wasi@2.1.10",
-        "@rspack/binding-win32-arm64-msvc@2.1.10",
-        "@rspack/binding-win32-ia32-msvc@2.1.10",
-        "@rspack/binding-win32-x64-msvc@2.1.10"
+        "@rspack/binding-linux-x64-gnu@2.2.1",
+        "@rspack/binding-linux-x64-musl@2.2.1",
+        "@rspack/binding-wasm32-wasi@2.2.1",
+        "@rspack/binding-win32-arm64-msvc@2.2.1",
+        "@rspack/binding-win32-ia32-msvc@2.2.1",
+        "@rspack/binding-win32-x64-msvc@2.2.1"
       ]
     },
     "@rspack/cli@1.7.12_@rspack+core@1.7.12": {
@@ -565,10 +565,10 @@
       ],
       "bin": true
     },
-    "@rspack/cli@2.1.10_@rspack+core@2.1.10__@swc+helpers@0.5.23": {
-      "integrity": "sha512-qkuQQ3PzD2sTS2tBAWyWNeOeZmPxRBzB+eNDBhCZmbm8DoMPujW2VQj0k9CulrkBq9sBxU8fQ+5Z/ELzbz5S8g==",
+    "@rspack/cli@2.2.1_@rspack+core@2.2.1": {
+      "integrity": "sha512-Id6Jy9aHkKuLyYqxoDZt5P0y55/hQuUwoceSEBXloWdbRoKByxMJt+FHZdQHKKyfD0/8uA8p99DDMPe6vhypLg==",
       "dependencies": [
-        "@rspack/core@2.1.10_@swc+helpers@0.5.23"
+        "@rspack/core@2.2.1_@swc+helpers@0.5.23"
       ],
       "bin": true
     },
@@ -580,10 +580,10 @@
         "@rspack/lite-tapable"
       ]
     },
-    "@rspack/core@2.1.10_@swc+helpers@0.5.23": {
-      "integrity": "sha512-YSS2/Xxz8uiG/KXDkqOoA3dTetNo/vysk7bAexQOrU8iuq7JuzDTTAwLKvWZnwmvME8M8m5wcM4YvfIwYmidHA==",
+    "@rspack/core@2.2.1_@swc+helpers@0.5.23": {
+      "integrity": "sha512-EHFX2oWCY1HkHJkG/Ev8HXCcl4gQzgETyairdIlBkKaypuW8i7kowBxUFzpHHg/ObF70vB3focToel9Wwg4MRA==",
       "dependencies": [
-        "@rspack/binding@2.1.10",
+        "@rspack/binding@2.2.1",
         "@swc/helpers"
       ],
       "optionalPeers": [
@@ -684,8 +684,8 @@
         "@types/node"
       ]
     },
-    "@types/node@26.2.0": {
-      "integrity": "sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==",
+    "@types/node@26.4.0": {
+      "integrity": "sha512-faiGnoIrLH/V8cibOMEAZ8pMw6oXqSukl29ra4mN8GdaB2ZewzeaLj+INpV5N+Z1eKWzY+IzaIZH2EIR6YZRNQ==",
       "dependencies": [
         "undici-types"
       ]
@@ -1319,8 +1319,8 @@
     "media-typer@0.3.0": {
       "integrity": "sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ=="
     },
-    "memfs@4.68.1": {
-      "integrity": "sha512-OD+IDRUvIxu3QHL+nFm9gdyugInD27FDJ+sl4B5QgomPHXMlbw+GP918P8VNKu2FkNlVeqBkpzkwROpamVifRw==",
+    "memfs@4.68.2": {
+      "integrity": "sha512-Un1ElEBoIdPI9kg0sm3LebVEuEViodfIvlaG8Z1MFXa7ZnR9vWuPKUo3dt/vuWY2ivc05l76B5QOjdgCzAzmGw==",
       "dependencies": [
         "@jsonjoy.com/fs-core",
         "@jsonjoy.com/fs-fsa",
