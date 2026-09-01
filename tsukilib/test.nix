@@ -12,4 +12,4 @@ with flake.lib;
 # Below is the test body
 #
 
-bakeInit pkgs pkgs.atuin "zsh" "atuin init zsh"
+bakeInit pkgs pkgs.zoxide "zsh" "zoxide init zsh"

@@ -160,13 +160,13 @@ directory = "/home/teapot/Pictures/Wallpapers"
     interval_seconds = 300
 
     [wallpaper.default]
-    path = "/home/teapot/Pictures/Wallpapers/__luo_tianyi_vocaloid_and_1_more_drawn_by_william_chacha__761bc1c586c2275526bf386d78f45a50.jpg"
+    path = "/home/teapot/Pictures/Wallpapers/autumn-anime-girl-brown-hair-umbrella-trees-25854.jpeg"
 
     [wallpaper.last]
-    path = "/home/teapot/Pictures/Wallpapers/__luo_tianyi_vocaloid_and_1_more_drawn_by_william_chacha__761bc1c586c2275526bf386d78f45a50.jpg"
+    path = "/home/teapot/Pictures/Wallpapers/autumn-anime-girl-brown-hair-umbrella-trees-25854.jpeg"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/teapot/Pictures/Wallpapers/__luo_tianyi_vocaloid_and_1_more_drawn_by_william_chacha__761bc1c586c2275526bf386d78f45a50.jpg"
+    path = "/home/teapot/Pictures/Wallpapers/autumn-anime-girl-brown-hair-umbrella-trees-25854.jpeg"
 
 [weather]
 enabled = false

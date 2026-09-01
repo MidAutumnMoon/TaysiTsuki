@@ -30,7 +30,6 @@
     '';
 
     programs.fish.interactiveInit = /*fish*/ ''
-        ${lib.bakeInit pkgs pkgs.atuin "fish" "atuin init fish"}
     '';
 
     programs.fish.functions = {

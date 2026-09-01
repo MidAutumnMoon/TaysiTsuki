@@ -42,11 +42,6 @@ in {
     # `source '<store-path>'` line, instead of running `<app> init <shell>`
     # on every shell startup.
     #
-    # `app` runs as a nativeBuildInput in the builder; the captured file is
-    # plain text. Runtime calls inside the script (e.g. `atuin uuid`,
-    # zoxide's `status get-file functions/cd.fish`) execute when the file is
-    # sourced, exactly as before.
-    #
     # CAVEAT: the captured file has an empty nix closure — it does NOT
     # install the app. Keep the app in systemPackages / user packages so
     # it is on PATH at runtime.
