@@ -35,12 +35,13 @@
         build-dir = "/tmp";
     };
 
-    nix.registry = {
-        "short" = {
-            from = { id = "p"; type = "indirect"; };
-            to = { type = "path"; path = flakes.self; };
-        };
-    };
+    nix.registry.p.flake = flakes.self;
+
+    # A registry path only retains the top-level flake source, not its inputs.
+    # Keep nixpkgs in the system closure so GC cannot evict it between uses.
+    system.extraDependencies = [
+        flakes.nixpkgs.outPath
+    ];
 
     nix.channel.enable = false;
 
