@@ -160,13 +160,13 @@ directory = "/home/teapot/Pictures/Wallpapers"
     interval_seconds = 300
 
     [wallpaper.default]
-    path = "/home/teapot/Pictures/Wallpapers/autumn-anime-girl-brown-hair-umbrella-trees-25854.jpeg"
+    path = "/home/teapot/Pictures/Wallpapers/acg.gy_22.jpg"
 
     [wallpaper.last]
-    path = "/home/teapot/Pictures/Wallpapers/autumn-anime-girl-brown-hair-umbrella-trees-25854.jpeg"
+    path = "/home/teapot/Pictures/Wallpapers/acg.gy_22.jpg"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/teapot/Pictures/Wallpapers/autumn-anime-girl-brown-hair-umbrella-trees-25854.jpeg"
+    path = "/home/teapot/Pictures/Wallpapers/acg.gy_22.jpg"
 
 [weather]
 enabled = false
