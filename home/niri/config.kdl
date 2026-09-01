@@ -151,7 +151,7 @@ layout {
         // off
 
         // How many logical pixels the ring extends out from the windows.
-        width 3
+        width 2
     }
 
     // You can enable drop shadows for windows.

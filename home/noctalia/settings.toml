@@ -11,12 +11,14 @@ tint_intensity = 0.25
 order = [ "Main" ]
 
     [bar.Main]
-    background_opacity = 0.80000000000000004
+    background_opacity = 0.74999998323619366
+    border_width = 1.5
+    center = []
     end = [ "media", "tray", "notifications", "volume", "brightness" ]
     padding = 13
-    position = "left"
+    position = "right"
     scale = 1.2500000111758709
-    start = [ "group:g1", "ram", "cat", "workspaces", "wallpaper", "taskbar" ]
+    start = [ "clock", "group:g1", "ram", "cat", "group:g2", "wallpaper" ]
     thickness = 45
     widget_spacing = 10
 
@@ -30,11 +32,38 @@ order = [ "Main" ]
         opacity = 0.0
         padding = 6.0
 
+        [[bar.Main.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_variant"
+        id = "g2"
+        members = [ "workspaces", "taskbar" ]
+        opacity = 1.0
+        padding = 6.0
+
 [calendar]
 enabled = true
 
 [control_center]
-hidden_tabs = [ "network" ]
+hidden_tabs = [ "network", "bluetooth", "weather" ]
+sidebar = "full"
+sidebar_section = "full"
+
+    [[control_center.shortcuts]]
+    type = "bluetooth"
+
+    [[control_center.shortcuts]]
+    type = "caffeine"
+
+    [[control_center.shortcuts]]
+    type = "nightlight"
+
+    [[control_center.shortcuts]]
+    type = "notification"
+
+    [[control_center.shortcuts]]
+    type = "power_profile"
 
 [desktop_widgets]
 enabled = false
@@ -120,7 +149,8 @@ widget_order = [ "lockscreen-login-box@DP-2", "lockscreen-widget-000000000000000
         shadow = true
 
 [notification]
-position = "bottom_left"
+history_retention_hours = 24
+position = "bottom_right"
 
 [osd]
 background_opacity = 0.84999999999999998
@@ -137,17 +167,51 @@ telemetry_enabled = true
 ui_scale = 1.05
 
     [shell.animation]
-    enabled = false
+    speed = 4.0
 
     [shell.panel]
     open_near_click_control_center = true
     transparency_mode = "glass"
 
+    [[shell.session.actions]]
+    action = "lock"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "1"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "logout"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "2"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "lock_and_suspend"
+    countdown_seconds = 0.0
+    enabled = false
+    shortcut = "3"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "reboot"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "4"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "shutdown"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "5"
+    variant = "destructive"
+
 [theme]
 community_palette = "Oxocarbon"
 mode = "light"
 source = "wallpaper"
-wallpaper_scheme = "m3-content"
 
     [theme.templates]
     enable_builtin_templates = false
@@ -160,13 +224,13 @@ directory = "/home/teapot/Pictures/Wallpapers"
     interval_seconds = 300
 
     [wallpaper.default]
-    path = "/home/teapot/Pictures/Wallpapers/994922_[L2].png"
+    path = "/home/teapot/Pictures/Wallpapers/17691_[L1][x2.00].png"
 
     [wallpaper.last]
-    path = "/home/teapot/Pictures/Wallpapers/994922_[L2].png"
+    path = "/home/teapot/Pictures/Wallpapers/17691_[L1][x2.00].png"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/teapot/Pictures/Wallpapers/994922_[L2].png"
+    path = "/home/teapot/Pictures/Wallpapers/17691_[L1][x2.00].png"
 
 [weather]
 enabled = false
@@ -176,6 +240,10 @@ type = "dotnetrob/cat:cat"
 
 [widget.clipboard]
 capsule = true
+
+[widget.clock]
+capsule = true
+scale = 0.80000000000000004
 
 [widget.launcher]
 capsule = true
@@ -193,12 +261,16 @@ label_show_units = false
 scale = 0.60000000000000009
 
 [widget.taskbar]
-group_by_workspace = true
+icon_scale = 1.2000000000000002
 minimal = true
+only_active_workspace = true
+scroll_repeat = "steps"
+
+[widget.volume]
+scale = 0.85000000000000009
 
 [widget.wallpaper]
 enabled = false
 
 [widget.workspaces]
-capsule = true
-enabled = false
+scale = 0.90000000000000013
