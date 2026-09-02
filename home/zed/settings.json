@@ -320,6 +320,7 @@
         "inline": { "enabled": true },
     },
     "edit_predictions": {
+        "provider": "mercury",
         "mode": "subtle",
     },
     "file_types": {

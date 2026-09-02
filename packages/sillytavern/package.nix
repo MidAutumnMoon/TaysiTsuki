@@ -7,6 +7,7 @@
 let
     serverPlugins = [
         tsuki.sillytavern-token-estimate
+        tsuki.sillytavern-openai-response
     ];
 in
 sillytavern.overrideAttrs (old: {
