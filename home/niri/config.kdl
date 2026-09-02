@@ -158,9 +158,9 @@ layout {
     shadow {
         // Uncomment the next line to enable shadows.
         on
-        draw-behind-window true
+        draw-behind-window false
         spread 1
-        softness 7
+        softness 10
     }
 
     // Struts shrink the area occupied by windows, similarly to layer-shell panels.

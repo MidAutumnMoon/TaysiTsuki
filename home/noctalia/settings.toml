@@ -224,13 +224,13 @@ directory = "/home/teapot/Pictures/Wallpapers"
     interval_seconds = 300
 
     [wallpaper.default]
-    path = "/home/teapot/Pictures/Wallpapers/hacg.me_27.jpg"
+    path = "/home/teapot/Pictures/Wallpapers/709340.png"
 
     [wallpaper.last]
-    path = "/home/teapot/Pictures/Wallpapers/hacg.me_27.jpg"
+    path = "/home/teapot/Pictures/Wallpapers/709340.png"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/teapot/Pictures/Wallpapers/hacg.me_27.jpg"
+    path = "/home/teapot/Pictures/Wallpapers/709340.png"
 
 [weather]
 enabled = false
