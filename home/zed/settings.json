@@ -7,6 +7,10 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+    "terminal": {
+        "font_weight": 500.0,
+        "font_family": "Maple Mono NL NF CN"
+    },
     "icon_theme": "JetBrains New UI Icons (Dark)",
     "format_on_save": "modifications_if_available",
     "diff_view_style": "unified",
