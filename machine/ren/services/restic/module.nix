@@ -23,6 +23,7 @@ let
             subpaths = [
                 ".mozilla"
                 ".omp"
+                ".local/state/noctalia"
                 # add more paths as needed, e.g. ".var/app/<app-id>", ".config/<app>"
             ];
         }
