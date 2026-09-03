@@ -10,8 +10,36 @@ use tap::Pipe as _;
 use std::fs::read_link;
 use std::fs::read_to_string;
 
+enum FootVariant {
+    Foot,
+    FootClient,
+}
+
+impl FootVariant {
+    fn from_arg(arg: &str) -> Result<Self> {
+        match arg {
+            "foot" => Ok(Self::Foot),
+            "footclient" => Ok(Self::FootClient),
+            unknown => bail!(
+                "unknown foot variant: {unknown:?} (expected \"foot\" or \"footclient\")"
+            ),
+        }
+    }
+
+    fn binary(self) -> &'static str {
+        match self {
+            Self::Foot => "foot",
+            Self::FootClient => "footclient",
+        }
+    }
+}
+
 // A wrapper script to launch foot with the same cwd.
 fn main() -> Result<()> {
+    let variant = match std::env::args().nth(1) {
+        Some(arg) => FootVariant::from_arg(&arg)?,
+        None => FootVariant::Foot,
+    };
     let mut socket =
         Socket::connect().context("failed to connect to niri socket")?;
 
@@ -28,7 +56,7 @@ fn main() -> Result<()> {
         .and_then(shell_cwd);
 
     let action_cmd = {
-        let mut command = vec!["foot".to_owned()];
+        let mut command = vec![variant.binary().to_owned()];
         if let Some(cwd) = cwd {
             command.extend_from_slice(&["-D".into(), cwd]);
         }
