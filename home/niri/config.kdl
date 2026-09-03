@@ -250,7 +250,7 @@ binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     // Suggested binds for running programs: terminal, app launcher, screen locker.
-    Mod+T hotkey-overlay-title="Open a Terminal: foot" { spawn ",foot-kicker"; }
+    Mod+T { spawn ",foot-kicker" "footclient"; }
     // Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
     Alt+Space { spawn-sh "noctalia msg panel-toggle launcher"; }
 
