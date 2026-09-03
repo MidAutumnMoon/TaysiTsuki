@@ -1,8 +1,8 @@
 {
-
-    services.journald.extraConfig = ''
-        SystemMaxUse = 1G
-        RuntimeMaxUse = 256M
-    '';
-
+    services.journald.settings = {
+        Journal = {
+            SystemMaxUse = "1G";
+            RuntimeMaxUse = "256M";
+        };
+    };
 }
