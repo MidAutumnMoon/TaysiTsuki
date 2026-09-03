@@ -68,6 +68,9 @@ stdenv.mkDerivation rec {
         rm -r "lib"
         rm *.md
         mv -t "$out" *
+        # Keep the named icon available to loaders that use the unthemed fallback.
+        mkdir -p "$out/share/pixmaps"
+        ln -s ../icons/hicolor/512x512/apps/zed.png "$out/share/pixmaps/zed.png"
         addAutoPatchelfSearchPath "$out/libexec"
     '';
 

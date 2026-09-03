@@ -226,13 +226,13 @@ directory = "/home/teapot/Pictures/Wallpapers"
     interval_seconds = 300
 
     [wallpaper.default]
-    path = "/home/teapot/Pictures/Wallpapers/__luo_tianyi_vocaloid_and_1_more_drawn_by_tidsean__5467960a07a088573ee3fb4cfc90b0c9.png"
+    path = "/home/teapot/Pictures/Wallpapers/the-legend-of-zelda-link-climbing-clouds-scenic-artwork-27939.jpeg"
 
     [wallpaper.last]
-    path = "/home/teapot/Pictures/Wallpapers/__luo_tianyi_vocaloid_and_1_more_drawn_by_tidsean__5467960a07a088573ee3fb4cfc90b0c9.png"
+    path = "/home/teapot/Pictures/Wallpapers/the-legend-of-zelda-link-climbing-clouds-scenic-artwork-27939.jpeg"
 
     [wallpaper.monitors.DP-2]
-    path = "/home/teapot/Pictures/Wallpapers/__luo_tianyi_vocaloid_and_1_more_drawn_by_tidsean__5467960a07a088573ee3fb4cfc90b0c9.png"
+    path = "/home/teapot/Pictures/Wallpapers/the-legend-of-zelda-link-climbing-clouds-scenic-artwork-27939.jpeg"
 
 [weather]
 enabled = false
