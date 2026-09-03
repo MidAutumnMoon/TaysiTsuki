@@ -37,3 +37,17 @@ draft_commit_description = '''
         diff.git()
     )
 '''
+
+[revsets]
+bookmark-advance-to = 'closest_pushable(@)'
+
+[revset-aliases]
+'closest_pushable(to)' = '''
+    heads(
+        ::to
+        & mutable()
+        & description(regex:"\\S")
+        & (~empty() | merges())
+    )
+'''
+
