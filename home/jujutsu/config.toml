@@ -14,6 +14,10 @@ s = ["status"]
 sh = ["show"]
 l = ["log"]
 
+push = ["git", "push"]
+fetch = ["git", "fetch"]
+clone = ["git", "clone"]
+
 # Fast logs
 mine = ["log", "-r", "mine()"]
 roots = ["log", "-r", "roots(mine())"]
