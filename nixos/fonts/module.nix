@@ -27,7 +27,7 @@ lib.mkIf config.fonts.fontconfig.enable {
                 "Noto Color Emoji"
             ];
             monospace = [
-                "Monaspace Argon"
+                "Monaspace Argon NF"
                 "Noto Color Emoji"
             ];
         };
