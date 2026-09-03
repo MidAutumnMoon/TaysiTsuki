@@ -1,0 +1,39 @@
+[user]
+email = "me@418.im"
+name = "MidAutumnMoon"
+
+[aliases]
+g = ["git"]
+d = ["diff"]
+
+# Disambiguation
+e = ["edit"]
+u = ["undo"]
+a = ["abandon"]
+s = ["status"]
+sh = ["show"]
+l = ["log"]
+
+# Fast logs
+mine = ["log", "-r", "mine()"]
+roots = ["log", "-r", "roots(mine())"]
+
+# git: merge.conflictstyle = diff3
+# jj's "git" style emits diff3-style markers for tools that
+# depend on them.
+[ui]
+conflict-marker-style = "git"
+default-command = "log"
+diff-formatter = "difftastic"
+
+[templates]
+draft_commit_description = '''
+    concat(
+        builtin_draft_commit_description,
+        "\nJJ: ignore-rest\n",
+        "JJ: ------------------------ >8 ------------------------\n",
+        "JJ: Do not modify or remove the line above.\n",
+        "JJ: Everything below it will be ignored.\n\n",
+        diff.git()
+    )
+'''

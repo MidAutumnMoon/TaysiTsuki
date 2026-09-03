@@ -13,40 +13,8 @@ in {
 
     packages = [ pkgs.jujutsu ];
 
+    # Put most of the config in TOML to avoid quote escaping problems.
     xdg_config."jj/config.toml".text = ''
-        [user]
-        email = "me@418.im"
-        name = "MidAutumnMoon"
-
-        [aliases]
-        g = ["git"]
-        d = ["diff"]
-
-        # Disambiguation
-        e = ["edit"]
-        u = ["undo"]
-        a = ["abandon"]
-        s = ["status"]
-        sh = ["show"]
-        l = ["log"]
-
-        # Fast logs
-        mine = ["log", "-r", "mine()"]
-        roots = ["log", "-r", "roots(mine())"]
-
-        # git: merge.conflictstyle = diff3
-        # jj's "git" style emits diff3-style markers for tools that
-        # depend on them.
-        [ui]
-        conflict-marker-style = "git"
-        default-command = "log"
-        diff-formatter = "difftastic"
-
-        [merge-tools.difftastic]
-        program = "${lib.getExe pkgs.difftastic}"
-        diff-args = ["--color=always", "$left", "$right"]
-        diff-invocation-mode = "file-by-file"
-
         # git: commit.gpgSign = true, gpg.format = ssh,
         # user.signingKey = (private key path)
         # jj's signing.key is the *public* key. ssh-keygen -Y sign -f
@@ -59,17 +27,12 @@ in {
         key = "~/.ssh/id_teapot.pub"
         backends.ssh.allowed-signers = "${allowedSigners}"
 
-        [templates]
-        draft_commit_description = ''''
-            concat(
-                builtin_draft_commit_description,
-                "\nJJ: ignore-rest\n",
-                "JJ: ------------------------ >8 ------------------------\n",
-                "JJ: Do not modify or remove the line above.\n",
-                "JJ: Everything below it will be ignored.\n\n",
-                diff.git()
-            )
-        ''''
+        [merge-tools.difftastic]
+        program = "${lib.getExe pkgs.difftastic}"
+        diff-args = ["--color=always", "$left", "$right"]
+        diff-invocation-mode = "file-by-file"
+
+        ${lib.fileContents ./config.toml}
     '';
 
 }
