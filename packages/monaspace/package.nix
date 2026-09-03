@@ -14,8 +14,8 @@ stdenvNoCC.mkDerivation (drvSelf: {
         owner = "githubnext";
         repo = "monaspace";
         tag = "v${drvSelf.version}";
-        file = "monaspace-static-v${drvSelf.version}.zip";
-        hash = "sha256-q2bXG+dRSV9nlyczKjNFWXlDvU177rygP1zeBL+ZTec=";
+        file = "monaspace-nerdfonts-v${drvSelf.version}.zip";
+        hash = "sha256-m3+VBdl3YB2IGd/bV/pLSb2rYRMrbRExwujQkgZu3Fo=";
     };
     
     dontUnpack = true;
@@ -25,18 +25,19 @@ stdenvNoCC.mkDerivation (drvSelf: {
         declare -r dst="$out/share/fonts/opentype"
         mkdir -pv "$dst"
         7zz x "$src"
-        
+
         # not interested in these fonts
         find -type d \
             \( -name "*Monaspace Krypton*" \
+            -or -name "*Monaspace Neon*" \
             -or -name "*Monaspace Radon*" \) \
             -exec rm -r "{}" +
-            
+
         # remove the wide variations
         find -type f \
-            \( -name "*-Wide*" -or -name "*-SemiWide*" \) \
+            \( -name "*-Wide*" -or -name "*-SemiWide*" -or -name "*ExtraLight*" \) \
             -exec rm "{}" +
-        
+
         find -type f -name "*.otf" \
             -exec mv -t "$dst" "{}" +
     '';

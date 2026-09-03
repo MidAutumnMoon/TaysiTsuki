@@ -12,6 +12,7 @@ lib.mkIf config.fonts.fontconfig.enable {
             # Monaspace 1.200+ contains nerdfonts natively
             # nerd-fonts.monospace is named "Monaspice" due to legal reasons
             tsuki.monaspace
+            maple-mono.NL-NF-CN-unhinted
         ];
     };
 
