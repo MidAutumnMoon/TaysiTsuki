@@ -146,6 +146,18 @@ vim.opt.winborder = "rounded"
 vim.opt.wildmenu = true
 vim.opt.wildmode = "full:lastused"
 
+vim.filetype.add {
+    extension = {
+        service = "systemd",
+        target = "systemd",
+        path = "systemd",
+        timer = "systemd",
+        opml = "xml",
+        mobileconfig = "xml",
+        pro = "prolog",
+    },
+}
+
 --
 -- Flash yanked area
 --
@@ -262,6 +274,7 @@ vim.keymap.set("n", "<Leader>e", function()
     local rel = vim.fs.relpath(vim.fn.getcwd(), dir)
     vim.api.nvim_feedkeys(":edit " .. "./" .. rel .. "/", "n", false)
 end)
+
 --
 -- Plugins
 --
