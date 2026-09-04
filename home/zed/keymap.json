@@ -50,8 +50,8 @@
         "context": "VimControl || !Editor && !Terminal",
         "bindings": {
             // use tab to cycle through panes
-            "tab": "workspace::ActivateNextPane",
-            "shift-tab": "workspace::ActivatePreviousPane",
+            // "tab": "workspace::ActivateNextPane",
+            // "shift-tab": "workspace::ActivatePreviousPane",
             "alt-k": "editor::MoveLineUp",
             "alt-j": "editor::MoveLineDown",
             "alt-a": "vim::EndOfLine",

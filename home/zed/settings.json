@@ -7,9 +7,9 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+    "buffer_line_height": "comfortable",
     "terminal": {
         "font_weight": 500.0,
-        "font_family": "Maple Mono NL NF CN"
     },
     "icon_theme": "JetBrains New UI Icons (Dark)",
     "format_on_save": "modifications_if_available",
@@ -159,11 +159,11 @@
     },
     "vertical_scroll_margin": 10,
     "pane_split_direction_vertical": "right",
-    "ui_font_size": 18,
-    "ui_font_weight": 400,
-    "buffer_font_size": 15.6,
-    "buffer_font_family": "Monaspace Argon",
-    "buffer_font_weight": 400,
+    "ui_font_size": 17,
+    "ui_font_weight": 300,
+    "buffer_font_size": 15.0,
+    "buffer_font_family": "Maple Mono NL NF CN",
+    "buffer_font_weight": 300.0,
     "theme": {
         "mode": "dark",
         "light": "Catppuccin Latte - No Italics",
@@ -237,7 +237,7 @@
             "tab_size": 4,
         },
         "Rust": {
-            "formartter": "language_server",
+            "formatter": "language_server",
         },
     },
     "inlay_hints": {
@@ -331,7 +331,9 @@
         "Shell Script": [".envrc"],
     },
     "minimap": {
+        "max_width_columns": 40,
+        "thumb": "always",
         "show": "auto",
-        "current_line_highlight": "line",
+        "current_line_highlight": "all",
     },
 }
