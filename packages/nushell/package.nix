@@ -4,6 +4,7 @@
     zstd,
     pkg-config,
     tsuki,
+    stdenv,
 }:
 
 tsuki.rust.buildRustPackage (drvSelf: {
@@ -27,11 +28,15 @@ tsuki.rust.buildRustPackage (drvSelf: {
         zstd
     ];
 
+    RUSTFLAGS = with stdenv;
+        lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3";
+
     buildNoDefaultFeatures = true;
     buildFeatures = [
         "network"
         "rustls-tls"
-        "sqlite"
+        # "sqlite"
+        "lsp"
     ];
 
     doCheck = false;
