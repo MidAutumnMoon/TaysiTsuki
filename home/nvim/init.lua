@@ -254,6 +254,15 @@ vim.keymap.set(
 )
 
 --
+-- Edit sibling files
+--
+
+vim.keymap.set("n", "<Leader>e", function()
+    local dir = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
+    local rel = vim.fs.relpath(vim.fn.getcwd(), dir)
+    vim.api.nvim_feedkeys(":edit " .. "./" .. rel .. "/", "n", false)
+end)
+--
 -- Plugins
 --
 
