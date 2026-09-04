@@ -208,7 +208,7 @@ end
 --- @param buf integer
 function M.save_buf(buf)
     vim.cmd.bufdo {
-        "write | doautocmd BufWritePost",
+        "write",
         range = { buf },
         mods = { silent = true }
     }
@@ -218,6 +218,7 @@ vim.api.nvim_create_autocmd(
     { "InsertLeave", "TextChanged", "BufLeave" },
     {
         pattern = "*",
+        nested = true,
         callback = function(opts)
             local buf = opts.buf
             if M.buf_legible(buf) then M.save_buf(buf) end
