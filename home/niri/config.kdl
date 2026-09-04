@@ -75,6 +75,7 @@ output "DP-2" {
     // If the mode is omitted altogether or is invalid, niri will pick one automatically.
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
     mode "2560x1440@120.000"
+    variable-refresh-rate on-demand=true
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
     scale 1.2
@@ -189,7 +190,7 @@ layout {
 // See the binds section below for more spawn examples.
 
 // This line starts waybar, a commonly used bar for Wayland compositors.
-spawn-at-startup "dbus-update-activation-environment" "--systemd" "--all"
+// spawn-at-startup "dbus-update-activation-environment" "--systemd" "--all"
 spawn-at-startup "easyeffects" "--hide-window"
 spawn-at-startup "kbuildsycoca6"
 spawn-at-startup "kded6"
@@ -225,7 +226,42 @@ animations {
     // off
 
     // Slow down all animations by this factor. Values below 1 speed them up instead.
-    slowdown 0.5
+    slowdown 0.4
+
+    workspace-switch {
+        spring damping-ratio=1.0 stiffness=650 epsilon=0.0001
+    }
+
+    horizontal-view-movement {
+        spring damping-ratio=1.0 stiffness=500 epsilon=0.0001
+    }
+
+    window-movement {
+        spring damping-ratio=1.0 stiffness=500 epsilon=0.0001
+    }
+
+    window-resize {
+        spring damping-ratio=1.0 stiffness=500 epsilon=0.0001
+    }
+
+    window-open {
+        duration-ms 220
+        curve "cubic-bezier" 0.05 0.7 0.1 1
+    }
+
+    window-close {
+        duration-ms 140
+        curve "ease-out-quad"
+    }
+
+    overview-open-close {
+        spring damping-ratio=1.0 stiffness=400 epsilon=0.0001
+    }
+
+    recent-windows-close {
+        duration-ms 120
+        curve "ease-out-quad"
+    }
 }
 
 layer-rule {
@@ -389,7 +425,7 @@ binds {
     // Mod+Ctrl+1 { move-window-to-workspace 1; }
 
     // Switches focus between the current and the previous workspace.
-    // Mod+Tab { focus-workspace-previous; }
+    Mod+BackSpace { focus-workspace-previous; }
 
     // The following binds move the focused window in and out of a column.
     // If the window is alone, they will consume it into the nearby column to the side.

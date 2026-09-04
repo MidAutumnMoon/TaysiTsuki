@@ -10,6 +10,14 @@ window-rule {
     }
 }
 
+window-rule {
+    match is-floating=true
+
+    background-effect {
+        xray false
+    }
+}
+
 // Example: block out two password managers from screen capture.
 // (This example rule is commented out with a "/-" in front.)
 window-rule {
@@ -36,8 +44,6 @@ window-rule {
     match app-id="CherryStudio"
     match app-id="YACReader"
 
-    exclude is-floating=true
-
     open-maximized true
     open-focused true
 }
@@ -57,9 +63,6 @@ window-rule {
     open-fullscreen false
     open-maximized false
     // default-column-width { proportion 0.5; }
-    background-effect {
-        xray false
-    }
 }
 
 // Make file chooser larger
