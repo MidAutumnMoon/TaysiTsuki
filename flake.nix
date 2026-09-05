@@ -33,9 +33,9 @@
             inputs.flake-parts.follows = "flake-parts";
         };
 
-        # Pinned: firefox 154.0.1
+        # Pinned: firefox 155.0.1
         nixpkgs-firefox.url =
-            "github:NixOS/nixpkgs/219d3e63f2cded4a69d77bf314a2d417af11f69b";
+            "github:NixOS/nixpkgs/8f8805619079a90816b72377d83519e87b61565d";
 
         # tangled = {
         #     url = "git+https://tangled.org/tangled.org/core?shallow=1";
