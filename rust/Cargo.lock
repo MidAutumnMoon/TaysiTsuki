@@ -828,9 +828,9 @@ checksum = "daa8905ff180e272e3f71ab78fbd98a7f03a62e898d92f395d67aec4e36866d0"
 
 [[package]]
 name = "ino_iter"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f0194bc536e732bf8d5ee3c47e5fa23b0013687061fd453bbd73096f52cb70d"
+checksum = "0a94c73662a7dbc858c3706b16c698469b106b901cdb0f51fb64c0ec8a5eacb0"
 
 [[package]]
 name = "ino_shell"
