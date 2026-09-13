@@ -14,7 +14,7 @@ in
         tsuki.rust.toolchainForDev
         # for lld
         (llvm.clang.override { inherit (llvm) bintools; })
-        llvm.lldb
+        # llvm.lldb
         # cargo-bloat
         # cargo-outdated
         # cargo-llvm-cov
