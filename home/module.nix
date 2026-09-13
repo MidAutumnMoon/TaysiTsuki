@@ -30,13 +30,15 @@
         ncdu
         shellcheck
         gh
-        tsuki.deno
         easyeffects
         age
         # tsuki.feishin
         uv
         omp
         zcode
+
+        nodejs_latest
+        pnpm_12
     ];
 
     envvars = {
