@@ -98,6 +98,7 @@ finalize {
         (tsuki "adblocklist")
         (tsuki "metacubexd")
         (tsuki "monaspace")
+        (tsuki "xkcd-script")
         (tsuki "peerbanhelper")
         (tsuki "rust.rust-analyzer")
         (tsuki "zed")
