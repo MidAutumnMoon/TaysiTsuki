@@ -1,0 +1,1 @@
+abbr -ag p pnpm
