@@ -27,6 +27,10 @@
 
         # Some packages
 
+        # Pinned: firefox 155.0.1
+        nixpkgs-firefox.url =
+            "github:NixOS/nixpkgs/8f8805619079a90816b72377d83519e87b61565d";
+
         # tangled = {
         #     url = "git+https://tangled.org/tangled.org/core?shallow=1";
         #     inputs = {
