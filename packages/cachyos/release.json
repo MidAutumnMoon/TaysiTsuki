@@ -7,12 +7,12 @@
   "kernel": {
     "packageName": "linux-cachyos",
     "url": "https://cdn77.cachyos.org/repo/x86_64_v3/cachyos-v3/linux-cachyos-7.2.4-3-x86_64_v3.pkg.tar.zst",
-    "hash": "sha256-pKL/6tfWo22dU5DnlknN7lfVqpQ2G5ThgcwPGFaLOik="
+    "hash": "sha256-/kMthNeILOJXWymIVwoqsIjDD6YGEem1UXz4oSsniVk="
   },
   "headers": {
     "packageName": "linux-cachyos-headers",
     "url": "https://cdn77.cachyos.org/repo/x86_64_v3/cachyos-v3/linux-cachyos-headers-7.2.4-3-x86_64_v3.pkg.tar.zst",
-    "hash": "sha256-UUlP26rdDtbP8O+bnl825O0XEMO7cDJxzwmrbp4BIJ4="
+    "hash": "sha256-tSOiGHKFXyD9BELMzEDZAvZtxq5ZHhlz+NRSkyMJd3g="
   },
   "configHash": "2cbe426b4b585c4d285431c4b8f19bd6591bc3f95cb82f10f512da8c0b7c2794",
   "isLTS": false,
