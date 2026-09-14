@@ -80,23 +80,6 @@
     # Desktop
     #
 
-    # N.B. single leading space
-    services.udev.extraHwdb = ''
-        # switch caplock and esc (because vim)
-        # switch left meta and ctrl (because vim)
-        # esc -> capslock : KEYBOARD_KEY_70029=key_capslock
-        evdev:atkbd:*
-        evdev:input:b0003v3151p4015*
-         KEYBOARD_KEY_70039=key_esc
-         KEYBOARD_KEY_700e3=key_leftctrl
-         KEYBOARD_KEY_700e0=key_leftmeta
-
-        # map one of the mouse's side button to middle click
-        # (because the middle button is rock hard to press)
-        evdev:input:b0003v30FAp1701*
-         KEYBOARD_KEY_90005=btn_middle
-    '';
-
     boot.machineId = "4918e038ffe84b618de01b10861eca7f";
 
     hardware = {
