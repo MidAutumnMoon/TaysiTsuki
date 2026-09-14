@@ -60,7 +60,7 @@ in rec {
     obsidian = lib.useElectronBin prev prev.obsidian;
 
     yt-dlp = prev.yt-dlp.override {
-        inherit (tsuki) deno;
+        jsRuntime = prev.nodejs_latest;
     };
 
     # 154 has bugs, keep 153.0.4 from the pinned nixpkgs.
