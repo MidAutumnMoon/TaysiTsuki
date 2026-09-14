@@ -102,7 +102,6 @@ finalize {
         (tsuki "peerbanhelper")
         (tsuki "rust.rust-analyzer")
         (tsuki "zed")
-        (tsuki "deno")
         (tsuki "sing-box")
         (tsuki "sillytavern-token-estimate" { version = "branch"; })
         (tsuki "playwright-cli.unwrapped" {
