@@ -84,22 +84,6 @@
         "url": "https://channels.nixos.org/nixos-unstable-small/nixexprs.tar.zst"
       }
     },
-    "nixpkgs-firefox": {
-      "locked": {
-        "lastModified": 1789396255,
-        "narHash": "sha256-vBM9DsAGbXBV9lcgr6N0zmy05FZU4XobcqwJJIJWQ3o=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "7902dedf33db329eba3deb28b8b5441adca0e4a6",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "7902dedf33db329eba3deb28b8b5441adca0e4a6",
-        "type": "github"
-      }
-    },
     "nixpkgs-lib": {
       "locked": {
         "lastModified": 1788057806,
@@ -157,7 +141,6 @@
         "flake-parts": "flake-parts",
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-firefox": "nixpkgs-firefox",
         "noctalia": "noctalia",
         "preservation": "preservation",
         "rust-overlay": "rust-overlay",

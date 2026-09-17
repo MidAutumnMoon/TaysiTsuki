@@ -8,6 +8,7 @@
             speechSynthesisSupport = false;
         };
         # nativeMessagingHosts.packages = [ pkgs.firefoxpwa ];
+        package = pkgs.firefox-bin;
     };
 
     environment.systemPackages = [
