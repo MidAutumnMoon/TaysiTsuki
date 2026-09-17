@@ -37,7 +37,7 @@
         omp
         zcode
 
-        nodejs_latest
+        nodejs
         pnpm_12
     ];
 

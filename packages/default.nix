@@ -60,7 +60,7 @@ in rec {
     obsidian = lib.useElectronBin prev prev.obsidian;
 
     yt-dlp = prev.yt-dlp.override {
-        jsRuntime = prev.nodejs_latest;
+        jsRuntime = prev.nodejs;
     };
 
     zram-generator =
