@@ -1,14 +1,14 @@
 {
   "aarch64-darwin": {
-    "omp": "/nix/store/c7mcwbwywlxsm0smv5a9k3xad9f4k3a3-omp-18.2.0",
+    "omp": "/nix/store/cj66m0vfabk93v8dr2ix4qi4s4snii43-omp-18.2.4",
     "zcode": "/nix/store/h0vh14n7a1m3rb3rmk6iqw1hkfvwnj2d-zcode-3.12.3"
   },
   "aarch64-linux": {
-    "omp": "/nix/store/pkgn42f2g2gijkhdipw8d5ai70mvz71q-omp-18.2.0",
+    "omp": "/nix/store/8lhrxh3nqa5krwmzgi3kq5sl8lwxdg96-omp-18.2.4",
     "zcode": "/nix/store/nyq8krfrwlpl0l0gr92716p0wlx9papq-zcode-3.12.3"
   },
   "x86_64-linux": {
-    "omp": "/nix/store/rsrh55zd3waphqihr7z0wpz675p2k16n-omp-18.2.0",
+    "omp": "/nix/store/bb9446mm6qbvngc0s028hy05p42xbzxc-omp-18.2.4",
     "zcode": "/nix/store/sbx519pa6xgmg83mhc8bb6aqsmx5fgjb-zcode-3.12.3"
   }
 }
