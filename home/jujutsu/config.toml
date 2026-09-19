@@ -18,6 +18,9 @@ push = ["git", "push"]
 fetch = ["git", "fetch"]
 clone = ["git", "clone"]
 
+# Alias for launching Blue Archive
+ba = ["bookmark", "advance"]
+
 # Fast logs
 mine = ["log", "-r", "mine()"]
 roots = ["log", "-r", "roots(mine())"]
