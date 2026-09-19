@@ -24,6 +24,11 @@ tsuki.rust.buildRustPackage {
 
     cargoHash = "sha256-jrzy3eeDSMjZ8aT3Vk6B9Qswg/vHsHQRynK7L0LogjQ=";
 
+    outputs = [
+        "out"
+        "agentcept"
+    ];
+
     doCheck = false;
 
     nativeBuildInputs = [
@@ -38,29 +43,44 @@ tsuki.rust.buildRustPackage {
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"
     ;
 
-    postFixup = /*sh*/ ''
-    '';
-
     postInstall =
         let
             canExe = with stdenv;
                 buildPlatform.canExecute hostPlatform;
-        in ''
+            pythonVersions =
+                [ "2" "2.7" "3" ]
+                ++ map (minor: "3.${toString minor}") (lib.range 0 99);
+            agentceptAliases =
+                [ "find" "grep" "egrep" "fgrep" "python" "pip" ]
+                ++ lib.concatMap
+                    (version: [ "python${version}" "pip${version}" ])
+                    pythonVersions;
+        in /* sh */ ''
+            mkdir -p "$agentcept/bin"
+            mv "$out/bin/agentcept" "$agentcept/bin/"
+            for name in ${lib.escapeShellArgs agentceptAliases}
+            do
+                ln -s agentcept "$agentcept/bin/$name"
+            done
+
             ln -sv "$out/bin/derputils" "$out/bin/,?"
 
             rm -v "$out/bin/xsleep"
             rm -v "$out/bin/xecho"
-        '' + (lib.optionalString canExe ''
-            bin="$out/bin/i"
-            installShellCompletion --cmd i \
-                --bash <("$bin" completion bash) \
-                --fish <("$bin" completion fish) \
-                --zsh <("$bin" completion zsh)
-        '');
+
+            ${lib.optionalString canExe ''
+                bin="$out/bin/i"
+                installShellCompletion --cmd i \
+                    --bash <("$bin" completion bash) \
+                    --fish <("$bin" completion fish) \
+                    --zsh <("$bin" completion zsh)
+            ''}
+        '';
 
     meta = {
         homepage = "https://github.com/MidAutumnMoon/InOri";
         license = lib.licenses.gpl3Plus;
+        outputsToInstall = [ "out" ];
     };
 
 }
