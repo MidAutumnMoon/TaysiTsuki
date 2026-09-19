@@ -41,7 +41,6 @@ in rec {
         sops-install-secrets
     ;
 
-    # Store-path pins; see ./__pin/.
     inherit (discovered.__pin)
         omp
         zcode

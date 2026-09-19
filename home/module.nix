@@ -34,8 +34,7 @@
         age
         # tsuki.feishin
         uv
-        omp
-        zcode
+        tsuki.agentcept-wrapped
 
         nodejs
         pnpm_12
