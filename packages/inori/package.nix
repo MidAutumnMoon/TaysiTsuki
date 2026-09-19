@@ -3,6 +3,7 @@
     stdenv,
     fetchFromGitHub,
     installShellFiles,
+    makeBinaryWrapper,
 
     tsuki,
     libjxl,
@@ -33,6 +34,7 @@ tsuki.rust.buildRustPackage {
 
     nativeBuildInputs = [
         installShellFiles
+        makeBinaryWrapper
     ];
 
     env.CFG_CJXL_PATH = lib.getExe' libjxl "cjxl";
@@ -63,7 +65,8 @@ tsuki.rust.buildRustPackage {
                 ln -s agentcept "$agentcept/bin/$name"
             done
 
-            ln -sv "$out/bin/derputils" "$out/bin/,?"
+            makeBinaryWrapper "$out/bin/derputils" "$out/bin/,?" \
+                --add-flag hops
 
             rm -v "$out/bin/xsleep"
             rm -v "$out/bin/xecho"
