@@ -37,6 +37,7 @@
         tsuki.agentcept-wrapped
 
         nodejs
+        node-gyp
         pnpm_12
     ];
 

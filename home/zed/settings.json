@@ -8,7 +8,7 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
     "cursor_animation": {
-        "enabled": true
+        "enabled": false
     },
     "buffer_line_height": "comfortable",
     "terminal": {
