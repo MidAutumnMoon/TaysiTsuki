@@ -40,6 +40,7 @@
     pango,
     systemd,
     vulkan-loader,
+    libglvnd,
     commandLineArgs ? "",
 }:
 
@@ -181,6 +182,12 @@ stdenv.mkDerivation (drvSelf: {
     ];
 
     strictDeps = true;
+
+    appendRunpaths =
+        map (p: "${lib.getLib p}/lib") [
+            libglvnd
+            vulkan-loader
+        ];
 
     env.ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
 
