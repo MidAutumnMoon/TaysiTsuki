@@ -106,8 +106,8 @@ stdenv.mkDerivation (drvSelf: {
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "lingo-studio";
-        rev = "844cb4cb1cb7d26b5ec451f5f81f0d826d2a8dd6";
-        hash = "sha256-iYIFNf0jHY509rCWIeHHrZdnYktdOWBh8lLMn0gLrNc=";
+        rev = "d4fc03033e110e756ee27c36acfab79802ab0d8b";
+        hash = "sha256-hNUS/l6hIJ1eqRxxgaE8+ZZS19Xd6T/03faYw76/6rM=";
     };
 
     # Updates are delivered through this flake; neuter the in-app updater at
@@ -131,7 +131,7 @@ stdenv.mkDerivation (drvSelf: {
         inherit (drvSelf) pname version src;
         inherit pnpm;
         fetcherVersion = 4;
-        hash = "sha256-R2RMCzHLvJ43LoeaG8D12H8euJHx5dQcQhEVHKOrhRA=";
+        hash = "sha256-BeoHuP/1RiHd8roqiWSiyqsFdIt/CW10ZO4/j/tyCOA=";
     };
 
     nativeBuildInputs = [
@@ -200,7 +200,6 @@ stdenv.mkDerivation (drvSelf: {
 
         export CHERRY_EDITION=global
         node_modules/.bin/electron-vite build
-        node_modules/.bin/electron-vite build --config electron.vite.entries.config.ts
 
         install -Dm644 ${sqliteArtifacts.${arch}.manifest} scripts/linux-native/prebuilt/${arch}/manifest.json
         install -Dm644 ${sqliteArtifacts.${arch}.addon} scripts/linux-native/prebuilt/${arch}/better_sqlite3.node

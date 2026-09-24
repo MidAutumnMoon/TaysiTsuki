@@ -35,6 +35,7 @@
         # tsuki.feishin
         uv
         tsuki.agentcept-wrapped
+        tsuki.lingo-studio
 
         nodejs
         node-gyp
