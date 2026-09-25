@@ -23,7 +23,6 @@
     expat,
     glib,
     gtk3,
-    libevdev,
     libgbm,
     libx11,
     libxcb,
@@ -32,9 +31,7 @@
     libxext,
     libxkbcommon,
     libxrandr,
-    libxtst,
     libxfixes,
-    wayland,
     nspr,
     nss,
     pango,
@@ -45,22 +42,7 @@
 }:
 
 let
-    electron = electron_44-bin.overrideAttrs (self: super: {
-        # Locked nixpkgs' electron-bin postFixup ends with a patchelf pass
-        # over `$out/libexec/electron/lib*GL*`, but electron 44 bundles no
-        # ANGLE libs; stdenv's nullglob leaves that call without a single
-        # filename and the build dies. Upstream gates the stanza on
-        # `version < "44"` — splice it out here and re-append the
-        # vulkan-loader replacement that followed it. Drop this override
-        # when the flake lock moves past the fix.
-        postFixup =
-            lib.head (lib.split "# patch libANGLE" super.postFixup)
-            + /*sh*/ ''
-                # replace bundled vulkan-loader
-                rm "$out/libexec/electron/libvulkan.so.1"
-                ln -s -t "$out/libexec/electron" "${lib.getLib vulkan-loader}/lib/libvulkan.so.1"
-            '';
-    });
+    electron = electron_44-bin;
     pnpm = pnpm_12;
 
     # Upstream's electron-builder beforePack hook fetches prebuilt
@@ -101,13 +83,13 @@ let
 in
 stdenv.mkDerivation (drvSelf: {
     pname = "lingo-studio";
-    version = "0-unstable-2026-09-24";
+    version = "0-unstable-2026-09-25";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "lingo-studio";
-        rev = "d4fc03033e110e756ee27c36acfab79802ab0d8b";
-        hash = "sha256-hNUS/l6hIJ1eqRxxgaE8+ZZS19Xd6T/03faYw76/6rM=";
+        rev = "903b2b96efb81d36ea80579c6c93ee7746708eb3";
+        hash = "sha256-J/tWf9AjaXPDWe+S58cXBboFHCHwh2SRq1MUmOxcw6Q=";
     };
 
     # Updates are delivered through this flake; neuter the in-app updater at
@@ -131,7 +113,7 @@ stdenv.mkDerivation (drvSelf: {
         inherit (drvSelf) pname version src;
         inherit pnpm;
         fetcherVersion = 4;
-        hash = "sha256-BeoHuP/1RiHd8roqiWSiyqsFdIt/CW10ZO4/j/tyCOA=";
+        hash = "sha256-g4nXaRBDEZY7ejFbkhwFjeXCjIWRdGCKEs0iNQySPt0=";
     };
 
     nativeBuildInputs = [
@@ -145,30 +127,28 @@ stdenv.mkDerivation (drvSelf: {
     ];
 
     buildInputs = [
-        # stdenv.cc + the .node prebuilds' closure
+        # libstdc++ for the .node prebuilds' closure (koffi, node-pty,
+        # sharp, better-sqlite3); the rest is the copied electron
+        # runtime's DT_NEEDED closure (matches nixpkgs' electron-bin
+        # electronLibPath).
         stdenv.cc.cc.lib
         alsa-lib
-        dbus
-        libevdev
-        libx11
-        libxtst
-        libxfixes
-        wayland
-        # the copied electron runtime's DT_NEEDED closure (matches
-        # nixpkgs' electron-bin electronLibPath)
         atk
         at-spi2-atk
         at-spi2-core
         cairo
         cups
+        dbus
         expat
         glib
         gtk3
         libgbm
+        libx11
         libxcb
         libxcomposite
         libxdamage
         libxext
+        libxfixes
         libxkbcommon
         libxrandr
         nspr
@@ -189,7 +169,10 @@ stdenv.mkDerivation (drvSelf: {
             vulkan-loader
         ];
 
-    env.ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
+    env = {
+        NODE_ENV = "production";
+        ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
+    };
 
     buildPhase = /*sh*/ ''
         runHook preBuild
@@ -252,6 +235,7 @@ stdenv.mkDerivation (drvSelf: {
         install -Dm644 build/icon.png $out/share/icons/lingo-studio.png
         makeWrapper $out/opt/lingo-studio/lingo-studio $out/bin/lingo-studio \
             --inherit-argv0 \
+            --set "NODE_ENV" "production" \
             --add-flags "--no-sandbox" \
             --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true --wayland-text-input-version=3}}" \
             --add-flags ${lib.escapeShellArg commandLineArgs}
