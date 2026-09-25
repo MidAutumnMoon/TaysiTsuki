@@ -1,20 +1,20 @@
 {
   "pname": "linux-cachyos",
-  "version": "7.2.6",
-  "packageVersion": "7.2.6-1",
+  "version": "7.2.7",
+  "packageVersion": "7.2.7-1",
   "architecture": "x86_64_v3",
-  "modDirVersion": "7.2.6-1-cachyos",
+  "modDirVersion": "7.2.7-1-cachyos",
   "kernel": {
     "packageName": "linux-cachyos",
-    "url": "https://cdn77.cachyos.org/repo/x86_64_v3/cachyos-v3/linux-cachyos-7.2.6-1-x86_64_v3.pkg.tar.zst",
-    "hash": "sha256-r06Gz3XVKlSG+DVPuH12KHThOgISLvEWUOLaxZpykIU="
+    "url": "https://cdn77.cachyos.org/repo/x86_64_v3/cachyos-v3/linux-cachyos-7.2.7-1-x86_64_v3.pkg.tar.zst",
+    "hash": "sha256-YG4rhVEEfSCwuzb33FqN3Hc4bgiLm5TXWf1q4XC64f8="
   },
   "headers": {
     "packageName": "linux-cachyos-headers",
-    "url": "https://cdn77.cachyos.org/repo/x86_64_v3/cachyos-v3/linux-cachyos-headers-7.2.6-1-x86_64_v3.pkg.tar.zst",
-    "hash": "sha256-babtzo8qUUNP5NygiY84gEjDvStSmXMX20M59Ev/uJo="
+    "url": "https://cdn77.cachyos.org/repo/x86_64_v3/cachyos-v3/linux-cachyos-headers-7.2.7-1-x86_64_v3.pkg.tar.zst",
+    "hash": "sha256-ymucZRfv8qeVHHfgiP/6m96kEiS9DuJel3wnsQ62oQU="
   },
-  "configHash": "bb8a57ff7401fc6d78d1ab5b9c2bce4095fdcf74cb41bc81122b082610398d04",
+  "configHash": "ec85307c7cc5179a5c4e1ffafdff6262509f94e0da319e1d7b8613e0c02ae16f",
   "isLTS": false,
   "isZen": false
 }
