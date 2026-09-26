@@ -13,6 +13,7 @@ rust-version = "1.98.0"
 [workspace.dependencies]
 anyhow = "1.0.100"
 gix-discover = { version = "0", features = [ "sha1" ] }
+gix-error = "0"
 niri-ipc = "=26.4.0"
 rootcause = "0"
 

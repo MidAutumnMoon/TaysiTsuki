@@ -9,6 +9,7 @@ edition.workspace = true
 anyhow.workspace = true
 clap = { version = "4.5.48", features = ["derive"] }
 gix-discover.workspace = true
+gix-error.workspace = true
 ignore = "0.4.25"
 ino_color = "5.0.0"
 ino_iter = "0.2.0"

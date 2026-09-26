@@ -162,6 +162,7 @@ dependencies = [
  "clap",
  "docstr",
  "gix-discover",
+ "gix-error",
  "ino_shell",
  "ino_tracing",
  "itertools",
@@ -948,6 +949,7 @@ dependencies = [
  "anyhow",
  "clap",
  "gix-discover",
+ "gix-error",
  "ignore",
  "ino_color",
  "ino_iter",
@@ -1109,6 +1111,7 @@ version = "0.1.0"
 dependencies = [
  "bpaf",
  "gix-discover",
+ "gix-error",
  "rootcause",
  "serde",
  "serde_json",

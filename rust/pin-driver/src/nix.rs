@@ -13,8 +13,9 @@ use serde::de::DeserializeOwned;
 pub fn repo_root() -> Result<PathBuf> {
     let cwd = std::env::current_dir().context("get cwd")?;
     // Trust level is irrelevant here, only the path is used.
-    let (path, _) =
-        gix_discover::upwards(&cwd).context("locate git repo toplevel")?;
+    let (path, _) = gix_discover::upwards(&cwd)
+        .map_err(gix_error::Exn::into_chain)
+        .context("locate git repo toplevel")?;
     match path {
         repository::Path::WorkTree(path) => Ok(path),
         repository::Path::LinkedWorkTree { .. }

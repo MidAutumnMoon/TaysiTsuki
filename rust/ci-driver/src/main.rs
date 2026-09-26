@@ -156,6 +156,7 @@ fn git_toplevel() -> Result<PathBuf> {
     let cwd = std::env::current_dir()?;
     // trust discarded
     let (path, _) = gix_discover::upwards(&cwd)
+        .map_err(gix_error::Exn::into_chain)
         .context("Failed to locate git repo toplevel")?;
     match path {
         repository::Path::WorkTree(path) => Ok(path),

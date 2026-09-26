@@ -9,6 +9,7 @@ base64 = "0.23.1"
 clap = { version = "4.5.48", features = ["derive"] }
 docstr = "0.4.6"
 gix-discover.workspace = true
+gix-error.workspace = true
 ino_shell = "1.0.0"
 ino_tracing = "1.0.0"
 itertools = "0.15.0"
