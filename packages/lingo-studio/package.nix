@@ -83,13 +83,13 @@ let
 in
 stdenv.mkDerivation (drvSelf: {
     pname = "lingo-studio";
-    version = "0-unstable-2026-09-25";
+    version = "0-unstable-2026-09-26";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "lingo-studio";
-        rev = "903b2b96efb81d36ea80579c6c93ee7746708eb3";
-        hash = "sha256-J/tWf9AjaXPDWe+S58cXBboFHCHwh2SRq1MUmOxcw6Q=";
+        rev = "dd7dce621ee7a98ef9b4b42dfb32e6c03e379e48";
+        hash = "sha256-bqK6BDrlrAf0NvbdgdrTb/pZ4qIuUuOy8i/yptS08Eg=";
     };
 
     # Updates are delivered through this flake; neuter the in-app updater at
@@ -113,7 +113,7 @@ stdenv.mkDerivation (drvSelf: {
         inherit (drvSelf) pname version src;
         inherit pnpm;
         fetcherVersion = 4;
-        hash = "sha256-g4nXaRBDEZY7ejFbkhwFjeXCjIWRdGCKEs0iNQySPt0=";
+        hash = "sha256-0F0usk2mnUEVFd0a2lHd8vU1yKONfv1PL/qfNXnBEvw=";
     };
 
     nativeBuildInputs = [
