@@ -83,21 +83,19 @@ let
 in
 stdenv.mkDerivation (drvSelf: {
     pname = "lingo-studio";
-    version = "0-unstable-2026-09-26";
+    version = "0-unstable-2026-09-27";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "lingo-studio";
-        rev = "dd7dce621ee7a98ef9b4b42dfb32e6c03e379e48";
-        hash = "sha256-bqK6BDrlrAf0NvbdgdrTb/pZ4qIuUuOy8i/yptS08Eg=";
+        rev = "6e3ee575212d76aecee7cce485a4e8880d3e09e5";
+        hash = "sha256-NSDVYdEMUY+l/mP21Oxqnp9oU9SpMQxUPDCF0bKMBIY=";
     };
 
     # Updates are delivered through this flake; neuter the in-app updater at
     # its single choke point (scheduled ticks and manual IPC checks both go
     # through performUpdateCheck).
     postPatch = ''
-        substituteInPlace .npmrc \
-            --replace-fail "engine-strict=true" ""
         substituteInPlace src/main/services/AppUpdaterService.ts \
             --replace-fail "void application.get('AnalyticsService').trackAppUpdate()" \
             "return { currentVersion: app.getVersion(), updateInfo: null }"
@@ -181,7 +179,6 @@ stdenv.mkDerivation (drvSelf: {
         # postinstall (bundling the dsh-bridge runtime) never ran.
         pnpm --filter @cherrystudio/dsh-bridge build
 
-        export CHERRY_EDITION=global
         node_modules/.bin/electron-vite build
 
         install -Dm644 ${sqliteArtifacts.${arch}.manifest} scripts/linux-native/prebuilt/${arch}/manifest.json
