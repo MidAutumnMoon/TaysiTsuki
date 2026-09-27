@@ -29,7 +29,10 @@ in {
 
         [merge-tools.difftastic]
         program = "${lib.getExe pkgs.difftastic}"
-        diff-args = ["--color=always", "$left", "$right"]
+        # jj's pipes hide the terminal from difftastic, whose width
+        # detection then falls back to 80 cols; $width is jj's own
+        # measured terminal width.
+        diff-args = ["--color=always", "--width", "$width", "$left", "$right"]
         diff-invocation-mode = "file-by-file"
 
         ${lib.fileContents ./config.toml}
