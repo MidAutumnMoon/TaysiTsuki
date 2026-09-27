@@ -43,11 +43,6 @@
         #     };
         # };
 
-        noctalia = {
-            url = "github:noctalia-dev/noctalia-shell/v5.1.0";
-            inputs.nixpkgs.follows = "nixpkgs";
-        };
-
         # Some toolchains
 
         rust-overlay = {
@@ -118,7 +113,6 @@
                 lib.listAllModules ./machine/ren
                 ++ (with flakes; [
                     xremap.nixosModules.default
-                    noctalia.nixosModules.default
                 ]));
             # phia = nixos "x86_64-linux" <| lib.listAllModules ./machine/phia;
             uk-01 = nixos "x86_64-linux" <| (
