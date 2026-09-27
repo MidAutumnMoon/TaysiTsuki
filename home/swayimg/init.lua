@@ -20,23 +20,24 @@ swayimg.viewer.preload = 5
 -- Gallery
 swayimg.gallery.preload = true
 
--- Viewer text scheme
-swayimg.viewer.set_text("topleft", {
-    "File:\t{name}",
-    "Size:\t{frame.width}x{frame.height}",
-    "Disk:\t{sizehr}",
-    -- exif: no single-field equivalent in Lua API; use {meta.*} tags
-    -- e.g. "Camera:\t{meta.Exif.Photo.Model}"
-})
--- top_right = none -> omitted
-swayimg.viewer.set_text("bottomleft", {
-    "Index:\t{list.index}/{list.total}",
-    "Scale:\t{scale}%",
-})
-swayimg.viewer.set_text("bottomright", {
-    -- status: not available as template; set via swayimg.text.status field
-    "Frame:\t{frame.index}/{frame.total}",
-})
+-- Viewer text scheme (topright = none -> omitted)
+swayimg.viewer.text = {
+    topleft = {
+        "File:\t{name}",
+        "Size:\t{frame.width}x{frame.height}",
+        "Disk:\t{sizehr}",
+        -- exif: no single-field equivalent in Lua API; use {meta.*} tags
+        -- e.g. "Camera:\t{meta.Exif.Photo.Model}"
+    },
+    bottomleft = {
+        "Index:\t{list.index}/{list.total}",
+        "Scale:\t{scale}%",
+    },
+    bottomright = {
+        -- status: not available as template; set via swayimg.text.status field
+        "Frame:\t{frame.index}/{frame.total}",
+    },
+}
 
 -- Viewer key bindings
 swayimg.viewer.bind_reset()
