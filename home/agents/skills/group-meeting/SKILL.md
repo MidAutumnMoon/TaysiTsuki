@@ -137,4 +137,4 @@ If you can't launch subagents, tell the user, then run each round as a separate,
 
 Standing defaults. The user's instructions for a given task take precedence.
 
-- Review and Verify teammates use the `<your-review-skill>` skill.
+- Review and Verify teammates use the `code-cultivation` skill.

@@ -83,22 +83,16 @@ let
 in
 stdenv.mkDerivation (drvSelf: {
     pname = "lingo-studio";
-    version = "0-unstable-2026-09-28";
+    version = "0-unstable-2026-09-30";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "lingo-studio";
-        rev = "52000ab22c7eb33122f7242e2c87c9ab261cefd9";
-        hash = "sha256-YZrlEV3l7NGWlG7641F9TToyXay9t5JKfuR1b9vL8Cg=";
+        rev = "897c966e744623ccd3efcd92e785c79cfbd4e567";
+        hash = "sha256-Xs7Do6Zdmx8uRTn7e8nIL/KHSkl+35rVYsF7Ymm5/MM=";
     };
 
-    # Updates are delivered through this flake; neuter the in-app updater at
-    # its single choke point (scheduled ticks and manual IPC checks both go
-    # through performUpdateCheck).
     postPatch = ''
-        substituteInPlace src/main/services/AppUpdaterService.ts \
-            --replace-fail "void application.get('AnalyticsService').trackAppUpdate()" \
-            "return { currentVersion: app.getVersion(), updateInfo: null }"
         # The executable's basename must not be "electron": electron's
         # app.isPackaged is derived from process.execPath, and the dev-mode
         # branch misresolves the extraResources paths (DbService fails to
@@ -111,7 +105,7 @@ stdenv.mkDerivation (drvSelf: {
         inherit (drvSelf) pname version src;
         inherit pnpm;
         fetcherVersion = 4;
-        hash = "sha256-0F0usk2mnUEVFd0a2lHd8vU1yKONfv1PL/qfNXnBEvw=";
+        hash = "sha256-lk3C60qUF6AtFjHkBIb09TZnUSb8w8VgKvemRfAH7mI=";
     };
 
     nativeBuildInputs = [
