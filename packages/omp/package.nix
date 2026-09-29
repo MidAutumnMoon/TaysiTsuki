@@ -1,6 +1,14 @@
 # Upstream binary on the host's nix-ld shim (programs.nix-ld, ren
 # only); its NEEDEDs are glibc-only. Not nixpkgs' from-source omp: this
 # tracks upstream releases, with tests.run enforcing the loader contract.
+#
+# The bash tool runs inside omp's embedded brush shell, where find/grep
+# (and the rest of the uutils builtins) are in-process builtins shadowing
+# $PATH; they must be off for the agentcept prefix below to be reached at
+# all. --set-default keeps `PI_DISABLE_UUTILS_BUILTINS=0 omp` as an
+# escape hatch. Caveat: omp's shell snapshot re-exports PATH after
+# sourcing the user's rc — an rc that reorders PATH silently demotes the
+# prefix.
 {
     lib,
     stdenvNoCC,
@@ -34,7 +42,9 @@ stdenvNoCC.mkDerivation (drvSelf: {
         install -Dm555 $src $out/libexec/omp/omp
         makeBinaryWrapper $out/libexec/omp/omp $out/bin/omp \
             --set NIX_LD "${lib.getLib glibc}/lib/ld-linux-x86-64.so.2" \
-            --set PI_SKIP_VERSION_CHECK 1
+            --set PI_SKIP_VERSION_CHECK 1 \
+            --set-default PI_DISABLE_UUTILS_BUILTINS 1 \
+            --prefix PATH : "${tsuki.inori.agentcept}/bin"
         runHook postInstall
     '';
 
