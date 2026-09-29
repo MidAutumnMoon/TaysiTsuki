@@ -45,16 +45,6 @@ jobs:
           nix run "$TOOL" -- cachyos update \
             >> "$RUNNER_TEMP/summary.md"
 
-      - name: Refresh pins
-        env:
-          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
-        run: |
-          TOOL=".#tsuki.pin-driver"
-          nix build --print-build-logs "$TOOL"
-          # Report goes to stdout -> PR summary; nix/cachix log to stderr.
-          nix run "$TOOL" -- refresh-pin \
-            >> "$RUNNER_TEMP/summary.md"
-
       - name: Open PR
         uses: peter-evans/create-pull-request@v8
         with:

@@ -41,11 +41,6 @@ in rec {
         sops-install-secrets
     ;
 
-    inherit (discovered.__pin)
-        omp
-        zcode
-    ;
-
     linuxCachyos = tsuki.cachyos.linuxPackages;
 
     # tangled = {

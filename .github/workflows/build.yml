@@ -75,36 +75,12 @@ jobs:
                       -m "packages/tsuki.nix" \
                       -g "${{ matrix.group }}"
 
-    verify_pins:
-        name: Verify Pins
-        runs-on: ubuntu-latest
-        defaults:
-            run: { shell: bash }
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v7
-
-            - name: Setup nix
-              uses: ./.github/actions/nix-pieces
-              with:
-                  cachix_token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-                  upstream_caches: "false"
-
-            - name: Verify pins
-              run: |
-                  TOOL=".#tsuki.pin-driver"
-                  nix build --print-build-logs "$TOOL"
-                  # Builds committed pin outputs through the root flake.
-                  # Only the consumer's normal caches are configured.
-                  nix run "$TOOL" -- verify-pin
-
     build_nixos:
         name: Build NixOS
         runs-on: ubuntu-latest
         needs:
             - build_packages
             - list_matrix
-            - verify_pins
         defaults:
             run: { shell: bash }
         strategy:

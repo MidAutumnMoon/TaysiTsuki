@@ -34,7 +34,8 @@
         age
         # tsuki.feishin
         uv
-        tsuki.agentcept-wrapped
+        tsuki.omp
+        tsuki.zcode
         tsuki.lingo-studio
 
         nodejs

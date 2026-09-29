@@ -107,12 +107,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bpaf"
-version = "0.9.28"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "597e81e56404b7a3e26ef7b449f82a4b7a661ae76c3cac692b42d6bad06a0fbe"
-
-[[package]]
 name = "bstr"
 version = "1.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1103,18 +1097,6 @@ dependencies = [
  "anyhow",
  "ino_color",
  "strum",
-]
-
-[[package]]
-name = "pin-driver"
-version = "0.1.0"
-dependencies = [
- "bpaf",
- "gix-discover",
- "gix-error",
- "rootcause",
- "serde",
- "serde_json",
 ]
 
 [[package]]

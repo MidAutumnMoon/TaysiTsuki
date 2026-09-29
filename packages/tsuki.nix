@@ -156,6 +156,11 @@ finalize {
 
     Inori = [
         (tsuki "inori" { version = "branch"; })
+        # omp tracks GitHub releases; zcode has no forge — bumped by hand.
+        (tsuki "omp")
+        (tsuki "zcode" null)
+        (tsuki "omp.tests.run" null)
+        (tsuki "zcode.tests.deps" null)
     ];
 
     Lingo = [
