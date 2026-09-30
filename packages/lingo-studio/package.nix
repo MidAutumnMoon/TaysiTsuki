@@ -88,8 +88,8 @@ stdenv.mkDerivation (drvSelf: {
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "lingo-studio";
-        rev = "a6bcd9aecc8a6cb51d761685acadebc7754e7e4d";
-        hash = "sha256-8u6GYZsv1H023ofAB8L6njxWry9eEnq4rLVXI2fN9l0=";
+        rev = "13cf06cf20f644d2b58292b53b7b4a3c25bd24cc";
+        hash = "sha256-muzl/89mzQPSyo/whhjo+jmSt/fgwVQU2UukuyRuVoU=";
     };
 
     postPatch = ''
@@ -149,6 +149,9 @@ stdenv.mkDerivation (drvSelf: {
         systemd
     ];
 
+    # @koromix/koffi-linux-* bundles gnu and musl koffi.node variants in one
+    # package and picks per-libc at runtime; the musl copy is dead weight on
+    # NixOS and has no musl libc to link against.
     autoPatchelfIgnoreMissingDeps = [
         "libc.musl-*.so.*"
     ];
@@ -184,16 +187,14 @@ stdenv.mkDerivation (drvSelf: {
         # seed it with the same verified bytes.
         install -Dm644 ${sqliteArtifacts.${arch}.addon} node_modules/better-sqlite3/build/Release/better_sqlite3.node
 
-        cp -r "${electron.dist}" $HOME/.electron-dist
-        chmod -R u+w $HOME/.electron-dist
-
         # Native modules ship as upstream prebuilds and afterPack swaps in the
         # pinned better-sqlite3, so skip electron-builder's rebuild entirely.
+        # electronDist is consumed read-only (app-builder-lib copies it into the
+        # staging dir), so the nixpkgs electron store path works as-is.
         node_modules/.bin/electron-builder --dir \
             --config=electron-builder.yml \
-            --config.mac.identity=null \
             --config.npmRebuild=false \
-            --config.electronDist="$HOME/.electron-dist" \
+            --config.electronDist="${electron.dist}" \
             --config.electronVersion=${electron.version}
 
         runHook postBuild
