@@ -9,21 +9,22 @@
     libjxl,
     imagemagick,
     libavif,
+    ugrep,
 }:
 
 tsuki.rust.buildRustPackage {
 
     pname = "inori";
-    version = "0-unstable-2026-09-26";
+    version = "0-unstable-2026-09-30";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "InOri";
-        rev = "f6ab5f12946f72802ac948653d8ac2efeb460cec";
-        hash = "sha256-BOe3k11OCx6cg0RnJhoQma5xyfTuskSYjyYOlj0+oZA=";
+        rev = "e5ebe7f64326d8a5bdc1e7708b4e2324d6463747";
+        hash = "sha256-a86gAUOl69/tr3p4AgQsdfzbmgDzPJnAcmuWHHsny2Y=";
     };
 
-    cargoHash = "sha256-iW8uTrThTtxQZ/clapMp92e0I1PxWBoXVRbB30sz4XY=";
+    cargoHash = "sha256-g8cAJX195nCEcr1HAeMaVaKqQ8w2iy9u89gGk95THBI=";
 
     outputs = [
         "out"
@@ -40,6 +41,7 @@ tsuki.rust.buildRustPackage {
     env.CFG_CJXL_PATH = lib.getExe' libjxl "cjxl";
     env.CFG_AVIFENC_PATH = lib.getExe' libavif "avifenc";
     env.CFG_MAGICK_PATH = lib.getExe' imagemagick "magick";
+    env.CFG_UGREP_PATH = lib.getExe' ugrep "ugrep";
 
     RUSTFLAGS = with stdenv;
         lib.optional hostPlatform.isx86_64 "-Ctarget-cpu=x86-64-v3"

@@ -16,7 +16,7 @@ A NixOS config repo. Flake at the root. Machines in `machine/`, shared modules i
 - Make breaking changes. Trace, find, redesign, from top to bottom.
 - Challenge existing designs.
 
-## No `| tail`/` or head`
+## No `| tail` and `| head` in bash
 
 Do not pipe any command output through `head` or `tail`, tools will properly handle large output natively.
 
