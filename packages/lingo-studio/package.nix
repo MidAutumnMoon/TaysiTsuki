@@ -88,8 +88,8 @@ stdenv.mkDerivation (drvSelf: {
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "lingo-studio";
-        rev = "9fdd5b4179d899e5f2926a195db1662d230d76ba";
-        hash = "sha256-/RYzNYPa8TVLZyvsIuq9ZrWVOFS0V+zRjk2XDwXJ2U8=";
+        rev = "a6bcd9aecc8a6cb51d761685acadebc7754e7e4d";
+        hash = "sha256-8u6GYZsv1H023ofAB8L6njxWry9eEnq4rLVXI2fN9l0=";
     };
 
     postPatch = ''
