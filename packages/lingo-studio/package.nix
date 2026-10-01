@@ -83,13 +83,13 @@ let
 in
 stdenv.mkDerivation (drvSelf: {
     pname = "lingo-studio";
-    version = "0-unstable-2026-09-30";
+    version = "0-unstable-2026-10-01";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "lingo-studio";
-        rev = "13cf06cf20f644d2b58292b53b7b4a3c25bd24cc";
-        hash = "sha256-muzl/89mzQPSyo/whhjo+jmSt/fgwVQU2UukuyRuVoU=";
+        rev = "74f575b86463c92ba0403cc5326e78181bef72ab";
+        hash = "sha256-XmwPnU3DjG3pCyj019iQVBb2HfoWggyX0aHWNRyf2eg=";
     };
 
     postPatch = ''
@@ -105,7 +105,7 @@ stdenv.mkDerivation (drvSelf: {
         inherit (drvSelf) pname version src;
         inherit pnpm;
         fetcherVersion = 4;
-        hash = "sha256-g0GcPzfae9J6bRl40qOeyEI3RPQdyHMpAqW+ADlK/gU=";
+        hash = "sha256-h5UUT10Mp8MINGQedTcdTUmHuKP0jzUc645Z+HA6Pwk=";
     };
 
     nativeBuildInputs = [
