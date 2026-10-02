@@ -1,140 +1,183 @@
 ---
 name: group-meeting
-description: "Runs a task as a group meeting with subagent teammates: independent challengers before committing to a plan, fresh-eyes reviewers with distinct lenses after editing, a fresh verifier for fixes, and meeting minutes at the end. Use when the user asks for a group or team meeting, to work with subagents or teammates, to have teammates challenge decisions or sweep blind spots, for a devil's advocate, or for a fresh-eyes review."
+description: "Coordinates subagent teammates through independent challenge, scoped delegated editing, fresh-eyes review, verification, and concise minutes. Use when the user asks for a group or team meeting, work with subagents or teammates, a devil's advocate, challenges to decisions, blind-spot checks, or a fresh-eyes review."
 ---
 
 # Group Meeting
 
-You are the **owner/coordinator**: you do the work, chair the meeting, and make the final calls. Teammates are subagents. What they offer is a context that isn't yours — they haven't absorbed your assumptions, so they can see what you can't. Use them to find what you missed, not to confirm what you believe.
+You are the **owner/coordinator**. You own the outcome and final calls, not every edit. Delegate implementation, fixes, and integration when useful.
+
+Teammates bring context that isn't yours. Use that to find what you missed, not to collect approval.
 
 ## Principles
 
-1. **Independence before influence.** Parallel teammates can't hear each other, so there's no groupthink — unless you leak it in through the brief. Give them the user's request verbatim (not your paraphrase), the user's constraints, and pointers to the artifacts. Leave out your conclusions and your reasons for them. If a choice needs context, frame it as a claim to attack: "I believe X is safe because Y — try to break that."
-2. **Distinct jobs, not costumes.** The same model under a different persona mostly produces the same review. Make teammates differ in the question they answer, the evidence they examine, and the method they use: trace an execution path, read every caller, run the tests, design an alternative. If you can choose a teammate's model, mixing models adds diversity that personas can't. Two teammates asking the same question is waste; a question nobody asks is a blind spot.
-3. **Challenge early.** Challenging a plan is cheap; challenging finished code fights sunk cost — yours. Hold a challenge round before editing, not only a review after.
-4. **Dissent with substance.** A teammate told to disagree will always find something, and you'll learn to discount it. Give challengers real work instead: make the best case for a different approach, run a pre-mortem, find the weakest assumption. Every finding needs evidence — file:line, a failing input, command output — or gets labeled as speculation.
-5. **You decide; teammates advise.** Teammates are read-only; only you edit, which keeps the work coherent and accountable. Don't dismiss critique to protect your work, and don't accept a suggestion just because a teammate made it. Weigh evidence, not votes: one well-evidenced finding outweighs three "looks good"s. Reviewers skew additive — more checks, layers, options, tests — so accept additions only when they pay for themselves, and prefer fixes that delete.
-6. **Be generous.** If you're unsure whether a round or a teammate is worth it, it is — as long as each teammate has a distinct job. Launch independent teammates in parallel when your environment allows. A typical lineup is 2 for Challenge, 3–4 for Review, and 1–2 for Verify; scale up with the size and risk of the work.
+1. **Independence before influence.** A fresh agent isn't independent if its brief supplies your answer. Give blind passes the user's words, requirements, and artifacts; keep your conclusions separate. Reveal your plan when the job is to challenge or implement it. Parallelism prevents direct influence, not shared blind spots.
+
+2. **Distinct work, not costumes.** The same model under different personas often repeats the same reasoning. Vary the question, evidence, and method: trace an execution path, inspect callers, reproduce a failure, or design an alternative. If model choice is available, mixing models can add diversity that persona changes alone don't provide.
+
+3. **Dissent with substance.** A teammate told to disagree may manufacture objections; eventually you'll discount useful criticism too. Give challengers real work instead: test an assumption, build a credible alternative, or find a failure path. Findings need evidence—source locations, inputs, traces, results—or a hypothesis label. Finding nothing significant is valid.
+
+4. **Evidence over votes.** One demonstrated failure outweighs several approvals. Reviewers skew additive: more checks, layers, options, and tests. Make additions earn their cost. Prefer the smallest correct solution, including deletion where it helps—not deletion as a goal.
+
+5. **Budget attention.** Add teammates for unanswered questions or deliberate independent checks of consequential claims, not fixed headcounts. Right-size assignments along natural boundaries so no single teammate bears an outsized share of context or critical-path work. Delegation doesn't save context if everyone returns their whole exploration. Use concise handoffs and artifact pointers; inspect the result without replaying every investigation.
 
 ## Agenda
 
-Run the rounds that fit. Building or changing something: all of them. Reviewing existing work: Frame, then Review onward. A design question: Frame, Challenge, Minutes.
+Use the rounds that fit. Mechanical changes may skip Challenge. Review-only work skips implementation. Design-only work usually needs Frame, Challenge, Decide, and Minutes.
 
-### 1. Frame (alone)
+Scale staffing to risk and the user's requested participation.
 
-Write down, briefly:
+### 1. Frame
 
-- The user's request, verbatim, plus later clarifications. When reviewing existing work, also what that work was meant to do.
-- Constraints the user set. Only theirs — your own choices belong in the plan, where they're open to challenge.
-- What "done" means.
-- Your plan, your assumptions, and the calls you're least sure of.
+Keep one accessible task brief with:
 
-Every teammate brief is cut from this.
+- The request and clarifications: quote relevant wording exactly; retain access to the full source.
+- Requirements, acceptance checks, and artifact pointers.
+- For edits: the baseline and pre-existing changes, workspace sharing, and the intended starting state each teammate must see.
 
-### 2. Challenge (before editing)
+Distinguish requirements from your assumptions and provisional choices. Keep your plan and rationale separate so blind passes don't inherit them.
 
-Launch in parallel:
+### 2. Challenge
 
-- **Independent solver.** Gets the problem, the constraints, and where the code lives — not your plan. Asked how they'd do it, what the risks are, what they'd avoid, and what checks would prove it's done. Divergences between their approach and yours are where blind spots hide; resolve each one deliberately rather than defaulting to yours.
-- **Challenger.** Gets your plan and assumptions. Asked to (a) run a pre-mortem — "this shipped and was reverted a month later; why?"; (b) find the weakest assumption, especially one you didn't list; (c) make the best case for a different approach.
+Before consequential commitments, use one or both:
 
-Update the plan and note what changed and why. While working, call a quick huddle with one or two teammates at any fork that's hard to reverse: a public API, a data model, removing or merging an abstraction, a new dependency.
+- **Independent solver:** receives the problem, requirements, and artifacts—not your plan. Proposes an approach, risks, what to avoid, and completion checks.
+- **Challenger:** receives your plan and assumptions with the calls you're least sure of flagged. Tests the weakest assumption—especially one you didn't flag—makes the strongest case for an alternative, or runs a pre-mortem: “This shipped and was later reverted. Why?”
 
-### 3. Review (after editing)
+Launch independent jobs in parallel when possible. Resolve material divergences rather than defaulting to your approach.
 
-Launch fresh teammates in parallel, each with a distinct lens from the menu below, chosen by where the risk is. For code, default to **Intent**, **Correctness**, and **Simplicity**, and add **Blast radius** whenever you remove or change something other code depends on. Add further lenses as the change warrants. For large changes, also split by area, and keep one teammate on the whole picture.
+Use short follow-up huddles at costly-to-reverse forks, such as public contracts, data models, migrations, or new dependencies.
 
-### 4. Decide
+### 3. Implement and integrate
 
-Triage every finding. Each blocker or major gets exactly one of:
+Assign outcomes, write scopes, dependencies, interfaces, and acceptance checks. Balance assignments along cohesive domain boundaries. Let implementers choose local details within those boundaries.
 
-- **Fix** — preferring the fix that removes over the one that adds.
-- **Reject** — with a concrete reason: evidence, a user constraint, or a cost that outweighs the benefit.
-- **Defer** — noted for the user.
-- **Ask the user** — when it's their call: scope, product behavior, a trade-off with no clear winner. Ask now if it blocks the work; otherwise put it in the minutes.
+Editing rules apply to **every writer, including you**:
 
-Minors and nits are your call. When you and a teammate disagree on something significant, don't just overrule: get evidence (write the test, run it, trace the path), or have a fresh teammate adjudicate with both positions stated at their strongest. Unresolved disagreements go to the user.
+- **Shared workspace:** one active writer per file or shared artifact. Transfer ownership explicitly; don't cross another assignment's boundaries without reassignment.
+- **Isolated workspaces:** worktrees separate file writes, not interface decisions or shared databases and services. Agree contracts before dependent implementation and coordinate checks that mutate shared resources.
+- **Integration hotspots:** give shared contracts, lockfiles, and generated outputs a named owner.
+- **Unclear boundaries:** serialize the work or request patches for controlled integration instead of concurrent direct edits.
 
-### 5. Verify
+Name an integrator—you or a teammate—to reconcile changes and check the combined result. Passing isolated tasks do not establish compatibility.
 
-After fixing and re-running the tests, launch a fresh teammate (two for large fix sets). Give them the request, the full diff, and your decision log, and ask them to:
+Use the handoff format below. Accept work from artifacts and evidence, not just an implementer's assurance.
 
-- confirm each accepted finding is actually resolved;
-- review the fixes on their own terms for regressions and new complexity;
-- challenge any rejection that looks wrong.
+### 4. Review
 
-If they raise new blockers or majors, fix them and verify again with another fresh teammate. After two verify rounds, stop and report what remains.
+Use fresh teammates who did not implement the changes they review.
 
-### 6. Minutes
+For code, cover **Intent**, **Correctness**, and **Simplicity**; one reviewer may cover all three on a small task. Add **Blast radius / integration** for shared contracts, dependencies, or multiple workstreams. Add specialists for specific risks.
 
-Close with minutes for the user — the decisions, not the transcript:
+Review a stable checkpoint: freeze the reviewed scope or use a snapshot. Identify the task's full change set against the baseline, including uncommitted and new files. A branch diff alone may omit the actual work.
 
-- **Lineup** — each teammate's job, one line each.
-- **Changed because of the meeting** — the decisions and fixes teammates caused.
-- **Rejected / deferred** — with reasons, so the user can overrule.
-- **Open questions** — disagreements and calls that belong to the user.
-- **Verification** — what the final check found.
+Area reviews may overlap work elsewhere, but at least one non-author reviewer must examine the integrated result. Later edits require affected rechecks.
 
-If teammates changed nothing, say so plainly.
+Reviewers don't edit deliverables. To turn a reviewer into a fixer, reassign write scope; someone else reviews that fix.
+
+### 5. Decide
+
+Deduplicate findings. Give material issues stable IDs and one disposition:
+
+- **Fix:** assign an owner and acceptance check.
+- **Reject:** record a concrete reason—evidence, a requirement, or a justified trade-off.
+- **Defer:** record the remaining impact and why it can wait.
+- **Ask the user:** when the decision belongs to them.
+
+Minors and nits are discretionary.
+
+Resolve significant disagreements with decisive evidence or a fresh adjudicator given both positions fairly. Report unresolved material disagreements rather than burying them.
+
+### 6. Verify
+
+Check the final integrated checkpoint against acceptance criteria and accepted findings. An independent review can count as verification if it covered that state and no relevant edits followed.
+
+After substantive fixes, use a fresh non-author verifier. Small mechanical corrections may return to the existing independent reviewer.
+
+Provide the change set, findings, and decision log. Ask the verifier to check:
+
+- Whether accepted findings are resolved.
+- Whether fixes introduce regressions or needless complexity.
+- Whether material rejections withstand scrutiny.
+- What remains unchecked or unverifiable.
+
+Default to at most two fix–verify cycles, then reassess the scope and budget. Report remaining issues or agree further work. The cap limits effort; it doesn't turn unresolved blockers into completed work. Never call an unrun check passed or an earlier checkpoint current; state when work is implemented but not fully verified.
+
+### 7. Minutes
+
+Close with decisions, not a transcript:
+
+- **Lineup:** who did what.
+- **Changed through the meeting:** material decisions and fixes teammates caused.
+- **Rejected / deferred:** important findings and reasons.
+- **Open questions:** unresolved issues and user decisions.
+- **Verification:** final checkpoint, checks and outcomes, limitations, completion status.
+
+If teammates changed nothing, say so plainly. Omit empty sections.
 
 ## Lens menu
 
 | Lens | Question |
 |---|---|
-| Intent | Reading the user's words, not your interpretation: is this what they asked for — no less, no more? |
-| Correctness | Tracing real execution paths: where does it break? Edge cases, error paths, state, concurrency, boundaries. |
-| Simplicity | What can be deleted? Which layers, indirections, flags, or wrappers don't pay rent? Does it follow the codebase's existing patterns? |
-| Blast radius | What else depends on this? Callers, public API, config, data, migrations, docs, compatibility. |
-| Tests | Would the tests fail if the code were wrong? What important behavior is untested? |
-| Security / perf / ops | When relevant: trust boundaries, hot paths, production failure modes. |
-| Alternative | What's the strongest different approach, and why might it be better? |
-| Pre-mortem | It's a month later and this was reverted. Why? |
+| Intent | Is this what the user asked for—no missing requirements or unrequested scope? |
+| Correctness | Where do real execution paths break: boundaries, errors, state, concurrency? |
+| Simplicity | What can be removed? Which abstractions or options don't earn their cost? Does this fit existing patterns? |
+| Blast radius / integration | What depends on this? Check callers, contracts, config, data, migrations, docs, and interactions between workstreams. |
+| Tests | Would the checks fail for plausible wrong implementations? What important behavior remains untested? |
+| Security / performance / operations | Which specific trust boundary, hot path, resource limit, or production failure mode needs examination? |
+| Alternative | What's the strongest useful different approach, and what evidence distinguishes it? |
+| Pre-mortem | If this later fails or is reverted, what would most plausibly explain it? |
 
-For non-code work, adapt the lenses: accuracy, audience, structure, what's missing.
+For non-code work, adapt lenses to accuracy, audience, structure, consistency, evidence, and omissions.
 
 ## Teammate brief
 
-Teammates start with an empty context, so anything they need must be in the brief — including skills the user wants them to use: name the skill, give its path if you know it, and tell them to follow it.
+Teammates don't inherit your context or this skill. Send accessible source references plus the essentials below. Include permissions, required skills, and the relevant report format in the actual assignment.
 
 ```text
-You're a teammate on a task owned by another agent.
-Your role: <lens or job>
-Your question: <the one question you must answer>
+Role / question:
+<one clear responsibility>
 
-User's request (verbatim):
-<...>
+User source:
+<exact relevant wording; accessible full request and clarifications>
 
-Constraints set by the user (don't relitigate these):
-<...>
+Requirements / done:
+<applicable constraints and acceptance criteria>
 
-Look at: <paths, the diff command (e.g. `git diff main...HEAD`), the plan>
-Claims to attack, if any: <"I believe X because Y — try to break it.">
-Skills to use: <name and path> — load it and follow it.
+Inputs:
+<paths, baseline, checkpoint, dependencies>
+
+Access:
+<read-only deliverables or scoped-write>
+<workspace, owned paths, exclusions, allowed checks, shared-resource limits>
+
+Plan / contracts / claims:
+<only what this role needs; keep blind passes free of your conclusions>
+
+Skills:
+<names and paths; load and follow within the access grant>
 
 Rules:
-- Read-only: don't modify project files. Reading code, running tests, and other non-destructive commands are encouraged.
-- Work alone: don't launch subagents or convene a meeting of your own.
-- Back each finding with evidence (file:line, input, output), or label it speculation.
-- Your job is to find what the owner missed. Agreement must be earned: if you find nothing significant, say what you checked.
-- Don't pad. Label nits as nits.
+- Work alone; don't launch subagents.
+- Stay within the access grant; request any needed expansion.
+- Report missing inputs, ownership conflicts, or unavailable skills instead of working around them.
+- Back conclusions with evidence or label them hypotheses.
+- Return a concise report; reference large artifacts instead of pasting them.
 
-Report:
-1. Findings, most severe first: severity (blocker/major/minor/nit), location, problem, evidence, suggested fix, confidence.
-2. The one change you'd make if you could make only one.
-3. What you checked and found sound.
-4. Questions you couldn't resolve.
+Return:
+<role-appropriate format below>
 ```
 
-For an independent solver, replace Findings with: your approach, its main risks, what you'd avoid, and the checks that would prove it's done.
+Reports:
 
-Before launching, check: Is the request quoted verbatim? Are your conclusions left out? Is this teammate's question different from every other's? Are required skills named? Is the report format included?
+- **Solver / challenger:** approach or strongest alternative, key assumptions, risks, and checks that distinguish the options.
+- **Implementer / integrator:** changed paths and patch/ref/checkpoint, material decisions, checks and outcomes, unresolved dependencies or risks.
+- **Reviewer:** findings with severity (blocker/major/minor/nit), location, impact, evidence, and suggested remedy; then coverage and unknowns. “No significant findings” is valid.
+- **Verifier:** finding IDs marked resolved/unresolved/unverifiable with evidence; new issues, challenged rejections, and final-check limitations.
 
-## Without subagents
+## Defaults and fallback
 
-If you can't launch subagents, tell the user, then run each round as a separate, labeled pass, writing down each pass's findings before starting the next. It's a weaker substitute; say so in the minutes.
-
-## House rules
-
-Standing defaults. The user's instructions for a given task take precedence.
-
-- Review and Verify teammates use the `code-cultivation` skill.
+- For code Review and Verify, use `code-cultivation` when available. If unavailable, disclose that and use the relevant lenses.
+- Pass through skills the user requires. If one is unavailable, surface the unmet requirement rather than silently treating it as optional.
+- Task-specific user instructions override these workflow defaults.
+- Without subagents, say so and use separate, labeled passes where useful. These are self-review, not independent teammates; note the limitation in the minutes.
