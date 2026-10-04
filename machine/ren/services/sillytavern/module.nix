@@ -66,6 +66,13 @@ in
             client_ip private_ranges
         }
         handle @sillytavern {
+            @st_static {
+                path /css/* /img/* /scripts/* /lib/* /lib.js /locales/* /sounds/* /webfonts/* /script.js /style.css /favicon.ico /manifest.json /robots.txt
+            }
+            header @st_static {
+                Cache-Control "public, max-age=600"
+                defer
+            }
             reverse_proxy http://127.0.0.1:${toString lore.ports.sillytavern}
         }
     '';
