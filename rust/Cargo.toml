@@ -8,7 +8,7 @@ authors = [ "MidAutumnMoon" ]
 license = "GPL-3.0-or-later"
 repository = "https://github.com/MidAutumnMoon/InOri"
 edition = "2024"
-rust-version = "1.98.0"
+rust-version = "1.99.0"
 
 [workspace.dependencies]
 anyhow = "1.0.100"
@@ -75,7 +75,7 @@ std_instead_of_alloc = "allow"
 std_instead_of_core = "allow"
 
 # I prefer 1_u64 style
-separated-literal-suffix = "allow"
+separated_literal_suffix = "allow"
 
 # Useful in embedded environments, but annoying in general codes.
 float_arithmetic = "allow"

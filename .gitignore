@@ -3,5 +3,6 @@ result*
 /.direnv/
 target/
 .zcode/
+.zcodeignore
 
 **/clipper/Assets/

@@ -74,7 +74,7 @@ pub fn blkid(params: &[&str]) -> AnyResult<Option<String>> {
         .output()
         .context("Failed to run command blkid")?;
     if !output.status.success() {
-        let stderr = output.stderr.pipe_as_ref(String::from_utf8_lossy);
+        let stderr = output.stderr.pipe(String::from_utf8_lossy_owned);
         if stderr.is_empty() {
             return Ok(None);
         }
