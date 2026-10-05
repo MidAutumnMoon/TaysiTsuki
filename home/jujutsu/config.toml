@@ -31,7 +31,8 @@ roots = ["log", "-r", "roots(mine())"]
 [ui]
 conflict-marker-style = "git"
 default-command = "log"
-diff-formatter = "difftastic"
+# difftty: difftastic on a terminal, plain unified diff otherwise (module.nix).
+diff-formatter = "difftty"
 
 [templates]
 draft_commit_description = '''

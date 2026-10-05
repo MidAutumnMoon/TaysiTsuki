@@ -9,6 +9,24 @@ let
         me@418.im ${nixosCfg.lore.pubkeys.teapot}
     '';
 
+    # The tool ui.diff-formatter (config.toml) points to. [merge-tools.difftastic]
+    # stays for jj diff --tool difftastic.
+    difftty = pkgs.writeShellScript "difftty" ''
+        # jj pipes the tool's stdout, so isatty(1) is always false here; test
+        # jj's fd 1 instead, which stays on the terminal even while paging.
+        set -u
+        case "$(readlink "/proc/$PPID/fd/1" 2>/dev/null)" in
+            /dev/pts/*|/dev/tty*|/dev/console)
+                # 0-column pty panics difftastic (difftastic#1064)
+                exec ${lib.getExe pkgs.difftastic} --color=always --width "$(( $1 > 0 ? $1 : 80 ))" "$2" "$3"
+                ;;
+            *)
+                base=$(basename "$2")
+                exec ${lib.getExe' pkgs.diffutils "diff"} -u --label "a/$base" --label "b/$base" "$2" "$3"
+                ;;
+        esac
+    '';
+
 in {
 
     packages = [ pkgs.jujutsu ];
@@ -34,6 +52,13 @@ in {
         # measured terminal width.
         diff-args = ["--color=always", "--width", "$width", "$left", "$right"]
         diff-invocation-mode = "file-by-file"
+
+        [merge-tools.difftty]
+        program = "${difftty}"
+        diff-args = ["$width", "$left", "$right"]
+        diff-invocation-mode = "file-by-file"
+        # diff(1) exits 1 on differences; only trouble (2) should warn.
+        diff-expected-exit-codes = [0, 1]
 
         ${lib.fileContents ./config.toml}
     '';
