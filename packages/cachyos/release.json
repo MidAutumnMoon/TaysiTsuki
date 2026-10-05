@@ -1,20 +1,20 @@
 {
   "pname": "linux-cachyos",
-  "version": "7.2.8",
-  "packageVersion": "7.2.8-2",
+  "version": "7.2.9",
+  "packageVersion": "7.2.9-1",
   "architecture": "x86_64_v3",
-  "modDirVersion": "7.2.8-2-cachyos",
+  "modDirVersion": "7.2.9-1-cachyos",
   "kernel": {
     "packageName": "linux-cachyos",
-    "url": "https://cdn77.cachyos.org/repo/x86_64_v3/cachyos-v3/linux-cachyos-7.2.8-2-x86_64_v3.pkg.tar.zst",
-    "hash": "sha256-zjI8+HIRmKXSd0+2TcCRBr9q5gD/s61/pdmsab5UawI="
+    "url": "https://cdn77.cachyos.org/repo/x86_64_v3/cachyos-v3/linux-cachyos-7.2.9-1-x86_64_v3.pkg.tar.zst",
+    "hash": "sha256-ygf7J8lXGr7kOscMGWzlT9IOHo6z0IslB0xq5yc33Gk="
   },
   "headers": {
     "packageName": "linux-cachyos-headers",
-    "url": "https://cdn77.cachyos.org/repo/x86_64_v3/cachyos-v3/linux-cachyos-headers-7.2.8-2-x86_64_v3.pkg.tar.zst",
-    "hash": "sha256-Ewt3d8gMsMx4sBlXQRSWSgN/o3ogap99DqNmeEFwwLs="
+    "url": "https://cdn77.cachyos.org/repo/x86_64_v3/cachyos-v3/linux-cachyos-headers-7.2.9-1-x86_64_v3.pkg.tar.zst",
+    "hash": "sha256-RIfpE4xs/W27NphFGuQS41V7eWgVY3ri7G1/H3lUl1k="
   },
-  "configHash": "05e56b1786d3842eaacf5e1abe2f7990c6f436d43bbfd0cad79310c83c6f277d",
+  "configHash": "f5a85ffc7c0092327b5ee7d755ef1b7a6ec176fc188fd52fd39e6790572e7863",
   "isLTS": false,
   "isZen": false
 }
