@@ -4,7 +4,8 @@ swayimg.antialiasing = false
 
 -- Image list
 swayimg.imagelist.adjacent = true
-swayimg.imagelist.fsmon = true
+swayimg.imagelist.fsmon = false
+swayimg.imagelist.order = "numeric"
 
 -- Text overlay
 swayimg.text.timeout = 3
