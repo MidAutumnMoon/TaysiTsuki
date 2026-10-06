@@ -12,7 +12,7 @@ vim.lsp.config("nixd", {
 })
 
 vim.lsp.enable {
-    "denols",
+    "tsc",
     "nixd",
 }
 
