@@ -14,6 +14,8 @@ vim.lsp.config("nixd", {
 vim.lsp.enable {
     "tsc",
     "nixd",
+    -- "oxfmt",
+    -- "oxlint",
 }
 
 vim.api.nvim_create_autocmd( 'LspAttach', {
