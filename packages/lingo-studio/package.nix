@@ -48,7 +48,7 @@ let
 in
 stdenv.mkDerivation (drvSelf: {
     pname = "lingo-studio";
-    version = "0-unstable-2026-10-07";
+    version = "0-unstable-2026-10-06";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
