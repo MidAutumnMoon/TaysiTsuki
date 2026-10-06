@@ -3,7 +3,6 @@
     stdenv,
     fetchFromGitHub,
     fetchPnpmDeps,
-    fetchurl,
     makeDesktopItem,
     makeWrapper,
     copyDesktopItems,
@@ -45,58 +44,22 @@ let
     electron = electron_44-bin;
     pnpm = pnpm_12;
 
-    # Upstream's electron-builder beforePack hook fetches prebuilt
-    # GLIBC-portable better-sqlite3 addons from GitHub, pinned by sha256 in
-    # scripts/linux-native/release.json. Seed that cache so the build stays
-    # offline; the hook re-verifies both files against the same pins.
-    sqliteRelease = "better-sqlite3-v12.11.1-electron-v44.2.0-r2";
-    sqliteArtifacts = {
-        x64 = {
-            addon = fetchurl {
-                url = "https://github.com/CherryHQ/cherry-studio-better-sqlite3/releases/download/${sqliteRelease}/better_sqlite3-v12.11.1-electron-v44.2.0-linux-x64.node";
-                hash = "sha256-ISdVyO7ACYULGlCAOTeGTUZO1mnAweJQbLNUzAarFIc=";
-            };
-            manifest = fetchurl {
-                url = "https://github.com/CherryHQ/cherry-studio-better-sqlite3/releases/download/${sqliteRelease}/better_sqlite3-v12.11.1-electron-v44.2.0-linux-x64.manifest.json";
-                hash = "sha256-+RveiqNHsbmSSYzIlu6dLF42Y5RiKOu9BNbGnBK0Hoc=";
-            };
-        };
-        arm64 = {
-            addon = fetchurl {
-                url = "https://github.com/CherryHQ/cherry-studio-better-sqlite3/releases/download/${sqliteRelease}/better_sqlite3-v12.11.1-electron-v44.2.0-linux-arm64.node";
-                hash = "sha256-+/t5jUSVvgfmADyq/5qY5t5RCjG47cwpfBiXkf8ADxQ=";
-            };
-            manifest = fetchurl {
-                url = "https://github.com/CherryHQ/cherry-studio-better-sqlite3/releases/download/${sqliteRelease}/better_sqlite3-v12.11.1-electron-v44.2.0-linux-arm64.manifest.json";
-                hash = "sha256-9p8F9k16QZ8fkDG5rEdjPh2uUIIJzz/wWo4EXFm4hew=";
-            };
-        };
-    };
-
-    arch =
-        with stdenv.hostPlatform;
-        if isAarch64 then "arm64"
-        else if isx86_64 then "x64"
-        else throw "lingo-studio: unsupported platform";
-
     unpackedDir = "dist/linux${lib.optionalString stdenv.hostPlatform.isAarch64 "-arm64"}-unpacked";
 in
 stdenv.mkDerivation (drvSelf: {
     pname = "lingo-studio";
-    version = "0-unstable-2026-10-05";
+    version = "0-unstable-2026-10-07";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "lingo-studio";
-        rev = "85ab7b21b6f38927099b69fbd133f1671cf07554";
-        hash = "sha256-azyGX6x2THOvowtJSGZbT5mtrQLBw6FdArEsQyB6rZg=";
+        rev = "f569aef7ddb67fa0d4f201c57cb60d34103af81b";
+        hash = "sha256-WhO7oDlGdKWHyZftCiRSgF/B71HyHiUDObz8goQMZsQ=";
     };
 
     postPatch = ''
-        # The executable's basename must not be "electron": electron's
-        # app.isPackaged is derived from process.execPath, and the dev-mode
-        # branch misresolves the extraResources paths (DbService fails to
-        # find the provider registry).
+        # executableName decides the unpacked binary's name; installPhase
+        # and the desktop entry expect "lingo-studio".
         substituteInPlace electron-builder.yml \
             --replace-fail "executableName: CherryStudio" "executableName: lingo-studio"
     '';
@@ -105,7 +68,7 @@ stdenv.mkDerivation (drvSelf: {
         inherit (drvSelf) pname version src;
         inherit pnpm;
         fetcherVersion = 4;
-        hash = "sha256-Gwvz2iY5n1ipIIangR1qbOy2iwg3+EN47zqk7gpG4Tw=";
+        hash = "sha256-pC8KUql8g9HZpwbepmc8K/hju/9TrYXLcBnpQ9uenzg=";
     };
 
     nativeBuildInputs = [
@@ -119,10 +82,9 @@ stdenv.mkDerivation (drvSelf: {
     ];
 
     buildInputs = [
-        # libstdc++ for the .node prebuilds' closure (koffi, node-pty,
-        # sharp, better-sqlite3); the rest is the copied electron
-        # runtime's DT_NEEDED closure (matches nixpkgs' electron-bin
-        # electronLibPath).
+        # libstdc++ for the .node prebuilds (koffi, node-pty, sharp,
+        # better-sqlite3); the rest is the electron runtime's DT_NEEDED
+        # closure, as in nixpkgs electron-bin's electronLibPath.
         stdenv.cc.cc.lib
         alsa-lib
         atk
@@ -149,9 +111,8 @@ stdenv.mkDerivation (drvSelf: {
         systemd
     ];
 
-    # @koromix/koffi-linux-* bundles gnu and musl koffi.node variants in one
-    # package and picks per-libc at runtime; the musl copy is dead weight on
-    # NixOS and has no musl libc to link against.
+    # koffi bundles gnu and musl koffi.node variants and picks per-libc at
+    # runtime; the musl copy can never resolve libc.musl on NixOS.
     autoPatchelfIgnoreMissingDeps = [
         "libc.musl-*.so.*"
     ];
@@ -178,19 +139,9 @@ stdenv.mkDerivation (drvSelf: {
 
         node_modules/.bin/electron-vite build
 
-        install -Dm644 ${sqliteArtifacts.${arch}.manifest} scripts/linux-native/prebuilt/${arch}/manifest.json
-        install -Dm644 ${sqliteArtifacts.${arch}.addon} scripts/linux-native/prebuilt/${arch}/better_sqlite3.node
-
-        # With install-scripts and electron-builder's rebuild both skipped,
-        # better-sqlite3 has no build/Release output; afterPack requires the
-        # packaged addon to exist before swapping in the pinned artifact, so
-        # seed it with the same verified bytes.
-        install -Dm644 ${sqliteArtifacts.${arch}.addon} node_modules/better-sqlite3/build/Release/better_sqlite3.node
-
-        # Native modules ship as upstream prebuilds and afterPack swaps in the
-        # pinned better-sqlite3, so skip electron-builder's rebuild entirely.
-        # electronDist is consumed read-only (app-builder-lib copies it into the
-        # staging dir), so the nixpkgs electron store path works as-is.
+        # Native modules ship N-API prebuilds that beforePack filters to the
+        # target platform-arch, so no rebuild is needed. electronDist is
+        # copied, not mutated, so the store path works as-is.
         node_modules/.bin/electron-builder --dir \
             --config=electron-builder.yml \
             --config.npmRebuild=false \
@@ -217,11 +168,8 @@ stdenv.mkDerivation (drvSelf: {
     installPhase = /*sh*/ ''
         runHook preInstall
 
-        # Install electron-builder's unpacked output wholesale: it contains
-        # the renamed electron binary, its runtime files, and our app in
-        # resources/app.asar. Loading the app from its own resources dir is
-        # what flips app.isPackaged and points every extraResources path
-        # (registry, migrations) at the shipped files.
+        # The unpacked dir already holds the electron runtime, app.asar,
+        # unpacked natives and extraResources; copy it wholesale.
         mkdir -p $out/opt
         cp -r ${unpackedDir} $out/opt/lingo-studio
         install -Dm644 build/icon.png $out/share/icons/lingo-studio.png
