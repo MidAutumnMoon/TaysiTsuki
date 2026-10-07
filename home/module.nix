@@ -39,7 +39,6 @@
         tsuki.lingo-studio
 
         nodejs
-        node-gyp
         pnpm_12
     ];
 

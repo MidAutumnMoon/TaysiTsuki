@@ -69,26 +69,4 @@ in rec {
 
     kdePackages = tsuki.kde;
 
-    #
-    # Lix overrides
-    #
-
-    lixSet = prev.lixPackageSets.latest;
-
-    inherit (lixSet)
-        lix
-        # The default "lix" points to old stable version
-        nix-eval-jobs
-    ;
-
-    nixVersions = prev.nixVersions // {
-        stable = lixSet.lix;
-        latest = lixSet.lix;
-    };
-
-    nixForLinking = prev.nixVersions.stable;
-
-    nix-direnv =
-        prev.nix-direnv.override { nix = final.lix; };
-
 }

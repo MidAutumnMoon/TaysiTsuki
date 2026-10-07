@@ -1,8 +1,6 @@
-{ lib, pkgs, flakes, ... }:
+{ lib, flakes, ... }:
 
 {
-
-    nix.package = pkgs.lix;
 
     nix.settings = {
         auto-optimise-store = true;
@@ -24,13 +22,11 @@
             "flakes"
             "auto-allocate-uids"
             "cgroups"
-            "pipe-operator"
-            "lix-custom-sub-commands"
+            "pipe-operators"
         ];
         use-xdg-base-directories = true;
         always-allow-substitutes = false;
 
-        temp-dir = "/tmp";
         # insecure, but well enough
         build-dir = "/tmp";
     };

@@ -167,7 +167,6 @@ finalize {
         (tsuki "lingo-studio" { version = "branch"; })
     ];
 
-    Lix = [ (pkgs "lix") ];
     # nixpkgs niri with local patches; version moves with flake.lock.
     Niri = [ (tsuki "niri" null) ];
 }
