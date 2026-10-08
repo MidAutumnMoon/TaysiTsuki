@@ -13,8 +13,10 @@ lib.onceride niri
 }
 
 (oldAttrs: {
-    patches = (oldAttrs.patches or [])
-        ++ [ ./mimalloc.patch ];
+    patches = (oldAttrs.patches or []) ++ [
+        ./mimalloc.patch
+        ./squircle-v26.04.patch
+    ];
 
     cargoDeps = rustPlatform.fetchCargoVendor {
         inherit (oldAttrs) pname version src;

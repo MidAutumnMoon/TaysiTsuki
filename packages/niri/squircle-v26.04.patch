@@ -1,0 +1,32 @@
+diff --git a/src/render_helpers/shaders/rounding_alpha.frag b/src/render_helpers/shaders/rounding_alpha.frag
+index e1c9527e..b69f68c9 100644
+--- a/src/render_helpers/shaders/rounding_alpha.frag
++++ b/src/render_helpers/shaders/rounding_alpha.frag
+@@ -18,7 +18,9 @@ float niri_rounding_alpha(vec2 coords, vec2 size, vec4 corner_radius) {
+         return 1.0;
+     }
+ 
+-    float dist = distance(coords, center);
++    // Squircle (exponent-4 superellipse) distance, avoiding pow().
++    vec2 delta_sq = (coords - center) * (coords - center);
++    float dist = sqrt(sqrt(delta_sq.x * delta_sq.x + delta_sq.y * delta_sq.y));
+ 
+     // Manual smoothstep() between radius - half_px and radius + half_px
+     // to avoid a division in clamp().
+diff --git a/src/render_helpers/shaders/shadow.frag b/src/render_helpers/shaders/shadow.frag
+index 98d5fd60..4e84e364 100644
+--- a/src/render_helpers/shaders/shadow.frag
++++ b/src/render_helpers/shaders/shadow.frag
+@@ -42,7 +42,11 @@ vec2 erf(vec2 x) {
+ // Return the blurred mask along the x dimension
+ float roundedBoxShadowX(float x, float y, float sigma, float corner, vec2 halfSize) {
+   float delta = min(halfSize.y - corner - abs(y), 0.0);
+-  float curved = halfSize.x - corner + sqrt(max(0.0, corner * corner - delta * delta));
++  // Squircle corner arc to match niri_rounding_alpha().
++  float delta_sq = delta * delta;
++  float corner_sq = corner * corner;
++  float arc = sqrt(sqrt(max(0.0, corner_sq * corner_sq - delta_sq * delta_sq)));
++  float curved = halfSize.x - corner + arc;
+   vec2 integral = 0.5 + 0.5 * erf((x + vec2(-curved, curved)) * (sqrt(0.5) / sigma));
+   return integral.y - integral.x;
+ }
