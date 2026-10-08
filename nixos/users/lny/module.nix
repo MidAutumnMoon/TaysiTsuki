@@ -4,6 +4,9 @@
 # i.e. when a user completely removed lny by not setting the option,
 # the existing symlinks won't be removed because the systemd service
 # that handles symlink will not be generated in this case.
+# lny keeps its state at /var/lib/lny/<user>/state.json
+# (the last applied blueprint), which a future teardown could diff
+# against to remove stale symlinks; not implemented yet.
 
 { lib, config, pkgs, flakes, ... } @ outerMost:
 
@@ -39,8 +42,6 @@ let
             - lore: our lore
         '';
     };
-
-    genRecord = "/var/lib/lny-generation-record";
 
     blueprintNameOf =
         username: "lny-blueprint-${username}.json";
@@ -92,19 +93,22 @@ in {
         partOf = [ "lny-activate.target" ];
         stopIfChanged = false;
         path = [
-            pkgs.gnused pkgs.gnugrep
+            pkgs.gnused
             config.systemd.package
         ];
         serviceConfig = {
             Type = "oneshot";
             User = "%i";
             WorkingDirectory = "~";
+            StateDirectory = "lny/%i";
+            StateDirectoryMode = "0700";
             TimeoutStartSec = "1m";
             RemainAfterExit = true;
         };
         environment = {
             RUST_LOG = "debug";
             BLUEPRINT_NAME="lny-blueprint-%i.json";
+            STATE_PATH = "/var/lib/lny/%i/state.json";
         };
         script = ''
             # derived from home-manager
@@ -114,28 +118,9 @@ in {
                     | sed -n '/^XDG/p' | sed 's/^/export /g')"
             fi
 
-            newGen="$(readlink -f "/run/current-system")"
-            newBlueprint="/etc/$BLUEPRINT_NAME"
-
-            # Covers first run scenario
-            if [[ ! -s "${genRecord}" ]]; then
-                echo "${genRecord} does not exist or empty"
-                "${lnyExe}" --new-blueprint "$newBlueprint"
-                exit
-            fi
-
-            # reverse order, and ignore current generation
-            for sysGen in $(tac "${genRecord}" | grep -v "$newGen"); do
-                test ! -d "$sysGen" && continue
-
-                oldBlueprint="$sysGen/etc/''${BLUEPRINT_NAME}"
-                if [[ -s "$oldBlueprint" ]]; then
-                    "${lnyExe}" \
-                        --new-blueprint "$newBlueprint" \
-                        --old-blueprint "$oldBlueprint"
-                    break
-                fi
-            done
+            exec "${lnyExe}" \
+                --new-blueprint "/etc/$BLUEPRINT_NAME" \
+                --state "$STATE_PATH"
         '';
     };
 
@@ -147,30 +132,6 @@ in {
             # 2. Template
             |> map (name: "lny@${name}.service");
         partOf = [ "sysinit-reactivation.target" ];
-    };
-
-    config.systemd.services."lny-record-prevgen" = {
-        after = [ "lny-activate.target" ];
-        wantedBy = [ "multi-user.target" ];
-        partOf = [ "sysinit-reactivation.target" ];
-        serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-        };
-        script = ''
-            newGen="$(readlink -f "/run/current-system")"
-            if ! grep -q "$newGen" "${genRecord}"; then
-                echo "Writing new generation pat $newGen to ${genRecord}"
-                printf "%s\n" "$newGen" >> '${genRecord}'
-            fi
-        '';
-    };
-
-    config.services.logrotate.settings = {
-        "${genRecord}" = {
-            rotate = 0;
-            size = "64k";
-        };
     };
 
 }
