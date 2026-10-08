@@ -1,12 +1,5 @@
-# N.B.
-#
-# 1) This module currently doesn't handle tier down,
-# i.e. when a user completely removed lny by not setting the option,
-# the existing symlinks won't be removed because the systemd service
-# that handles symlink will not be generated in this case.
-# lny keeps its state at /var/lib/lny/<user>/state.json
-# (the last applied blueprint), which a future teardown could diff
-# against to remove stale symlinks; not implemented yet.
+# Tier down is not handled: when a user removes the lny option, the
+# service is not generated, so the symlinks it created stay on disk.
 
 { lib, config, pkgs, flakes, ... } @ outerMost:
 
