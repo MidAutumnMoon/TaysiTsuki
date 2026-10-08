@@ -156,10 +156,13 @@ fn git_toplevel() -> Result<PathBuf> {
     let cwd = std::env::current_dir()?;
     // trust discarded
     let (path, _) = gix_discover::upwards(&cwd)
-        .map_err(gix_error::Exn::into_chain)
         .context("Failed to locate git repo toplevel")?;
     match path {
         repository::Path::WorkTree(path) => Ok(path),
+        #[expect(
+            clippy::rest_pattern_accessible_field,
+            reason = "We don't care about the fields"
+        )]
         repository::Path::LinkedWorkTree { .. }
         | repository::Path::Repository(_) => {
             bail!("Other types of repo are not handled")
