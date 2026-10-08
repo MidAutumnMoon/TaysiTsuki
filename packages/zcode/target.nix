@@ -17,7 +17,8 @@ ps: with ps; [
     libXfixes
     libXrandr
     libXcursor
-    libayatana-appindicator
+    # zcode dlopens libdbusmenu-glib.so.4 for StatusNotifierItem tray menus.
+    libdbusmenu
     libgbm
     libnotify
     libpulseaudio
