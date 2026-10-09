@@ -35,6 +35,10 @@ in rec {
         kde = callPackage ./kde/package.nix {
             kdePackages = prev.kdePackages;
         };
+
+        fish = callPackage ./fish/package.nix {
+            fish = prev.fish;
+        };
     };
 
     inherit (pkgsFrom "sops-nix")
@@ -52,6 +56,8 @@ in rec {
     dnscrypt-proxy = tsuki.dnscrypt;
 
     obsidian = lib.useElectronBin prev prev.obsidian;
+
+    fish = tsuki.fish;
 
     yt-dlp = prev.yt-dlp.override {
         jsRuntime = prev.nodejs;
