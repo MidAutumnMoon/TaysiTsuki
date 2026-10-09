@@ -75,10 +75,10 @@ output "DP-2" {
     // If the mode is omitted altogether or is invalid, niri will pick one automatically.
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
     mode "2560x1440@120.000"
-    variable-refresh-rate on-demand=true
+    // variable-refresh-rate on-demand=true
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
-    scale 1.2
+    scale 1.1
 
     // Transform allows to rotate the output counter-clockwise, valid values are:
     // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
@@ -130,7 +130,7 @@ layout {
     // preset-window-heights { }
 
     // You can change the default width of the new windows.
-    default-column-width { proportion 0.5; }
+    default-column-width { proportion 0.6; }
     // If you leave the brackets empty, the windows themselves will decide their initial width.
     // default-column-width {}
 
@@ -343,8 +343,8 @@ binds {
     Mod+Ctrl+L { move-column-right; }
     Mod+Ctrl+J { move-window-down-or-to-workspace-down; }
     Mod+Ctrl+K { move-window-up-or-to-workspace-up; }
-    Mod+Ctrl+Shift+J { move-workspace-down; }
-    Mod+Ctrl+Shift+K { move-workspace-up; }
+    // Mod+Ctrl+Shift+J { move-workspace-down; }
+    // Mod+Ctrl+Shift+K { move-workspace-up; }
 
     // Mod+Home { focus-column-first; }
     // Mod+End  { focus-column-last; }
@@ -481,7 +481,7 @@ binds {
     // Toggle tabbed column display mode.
     // Windows in this column will appear as vertical tabs,
     // rather than stacked on top of each other.
-    Mod+W { toggle-column-tabbed-display; }
+    // Mod+W { toggle-column-tabbed-display; }
 
     // Actions to switch layouts.
     // Note: if you uncomment these, make sure you do NOT have
