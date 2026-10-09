@@ -1,0 +1,108 @@
+From 4db85ccef11ed394db0ad3f989d424eb95088c75 Mon Sep 17 00:00:00 2001
+From: MidAutumnMoon <me@418.im>
+Date: Fri, 9 Oct 2026 22:01:37 +0800
+Subject: [PATCH 4/4] wildcard: no space after slash-less symlink completions
+ either
+
+A symlink-to-dir completion now applies with WantsSuffix::No, so the
+cursor lands directly after the name: Enter runs it (rm result), "/"
+descends (./result/bin/app), space continues the command. Previously
+the suppressed slash still left the default space suffix, which had to
+be deleted before typing "/".
+
+Pins the applied command line (no trailing space for symlinks, slash
+for real dirs) via unique_completion_applies_as.
+---
+ FORK-NOTES.md   |  6 ++++--
+ src/complete.rs | 24 ++++++++++++++++++++++++
+ src/wildcard.rs | 10 +++++++---
+ 3 files changed, 35 insertions(+), 5 deletions(-)
+
+diff --git a/FORK-NOTES.md b/FORK-NOTES.md
+index e42171f99..849f2c93c 100644
+--- a/FORK-NOTES.md
++++ b/FORK-NOTES.md
+@@ -27,8 +27,10 @@ restored optically by patch 2 instead.
+ - Anchor: the `// Append a / if this is a directory` block in
+   `wildcard_test_flags_then_complete`. The append now additionally requires
+   that the entry is *not itself* a symlink (`is_link`), so real directories
+-  keep the slash and `WantsSuffix::No`; symlink-to-dir completions get no
+-  slash and a trailing space after insert (`rm result <cursor>`).
++  keep the slash and `WantsSuffix::No`; symlink-to-dir completions get neither
++  slash nor space (`WantsSuffix::No` too), so the cursor lands directly after
++  the name: Enter runs `rm result`, `/` descends (`./result/bin/app`), space
++  continues the command.
+ - `is_link` is a hoisted `LazyCell<Option<bool>>` shared with the description
+   block: d_type verdict (`entry.is_possible_link()`) when known (free, no
+   syscall), `lwstat` fallback (`filepath_stat` LazyCell) on d_type-less
+diff --git a/src/complete.rs b/src/complete.rs
+index 6c66492ef..9bb777f9c 100644
+--- a/src/complete.rs
++++ b/src/complete.rs
+@@ -2866,6 +2866,13 @@ fn test_complete() {
+             std::fs::write(r"test/complete_test/cwd-for-colon/test-file-in-cwd", []).unwrap();
+         }
+         std::fs::write(r"test/complete_test/equal=abc", []).unwrap();
++        // FISH-FORK: symlink-to-dir fixture for the applies-as assertions below.
++        #[cfg(not(cygwin))]
++        {
++            std::fs::create_dir_all("test/complete_test/target").unwrap();
++            let _ = std::fs::remove_file("test/complete_test/sym");
++            std::os::unix::fs::symlink("target", "test/complete_test/sym").unwrap();
++        }
+         // On MSYS, the executable bit cannot be set manually, is set automatically
+         // based on the file content/type. So make it a shell script
+         std::fs::write("test/complete_test/testfile", "#!/bin/sh").unwrap();
+@@ -2992,6 +2999,23 @@ macro_rules! unique_completion_applies_as {
+             "touch test/complete_test/{something,testfile",
+         );
+ 
++        // FISH-FORK: a symlink-to-dir completes with neither slash nor space (cursor
++        // directly after the name: Enter runs `rm result`, `/` descends); a real dir
++        // keeps the stock slash-and-no-space.
++        #[cfg(not(cygwin))]
++        {
++            unique_completion_applies_as!(
++                "echo test/complete_test/sy",
++                "m",
++                "echo test/complete_test/sym",
++            );
++            unique_completion_applies_as!(
++                "echo test/complete_test/targe",
++                "t/",
++                "echo test/complete_test/target/",
++            );
++        }
++
+         // Brackets - see #5831
+         unique_completion_applies_as!(
+             "touch test/complete_test/bracket[",
+diff --git a/src/wildcard.rs b/src/wildcard.rs
+index f7ad6006a..25f27536a 100644
+--- a/src/wildcard.rs
++++ b/src/wildcard.rs
+@@ -414,14 +414,18 @@ fn wildcard_test_flags_then_complete(
+     };
+     let desc_func: Option<&dyn Fn(&wstr) -> WString> = Some(&desc_func);
+ 
+-    // FISH-FORK: no `/` when the final component is itself a symlink to a directory
+-    // (`rm result<tab>` must complete to `rm result ` so the link can be deleted);
+-    // real directories keep the slash. Upstream wontfix; see FORK-NOTES.md.
++    // FISH-FORK: no `/` when the final component is itself a symlink to a directory;
++    // real directories keep the slash. The cursor lands directly after the name:
++    // type `/` to descend (`./result/bin/app`), Enter to run (`rm result`), space to
++    // continue the command. Upstream wontfix; see FORK-NOTES.md.
+     // REBASE: anchor is the `// Append a / if this is a directory` comment in
+     // wildcard_test_flags_then_complete.
+     let filename = if entry.is_dir() && !is_link.unwrap_or(false) {
+         flags.wants_suffix = WantsSuffix::No;
+         Cow::Owned(filename.to_owned() + L!("/"))
++    } else if entry.is_dir() {
++        flags.wants_suffix = WantsSuffix::No;
++        Cow::Borrowed(filename)
+     } else {
+         Cow::Borrowed(filename)
+     };
+-- 
+2.55.0
+

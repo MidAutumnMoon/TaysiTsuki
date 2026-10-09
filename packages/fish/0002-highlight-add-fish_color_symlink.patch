@@ -1,0 +1,786 @@
+From e92f9f1aa343c2b668d40797fa50137fde9afaf4 Mon Sep 17 00:00:00 2001
+From: MidAutumnMoon <me@418.im>
+Date: Fri, 9 Oct 2026 21:37:54 +0800
+Subject: [PATCH 2/4] highlight: add fish_color_symlink
+
+Mark argument tokens whose final path component is a symlink (dangling
+ones included) with a new HighlightSpec::symlink bit, resolved through
+the fish_color_symlink variable after the valid_path merge so a set
+variable wins on symlink characters. Unset applies the built-in default
+"magenta --underline=dashed" (zero config); an empty value parses to a
+no-op face and restores stock rendering.
+
+is_potential_path returns PathTest { is_path, is_symlink } with
+lstat/d_type semantics only, so the signal never follows the link and is
+cursor-stable. is_path semantics are unchanged. cd paths and redirection
+targets are out of scope.
+
+Fork patch; no shell upstream highlights symlinks on the command line.
+See FISH-FORK markers at each hunk.
+---
+ src/highlight/file_tester.rs | 395 ++++++++++++++++++++++-------------
+ src/highlight/highlight.rs   | 167 ++++++++++++++-
+ 2 files changed, 415 insertions(+), 147 deletions(-)
+
+diff --git a/src/highlight/file_tester.rs b/src/highlight/file_tester.rs
+index c4718027d..a8f299f2a 100644
+--- a/src/highlight/file_tester.rs
++++ b/src/highlight/file_tester.rs
+@@ -8,7 +8,9 @@
+     path::path_apply_working_directory,
+     redirection::RedirectionMode,
+     threads::assert_is_background_thread,
+-    wutil::{dir_iter::DirIter, fish_wcstoi, normalize_path, waccess, wbasename, wdirname, wstat},
++    wutil::{
++        dir_iter::DirIter, fish_wcstoi, lwstat, normalize_path, waccess, wbasename, wdirname, wstat,
++    },
+ };
+ use fish_common::{UnescapeFlags, UnescapeStringStyle, unescape_string};
+ use fish_wcstringutil::{
+@@ -45,6 +47,15 @@ struct PathFlags {
+ #[derive(Debug, Copy, Clone, PartialEq)]
+ pub struct IsErr;
+ 
++// FISH-FORK: `is_symlink` (lstat-style: final component only, dangling links included)
++// restores in highlighting the symlink signal this fork's completions drop
++// (FORK-NOTES.md). Rebase: anchor is the `-> bool` signature of is_potential_path below.
++#[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
++pub struct PathTest {
++    pub is_path: bool,
++    pub is_symlink: bool,
++}
++
+ /// The result of a file test.
+ pub type FileTestResult = Result<IsFile, IsErr>;
+ 
+@@ -66,12 +77,13 @@ pub fn new(working_directory: &'wd wstr, ctx: &'opctx mut OperationContext<'src>
+     /// Test whether a file exists and is readable.
+     /// The input string 'token' is given as an escaped string (as the user may type in).
+     /// If 'prefix' is true, instead check if the path is a prefix of a valid path.
+-    /// Returns false on cancellation.
+-    pub fn test_path(&self, token: &wstr, prefix: bool) -> bool {
++    /// Returns is_path=false on cancellation.
++    // FISH-FORK: returns PathTest (see the struct above) for the symlink bit.
++    pub fn test_path(&self, token: &wstr, prefix: bool) -> PathTest {
+         // Skip strings exceeding PATH_MAX. See #7837.
+         // Note some paths may exceed PATH_MAX, but this is just for highlighting.
+         if token.len() > (PATH_MAX as usize) {
+-            return false;
++            return PathTest::default();
+         }
+ 
+         // Unescape the token.
+@@ -82,7 +94,7 @@ pub fn test_path(&self, token: &wstr, prefix: bool) -> bool {
+                 ..Default::default()
+             }),
+         ) else {
+-            return false;
++            return PathTest::default();
+         };
+ 
+         // Big hack: is_potential_path expects a tilde, but unescape_string gives us HOME_DIRECTORY.
+@@ -234,7 +246,7 @@ fn is_potential_path(
+     directories: &[&wstr],
+     ctx: &OperationContext<'_>,
+     flags: PathFlags,
+-) -> bool {
++) -> PathTest {
+     // This function is expected to be called from the background thread.
+     // But in tests, threads get weird.
+     if cfg!(not(test)) {
+@@ -242,7 +254,7 @@ fn is_potential_path(
+     }
+ 
+     if ctx.check_cancel() {
+-        return false;
++        return PathTest::default();
+     }
+ 
+     let require_dir = flags.require_dir;
+@@ -264,7 +276,7 @@ fn is_potential_path(
+             | ANY_STRING
+             | ANY_STRING_RECURSIVE => {
+                 // It has magic, we don't know what the real fragment is
+-                return false;
++                return PathTest::default();
+             }
+             SLICE_BEGIN => {
+                 *c = '[';
+@@ -278,7 +290,7 @@ fn is_potential_path(
+     path_fragment.retain(|c| c != INTERNAL_SEPARATOR);
+ 
+     if path_fragment.is_empty() {
+-        return false;
++        return PathTest::default();
+     }
+ 
+     // Don't test the same path multiple times, which can happen if the path is absolute and the
+@@ -289,9 +301,12 @@ fn is_potential_path(
+     // Keep a cache of which paths / filesystems are case sensitive.
+     let mut case_sensitivity_cache = CaseSensitivityCache::new();
+ 
++    // FISH-FORK: sticky symlink signal for the final return; set in the wstat arm below.
++    let mut found_symlink = false;
++
+     for wd in directories {
+         if ctx.check_cancel() {
+-            return false;
++            return PathTest::default();
+         }
+         let mut abs_path = path_apply_working_directory(&path_fragment, wd);
+         let must_be_full_dir = abs_path.chars().next_back() == Some('/');
+@@ -318,18 +333,31 @@ fn is_potential_path(
+         // 2. If the cursor is not at the argument, it means the user is definitely not typing it,
+         //    so we can skip the prefix-match.
+         if must_be_full_dir || !at_cursor {
++            // FISH-FORK: lstat the final component for the symlink bit (PathTest above);
++            // is_path semantics are unchanged. Rebase: anchor is this wstat block in
++            // is_potential_path.
++            let is_symlink = lwstat(abs_path).is_ok_and(|md| md.is_symlink());
+             if let Ok(md) = wstat(abs_path) {
+                 if !at_cursor || md.file_type().is_dir() {
+-                    return true;
++                    return PathTest {
++                        is_path: true,
++                        is_symlink,
++                    };
+                 }
+             }
++            // Dangling symlink: keep scanning so is_path can still be satisfied by a later
++            // directory (e.g. CDPATH), but remember the signal.
++            found_symlink |= is_symlink;
+         } else {
+             // We do not end with a slash; it does not have to be a directory.
+             let dir_name = wdirname(abs_path);
+             let filename_fragment = wbasename(abs_path);
+             if dir_name == "/" && filename_fragment == "/" {
+                 // cd ///.... No autosuggestion.
+-                return true;
++                return PathTest {
++                    is_path: true,
++                    ..Default::default()
++                };
+             }
+ 
+             if let Ok(mut dir) = DirIter::new(dir_name) {
+@@ -341,7 +369,7 @@ fn is_potential_path(
+                 while let Some(entry) = dir.next() {
+                     let Ok(entry) = entry else { continue };
+                     if ctx.check_cancel() {
+-                        return false;
++                        return PathTest::default();
+                     }
+ 
+                     // Maybe skip directories.
+@@ -356,13 +384,31 @@ fn is_potential_path(
+                                 &entry.name,
+                             ))
+                     {
+-                        return true;
++                        // FISH-FORK: take the symlink bit from the matched entry (d_type
++                        // via is_possible_link(), lstat fallback for DT_UNKNOWN) so this
++                        // prefix arm agrees with the wstat arm. Rebase: anchor is this
++                        // prefix-match return in the DirIter arm of is_potential_path.
++                        let is_symlink = match entry.is_possible_link() {
++                            Some(is_link) => is_link,
++                            None => {
++                                let entry_path =
++                                    path_apply_working_directory(&entry.name, dir_name);
++                                lwstat(&entry_path).is_ok_and(|md| md.is_symlink())
++                            }
++                        };
++                        return PathTest {
++                            is_path: true,
++                            is_symlink,
++                        };
+                     }
+                 }
+             }
+         }
+     }
+-    false
++    PathTest {
++        is_path: false,
++        is_symlink: found_symlink,
++    }
+ }
+ 
+ // Given a string, return whether it prefixes a path that we could cd into. Return that path in
+@@ -410,7 +456,9 @@ fn add_path(storage: &mut Vec<WString>, working_directory: &wstr, next_path: &ws
+     // Call is_potential_path with all of these directories.
+     flags.require_dir = true;
+     flags.for_cd = true;
+-    is_potential_path(path, at_cursor, &directories, ctx, flags)
++    // FISH-FORK: cd paths deliberately skip the symlink bit; only regular arguments
++    // feed fish_color_symlink (FORK-NOTES.md).
++    is_potential_path(path, at_cursor, &directories, ctx, flags).is_path
+ }
+ 
+ /// Determine if the filesystem containing the given fd is case insensitive for lookups regardless
+@@ -451,7 +499,7 @@ fn fs_is_case_insensitive(
+ 
+ #[cfg(test)]
+ mod tests {
+-    use super::{FileTester, IsErr, IsFile, PathFlags, is_potential_path};
++    use super::{FileTester, IsErr, IsFile, PathFlags, PathTest, is_potential_path};
+     use crate::{
+         env::EnvStack,
+         operation_context::{EXPANSION_LIMIT_DEFAULT, OperationContext},
+@@ -489,44 +537,130 @@ fn test_ispath() {
+         File::create(file_path).unwrap();
+ 
+         let result = tester.test_path(L!("file.txt"), false);
+-        assert!(result);
++        assert!(result.is_path);
+ 
+         let result = tester.test_path(L!("file.txt"), true);
+-        assert!(result);
++        assert!(result.is_path);
+ 
+         let result = tester.test_path(L!("fi"), false);
+-        assert!(!result);
++        assert!(!result.is_path);
+ 
+         let result = tester.test_path(L!("fi"), true);
+-        assert!(result);
++        assert!(result.is_path);
+ 
+         let result = tester.test_path(L!("file.txt-more"), false);
+-        assert!(!result);
++        assert!(!result.is_path);
+ 
+         let result = tester.test_path(L!("file.txt-more"), true);
+-        assert!(!result);
++        assert!(!result.is_path);
+ 
+         let result = tester.test_path(L!("ffiledfk.txt"), false);
+-        assert!(!result);
++        assert!(!result.is_path);
+ 
+         let result = tester.test_path(L!("ffiledfk.txt"), true);
+-        assert!(!result);
++        assert!(!result.is_path);
+ 
+         // Directories are also files.
+         let dir_path = filepath(&tempdir, "somedir");
+         create_dir_all(dir_path).unwrap();
+ 
+         let result = tester.test_path(L!("somedir"), false);
+-        assert!(result);
++        assert!(result.is_path);
+ 
+         let result = tester.test_path(L!("somedir"), true);
+-        assert!(result);
++        assert!(result.is_path);
+ 
+         let result = tester.test_path(L!("some"), false);
+-        assert!(!result);
++        assert!(!result.is_path);
+ 
+         let result = tester.test_path(L!("some"), true);
+-        assert!(result);
++        assert!(result.is_path);
++    }
++
++    // FISH-FORK: PathTest symlink bit at both cursor positions. Rebase: anchor is
++    // test_ispath above.
++    #[test]
++    #[cfg(unix)]
++    fn test_path_symlink() {
++        use std::os::unix::fs::symlink;
++
++        let (tempdir, ctx) = (temp_dir(), &mut op_context());
++        let wd = osstr2wcstring(tempdir.path());
++        let tester = FileTester::new(&wd, ctx);
++
++        create_dir_all(filepath(&tempdir, "realdir")).unwrap();
++        symlink("realdir", filepath(&tempdir, "linkdir")).unwrap();
++        symlink("no-such-target", filepath(&tempdir, "dangling")).unwrap();
++
++        // Real directory.
++        assert_eq!(
++            tester.test_path(L!("realdir"), false),
++            PathTest {
++                is_path: true,
++                is_symlink: false,
++            }
++        );
++        assert_eq!(
++            tester.test_path(L!("realdir"), true),
++            PathTest {
++                is_path: true,
++                is_symlink: false,
++            }
++        );
++
++        // Symlink to a directory.
++        assert_eq!(
++            tester.test_path(L!("linkdir"), false),
++            PathTest {
++                is_path: true,
++                is_symlink: true,
++            }
++        );
++        assert_eq!(
++            tester.test_path(L!("linkdir"), true),
++            PathTest {
++                is_path: true,
++                is_symlink: true,
++            }
++        );
++        // Partial token with the cursor inside resolves through the matched dir entry.
++        assert_eq!(
++            tester.test_path(L!("link"), true),
++            PathTest {
++                is_path: true,
++                is_symlink: true,
++            }
++        );
++
++        // Dangling symlink: is_path keeps its stock cursor-dependence; the symlink bit
++        // is stable at both positions.
++        assert_eq!(
++            tester.test_path(L!("dangling"), false),
++            PathTest {
++                is_path: false,
++                is_symlink: true,
++            }
++        );
++        assert_eq!(
++            tester.test_path(L!("dangling"), true),
++            PathTest {
++                is_path: true,
++                is_symlink: true,
++            }
++        );
++        assert_eq!(
++            tester.test_path(L!("dang"), true),
++            PathTest {
++                is_path: true,
++                is_symlink: true,
++            }
++        );
++
++        // Plain missing path.
++        assert_eq!(
++            tester.test_path(L!("no-such-thing"), false),
++            PathTest::default()
++        );
+     }
+ 
+     #[test]
+@@ -771,125 +905,96 @@ fn test_is_potential_path() {
+             ..Default::default()
+         };
+ 
+-        assert!(is_potential_path(
+-            L!("al"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            path_require_dir
+-        ));
++        assert!(is_potential_path(L!("al"), true, &wds[..], &ctx, path_require_dir).is_path);
+ 
+-        assert!(is_potential_path(
+-            L!("alpha/"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            path_require_dir
+-        ));
+-        assert!(is_potential_path(
+-            L!("aard"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            PathFlags::default()
+-        ));
+-        assert!(!is_potential_path(
+-            L!("aard"),
+-            false,
+-            &wds[..],
+-            &ctx,
+-            PathFlags::default()
+-        ));
+-        assert!(!is_potential_path(
+-            L!("alp/"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            PathFlags {
+-                require_dir: true,
+-                for_cd: true,
+-                ..Default::default()
+-            }
+-        ));
++        assert!(is_potential_path(L!("alpha/"), true, &wds[..], &ctx, path_require_dir).is_path);
++        assert!(is_potential_path(L!("aard"), true, &wds[..], &ctx, PathFlags::default()).is_path);
++        assert!(
++            !is_potential_path(L!("aard"), false, &wds[..], &ctx, PathFlags::default()).is_path
++        );
++        assert!(
++            !is_potential_path(
++                L!("alp/"),
++                true,
++                &wds[..],
++                &ctx,
++                PathFlags {
++                    require_dir: true,
++                    for_cd: true,
++                    ..Default::default()
++                }
++            )
++            .is_path
++        );
+ 
+-        assert!(!is_potential_path(
+-            L!("balpha/"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            path_require_dir
+-        ));
+-        assert!(!is_potential_path(
+-            L!("aard"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            path_require_dir
+-        ));
+-        assert!(!is_potential_path(
+-            L!("aarde"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            path_require_dir
+-        ));
+-        assert!(!is_potential_path(
+-            L!("aarde"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            PathFlags::default()
+-        ));
++        assert!(!is_potential_path(L!("balpha/"), true, &wds[..], &ctx, path_require_dir).is_path);
++        assert!(!is_potential_path(L!("aard"), true, &wds[..], &ctx, path_require_dir).is_path);
++        assert!(!is_potential_path(L!("aarde"), true, &wds[..], &ctx, path_require_dir).is_path);
++        assert!(
++            !is_potential_path(L!("aarde"), true, &wds[..], &ctx, PathFlags::default()).is_path
++        );
+ 
+-        assert!(is_potential_path(
+-            L!("test/is_potential_path_test/aardvark"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            PathFlags::default()
+-        ));
+-        assert!(is_potential_path(
+-            L!("test/is_potential_path_test/al"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            path_require_dir
+-        ));
+-        assert!(is_potential_path(
+-            L!("test/is_potential_path_test/aardv"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            PathFlags::default()
+-        ));
++        assert!(
++            is_potential_path(
++                L!("test/is_potential_path_test/aardvark"),
++                true,
++                &wds[..],
++                &ctx,
++                PathFlags::default()
++            )
++            .is_path
++        );
++        assert!(
++            is_potential_path(
++                L!("test/is_potential_path_test/al"),
++                true,
++                &wds[..],
++                &ctx,
++                path_require_dir
++            )
++            .is_path
++        );
++        assert!(
++            is_potential_path(
++                L!("test/is_potential_path_test/aardv"),
++                true,
++                &wds[..],
++                &ctx,
++                PathFlags::default()
++            )
++            .is_path
++        );
+ 
+-        assert!(!is_potential_path(
+-            L!("test/is_potential_path_test/aardvark"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            path_require_dir
+-        ));
+-        assert!(!is_potential_path(
+-            L!("test/is_potential_path_test/al/"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            PathFlags::default()
+-        ));
+-        assert!(!is_potential_path(
+-            L!("test/is_potential_path_test/ar"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            PathFlags::default()
+-        ));
+-        assert!(is_potential_path(
+-            L!("/usr"),
+-            true,
+-            &wds[..],
+-            &ctx,
+-            path_require_dir
+-        ));
++        assert!(
++            !is_potential_path(
++                L!("test/is_potential_path_test/aardvark"),
++                true,
++                &wds[..],
++                &ctx,
++                path_require_dir
++            )
++            .is_path
++        );
++        assert!(
++            !is_potential_path(
++                L!("test/is_potential_path_test/al/"),
++                true,
++                &wds[..],
++                &ctx,
++                PathFlags::default()
++            )
++            .is_path
++        );
++        assert!(
++            !is_potential_path(
++                L!("test/is_potential_path_test/ar"),
++                true,
++                &wds[..],
++                &ctx,
++                PathFlags::default()
++            )
++            .is_path
++        );
++        assert!(is_potential_path(L!("/usr"), true, &wds[..], &ctx, path_require_dir).is_path);
+     }
+ }
+diff --git a/src/highlight/highlight.rs b/src/highlight/highlight.rs
+index 9f810bd3e..2546da911 100644
+--- a/src/highlight/highlight.rs
++++ b/src/highlight/highlight.rs
+@@ -201,6 +201,35 @@ fn resolve_spec_uncached(highlight: &HighlightSpec, vars: &dyn Environment) -> T
+             }
+         }
+ 
++        // FISH-FORK: fish_color_symlink (see FORK-NOTES.md). Merged after valid_path so
++        // a set variable wins on symlink characters; set-empty parses to a no-op face,
++        // i.e. stock rendering.
++        // Rebase: anchor is the valid_path merge above in resolve_spec_uncached.
++        if highlight.symlink {
++            let words = vars
++                .get(L!("fish_color_symlink"))
++                .map(|var| var.as_list().to_vec())
++                .unwrap_or_else(|| {
++                    // FISH-FORK: built-in default; must match FORK-NOTES.md (pinned by
++                    // test_highlighting_symlink).
++                    vec![
++                        L!("magenta").to_owned(),
++                        L!("--underline=dashed").to_owned(),
++                    ]
++                });
++            let symlink_face = parse_text_face(&words);
++            if let Some(fg) = symlink_face.fg {
++                face.fg = fg;
++            }
++            if let Some(bg) = symlink_face.bg {
++                face.bg = bg;
++            }
++            if let Some(underline_color) = symlink_face.underline_color {
++                face.underline_color = underline_color;
++            }
++            face.style = face.style.union_prefer_right(symlink_face.style);
++        }
++
+         if highlight.force_underline {
+             face.style
+                 .inject_underline(ResettableStyle::On(UnderlineStyle::Single));
+@@ -951,8 +980,16 @@ fn visit_argument(&mut self, arg: &Argument, cmd_is_cd: bool, options_allowed: b
+                 self.file_tester.test_cd_path(&token, is_prefix)
+             }
+         } else {
+-            let is_path = self.file_tester.test_path(&token, is_prefix);
+-            Ok(IsFile(is_path))
++            // FISH-FORK: flag the token when its final path component is a symlink;
++            // valid_path handling is unchanged. Rebase: anchor is this test_path call
++            // in visit_argument.
++            let path_test = self.file_tester.test_path(&token, is_prefix);
++            if path_test.is_symlink {
++                for i in source_range.as_usize() {
++                    self.color_array[i].symlink = true;
++                }
++            }
++            Ok(IsFile(path_test.is_path))
+         };
+         match test_result {
+             Ok(IsFile(false)) => (),
+@@ -1323,6 +1360,9 @@ pub struct HighlightSpec {
+     pub foreground: HighlightRole,
+     pub background: HighlightRole,
+     pub valid_path: bool,
++    // FISH-FORK: fish_color_symlink support (FORK-NOTES.md). Rebase: anchor is the
++    // valid_path field.
++    pub symlink: bool,
+     pub force_underline: bool,
+ }
+ 
+@@ -1849,6 +1889,129 @@ macro_rules! validate {
+         });
+     }
+ 
++    // FISH-FORK: end-to-end fish_color_symlink check: spec bits (dangling included),
++    // resolution and precedence, built-in default when unset, empty-value opt-out.
++    // Rebase: anchor is test_highlighting above.
++    #[test]
++    #[serial]
++    #[cfg(unix)]
++    fn test_highlighting_symlink() {
++        test_init();
++        let TestParser {
++            ref mut parser,
++            ref mut pushed_dirs,
++        } = TestParser::new();
++        parser.pushd(pushed_dirs, "test/fish_highlight_symlink_test/");
++        let parser = &mut **ScopeGuard::new(parser, |parser| parser.popd(pushed_dirs));
++        // Fixtures must be idempotent: a previously failed run may have left them behind.
++        std::fs::create_dir_all("realdir").unwrap();
++        let _ = std::fs::remove_file("linkdir");
++        let _ = std::fs::remove_file("dangling");
++        std::os::unix::fs::symlink("realdir", "linkdir").unwrap();
++        std::os::unix::fs::symlink("no-such-target", "dangling").unwrap();
++
++        let vars = parser.vars();
++        // Color vars are word lists, like `set -g fish_color_symlink magenta --underline=dashed`.
++        vars.set(
++            L!("fish_color_symlink"),
++            EnvSetMode::new_at_early_startup(EnvMode::LOCAL),
++            vec![
++                L!("magenta").to_owned(),
++                L!("--underline=dashed").to_owned(),
++            ],
++        );
++        // Competing valid-path face (distinct hue and underline style) so the
++        // precedence assertions below are not vacuous.
++        vars.set(
++            L!("fish_color_valid_path"),
++            EnvSetMode::new_at_early_startup(EnvMode::LOCAL),
++            vec![L!("green").to_owned(), L!("--underline").to_owned()],
++        );
++
++        // Cursor outside every argument, so all tokens take the deterministic wstat arm.
++        let text = L!("echo linkdir dangling realdir").to_owned();
++        let mut colors = vec![];
++        highlight_shell(
++            &text,
++            &mut colors,
++            &mut OperationContext::background(vars, EXPANSION_LIMIT_BACKGROUND),
++            true, /* io_ok */
++            None, /*cursor=*/
++        );
++
++        // Argument ranges within "echo linkdir dangling realdir".
++        fn spec_is(
++            colors: &[HighlightSpec],
++            range: std::ops::Range<usize>,
++            valid_path: bool,
++            symlink: bool,
++        ) {
++            for i in range {
++                assert_eq!(
++                    colors[i],
++                    HighlightSpec {
++                        valid_path,
++                        symlink,
++                        ..HighlightSpec::with_fg(HighlightRole::Param)
++                    },
++                    "unexpected HighlightSpec at position {i}"
++                );
++            }
++        }
++        spec_is(&colors, 5..12, true, true); // linkdir: valid path and a symlink.
++        spec_is(&colors, 13..21, false, true); // dangling: not a path, still a symlink.
++        spec_is(&colors, 22..28, true, false); // realdir: valid path, not a symlink.
++
++        // Resolve the spec the way fish_color_command is checked in test_resolve_role.
++        let symlink_face =
++            parse_text_face_for_highlight(&vars.get(L!("fish_color_symlink")).unwrap()).unwrap();
++        let valid_path_face =
++            parse_text_face_for_highlight(&vars.get(L!("fish_color_valid_path")).unwrap()).unwrap();
++        let mut resolver = HighlightColorResolver::new();
++        for i in [5, 13] {
++            assert_eq!(resolver.resolve_spec(&colors[i], vars), symlink_face);
++        }
++        // Control: "realdir" takes the active valid_path face.
++        assert_eq!(resolver.resolve_spec(&colors[22], vars), valid_path_face);
++
++        // Unset ⇒ the built-in default applies and must equal the words set above.
++        // Resolver results are cached with no invalidation, so rebuild the resolver
++        // after each var change.
++        vars.remove(L!("fish_color_symlink"), EnvSetMode::default());
++        let mut fresh_resolver = HighlightColorResolver::new();
++        for i in [5, 13] {
++            assert_eq!(fresh_resolver.resolve_spec(&colors[i], vars), symlink_face);
++        }
++
++        // Opt-out: set-but-empty parses to a no-op face ⇒ "linkdir" falls back to the
++        // valid_path face, "dangling" to plain param.
++        vars.set(
++            L!("fish_color_symlink"),
++            EnvSetMode::new_at_early_startup(EnvMode::LOCAL),
++            vec![L!("").to_owned()],
++        );
++        let mut opt_out_resolver = HighlightColorResolver::new();
++        assert_eq!(
++            opt_out_resolver.resolve_spec(&colors[5], vars),
++            valid_path_face
++        );
++        let plain_param = HighlightSpec::with_fg(HighlightRole::Param);
++        assert_eq!(
++            opt_out_resolver.resolve_spec(&colors[13], vars),
++            opt_out_resolver.resolve_spec(&plain_param, vars)
++        );
++
++        // With the valid-path var removed too, the opt-out state is fully stock.
++        vars.remove(L!("fish_color_valid_path"), EnvSetMode::default());
++        let mut stock_resolver = HighlightColorResolver::new();
++        for i in [5, 13, 22] {
++            assert_eq!(
++                stock_resolver.resolve_spec(&colors[i], vars),
++                stock_resolver.resolve_spec(&plain_param, vars)
++            );
++        }
++    }
++
+     /// Tests that trailing spaces after a command don't inherit the underline formatting of the
+     /// command.
+     #[test]
+-- 
+2.55.0
+

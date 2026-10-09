@@ -1,0 +1,141 @@
+From b927d14c2de0ebec3c725b3a6a2e8b723ac0ffde Mon Sep 17 00:00:00 2001
+From: MidAutumnMoon <me@418.im>
+Date: Fri, 9 Oct 2026 21:38:02 +0800
+Subject: [PATCH 3/4] docs: add FORK-NOTES.md
+
+Document the fork's two patches, the built-in fish_color_symlink
+default, the rebase procedure and FISH-FORK marker convention, and the
+manual verification recipe.
+---
+ FORK-NOTES.md | 119 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 119 insertions(+)
+ create mode 100644 FORK-NOTES.md
+
+diff --git a/FORK-NOTES.md b/FORK-NOTES.md
+new file mode 100644
+index 000000000..e42171f99
+--- /dev/null
++++ b/FORK-NOTES.md
+@@ -0,0 +1,119 @@
++# Fork notes: symlink-aware completion & highlighting
++
++Private fork patches on top of fish 4.9.3 (branch `symlink-fork`, tag `4.9.3`).
++Every *logic* hunk of this fork carries a `FISH-FORK:` comment (find them all with
++`git grep -n FISH-FORK`). Purely mechanical conversions (the `bool` →
++`PathTest::default()` early returns inside `is_potential_path`, imports, and test
++rewrapping) are deliberately unmarked; they all live in functions whose headers
++carry a marker.
++
++## Why this fork exists
++
++nix build output is a symlink `result -> /nix/store/...`. For `rm` you want
++`rm result` (delete the link), but stock fish completes to `rm result/`, which
++errors ("Is a directory") and must be backspaced every time. Upstream fish has
++deliberately refused to change this in issues #1329 (2014), #3253 (2016),
++#6576 (2020) and #10425 (2024), all closed wontfix; the slash signals "directory"
++and enables chained descent, and #3253 additionally rejected a config toggle
++("configurability is the root of all evil"). So: fork.
++
++The information the slash carried ("this is a symlink to a directory") is
++restored optically by patch 2 instead.
++
++## Patch 1: no trailing `/` on symlink-to-dir completions
++
++**Files:** `src/wildcard.rs` (+ test in `src/expand.rs`)
++
++- Anchor: the `// Append a / if this is a directory` block in
++  `wildcard_test_flags_then_complete`. The append now additionally requires
++  that the entry is *not itself* a symlink (`is_link`), so real directories
++  keep the slash and `WantsSuffix::No`; symlink-to-dir completions get no
++  slash and a trailing space after insert (`rm result <cursor>`).
++- `is_link` is a hoisted `LazyCell<Option<bool>>` shared with the description
++  block: d_type verdict (`entry.is_possible_link()`) when known (free, no
++  syscall), `lwstat` fallback (`filepath_stat` LazyCell) on d_type-less
++  filesystems, `None` = undeterminable → conservatively keep the slash
++  (stock behavior). `lwstat` never follows the link, so it cannot hang on a
++  stalled NFS/FUSE target (cf. upstream #12905 / commit 9a295f7da).
++- Companion fix: the cd-autosuggestion hierarchy append (`descend_unique_hierarchy`
++  result push) inserts the missing `/` before appending, because symlink-to-dir
++  completions carry none; real-dir autosuggestions stay byte-identical to stock,
++  symlink-dir ones read `result/sub/`.
++
++**Known trade-off (accepted):** after completing `result` there is no slash,
++so a second Tab does not descend into it. Type `/` to descend. This matches
++bash's default (`mark-symlinked-directories off`).
++
++**Tests:** `expand::tests`: `SY` completes to the symlink without slash,
++`AA` keeps `aaa/`; `complete.rs` `test_autosuggest_suggest_special` pins the
++hierarchy guard via a symlink fixture (`cd .../6sy` must suggest `m/only/`,
++never `monly/`).
++
++## Patch 2: `fish_color_symlink` highlighting
++
++**Files:** `src/highlight/highlight.rs`, `src/highlight/file_tester.rs`
++
++- New color variable `fish_color_symlink` (same grammar as every
++  `fish_color_*`, e.g. `magenta --underline=dashed`). **Unset ⇒ the fork's
++  built-in default applies: `magenta --underline=dashed`** (hardcoded in
++  `resolve_spec_uncached`, so the fork needs zero configuration). Setting the
++  variable overrides the default; `set -g fish_color_symlink ''` (empty value
++  parses to a no-op face) restores stock rendering.
++
++  Style rationale (user runs foot): plain underline is taken by
++  `fish_color_valid_path`; curly underline is kitty's link style and dotted is
++  foot's default link underline (VTE's is hardcoded too), so dashed is the
++  unreserved style. Magenta is used nowhere in fish's default theme and is
++  distinguishable from the cyan params / yellow quotes under the common
++  color-blindness types. No shell upstream styles symlinks on the command
++  line.
++- `HighlightSpec` gained a `symlink: bool` (beside `valid_path`); set per-char
++  for the whole argument token in `visit_argument` (non-cd arguments only; cd
++  paths and redirection targets stay stock).
++- Detection (`is_potential_path` now returns `struct PathTest { is_path,
++  is_symlink }`): lstat/d_type semantics only and never follows the link.
++  Cursor-stable: the DirIter prefix arm (cursor inside the token) uses the
++  matched entry's d_type, the wstat arm uses `lwstat`. `is_path` semantics are
++  unchanged from stock (the dangling-link-looks-valid quirk is deliberately
++  untouched). Dangling symlinks get `is_symlink = true` at both cursor
++  positions, so broken links are stably marked.
++- Edge: a token typed *with* trailing slash (`result/`) is not marked, because
++  `lstat("link/")` resolves through the slash to the target, which is not a
++  symlink. Deliberate.
++- The symlink face is merged in `resolve_spec_uncached` AFTER the
++  `fish_color_valid_path` block, so when the variable is set it fully wins on
++  symlink characters (pinned by `test_highlighting_symlink`, which sets a
++  competing `fish_color_valid_path`).
++- Cost: one extra `lwstat` per settled argument token per highlight pass (stock
++  pays one syscall, the fork two). Background thread, debounced, negligible.
++
++**Tests:** `file_tester::tests::test_path_symlink` (real dir / symlink /
++dangling, both cursor positions), `highlight::tests::test_highlighting_symlink`
++(spec flags + resolved faces + built-in-default-when-unset + empty-value opt-out).
++
++## Rebase / refresh procedure
++
++1. `git rebase --onto <new-tag> 4.9.3 symlink-fork` (or re-extract with
++   `git format-patch 4.9.3`).
++2. Conflicts: every hunk carries a `FISH-FORK:` comment with a named upstream
++   anchor (e.g. the `// Append a / if this is a directory` comment, the
++   `valid_path` merge in `resolve_spec_uncached`, the
++   `descend_unique_hierarchy` push loop). Upstream refactors to watch for:
++   `is_possible_link()`/d_type handling in `src/wutil/dir_iter.rs` and the
++   `filepath_stat` LazyCell in `wildcard_test_flags_then_complete`
++   (see upstream 9a295f7da "avoid stat()-ing non-matching symlinks");
++   `HighlightSpec` construction sites; `is_potential_path`'s return type.
++3. Re-run: `cargo test --lib expand::tests highlight autosuggest wildcard`,
++   then the manual check below.
++
++## Manual verification recipe
++
++    t=$(mktemp -d); mkdir -p $t/real; touch $t/real/f
++    ln -sfn real $t/result; ln -sfn /nonexistent $t/dang; cd $t
++    target/debug/fish -c 'complete -C "rm re"'     # expect: result  (no slash)
++    target/debug/fish -c 'complete -C "rm real"'   # expect: real/   (slash kept)
++    target/debug/fish -c 'complete -C "cd re"'     # expect: result
++    target/debug/fish -c 'complete -C "cd real"'   # expect: real/
++    # colors (interactive, or pty): with no config, `rm result` paints
++    # magenta+dashed-underline out of the box and `rm real` stays stock;
++    # `set -g fish_color_symlink ''` reverts symlink tokens to stock.
+-- 
+2.55.0
+

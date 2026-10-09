@@ -1,0 +1,190 @@
+From 189aae115b95f11a6c88b227f4960686973fad01 Mon Sep 17 00:00:00 2001
+From: MidAutumnMoon <me@418.im>
+Date: Fri, 9 Oct 2026 21:37:46 +0800
+Subject: [PATCH 1/4] wildcard: no trailing slash for symlink-to-dir
+ completions
+
+When tab-completing a path whose final component is itself a symlink to
+a directory, do not append "/" so e.g. `rm result` (nix out-link)
+completes ready to run. Real directories keep the slash and its descent
+behavior. The is_link check uses d_type with an lstat fallback and
+falls back to stock behavior when neither is available.
+
+Companion fix: the cd-autosuggestion hierarchy push inserts the missing
+slash for slash-less completions, keeping real-dir autosuggestions
+byte-identical and symlink-dir ones sane (result/sub/, not resultsub/).
+
+Fork patch; upstream wontfix (fish-shell #1329 #3253 #6576 #10425).
+See FISH-FORK markers at each hunk.
+---
+ src/complete.rs | 16 ++++++++++++++++
+ src/expand.rs   | 30 ++++++++++++++++++++++++++++++
+ src/wildcard.rs | 45 ++++++++++++++++++++++++++++++++-------------
+ 3 files changed, 78 insertions(+), 13 deletions(-)
+
+diff --git a/src/complete.rs b/src/complete.rs
+index 806d83e07..6c66492ef 100644
+--- a/src/complete.rs
++++ b/src/complete.rs
+@@ -3350,6 +3350,15 @@ macro_rules! perform_one_completion_cd_test {
+                 .unwrap();
+         }
+ 
++        // FISH-FORK: symlink-to-dir fixture for the autosuggestion case below.
++        // Rebase: anchor is the has_loop symlink fixture above.
++        #[cfg(not(cygwin))]
++        {
++            std::fs::create_dir_all("test/autosuggest_test/6target/only").unwrap();
++            let _ = std::fs::remove_file("test/autosuggest_test/6sym");
++            std::os::unix::fs::symlink("6target", "test/autosuggest_test/6sym").unwrap();
++        }
++
+         let wd = "test/autosuggest_test";
+ 
+         let mut vars = PwdEnvironment::default();
+@@ -3367,6 +3376,13 @@ macro_rules! perform_one_completion_cd_test {
+         perform_one_autosuggestion_cd_test!("cd test/autosuggest_test/2", "foo  bar/", &vars);
+         perform_one_autosuggestion_cd_test!("cd \"test/autosuggest_test/2", "foo  bar/", &vars);
+         perform_one_autosuggestion_cd_test!("cd 'test/autosuggest_test/2", "foo  bar/", &vars);
++        // FISH-FORK: cd through the symlink `6sym`: the completion carries no trailing
++        // `/`, so only the hierarchy-push guard (wildcard.rs) makes this `m/only/`
++        // rather than `monly/`.
++        #[cfg(not(cygwin))]
++        {
++            perform_one_autosuggestion_cd_test!("cd test/autosuggest_test/6sy", "m/only/", &vars);
++        }
+         #[cfg(not(cygwin))]
+         // Windows does not allow backslashes in filenames
+         {
+diff --git a/src/expand.rs b/src/expand.rs
+index 5403518c8..adb14666e 100644
+--- a/src/expand.rs
++++ b/src/expand.rs
+@@ -1807,6 +1807,7 @@ macro_rules! expand_test {
+         // aaa
+         // aaa2
+         //    x
++        // sym -> aaa (symlink to a real directory)
+         std::fs::create_dir_all("test/fish_expand_test/").unwrap();
+         std::fs::create_dir_all("test/fish_expand_test/bb/").unwrap();
+         std::fs::create_dir_all("test/fish_expand_test/baz/").unwrap();
+@@ -1824,6 +1825,16 @@ macro_rules! expand_test {
+         std::fs::write("test/fish_expand_test/lol/nub/zzz", []).unwrap();
+         std::fs::write("test/fish_expand_test/aaa2/x", []).unwrap();
+ 
++        // FISH-FORK: symlink-to-dir fixture for the completion cases below.
++        // REBASE: anchor is the `std::fs::write("test/fish_expand_test/aaa2/x", ...)`
++        // fixture line in test_expand.
++        #[cfg(unix)]
++        {
++            let sym_link = "test/fish_expand_test/sym";
++            let _ = std::fs::remove_file(sym_link); // tolerate a leftover from a previous run
++            std::os::unix::fs::symlink("aaa", sym_link).unwrap();
++        }
++
+         // This is checking that .* does NOT match . and ..
+         // (https://github.com/fish-shell/fish-shell/issues/270). But it does have to match literal
+         // components (e.g. "./*" has to match the same as "*".
+@@ -1940,6 +1951,25 @@ macro_rules! expand_test {
+             "Case insensitive test did the wrong thing"
+         );
+ 
++        // FISH-FORK: a symlink to a directory completes without the trailing `/`;
++        // real directories (AA) keep theirs. Uppercase prefixes force full-token
++        // replacement, like the BA cases above.
++        // REBASE: anchor is the `test/fish_expand_test/BA` for_completions cases.
++        #[cfg(unix)]
++        expand_test!(
++            "test/fish_expand_test/SY",
++            for_completions,
++            "test/fish_expand_test/sym",
++            "Symlink to a directory completed with a trailing slash"
++        );
++        #[cfg(unix)]
++        expand_test!(
++            "test/fish_expand_test/AA",
++            for_completions,
++            ("test/fish_expand_test/aaa/", "test/fish_expand_test/aaa2/"),
++            "Real directory lost its trailing slash"
++        );
++
+         expand_test!(
+             "test/fish_expand_test/bb/yyy",
+             for_completions,
+diff --git a/src/wildcard.rs b/src/wildcard.rs
+index e668782c7..f7ad6006a 100644
+--- a/src/wildcard.rs
++++ b/src/wildcard.rs
+@@ -377,22 +377,27 @@ fn wildcard_test_flags_then_complete(
+         }
+     }
+ 
++    // FISH-FORK: lazy shared cell so the `/`-append decision below reuses the
++    // gen_descriptions link check; the lstat fallback (d_type unknown) runs only when
++    // the cell is forced. None = d_type unknown and lstat() failed.
++    // REBASE: anchor is `let is_link: bool = match entry.is_possible_link()` inside the
++    // `if expand_flags.gen_descriptions` block in wildcard_test_flags_then_complete.
++    let is_link = LazyCell::new(|| match entry.is_possible_link() {
++        Some(n) => Some(n),
++        None => {
++            // We do not know it's a link from the d_type,
++            // so we will have to do an lstat().
++            filepath_stat.as_ref().ok().map(|md| md.is_symlink())
++        }
++    });
++
+     // Compute the description.
+     // This is effectively only for command completions,
+     // because we disable descriptions for regular file completions.
+     let desc = if expand_flags.gen_descriptions {
+-        let is_link: bool = match entry.is_possible_link() {
+-            Some(n) => n,
+-            None => {
+-                // We do not know it's a link from the d_type,
+-                // so we will have to do an lstat().
+-                if let Ok(md) = filepath_stat.as_ref() {
+-                    md.is_symlink()
+-                } else {
+-                    // This file is no longer be usable, skip it.
+-                    return false;
+-                }
+-            }
++        let Some(is_link) = *is_link else {
++            // This file is no longer be usable, skip it.
++            return false;
+         };
+         // If we have executables_only, we already checked waccess above,
+         // so we tell file_get_desc that this file is definitely executable so it can skip the check.
+@@ -409,7 +414,12 @@ fn wildcard_test_flags_then_complete(
+     };
+     let desc_func: Option<&dyn Fn(&wstr) -> WString> = Some(&desc_func);
+ 
+-    let filename = if entry.is_dir() {
++    // FISH-FORK: no `/` when the final component is itself a symlink to a directory
++    // (`rm result<tab>` must complete to `rm result ` so the link can be deleted);
++    // real directories keep the slash. Upstream wontfix; see FORK-NOTES.md.
++    // REBASE: anchor is the `// Append a / if this is a directory` comment in
++    // wildcard_test_flags_then_complete.
++    let filename = if entry.is_dir() && !is_link.unwrap_or(false) {
+         flags.wants_suffix = WantsSuffix::No;
+         Cow::Owned(filename.to_owned() + L!("/"))
+     } else {
+@@ -969,6 +979,15 @@ fn try_add_completion_result(
+                     let unique_hierarchy = self.descend_unique_hierarchy(&mut abs_path);
+                     if !unique_hierarchy.is_empty() {
+                         for c in self.resolved_completions[before..after].iter_mut() {
++                            // FISH-FORK: symlink-to-dir completions carry no trailing
++                            // `/` (see wildcard_test_flags_then_complete), so insert
++                            // the separator here or the push would yield `resultsub/`;
++                            // real-dir completions already end in `/`.
++                            // REBASE: anchor is the `c.completion.push_utfstr(&unique_hierarchy)`
++                            // loop in try_add_completion_result.
++                            if !c.completion.ends_with('/') {
++                                c.completion.push_utfstr(L!("/"));
++                            }
+                             c.completion.push_utfstr(&unique_hierarchy);
+                         }
+                     }
+-- 
+2.55.0
+
