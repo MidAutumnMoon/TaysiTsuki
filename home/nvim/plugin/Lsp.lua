@@ -11,6 +11,9 @@ vim.lsp.config("nixd", {
     } }
 })
 
+vim.lsp.config("oxfmt", { workspace_required = true })
+vim.lsp.config("oxlint", { workspace_required = true })
+
 vim.lsp.enable {
     "tsc",
     "nixd",
