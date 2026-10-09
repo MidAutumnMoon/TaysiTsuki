@@ -397,7 +397,7 @@
     }
   },
   "edit_predictions": {
-    "provider": "zed",
+    "provider": "mercury",
     "mode": "subtle"
   },
   "file_types": {
