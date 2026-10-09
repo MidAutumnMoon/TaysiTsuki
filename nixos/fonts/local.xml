@@ -49,16 +49,4 @@
         </edit>
     </match>
 
-    <!-- fontconfig resolves "ui-monospace" as sans-serif, not monospace.
-      qual="equal" emits warnings but standard forms cannot override the
-      generic family set by 48-guessfamily.conf. -->
-    <match target="pattern">
-        <test name="family" qual="equal">
-            <string>ui-monospace</string>
-        </test>
-        <edit name="family" mode="prepend_first">
-            <string>monospace</string>
-        </edit>
-    </match>
-
 </fontconfig>
