@@ -8,9 +8,9 @@ license.workspace = true
 
 [dependencies]
 dbus = { version = "0.9", features = ["vendored"] }
+eros.workspace = true
 ino_tracing = "1.0.0"
 niri-ipc.workspace = true
-rootcause.workspace = true
 tracing = "0.1"
 
 [lints]

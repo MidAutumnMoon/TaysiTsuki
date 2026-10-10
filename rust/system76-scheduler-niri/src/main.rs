@@ -3,14 +3,13 @@ use std::thread;
 use std::time::Duration;
 
 use dbus::blocking::Connection as DbusConn;
+use eros::Context as _;
 use niri_ipc::Event as NiriEvent;
 use niri_ipc::Request as NiriRequest;
 use niri_ipc::Response as NiriResponse;
 use niri_ipc::socket::Socket as NiriSocket;
 use niri_ipc::state::EventStreamStatePart as _;
 use niri_ipc::state::WindowsState;
-use rootcause::prelude::Report;
-use rootcause::prelude::ResultExt as _;
 use tracing::error;
 use tracing::info;
 use tracing::instrument;
@@ -29,7 +28,7 @@ struct ForegroundWindow {
     title: Option<String>,
 }
 
-fn main() -> Result<(), Report> {
+fn main() -> eros::Result<()> {
     let _log_guard = ino_tracing::init_tracing_subscriber();
 
     //
@@ -47,14 +46,12 @@ fn main() -> Result<(), Report> {
             info!("Niri successfully handled event stream request");
         }
         Ok(resp) => {
-            rootcause::bail!(
+            eros::bail!(
                 "Niri didn't handle event stream request: {resp:?}"
             );
         }
         Err(message) => {
-            rootcause::bail!(
-                "Niri rejected event stream request: {message}"
-            );
+            eros::bail!("Niri rejected event stream request: {message}");
         }
     }
 
@@ -88,6 +85,11 @@ fn main() -> Result<(), Report> {
         //
         // WindowOpenedOrChanged can itself introduce a focused window, so
         // don't rely exclusively on WindowFocusChanged.
+        #[expect(
+            clippy::rest_pattern_accessible_field,
+            clippy::wildcard_enum_match_arm,
+            reason = "don't care"
+        )]
         let foreground_may_have_changed = match &event {
             NiriEvent::WindowsChanged { .. }
             | NiriEvent::WindowFocusChanged { .. } => true,

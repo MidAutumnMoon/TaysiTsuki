@@ -1,10 +1,10 @@
 [workspace]
 resolver = "3"
-members = [ "*" ]
-exclude = [ "target" ]
+members = ["*"]
+exclude = ["target"]
 
 [workspace.package]
-authors = [ "MidAutumnMoon" ]
+authors = ["MidAutumnMoon"]
 license = "GPL-3.0-or-later"
 repository = "https://github.com/MidAutumnMoon/InOri"
 edition = "2024"
@@ -12,7 +12,8 @@ rust-version = "1.99.0"
 
 [workspace.dependencies]
 anyhow = "1.0.100"
-gix-discover = { version = "0", features = [ "sha1" ] }
+eros = { version = "0", default-features = false, features = ["context", "location"] }
+gix-discover = { version = "0", features = ["sha1"] }
 niri-ipc = "=26.4.0"
 rootcause = "0"
 
@@ -98,4 +99,3 @@ pattern_type_mismatch = "allow"
 
 # I prefer pub(crate) shorthand
 pub_with_shorthand = "allow"
-
