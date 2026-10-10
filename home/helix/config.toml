@@ -22,22 +22,29 @@ enable = true
 timeout = 1000
 
 [editor.cursor-shape]
-insert = "bar"
+# insert = "bar"
 
 [editor.soft-wrap]
 enable = true
+wrap-indicator = "↳ "
 
 [editor.cursor-restore]
 enable = true
 
 [editor.indent-guides]
-enable = true
+render = true
 
 [editor.lsp]
 auto-document-highlight = true
 
 [editor.word-completion]
 trigger-length = 3
+
+[editor.whitespace.render]
+tab = "all"
+
+[editor.whitespace.characters]
+tab = "▷"
 
 #
 # Keymaps
@@ -46,6 +53,16 @@ trigger-length = 3
 [keys.normal]
 # "%" is harder to reach on keyboard
 ret = "match_brackets"
+
+# Poor man's "3C-e/y"
+C-e = ["scroll_down", "scroll_down", "scroll_down"]
+C-y = ["scroll_up", "scroll_up", "scroll_up"]
+
+A-t = ":new"
+A-w = ":buffer-close"
+# A-h = "goto_previous_buffer"
+# A-l = "goto_next_buffer"
+
 # Macro for simulating moving lines up and down.
 A-j = ["extend_to_line_bounds", "delete_selection", "paste_after"]
 A-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"]
@@ -54,6 +71,10 @@ A-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_befor
 S-x = "extend_line_above"
 A-j = ["extend_to_line_bounds", "delete_selection", "paste_after"]
 A-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"]
+
+[keys.select."g"]
+h = "extend_to_line_start"
+l = "extend_to_line_end"
 
 [keys.insert]
 A-j = "move_visual_line_down"
