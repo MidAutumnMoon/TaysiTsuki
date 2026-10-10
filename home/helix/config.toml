@@ -9,6 +9,7 @@ line-number = "relative"
 cursorline = true
 scrolloff = 10
 popup-border = "all"
+rulers = [85]
 
 [editor.auto-save]
 focus-lost = true

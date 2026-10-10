@@ -24,14 +24,6 @@ local __plugins = {
     --
 
     {
-        "tpope/vim-repeat",
-    },
-
-    {
-        "tommcdo/vim-exchange",
-    },
-
-    {
         "wellle/targets.vim",
     },
 
@@ -74,21 +66,6 @@ local __plugins = {
     },
 
     {
-        "windwp/nvim-autopairs",
-        config = function()
-            require "plugin.autopairs"
-        end
-    },
-
-    {
-        "lukas-reineke/virt-column.nvim",
-        opts = {
-            virtcolumn = "85",
-            char = "·",
-        },
-    },
-
-    {
         "bullets-vim/bullets.vim"
     },
 
@@ -110,21 +87,6 @@ local __plugins = {
             number_hint_threshold = 2,
             prompt_sign_define = { text = "f" },
         }
-    },
-
-    {
-        "ibhagwan/fzf-lua",
-        dependencies = { "nvim-tree/nvim-web-devicons" },
-        config = function()
-            require "plugin.fzf"
-        end
-    },
-
-    {
-        "andymass/vim-matchup",
-        init = function()
-            vim.g.matchup_matchparen_deferred = 1
-        end
     },
 
     --
@@ -157,14 +119,6 @@ local __plugins = {
     },
 
     {
-        "nanozuki/tabby.nvim",
-        dependencies = 'nvim-tree/nvim-web-devicons',
-        config = function()
-            require "plugin.tabby"
-        end
-    },
-
-    {
         "tzachar/local-highlight.nvim",
         opts = {
             animate = { enabled = false },
@@ -174,22 +128,6 @@ local __plugins = {
     --
     -- Completion & LSP
     --
-
-    {
-        "saghen/blink.cmp",
-        version = "*",
-        dependencies = {
-            "nvim-tree/nvim-web-devicons",
-            "onsails/lspkind.nvim",
-        },
-        config = function ()
-            require "plugin.blink"
-        end
-    },
-
-    {
-        "neovim/nvim-lspconfig",
-    },
 
     --
     -- Other things
