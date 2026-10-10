@@ -10,9 +10,16 @@ cursorline = true
 scrolloff = 10
 popup-border = "all"
 rulers = [85]
+bufferline = "multiple"
+# helix doesn't seem to support highlight trailing space
+trim-trailing-whitespace = true
 
 [editor.auto-save]
 focus-lost = true
+
+[editor.auto-save.after-delay]
+enable = true
+timeout = 1000
 
 [editor.cursor-shape]
 insert = "bar"
@@ -22,6 +29,15 @@ enable = true
 
 [editor.cursor-restore]
 enable = true
+
+[editor.indent-guides]
+enable = true
+
+[editor.lsp]
+auto-document-highlight = true
+
+[editor.word-completion]
+trigger-length = 3
 
 #
 # Keymaps
@@ -42,6 +58,7 @@ A-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_befor
 [keys.insert]
 A-j = "move_visual_line_down"
 A-k = "move_visual_line_up"
+"C-space" = "completion"
 
 [keys.normal."space"]
 "q" = ":write-quit-all"

@@ -1,35 +1,7 @@
---
--- Global things
---
-
-vim.g.mapleader = " "
-vim.g.maplocalleader = "'"
-
---
--- Keymaps
---
-
--- Quit vim
-vim.keymap.set(
--- save and quit
-    "n", "<Leader>q",
-    function()
-        vim.cmd.wall()
-        vim.cmd.qa()
-    end
-)
 
 -- Jump to end of line without far reach
 vim.keymap.set({ "n", "o", "v" }, "<A-a>", "$")
 vim.keymap.set("i", "<A-a>", "<C-o>$")
-
--- Move up and down without reaching for arrow key
-vim.keymap.set({ "c", "i" }, "<A-j>", "<Down>")
-vim.keymap.set({ "c", "i" }, "<A-k>", "<Up>")
-
--- Scroll faster
-vim.keymap.set("n", "<C-e>", "3<C-e>")
-vim.keymap.set("n", "<C-y>", "3<C-y>")
 
 -- Insert a newline
 vim.keymap.set("n", "<A-o>", "o<ESC>")
@@ -61,10 +33,6 @@ vim.opt.laststatus = 3
 vim.opt.smoothscroll = true
 vim.opt.shell = "/bin/sh"
 
-vim.opt.autoread = true
-vim.opt.autowrite = true
-vim.opt.autowriteall = true
-
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 0
@@ -80,44 +48,17 @@ vim.opt.listchars = {
     extends = "◣",
 }
 
-do
-    local state_dir = vim.fn.stdpath "state"
-    vim.opt.swapfile = true
-    vim.opt.directory = state_dir .. "/swap//"
-    vim.opt.writebackup = true
-    vim.opt.backup = false
-    vim.opt.backupdir = state_dir .. "/backup//"
-    vim.opt.undofile = true
-    vim.opt.undodir = state_dir .. "/undo//"
-end
-
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
-vim.opt.shortmess:append("Imr")
-vim.opt.formatoptions:append("1,j")
 vim.opt.virtualedit = "block"
 vim.opt.whichwrap = "b,s,<,>,[,]"
 
-vim.opt.completeopt = "menuone,preview,longest"
-vim.opt.showbreak = "↳ "
-vim.opt.breakindent = true
-vim.opt.breakindentopt = "sbr"
-
-vim.opt.termguicolors = true
-vim.opt.cursorline = true
-vim.opt.visualbell = true
 vim.opt.fillchars = {
     eob = " "
     -- vert = " "
 }
-vim.opt.signcolumn = "yes:1"
-vim.opt.nrformats = "hex,bin,unsigned"
-vim.opt.winborder = "rounded"
-vim.opt.wildmenu = true
-vim.opt.wildmode = "full:lastused"
-
 vim.filetype.add {
     extension = {
         service = "systemd",
@@ -129,54 +70,6 @@ vim.filetype.add {
         pro = "prolog",
     },
 }
-
---
--- Flash yanked area
---
-
-vim.api.nvim_create_autocmd("TextYankPost", {
-    pattern = "*",
-    callback = function()
-        vim.hl.on_yank()
-    end
-})
-
---
---  Auto save
---
-
-local M = {}
-
---- @param buf integer
---- @return boolean
-function M.buf_legible(buf)
-    local bo = vim.bo[buf]
-    return bo.modifiable
-        and bo.modified
-        and not bo.readonly
-        and vim.api.nvim_buf_get_name(buf) ~= ""
-end
-
---- @param buf integer
-function M.save_buf(buf)
-    vim.cmd.bufdo {
-        "write",
-        range = { buf },
-        mods = { silent = true }
-    }
-end
-
-vim.api.nvim_create_autocmd(
-    { "InsertLeave", "TextChanged", "BufLeave" },
-    {
-        pattern = "*",
-        nested = true,
-        callback = function(opts)
-            local buf = opts.buf
-            if M.buf_legible(buf) then M.save_buf(buf) end
-        end
-    }
-)
 
 --
 -- Edit sibling files
