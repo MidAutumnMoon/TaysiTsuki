@@ -1,4 +1,10 @@
-# Numinus
+# 喩 Ui
+
+helix config. ported from neovim config.
+
+path of evolution: vim → nvim (vim based config) → nvim (pure lua) → helix
+
+original readme in nvim config I carried all the way from vim era:
 
 Special thanks to `junegunn`'s [dotfiles](https://github.com/junegunn/dotfiles/) for giving me a starter boost using Vim.
 

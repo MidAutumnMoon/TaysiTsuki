@@ -4,7 +4,11 @@
 {
 
     packages = with pkgs; [
-        helix
+        tsuki.helix
+        ripgrep
+        fd
+        skim
+        nixd
     ];
 
     xdg_config."helix".src = dots.get "helix";
