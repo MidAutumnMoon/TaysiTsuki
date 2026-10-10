@@ -2,14 +2,14 @@
 
 {
 
-    environment.systemPackages = with pkgs; [ tsuki.neovim ];
+    environment.systemPackages = with pkgs; [ tsuki.helix ];
 
     environment.sessionVariables = {
-        EDITOR = "nvim";
+        EDITOR = "hx";
     };
 
     environment.shellAliases = {
-        "v" = "nvim";
+        "x" = "hx";
     };
 
 }
