@@ -1,0 +1,7 @@
+# onedarker_vibrant, minus the statusline mode chip in normal mode.
+# With editor.color-modes the mode segment is styled by these keys;
+# `{}` fully clears the inherited style, so NOR stays neutral while
+# insert/select keep their colored chips.
+inherits = "onedarker_vibrant"
+
+"ui.statusline.normal" = {}

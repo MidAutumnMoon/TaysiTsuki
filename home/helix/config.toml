@@ -1,10 +1,11 @@
-theme = "onedarker_vibrant"
+theme = "onedarker-vibrant-quiet"
 
 #
 # Editor config
 #
 
 [editor]
+color-modes = true
 line-number = "relative"
 cursorline = true
 scrolloff = 10
@@ -45,6 +46,22 @@ tab = "all"
 
 [editor.whitespace.characters]
 tab = "▷"
+
+[editor.statusline]
+left = [
+    "mode",
+    "spinner",
+    "file-name",
+    "read-only-indicator",
+    "file-modification-indicator",
+    "diagnostics",
+]
+right = [
+    "file-type",
+    "file-encoding",
+    "position",
+    "position-percentage",
+]
 
 #
 # Keymaps
