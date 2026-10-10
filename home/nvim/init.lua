@@ -22,20 +22,6 @@ vim.keymap.set(
         vim.cmd.qa()
     end
 )
-vim.keymap.set(
--- force quit without save
-    "n", "<LocalLeader>q",
-    function()
-        vim.cmd.qa { bang = true }
-    end
-)
-
--- Free movement
-vim.keymap.set("n", "j", "gj")
-vim.keymap.set("n", "k", "gk")
-
--- Select all lines
-vim.keymap.set("n", "<Leader>A", "ggVG")
 
 -- Jump to end of line without far reach
 vim.keymap.set({ "n", "o", "v" }, "<A-a>", "$")
@@ -44,9 +30,6 @@ vim.keymap.set("i", "<A-a>", "<C-o>$")
 -- Move up and down without reaching for arrow key
 vim.keymap.set({ "c", "i" }, "<A-j>", "<Down>")
 vim.keymap.set({ "c", "i" }, "<A-k>", "<Up>")
-
--- "shift+5" is out of reach
-vim.keymap.set({ "n", "o", "v" }, "<Enter>", "%")
 
 -- Scroll faster
 vim.keymap.set("n", "<C-e>", "3<C-e>")

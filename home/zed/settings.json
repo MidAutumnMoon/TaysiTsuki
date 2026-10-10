@@ -7,6 +7,7 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+    "helix_mode": true,
     "cursor_animation": {
         "enabled": false
     },
@@ -156,7 +157,7 @@
         },
         "use_modifier_to_send": true
     },
-    "vim_mode": true,
+    "vim_mode": false,
     "vim": {
         "use_system_clipboard": "on_yank",
         "use_smartcase_find": true

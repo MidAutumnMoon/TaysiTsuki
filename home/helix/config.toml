@@ -1,5 +1,9 @@
 theme = "onedarker_vibrant"
 
+#
+# Editor config
+#
+
 [editor]
 line-number = "relative"
 cursorline = true
@@ -15,6 +19,18 @@ enable = true
 
 [editor.cursor-restore]
 enable = true
+
+#
+# Keymaps
+#
+
+[keys.normal]
+# "%" is harder to reach on keyboard
+ret = "match_brackets"
+
+[keys.insert]
+A-j = "move_visual_line_down"
+A-k = "move_visual_line_up"
 
 [keys.normal."space"]
 "q" = ":write-quit-all"
