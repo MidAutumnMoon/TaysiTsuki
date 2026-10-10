@@ -1,4 +1,4 @@
-theme = "onedarker-vibrant-quiet"
+theme = "my-theme"
 
 #
 # Editor config
@@ -11,6 +11,7 @@ cursorline = true
 scrolloff = 10
 popup-border = "all"
 rulers = [85]
+text-width = 84
 bufferline = "multiple"
 # helix doesn't seem to support highlight trailing space
 trim-trailing-whitespace = true
@@ -27,6 +28,7 @@ timeout = 1000
 
 [editor.soft-wrap]
 enable = true
+wrap-at-text-width = true
 wrap-indicator = "↳ "
 
 [editor.cursor-restore]

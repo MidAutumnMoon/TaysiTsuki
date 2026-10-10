@@ -1,0 +1,6 @@
+# inherits = "dracula_at_night"
+# inherits = "vim_dark_high_contrast"
+inherits = "catppuccin_mocha"
+
+"ui.statusline.normal" = {}
+"ui.background" = {}
