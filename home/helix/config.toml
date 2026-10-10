@@ -1,0 +1,21 @@
+theme = "onedarker_vibrant"
+
+[editor]
+line-number = "relative"
+cursorline = true
+
+[editor.auto-save]
+focus-lost = true
+
+[editor.cursor-shape]
+insert = "bar"
+
+[editor.soft-wrap]
+enable = true
+
+[editor.cursor-restore]
+enable = true
+
+[keys.normal."space"]
+"q" = ":write-quit-all"
+

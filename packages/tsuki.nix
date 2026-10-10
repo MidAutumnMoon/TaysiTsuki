@@ -152,6 +152,7 @@ finalize {
     #
     Rust_2 = [
         (tsuki "nushell")
+        (tsuki "helix" null)
     ];
 
     Inori = [

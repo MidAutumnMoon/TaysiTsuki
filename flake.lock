@@ -71,6 +71,25 @@
         "type": "github"
       }
     },
+    "helix-of-mine": {
+      "inputs": {
+        "nixpkgs": [],
+        "rust-overlay": []
+      },
+      "locked": {
+        "lastModified": 1791633781,
+        "narHash": "sha256-HyVMMK2qCngyC8mfDcyqXolLx/pM+aHWE76jYOEzznY=",
+        "owner": "MidAutumnMoon",
+        "repo": "helix-of-mine",
+        "rev": "38d00bfc6b1024a106f8ce4cc4cf6c6bfc5361da",
+        "type": "github"
+      },
+      "original": {
+        "owner": "MidAutumnMoon",
+        "repo": "helix-of-mine",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1791456040,
@@ -119,6 +138,7 @@
         "disko": "disko",
         "flake-parts": "flake-parts",
         "flake-utils": "flake-utils",
+        "helix-of-mine": "helix-of-mine",
         "nixpkgs": "nixpkgs",
         "preservation": "preservation",
         "rust-overlay": "rust-overlay",

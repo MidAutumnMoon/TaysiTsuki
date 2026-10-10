@@ -59,6 +59,8 @@ in rec {
 
     fish = tsuki.fish;
 
+    helix = tsuki.helix;
+
     yt-dlp = prev.yt-dlp.override {
         jsRuntime = prev.nodejs;
     };

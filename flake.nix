@@ -27,6 +27,12 @@
 
         # Some packages
 
+        helix-of-mine = {
+            url = "github:MidAutumnMoon/helix-of-mine";
+            inputs.nixpkgs.follows = "";
+            inputs.rust-overlay.follows = "";
+        };
+
         # tangled = {
         #     url = "git+https://tangled.org/tangled.org/core?shallow=1";
         #     inputs = {
