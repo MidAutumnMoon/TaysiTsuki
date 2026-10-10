@@ -7,6 +7,8 @@ theme = "onedarker_vibrant"
 [editor]
 line-number = "relative"
 cursorline = true
+scrolloff = 10
+popup-border = "all"
 
 [editor.auto-save]
 focus-lost = true
@@ -27,6 +29,14 @@ enable = true
 [keys.normal]
 # "%" is harder to reach on keyboard
 ret = "match_brackets"
+# Macro for simulating moving lines up and down.
+A-j = ["extend_to_line_bounds", "delete_selection", "paste_after"]
+A-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"]
+
+[keys.select]
+S-x = "extend_line_above"
+A-j = ["extend_to_line_bounds", "delete_selection", "paste_after"]
+A-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"]
 
 [keys.insert]
 A-j = "move_visual_line_down"

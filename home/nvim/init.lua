@@ -61,14 +61,7 @@ end
 -- Options
 --
 
-vim.opt.number = true
-vim.opt.relativenumber = true
-vim.opt.mouse = "n"
-vim.opt.lazyredraw = true
-vim.opt.timeoutlen = 300
-vim.opt.updatetime = 1000
 vim.opt.laststatus = 3
-vim.opt.scrolloff = 10
 vim.opt.smoothscroll = true
 vim.opt.shell = "/bin/sh"
 
@@ -153,38 +146,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 --
--- Restore cursor position
---
-
-vim.api.nvim_create_autocmd("BufReadPost", {
-    desc = "Restore cursor position",
-    callback = function(opts)
-        local buf = opts.buf
-
-        local exclude_ft = {
-            "gitcommit",
-            "gitrebase",
-            "commit",
-            "svn",
-            "helo"
-        }
-        if vim.tbl_contains(exclude_ft, vim.bo[buf].filetype) then
-            return
-        end
-
-
-        local mark = vim.api.nvim_buf_get_mark(buf, '"')
-        local line_count = vim.api.nvim_buf_line_count(buf)
-        local win = vim.fn.bufwinid(buf)
-
-        local row = mark[1]
-        if row > 0 and row <= line_count then
-            pcall(vim.api.nvim_win_set_cursor, win, mark)
-        end
-    end
-})
-
---
 --  Auto save
 --
 
@@ -219,33 +180,6 @@ vim.api.nvim_create_autocmd(
             if M.buf_legible(buf) then M.save_buf(buf) end
         end
     }
-)
-
---
--- Better ESC
---
-
---- @diagnostic disable-next-line
-local M = {}
-
-function M.close_floating()
-    for _, winid in ipairs(vim.api.nvim_list_wins()) do
-        local winconf = vim.api.nvim_win_get_config(winid)
-        if winconf.relative ~= "" then
-            vim.api.nvim_win_close(winid, false)
-        end
-    end
-end
-
-vim.keymap.set(
-    "n", "<Esc>",
-    function()
-        -- 1. close floating windows
-        M.close_floating()
-        -- 2. clear highlights
-        vim.lsp.buf.clear_references()
-        vim.cmd "nohlsearch"
-    end
 )
 
 --
