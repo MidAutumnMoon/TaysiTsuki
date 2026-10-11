@@ -17,11 +17,12 @@ let
         + lib.substring 6 2 src.lastModifiedDate;
 
     unusedGrammars = [
-        "verilog" "vhdl" "v"
+        "verilog" "vhdl" "v" "systemverilog"
         "julia" "nim" "crystal" "scala" "groovy"
         "lean" "agda" "slang" "ponylang" "ocaml" "ocaml-interface"
         "koto" "amber"
-        "haskell" "perl"
+        "haskell" "perl" "fortran" "d" "cython" "glimmer-typescript"
+        "blade" "eiffel" "fsharp" "c-sharp"
     ];
 in
 
