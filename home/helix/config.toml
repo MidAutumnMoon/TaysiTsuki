@@ -15,6 +15,8 @@ text-width = 84
 bufferline = "multiple"
 # helix doesn't seem to support highlight trailing space
 trim-trailing-whitespace = true
+rainbow-brackets = true
+completion-replace = true
 
 [editor.auto-save]
 focus-lost = true
@@ -24,7 +26,7 @@ enable = true
 timeout = 1000
 
 [editor.cursor-shape]
-# insert = "bar"
+insert = "bar"
 
 [editor.soft-wrap]
 enable = true
@@ -40,8 +42,11 @@ render = true
 [editor.lsp]
 auto-document-highlight = true
 
+[editor.inline-diagnostics]
+other-lines = "error"
+
 [editor.word-completion]
-trigger-length = 3
+trigger-length = 5
 
 [editor.whitespace.render]
 tab = "all"
@@ -77,19 +82,11 @@ ret = "match_brackets"
 C-e = ["scroll_down", "scroll_down", "scroll_down"]
 C-y = ["scroll_up", "scroll_up", "scroll_up"]
 
-A-t = ":new"
-A-w = ":buffer-close"
-# A-h = "goto_previous_buffer"
-# A-l = "goto_next_buffer"
-
 # Macro for simulating moving lines up and down.
 A-j = ["extend_to_line_bounds", "delete_selection", "paste_after"]
 A-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"]
 
 [keys.select]
-S-x = "extend_line_above"
-A-j = ["extend_to_line_bounds", "delete_selection", "paste_after"]
-A-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"]
 
 [keys.select."g"]
 h = "extend_to_line_start"
