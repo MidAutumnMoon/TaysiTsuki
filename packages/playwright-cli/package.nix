@@ -38,14 +38,13 @@ let
         };
     };
 
-    # The wrapper serves chromium (PLAYWRIGHT_MCP_BROWSER=chromium) and
-    # firefox (`--browser firefox` / env override), so source a browser set
-    # with both: no webkit/headless-shell.
+    # Only chromium is wired into the wrapper (PLAYWRIGHT_MCP_BROWSER=chromium),
+    # so source a closure-minimal browser set: no firefox/webkit/headless-shell.
     #   - `selectBrowsers` is nixpkgs playwright-driver's makeOverridable
     #     linkFarm builder; its closure holds only the selected components.
     #   - ffmpeg kept (small) so playwright-cli's video features still work.
-    selectedBrowsers = playwright-driver.selectBrowsers {
-        withFirefox = true;
+    chromiumBrowsers = playwright-driver.selectBrowsers {
+        withFirefox = false;
         withWebkit = false;
         withChromiumHeadlessShell = false;
     };
@@ -88,9 +87,8 @@ let
 
             mkdir -p "$out"
 
-            srcBrowsers="${selectedBrowsers}"
+            srcBrowsers="${chromiumBrowsers}"
             haveChromium=false
-            haveFirefox=false
 
             # Process substitution (not a pipe) keeps the loop in this shell so
             # haveChromium survives. @tsv reads name+revision in one jq pass.
@@ -105,8 +103,8 @@ let
                 )"
 
                 if [ -z "$actual" ]; then
-                    # Not in the selected source set (webkit, tip-of-tree,
-                    # beta, winldd, android).
+                    # Not in the chromium-only source set (firefox, webkit,
+                    # headless-shell, tip-of-tree, beta, winldd, android).
                     continue
                 fi
 
@@ -121,15 +119,13 @@ let
 
                 ln -s "$actual" "$out/$norm-$wantRev"
                 [ "$norm" = chromium ] && haveChromium=true
-                [ "$norm" = firefox ] && haveFirefox=true
             done < <(jq -r '.browsers[] | [.name, .revision] | @tsv' "$browsersJson")
 
-            # Chromium is the default browser (PLAYWRIGHT_MCP_BROWSER=chromium
-            # in the wrapper); firefox is the other supported target. If either
-            # didn't alias, launches would silently fall back to downloading —
-            # fail loud instead.
-            if [ "$haveChromium" != true ] || [ "$haveFirefox" != true ]; then
-                echo "error: playwright-cli-browsers: chromium or firefox was not aliased;" \
+            # chromium is the default browser (PLAYWRIGHT_MCP_BROWSER=chromium
+            # in the wrapper). If it didn't alias, launches would silently fall
+            # back to downloading — fail loud instead.
+            if [ "$haveChromium" != true ]; then
+                echo "error: playwright-cli-browsers: chromium was not aliased;" \
                      "source layout at '$srcBrowsers' may have changed" >&2
                 exit 1
             fi
@@ -150,9 +146,8 @@ stdenvNoCC.mkDerivation {
     # fails on NixOS. `PLAYWRIGHT_MCP_BROWSER=chromium` resolves to the
     # "chrome-for-testing" chromium alias, which reads from BROWSERS_PATH.
     #
-        # Precedence (low → high): default < env < `--browser` flag.
-        # `--set-default` keeps it overridable by both, so firefox is a
-        # `PLAYWRIGHT_MCP_BROWSER=firefox` or `--browser firefox` away.
+    # Precedence (low → high): default < env < `--browser` flag.
+    # `--set-default` keeps it overridable by both.
     nativeBuildInputs = [ makeBinaryWrapper ];
 
     dontUnpack = true;
