@@ -4,5 +4,6 @@ result*
 target/
 .zcode/
 .zcodeignore
+.playwright-cli/
 
 **/clipper/Assets/

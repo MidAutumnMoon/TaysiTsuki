@@ -10,11 +10,19 @@ A NixOS config repo. Flake at the root. Machines in `machine/`, shared modules i
 - Don't run `nixos-rebuild switch/test` without being asked.
 - When editing Nix files, match the existing style: `=` alignment, `with` at module level, `let`/`in` blocks for local bindings.
 
-## Make changes
+## Establish the goal and scope
 
-- Make systematic changes. Don't be scoped to the spot you are looking at.
-- Make breaking changes. Trace, find, redesign, from top to bottom.
-- Challenge existing designs.
+Use the request and prior discussion to identify what the user truely wants to achieve. Check your interpretation against relevant code, tests, and project conventions. Respect the user's explicit constraints. Turn broad or vague requests into concrete decisions. For brief examples:
+
+- "make the code clearer": identify what obscures the logic, such as mixed responsibilities, confusing names, or tangled control flow.
+- "rewrite the comments": decide which explanations to keep, cut, move, or rephrase. Preserve useful rationale and rework awkward sentences.
+- "make the edit": establish whether the discussion approved a local change or a general fix.
+
+Trace affected code paths and check related cases for the same underlying problem. Use relevant skills. Include the changes needed for a complete, consistent result within the user's constraints. Leave optional cleanup for a separate task.
+
+Use project conventions for routine choices. Ask a focused question when reasonable interpretations of the request would lead to substantially different changes. State important assumptions behind your approach.
+
+Stop investigating once you can justify the planned changes and explain how to verify them.
 
 ## No `| tail` and `| head` in bash
 
@@ -34,6 +42,12 @@ Do not pipe any command output through `head` or `tail`, tools will properly han
 - To find a module option: grep in `nixos/` or `tsukilib/`.
 - To find a package definition: look in `packages/`, or `rust/` for the Rust crates.
 - Secrets are in `sops/`, encrypted. Don't try to read encrypted blobs.
+
+## VCS
+
+Use `jj` vcs exclusively. For example, `jj status`, `jj new`.
+
+`difftastic` is configured as diff tool. Use `jj diff --git` and `jj show --git` for traditional git style diff output.
 
 ## Look Things Up
 
