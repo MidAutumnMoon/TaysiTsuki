@@ -1365,9 +1365,9 @@ dependencies = [
 
 [[package]]
 name = "saphyr"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79830a82cc4eeea33aa46346f910d7cc1e576249a6fbe2fefab6ba89eba8a203"
+checksum = "c375812adc81f37a124714652ca1fd20707f35459f22a533b7e6100d8a8245fc"
 dependencies = [
  "encoding_rs",
  "hashlink",
