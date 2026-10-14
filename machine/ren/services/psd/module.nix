@@ -12,7 +12,7 @@ let
     # Generated config, passed via --config.
     configFile = pkgs.writeText "psd-config.json"
         (builtins.toJSON {
-            apps = [ "firefox" "telegram" "cherrystudio" ];
+            apps = [ "firefox" "telegram" ];
         });
 
     # The live profile set is not reconciled across reloads. Before changing
