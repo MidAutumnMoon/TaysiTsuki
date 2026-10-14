@@ -23,6 +23,7 @@
         QT_QPA_PLATFORMTHEME = "qt6ct";
         QT_QPA_PLATFORMTHEME_QT6 = "qt6ct";
         GTK_DECORATION_LAYOUT = "";
+        QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
     };
 
     xdg_config."niri".src = dots.get "niri";
