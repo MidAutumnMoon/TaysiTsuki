@@ -13,6 +13,8 @@
         unrar
         numbat
         nix-tree
+        nvme-cli
+        smartmontools
     ];
 
     environment.variables = {

@@ -88,7 +88,7 @@ in
     };
 
     nix.optimise = {
-        automatic = true;
+        automatic = false;
     };
 
     nix.daemonCPUSchedPolicy = "batch";
