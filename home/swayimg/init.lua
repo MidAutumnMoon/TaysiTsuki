@@ -1,6 +1,7 @@
 -- General
 swayimg.decoration = true
 swayimg.antialiasing = false
+swayimg.format_conf = { video = { enable = false } }
 
 -- Image list
 swayimg.imagelist.adjacent = true
