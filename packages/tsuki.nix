@@ -120,7 +120,6 @@ finalize {
         (tsuki "dnscrypt")
         (pkgs "sops-install-secrets")
         (tsuki "hysteria" { version.regex = "app/v(.*)"; })
-        (tsuki "avahi2dns")
     ];
 
     #

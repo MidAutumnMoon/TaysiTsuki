@@ -12,7 +12,10 @@
     lore.pubkeys = lib.importJSON ./pubkeys.json;
 
     lore.machines = {
-        umi = {};
+        umi = {
+            static_ip = "10.0.1.30";
+            static_ip6 = "fda1:ac04:d4f6:0:4af3:17ff:fe19:6f16";
+        };
         phia = {};
 
         # router is in fact openwrt
@@ -34,7 +37,6 @@
         dnscryptLocal = 9099;
         navidrome = 9100;
         peerbanhelper = 9101;
-        avahi2dns = 9102;
         pds = 9103;
         tangledKnot = 9104;
         tangledKnotInternal = 9105;
@@ -57,8 +59,7 @@
                 domain = im_418;
                 cname = target;
             };
-            onRen = cname machines.umi.mdns;
-            onPhia = cname machines.phia.mdns;
+            onRen = cname "${machines.umi.hostname}.${im_418}";
         in {
             router = {
                 subdomain = "router";
@@ -72,9 +73,6 @@
             navidrome = onRen "music";
             peerban = onRen "peerban";
             sillytavern = onRen "tv";
-
-            # phia services
-            torrent_dashboard = onPhia "qbit";
         };
 
     lore.apps."tailnet" =

@@ -12,9 +12,16 @@ let
                 if try app "ip6" then "AAAA ${app.ip6}" else
                 if try app "cname" then "CNAME ${app.cname}"
                 else builtins.throw "[BUG] invalid app ${app.fqdn}";
-            localData = localApps
+            umi = config.lore.machines.umi;
+            umiFqdn = with config.lore.domains; "${umi.hostname}.${im_418}";
+            machineData = with umi; [
+                ''${umiFqdn}. IN A ${static_ip}''
+                ''${umiFqdn}. IN AAAA ${static_ip6}''
+            ];
+            localData = machineData ++ (
+                localApps
                 |> lib.attrValues
-                |> map (app: ''${app.fqdn}. IN ${fmt app}'');
+                |> map (app: ''${app.fqdn}. IN ${fmt app}''));
         in pkgs.writeText "local-domains" ''
             $TTL 69
             example.com. IN SOA a b (1 7200 3600 3600 3600)
@@ -33,8 +40,6 @@ in
         allowedUDPPorts = [ 53 ];
     };
 
-    services.avahi2dns.enable = true;
-
     # coredns provides homelab domain resolution
     services.coredns = {
         enable = true;
@@ -42,17 +47,13 @@ in
     };
 
     services.coredns.config =
-        let
-            avahi2dnsPort = toString config.services.avahi2dns.port;
-            dnscryptPort = toString config.lore.ports.dnscryptLocal;
-        in ''
+        let dnscryptPort = toString config.lore.ports.dnscryptLocal; in ''
             (the_conf) {
                 log
                 file ${localDomains} {
                     # at least v1.12.2
                     fallthrough
                 }
-                forward local 127.0.0.1:${avahi2dnsPort}
                 forward . [::1]:${dnscryptPort}
                 cache 60 {
                     disable success local
