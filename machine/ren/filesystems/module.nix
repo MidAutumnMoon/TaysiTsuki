@@ -92,6 +92,11 @@ in
             fsType = "btrfs";
             options = btrfsOption "home-snapshot";
         };
+        "/srv" = {
+            device = luksDevice;
+            fsType = "btrfs";
+            options = btrfsOption "srv";
+        };
     };
 
     services = {
