@@ -20,17 +20,12 @@ in
     machines = mkOption {
         readOnly = true;
         description = "Shared information of NixOS machines";
-        type = types.attrsOf <| types.submodule
-            ( { name, config, ... }: {
+            type = types.attrsOf <| types.submodule
+            ( { name, ... }: {
                 options.hostname = mkOption {
                     type = types.str;
                     default = name;
                     description = "Plain hostname";
-                };
-                options.mdns = mkOption {
-                    type = types.str;
-                    default = "${config.hostname}.local";
-                    description = "mDNS hostname";
                 };
                 options.static_ip = mkOption {
                     type = with types; str;

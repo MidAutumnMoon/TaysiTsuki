@@ -12,7 +12,7 @@ need a targeted runtime check before they become design assumptions.
 
 In scope:
 
-- DNS on `umi`, including systemd-resolved, CoreDNS, dnscrypt-proxy, mDNS, and
+- DNS on `umi`, including systemd-resolved, dnscrypt-proxy, mDNS, and
   Tailscale DNS policy.
 - Tailscale exit-node traffic from the iPhone.
 - nftables TPROXY and policy routing.
@@ -22,7 +22,7 @@ In scope:
 - The `lore` values used to construct service names and records.
 
 The exit-node machine is `umi` (LAN interface `enp2s0`). Its configuration
-still lives in `machine/ren/` and deploys via the `ren.local` target.
+lives in `machine/ren/`.
 
 Out of scope:
 
@@ -88,7 +88,7 @@ such as DNSCrypt, DoH, or DoT.
 | Concern | Current owner | Notes |
 |---|---|---|
 | LAN interface and host proxy environment | `machine/ren/networking/module.nix` | Sets `networking.proxy.default` and networkd policy. |
-| Local DNS records and recursive forwarding | `machine/ren/networking/dns/module.nix` | Generates records from `lore`; combines CoreDNS, avahi2dns, and dnscrypt-proxy. |
+| Local DNS records and recursive forwarding | `machine/ren/networking/dns/module.nix` | Generates cloaking rules from `lore`; dnscrypt-proxy serves them alone. |
 | sing-box process and runtime generation | `machine/ren/networking/proxy/module.nix` | Evaluates an encrypted Nix expression at service start. |
 | iPhone interception and exit-node flags | `machine/ren/networking/proxy/tproxy.nix` | Hard-codes the selected iPhone Tailscale addresses. |
 | Service/domain inventory | `lore/module.nix`, `lore/options.nix` | Mixes machine identity, service names, domains, and ports. |
@@ -158,21 +158,16 @@ from the coordination server, indicates that this setting is enabled. Root
 
 ```text
 umi or LAN client
-  -> CoreDNS :53
-      -> generated local record file
-      -> .local queries: avahi2dns :9102
-      -> other queries: dnscrypt-proxy [::1]:9099
-      -> encrypted upstream DNS
+  -> dnscrypt-proxy :53
+      -> *.418.im names: exact-match cloaking rules, stable addresses from `lore`
+      -> .local names: refused locally by the explicit block_undelegated setting
+      -> other queries: encrypted DoH upstreams
 ```
 
-`systemd-resolved` is the host stub and forwards to CoreDNS. It is not the
-source of local service records. Its `DNS=127.0.0.1` comes from the running
-generation's `resolved.conf` and is set by no module in this repository.
-
-The generated record file is configured as a root-zone file but contains an
-unrelated `example.com.` SOA. Several application names are CNAMEs to `.local`
-names, so ordinary application DNS depends on mDNS discovery and current
-interface addresses.
+`systemd-resolved` is the host stub and forwards to `127.0.0.1`; its
+`DNS=127.0.0.1` and explicit empty `FallbackDNS` are declared in
+`machine/ren/networking/module.nix`. Local records resolve to stable
+addresses and no longer depend on mDNS discovery.
 
 ### Local service access from the iPhone
 
@@ -462,9 +457,11 @@ Target roles:
 5. sing-box may own proxy-specific public DNS routing, but never LAN service
    discovery.
 
-CoreDNS plus dnscrypt-proxy can satisfy these roles if their boundary is made
-explicit; replacing them with Unbound is optional, not a goal by itself. Do not
-swap resolver implementations merely to reduce the process count.
+dnscrypt-proxy satisfies these roles alone: it answers LAN names from its
+cloaking table and reaches the internet through encrypted upstreams, with
+`systemd-resolved` reduced to a stub. Replacing it with Unbound is optional,
+not a goal by itself. Do not swap resolver implementations merely to reduce
+the process count.
 
 Preferred client policy while using the exit node:
 
@@ -521,8 +518,7 @@ Recommended service behavior:
 
 | Service | Listener policy | Firewall/authorization policy |
 |---|---|---|
-| CoreDNS or replacement | Loopback, stable LAN address, optional Tailscale address | LAN sources; selected tailnet sources only if served there. |
-| dnscrypt-proxy | Loopback only | No inbound firewall opening. |
+| dnscrypt-proxy | Loopback and stable LAN address, optional Tailscale address | LAN sources; selected tailnet sources only if served there. |
 | sing-box mixed `7890` | Loopback or explicit stable LAN address | Intended sources only; authenticate if the network is not fully trusted. |
 | sing-box TPROXY `7891` | Transparent listener | No broad direct input opening; only marked transparent traffic accepted. |
 | Caddy `80/443` | Stable LAN and Tailscale addresses; public address only when intentional | Per-interface firewall plus Tailscale ACL and explicit host policy. |
@@ -638,21 +634,25 @@ iPhone even though direct local/tailnet IP connectivity survives.
 
 ### Phase 4: stabilize local DNS
 
-- [ ] Bind CoreDNS to loopback and deliberate stable addresses rather than the
-      entire interface snapshot.
-- [ ] Remove the interface-address reload watcher.
-- [ ] Replace the incoherent root file with a proper local-zone or hosts-style
-      record source.
-- [ ] Replace `.local` CNAME chains with direct stable A/AAAA records.
+- [ ] Verify dnscrypt-proxy serves the cloaked LAN records on loopback and the
+      stable `umi` addresses, with no other resolver on `:53`.
+- [ ] Verify `.local` names are refused by the explicit `block_undelegated`
+      setting — the binary default is off and upstream defaults are not
+      merged — and reach avahi only through nss-mdns.
 - [ ] Keep mDNS only for genuine link-local discovery.
+- [ ] Verify `systemd-resolved` stays a stub to `127.0.0.1` with an explicit
+      empty `FallbackDNS` and `MulticastDNS=no`.
 - [ ] Verify dnscrypt-proxy upstream encryption and remove every plaintext
       fallback.
 - [ ] Decide whether DNSSEC is validated locally or by a trusted encrypted
       upstream; document the choice.
 - [ ] Confirm router DHCP and RA advertise the stable resolver.
 
-CoreDNS plus dnscrypt-proxy is an acceptable end state. Evaluate Unbound only if
-it removes real policy complexity or provides required local validation.
+dnscrypt-proxy owns the resolver role alone: LAN names resolve through
+exact-match cloaking rules to stable addresses, and the process binds its
+listen addresses directly, so no interface-address reload watcher exists.
+Evaluate Unbound only if it removes real policy complexity or provides
+required local validation.
 
 Proof:
 
@@ -835,6 +835,8 @@ Decisions already supported by the evidence:
 - Scope exposed ports at the host even if the router also filters them.
 - Do not treat DNS records or Caddy host matching as authorization.
 - Do not replace CoreDNS/dnscrypt solely to reduce the number of daemons.
+- dnscrypt-proxy alone owns the resolver role via cloaking rules; CoreDNS and
+  avahi2dns are removed.
 
 Decisions still required during implementation:
 
@@ -842,8 +844,6 @@ Decisions still required during implementation:
   drop.
 - Whether public DNS policy remains in sing-box or moves entirely to the stable
   resolver after encrypted-upstream testing.
-- Whether CoreDNS plus dnscrypt-proxy remains the final resolver pair or Unbound
-  provides a meaningful simplification.
 - Which services, if any, should be reachable through public GUAs.
 - Which Tailscale identities may use the exit node and administrative services.
 - Whether a closer/custom DERP is justified by controlled transport tests.
@@ -859,7 +859,6 @@ Repository sources:
 - `machine/ren/networking/proxy/dashboard.nix`
 - `nixos/services/caddy/module.nix`
 - `nixos/services/avahi/module.nix`
-- `nixos/services/avahi2dns/module.nix`
 - `lore/module.nix`
 - `lore/options.nix`
 - `infra/cloudflare.tf`
@@ -876,4 +875,3 @@ External references:
 - [sing-box route rules](https://sing-box.sagernet.org/configuration/route/rule/)
 - [Caddy `bind`](https://caddyserver.com/docs/caddyfile/directives/bind)
 - [Caddy request matchers](https://caddyserver.com/docs/caddyfile/matchers)
-- [CoreDNS `bind`](https://coredns.io/plugins/bind/)

@@ -78,7 +78,7 @@
             ];
         };
 
-    in rec {
+    in {
 
         /*
          * My cute lib
@@ -126,26 +126,6 @@
                 ++ [ flakes.disko.nixosModules.default ]
             );
         };
-
-        colmenaHive =
-            {
-                meta.nixpkgs = pkgsBrew.pkgsOf "x86_64-linux";
-                umi.deployment = {
-                    targetHost = "ren.local";
-                    buildOnTarget = true;
-                };
-                phia.deployment = {
-                    targetHost = "phia.local";
-                    targetUser = "root";
-                };
-                uk-01.deployment = {
-                    targetHost = "uk-01";
-                    targetUser = "root";
-                };
-            }
-            |> lib.nixos2colmena self.nixosConfigurations
-            |> lib.flip removeAttrs [ "umi" ]
-            |> flakes.colmena.lib.makeHive;
     };
 
 }

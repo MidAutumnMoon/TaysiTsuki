@@ -33,8 +33,6 @@
         torrent = 9094;
         qbitwebui = 9095;
         clashApi = 9097;
-        dns = 9098;
-        dnscryptLocal = 9099;
         navidrome = 9100;
         peerbanhelper = 9101;
         pds = 9103;

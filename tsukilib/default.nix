@@ -42,7 +42,6 @@ rec {
 
     inherit ( tsuki.trivial )
         doNothing
-        nixos2colmena
         eachSystem
     ;
 
