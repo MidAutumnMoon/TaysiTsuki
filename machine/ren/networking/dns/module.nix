@@ -21,7 +21,7 @@ let
             ${lib.join "\n" localData}
         '';
 
-    corednsIface = "enp3s0";
+    corednsIface = "enp2s0";
     corednsService = config.systemd.services.coredns.name;
 
 in

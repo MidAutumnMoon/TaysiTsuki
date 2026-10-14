@@ -12,7 +12,7 @@ need a targeted runtime check before they become design assumptions.
 
 In scope:
 
-- DNS on `ren`, including systemd-resolved, CoreDNS, dnscrypt-proxy, mDNS, and
+- DNS on `umi`, including systemd-resolved, CoreDNS, dnscrypt-proxy, mDNS, and
   Tailscale DNS policy.
 - Tailscale exit-node traffic from the iPhone.
 - nftables TPROXY and policy routing.
@@ -20,6 +20,9 @@ In scope:
 - Caddy listeners and service exposure.
 - Cloudflare and Tailscale state managed under `infra/`.
 - The `lore` values used to construct service names and records.
+
+The exit-node machine is `umi` (LAN interface `enp2s0`). Its configuration
+still lives in `machine/ren/` and deploys via the `ren.local` target.
 
 Out of scope:
 
@@ -33,9 +36,9 @@ Out of scope:
 The target design must preserve these invariants:
 
 1. The iPhone's public internet traffic uses sing-box rather than leaving
-   directly through `ren`.
+   directly through `umi`.
 2. DNS is not visible as plaintext on the carrier network.
-3. `ren` does not silently fall back to plaintext WAN DNS when the proxy or an
+3. `umi` does not silently fall back to plaintext WAN DNS when the proxy or an
    encrypted resolver fails.
 4. LAN and tailnet service traffic does not depend on the sing-box process.
 5. A sing-box failure may fail public internet access closed, but must not take
@@ -55,11 +58,11 @@ NAT path when sing-box is unavailable.
 
 ## Terminology
 
-- **LAN**: the home network attached to `enp3s0`, currently
+- **LAN**: the home network attached to `enp2s0`, currently
   `10.0.1.0/24` plus its IPv6 prefixes.
 - **Tailnet**: the Tailscale overlay, including `100.64.0.0/10` and this
   tailnet's `fd7a:115c:a1e0::/48` IPv6 range.
-- **Exit node**: `ren` when it accepts a client's default routes and sends that
+- **Exit node**: `umi` when it accepts a client's default routes and sends that
   client's public traffic onward.
 - **TPROXY**: transparent socket interception. It sends traffic to a local
   transparent socket without rewriting the original destination address or
@@ -68,7 +71,7 @@ NAT path when sing-box is unavailable.
   and answers or forwards them according to its own DNS rules.
 - **Fail closed**: public traffic is blocked rather than sent directly when the
   required proxy path is unavailable.
-- **Local destination**: an address owned by `ren` itself. This is distinct from
+- **Local destination**: an address owned by `umi` itself. This is distinct from
   another device on the LAN.
 - **Split horizon**: the same DNS name intentionally has different answers on
   LAN and public resolvers.
@@ -77,7 +80,7 @@ NAT path when sing-box is unavailable.
 A raw UDP DNS packet inside a Tailscale tunnel is not plaintext on the carrier
 network: WireGuard encrypts the outer transport between the iPhone and the
 Tailscale peer or DERP relay. A separate requirement applies after the packet
-reaches `ren`: upstream DNS from `ren` should also use authenticated encryption
+reaches `umi`: upstream DNS from `umi` should also use authenticated encryption
 such as DNSCrypt, DoH, or DoT.
 
 ## Ownership today
@@ -91,7 +94,7 @@ such as DNSCrypt, DoH, or DoT.
 | Service/domain inventory | `lore/module.nix`, `lore/options.nix` | Mixes machine identity, service names, domains, and ports. |
 | Caddy base listener and firewall openings | `nixos/services/caddy/module.nix` | Wildcard site, wildcard certificate, global port openings. |
 | Per-service Caddy handlers | Individual machine service modules | Merged into one wildcard virtual host. |
-| Public DNS | `infra/cloudflare.tf` | Includes public records pointing at Tailscale IPv6 addresses. |
+| Public DNS | `infra/cloudflare.tf` | Includes public records pointing at Tailscale IPv6 addresses; the tailnet service records are keyed to the device hostname `ren`, which breaks once `umi` rejoins the tailnet. |
 | Tailnet ACL and MagicDNS | `infra/tailscale.tf` | ACL is currently allow-all; only MagicDNS preference is declared. |
 | Tailscale global resolvers and `Use with exit node` | Admin console | Not fully represented by the current Terraform resources. |
 | Secrets | SOPS | The sing-box private configuration is opaque until runtime evaluation. |
@@ -104,7 +107,7 @@ such as DNSCrypt, DoH, or DoT.
 ```text
 iPhone application
   -> iOS Tailscale tunnel
-  -> ren: tailscale0
+  -> umi: tailscale0
   -> nft source match for the iPhone
   -> mark 0x00690000
   -> TPROXY transparent socket selection
@@ -154,7 +157,7 @@ from the coordination server, indicates that this setting is enabled. Root
 ### Host and LAN DNS
 
 ```text
-ren or LAN client
+umi or LAN client
   -> CoreDNS :53
       -> generated local record file
       -> .local queries: avahi2dns :9102
@@ -163,7 +166,8 @@ ren or LAN client
 ```
 
 `systemd-resolved` is the host stub and forwards to CoreDNS. It is not the
-source of local service records.
+source of local service records. Its `DNS=127.0.0.1` comes from the running
+generation's `resolved.conf` and is set by no module in this repository.
 
 The generated record file is configured as a root-zone file but contains an
 unrelated `example.com.` SOA. Several application names are CNAMEs to `.local`
@@ -186,7 +190,7 @@ make the path independent of sing-box.
 ### Caddy
 
 ```text
-client -> any address on ren:80/443 -> wildcard *.418.im site
+client -> any address on umi:80/443 -> wildcard *.418.im site
        -> Host matcher -> loopback backend
 ```
 
@@ -217,7 +221,7 @@ than total failure.
 
 Opening port 7891 does not authorize transparent traffic: the packet's original
 destination port is still present. Port 7891 only permits a direct connection
-whose real destination is `ren:7891`.
+whose real destination is `umi:7891`.
 
 The Tailscale `ts-input` accept does not override this. nftables accepts are not
 final when another base chain at the same or a later hook can still drop the
@@ -242,7 +246,7 @@ continues to work.
 
 ### 3. Locality is decided too late
 
-LAN, `ren`-local, and tailnet destinations are not excluded before the TPROXY
+LAN, `umi`-local, and tailnet destinations are not excluded before the TPROXY
 jump. sing-box may route them directly, but only after they have crossed the
 user-space dependency boundary.
 
@@ -272,11 +276,12 @@ existing mark restoration but before the NixOS reverse-path filter at
 
 ### 5. Policy-rule ordering is implicit
 
-The custom `ip rule add` does not specify a priority and currently lands at
-32765, after Tailscale's rule that looks up table 52. Some tailnet destinations
-can therefore be routed by table 52 before table 169 is considered. This can be
-a desirable bypass, but it is an incidental result of rule order rather than an
-encoded policy.
+The custom `ip rule add` does not specify a priority, so the kernel
+auto-allocates one and the result depends on which rules exist at start time.
+The rule has been observed at 32765 (after Tailscale's table-52 lookup, so
+tailnet destinations could be routed by table 52 first) and at 5209 (before
+it). Either ordering can be a workable bypass, but it is an incidental result
+of rule order rather than an encoded policy.
 
 Local and tailnet bypasses should be explicit in nftables, and the custom
 policy rule should have an explicit stable priority.
@@ -301,22 +306,22 @@ The desired states are:
 
 ### 7. DNS transport and DNS policy are conflated
 
-The iPhone sends toward Cloudflare, Tailscale encrypts the transport to `ren`,
+The iPhone sends toward Cloudflare, Tailscale encrypts the transport to `umi`,
 and sing-box answers according to a different policy. This satisfies part of
 the privacy requirement but obscures ownership and makes packet captures
 misleading.
 
-The cleaner statement is: the iPhone uses `ren` as its exit-node resolver;
-`ren` owns local names and uses an authenticated encrypted upstream. If
+The cleaner statement is: the iPhone uses `umi` as its exit-node resolver;
+`umi` owns local names and uses an authenticated encrypted upstream. If
 sing-box requires special remote DNS for routing, that is a separate public
 proxy-DNS policy, not the owner of LAN service records.
 
 ### 8. CoreDNS binds dynamic addresses and reloads excessively
 
-CoreDNS binds the whole `enp3s0` interface, taking a snapshot of all its
-addresses. The interface has stable and temporary IPv6 addresses. An address
-monitor reloads CoreDNS once for every address event; 144 reload signals were
-observed in one hour.
+CoreDNS binds the whole `enp2s0` interface, taking a snapshot of all its
+addresses. The interface carries a stable GUA plus a router-advertised ULA,
+and its address set changes over time. An address monitor reloads CoreDNS once
+for every address event.
 
 The resolver should bind named stable addresses. The monitor and reload loop
 then become unnecessary.
@@ -377,7 +382,7 @@ control/DERP issue is therefore a separate failure domain.
 | HTTPS works but an app using another port fails | NixOS input firewall drops TPROXY packet by original port | Compare controlled TCP 443 with TCP 8443/5223 and UDP 443 with another UDP port. |
 | Ping fails while HTTPS works | Non-TCP packet marked before protocol check | Trace one ICMP packet from the iPhone. |
 | All public traffic and public DNS stop together | Tailscale path, sing-box process/listener, or selected outbound failed | Check Tailscale peer path, sing-box listener, and branch counters separately. |
-| A service on `ren` fails when sing-box stops | No pre-TPROXY local-destination bypass | Connect to both `ren` LAN and Tailscale addresses while sing-box is stopped. |
+| A service on `umi` fails when sing-box stops | No pre-TPROXY local-destination bypass | Connect to both `umi` LAN and Tailscale addresses while sing-box is stopped. |
 | Another LAN host fails when sing-box stops | No pre-TPROXY LAN bypass | Connect directly to a controlled LAN address. |
 | Local Wi-Fi fails when Tailscale itself is broken | iPhone still routes/DNSes through the selected exit node | Enable local-network access or disable the exit node; the server cannot route around a broken client VPN. |
 | `tailscale netcheck` says it uses the proxy | CLI inherited shell proxy environment | Inspect `tailscaled.service` environment separately. |
@@ -389,7 +394,7 @@ control/DERP issue is therefore a separate failure domain.
 
 ```text
 LAN clients
-  |-- DNS ----------------> stable resolver on ren
+  |-- DNS ----------------> stable resolver on umi
   |                           |-- local authoritative records
   |                           `-- encrypted recursive upstream
   |
@@ -397,10 +402,10 @@ LAN clients
                               `-- loopback backends
 
 Tailnet clients
-  |-- service traffic ----> ren/other peer directly over Tailscale
-  `-- exit-node traffic --> ren tailscale0
+  |-- service traffic ----> umi/other peer directly over Tailscale
+  `-- exit-node traffic --> umi tailscale0
                                |-- local/tailnet destination: kernel bypass
-                               |-- DNS to ren resolver: local encrypted resolver
+                               |-- DNS to umi resolver: local encrypted resolver
                                `-- public TCP/UDP: TPROXY -> sing-box -> proxy
 
 Tailscale daemon ---------> control/DERP directly, never through sing-box
@@ -416,7 +421,7 @@ packet arrives on tailscale0
   if source is not a selected proxy client:
       return
 
-  if destination belongs to ren:
+  if destination belongs to umi:
       return
 
   if destination is an intentional LAN or tailnet prefix:
@@ -433,7 +438,7 @@ Important details:
 
 - Classify local/tailnet destinations before unsupported protocols so local
   ICMP and service traffic still work.
-- `fib daddr type local` can express addresses owned by `ren`; explicit sets
+- `fib daddr type local` can express addresses owned by `umi`; explicit sets
   should cover other LAN and tailnet destinations.
 - Use a mark mask disjoint from Tailscale's `0x00ff0000` field.
 - Give the nft chain and `ip rule` explicit priorities.
@@ -449,10 +454,10 @@ Important details:
 
 Target roles:
 
-1. A stable resolver on `ren` owns LAN records and caching.
+1. A stable resolver on `umi` owns LAN records and caching.
 2. Local records use direct A/AAAA data, not CNAMEs to `.local`.
 3. Upstream internet DNS uses DNSCrypt, DoH, or DoT without plaintext fallback.
-4. Tailscale transports iPhone DNS to `ren`; the carrier sees only encrypted
+4. Tailscale transports iPhone DNS to `umi`; the carrier sees only encrypted
    tunnel traffic.
 5. sing-box may own proxy-specific public DNS routing, but never LAN service
    discovery.
@@ -464,16 +469,16 @@ swap resolver implementations merely to reduce the process count.
 Preferred client policy while using the exit node:
 
 ```text
-iPhone -> Tailscale exit-node DNS -> ren resolver -> encrypted upstream
+iPhone -> Tailscale exit-node DNS -> umi resolver -> encrypted upstream
 ```
 
 This removes the misleading `1.1.1.1` destination/hijack relationship. Migrate
-only after the `ren` resolver is proven from an exit-node client. Until then,
+only after the `umi` resolver is proven from an exit-node client. Until then,
 keep the working DNS hijack while fixing packet classification around it.
 
 For home Wi-Fi independence:
 
-- Router DHCP/RA advertises the stable `ren` resolver.
+- Router DHCP/RA advertises the stable `umi` resolver.
 - Tailscale's global override must not force home clients away from the LAN
   resolver.
 - The iPhone must allow local-network access while an exit node is selected.
@@ -566,7 +571,7 @@ and use a test activation before making it persistent.
 - [ ] Test controlled UDP destinations on 443 and a non-allowlisted port.
 - [ ] Test public and local ICMP separately.
 - [ ] Record resolver answers on home Wi-Fi, cellular, with no exit node, and
-      with `ren` selected as exit node.
+      with `umi` selected as exit node.
 
 Proof required before proceeding: the test distinguishes a Tailscale transport
 failure, Nix input drop, sing-box listener failure, and proxy-outbound failure.
@@ -590,7 +595,7 @@ result.
 
 ### Phase 2: repair the TPROXY classifier without changing DNS policy
 
-- [ ] Add pre-TPROXY bypasses for addresses owned by `ren`.
+- [ ] Add pre-TPROXY bypasses for addresses owned by `umi`.
 - [ ] Add intentional LAN and tailnet bypass prefixes.
 - [ ] Classify TCP/UDP before setting the proxy mark.
 - [ ] Explicitly drop or pass unsupported public protocols; default to drop.
@@ -624,7 +629,7 @@ Proof:
       ever required.
 
 Proof: kill sing-box during active traffic. Existing and new public flows must
-fail without revealing `ren`'s direct public egress, while local/tailnet paths
+fail without revealing `umi`'s direct public egress, while local/tailnet paths
 continue.
 
 Transitional limitation: until Phases 4 and 5 move client DNS onto the stable
@@ -651,7 +656,7 @@ it removes real policy complexity or provides required local validation.
 
 Proof:
 
-- Capture `enp3s0` while issuing representative queries; no outbound TCP/UDP 53
+- Capture `enp2s0` while issuing representative queries; no outbound TCP/UDP 53
   may appear.
 - Local records resolve while sing-box is stopped.
 - Internet records either resolve through authenticated encryption or fail
@@ -660,7 +665,7 @@ Proof:
 
 ### Phase 5: make the Tailscale DNS path truthful
 
-- [ ] Verify exit-node DNS against the stabilized resolver on `ren`.
+- [ ] Verify exit-node DNS against the stabilized resolver on `umi`.
 - [ ] Disable Cloudflare `Use with exit node` for a single client test.
 - [ ] Confirm that the carrier-facing path remains only Tailscale tunnel traffic.
 - [ ] Disable global DNS override on home Wi-Fi if it bypasses the LAN resolver.
@@ -728,7 +733,7 @@ planes do not share the current packet path.
 | encrypted upstream unavailable | Local zone remains available | No DNS fallback to WAN port 53 | Public DNS fails closed. |
 | IPv6 temporary address rotates | No resolver reload storm | Stable listeners unchanged | No user-visible interruption. |
 
-Privacy proof should include a packet capture on `ren`'s WAN-facing interface:
+Privacy proof should include a packet capture on `umi`'s WAN-facing interface:
 representative client queries must not produce outbound TCP or UDP destination
 port 53. Availability proof must exercise actual applications and arbitrary
 ports, not only HTTPS and a successful DNS lookup.
@@ -740,7 +745,7 @@ ports, not only HTTPS and a successful DNS lookup.
 If sing-box fails before Phase 2, the safest client-side recovery for LAN access
 is to disable the exit node or Tailscale on the iPhone. Deleting the complete
 TPROXY table would enable an untested ordinary exit-node path and could let DNS
-addressed to `1.1.1.1:53` leave `ren` in plaintext. Do not use that as a privacy-
+addressed to `1.1.1.1:53` leave `umi` in plaintext. Do not use that as a privacy-
 preserving fallback.
 
 A server-side emergency change that preserves privacy must add local/tailnet
@@ -764,13 +769,14 @@ unrecorded live rule edit.
 
 ### Observed runtime state
 
-- `ren` LAN IPv4: `10.0.1.30`.
-- `ren` Tailscale addresses: `100.87.220.70` and
-  `fd7a:115c:a1e0::6501:dc49`.
+- `umi` LAN IPv4: `10.0.1.30`.
+- `umi` Tailscale addresses: unknown. `tailscaled` runs logged out and
+  `tailscale0` has no `100.x` address, so the exit-node/TPROXY path is inert
+  until re-auth, at which point exit-node and DNS settings are re-decided.
 - iPhone Tailscale addresses: `100.117.156.47` and
   `fd7a:115c:a1e0::4901:9c2f`.
-- Tailscale advertises both IPv4 and IPv6 default routes from `ren`.
-- `ren` uses `--accept-dns=false`; this affects only `ren`'s client resolver.
+- Tailscale advertises both IPv4 and IPv6 default routes from `umi`.
+- `umi` uses `--accept-dns=false`; this affects only `umi`'s client resolver.
 - MagicDNS is enabled with suffix `fin-orfe.ts.net`.
 - The coordination server supplies Cloudflare global resolvers.
 - sing-box version: 1.14.0.
