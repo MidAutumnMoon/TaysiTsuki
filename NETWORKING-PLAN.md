@@ -87,7 +87,7 @@ such as DNSCrypt, DoH, or DoT.
 
 | Concern | Current owner | Notes |
 |---|---|---|
-| LAN interface and host proxy environment | `machine/ren/networking/module.nix` | Sets `networking.proxy.default` and networkd policy. |
+| LAN interface and host proxy environment | `machine/ren/networking/module.nix` | Sets `networking.proxy.default`, networkd policy, and the resolved stub settings. |
 | Local DNS records and recursive forwarding | `machine/ren/networking/dns/module.nix` | Generates cloaking rules from `lore`; dnscrypt-proxy serves them alone. |
 | sing-box process and runtime generation | `machine/ren/networking/proxy/module.nix` | Evaluates an encrypted Nix expression at service start. |
 | iPhone interception and exit-node flags | `machine/ren/networking/proxy/tproxy.nix` | Hard-codes the selected iPhone Tailscale addresses. |
@@ -125,13 +125,10 @@ IPv4 100.117.156.47
 IPv6 fd7a:115c:a1e0::4901:9c2f
 ```
 
-The live TPROXY counter showed 120,530 packets and 18,619,239 bytes. The IPv4
-`FORWARD` jump into `ts-forward` saw no packets (IPv6 saw 12), and the inner
-`ts-postrouting` masquerade rule saw no packets in either family. The outer
-`POSTROUTING` jumps were nonzero, so traffic reached postrouting but none used
-Tailscale's marked masquerade path. This is consistent with the selected
-iPhone TCP/UDP traffic being consumed locally and re-originated by sing-box
-rather than using ordinary exit-node forwarding and masquerading.
+Observed counters show the selected traffic consumed locally and re-originated
+by sing-box: the TPROXY counter was nonzero while the IPv4 `FORWARD` jump into
+`ts-forward` and both `ts-postrouting` masquerade rules saw no packets. The
+ordinary exit-node forwarding path is therefore not a proven fallback.
 
 ### iPhone DNS
 
@@ -165,9 +162,12 @@ umi or LAN client
 ```
 
 `systemd-resolved` is the host stub and forwards to `127.0.0.1`; its
-`DNS=127.0.0.1` and explicit empty `FallbackDNS` are declared in
-`machine/ren/networking/module.nix`. Local records resolve to stable
-addresses and no longer depend on mDNS discovery.
+`DNS=127.0.0.1`, explicit empty `FallbackDNS`, and `MulticastDNS=no` are
+declared in `machine/ren/networking/module.nix`. Local records resolve
+directly to stable addresses, independent of mDNS discovery. mDNS remains a
+separate plane: avahi-daemon publishes `umi.local`, and nss-mdns resolves
+other hosts' `.local` names for local processes; it is the only mDNS
+resolver on the host.
 
 ### Local service access from the iPhone
 
@@ -311,17 +311,7 @@ The cleaner statement is: the iPhone uses `umi` as its exit-node resolver;
 sing-box requires special remote DNS for routing, that is a separate public
 proxy-DNS policy, not the owner of LAN service records.
 
-### 8. CoreDNS binds dynamic addresses and reloads excessively
-
-CoreDNS binds the whole `enp2s0` interface, taking a snapshot of all its
-addresses. The interface carries a stable GUA plus a router-advertised ULA,
-and its address set changes over time. An address monitor reloads CoreDNS once
-for every address event.
-
-The resolver should bind named stable addresses. The monitor and reload loop
-then become unnecessary.
-
-### 9. Host firewall exposure is broad
+### 8. Host firewall exposure is broad
 
 The supplied root ruleset confirms that these ports are accepted without
 source or interface restrictions:
@@ -331,19 +321,21 @@ TCP: 22, 53, 80, 443, 7890, 7891
 UDP: 53, 443, 5353, 7890, 7891, 41641
 ```
 
-CoreDNS and the proxy listen on public GUAs as well as LAN addresses. External
-reachability still depends on the router, but the host firewall itself provides
-no final source restriction. This is a confirmed P0 host-policy defect, not a
-DNS-record concern.
+dnscrypt-proxy binds only the stable LAN address, the ULA, and loopback, but
+its port 53 is still accepted from any source. sing-box's mixed and TPROXY
+listeners bind wildcard addresses and their ports are globally accepted.
+External reachability still depends on the router, but the host firewall
+itself provides no final source restriction. This is a confirmed P0
+host-policy defect, not a DNS-record concern.
 
-### 10. Tailscale access policy is allow-all
+### 9. Tailscale access policy is allow-all
 
 `infra/tailscale.tf` permits every user to every destination and port. Caddy
 source matchers and absent public DNS records are not authorization boundaries.
 Exit-node use, service access, and administration need distinct Tailscale
 permissions.
 
-### 11. Runtime sing-box policy is difficult to audit
+### 10. Runtime sing-box policy is difficult to audit
 
 The installed sing-box is 1.14.0. Its generated runtime policy differs from the
 provided decoded `sing-box-config`: live logs contain a materially larger China
@@ -354,9 +346,9 @@ Nix should own non-secret routing, listener, DNS, and selector policy. SOPS
 should contain only credentials and private endpoints. The generated JSON must
 be checked with `sing-box check` before replacing the running process.
 
-### 12. Tailscale transport had an independent health problem
+### 11. Tailscale transport has an independent health problem
 
-Observed state included:
+Pre-reinstall, the daemon showed:
 
 - `Self.Online=false` while the daemon was running.
 - An inability to synchronize with the coordination server.
@@ -367,8 +359,9 @@ Observed state included:
 
 The custom TPROXY chain only handles packets arriving on `tailscale0`; it does
 not intercept host-originated tailscaled control traffic. The active
-`tailscaled.service` also did not inherit the HTTP proxy environment. The
-control/DERP issue is therefore a separate failure domain.
+`tailscaled.service` also does not inherit the HTTP proxy environment. The
+control/DERP issue is therefore a separate failure domain. Since the reinstall,
+`tailscaled` runs logged out and the overlay is inert until re-auth.
 
 ## Symptom-to-cause guide
 
@@ -447,21 +440,10 @@ Important details:
 
 ### DNS architecture
 
-Target roles:
-
-1. A stable resolver on `umi` owns LAN records and caching.
-2. Local records use direct A/AAAA data, not CNAMEs to `.local`.
-3. Upstream internet DNS uses DNSCrypt, DoH, or DoT without plaintext fallback.
-4. Tailscale transports iPhone DNS to `umi`; the carrier sees only encrypted
-   tunnel traffic.
-5. sing-box may own proxy-specific public DNS routing, but never LAN service
-   discovery.
-
-dnscrypt-proxy satisfies these roles alone: it answers LAN names from its
-cloaking table and reaches the internet through encrypted upstreams, with
-`systemd-resolved` reduced to a stub. Replacing it with Unbound is optional,
-not a goal by itself. Do not swap resolver implementations merely to reduce
-the process count.
+The LAN side is in place: dnscrypt-proxy owns the LAN records (exact-match
+cloaking to stable addresses) and the encrypted upstream path, with
+`systemd-resolved` reduced to a declared stub (see Host and LAN DNS). What
+remains is the exit-node client path.
 
 Preferred client policy while using the exit node:
 
@@ -611,7 +593,7 @@ Proof:
 - Unsupported public protocols hit their explicit counter.
 - Stopping sing-box leaves direct IP connectivity to local and tailnet services
   available while public traffic remains closed. Name-based access may still
-  depend on the current hijacked DNS path until Phases 4 and 5.
+  depend on the current hijacked DNS path until Phase 4.
 
 ### Phase 3: make fail-closed lifecycle explicit
 
@@ -628,44 +610,13 @@ Proof: kill sing-box during active traffic. Existing and new public flows must
 fail without revealing `umi`'s direct public egress, while local/tailnet paths
 continue.
 
-Transitional limitation: until Phases 4 and 5 move client DNS onto the stable
+Transitional limitation: until Phase 4 moves client DNS onto the stable
 resolver path, stopping sing-box may still break name resolution from the
 iPhone even though direct local/tailnet IP connectivity survives.
 
-### Phase 4: stabilize local DNS
+### Phase 4: make the Tailscale DNS path truthful
 
-- [ ] Verify dnscrypt-proxy serves the cloaked LAN records on loopback and the
-      stable `umi` addresses, with no other resolver on `:53`.
-- [ ] Verify `.local` names are refused by the explicit `block_undelegated`
-      setting — the binary default is off and upstream defaults are not
-      merged — and reach avahi only through nss-mdns.
-- [ ] Keep mDNS only for genuine link-local discovery.
-- [ ] Verify `systemd-resolved` stays a stub to `127.0.0.1` with an explicit
-      empty `FallbackDNS` and `MulticastDNS=no`.
-- [ ] Verify dnscrypt-proxy upstream encryption and remove every plaintext
-      fallback.
-- [ ] Decide whether DNSSEC is validated locally or by a trusted encrypted
-      upstream; document the choice.
-- [ ] Confirm router DHCP and RA advertise the stable resolver.
-
-dnscrypt-proxy owns the resolver role alone: LAN names resolve through
-exact-match cloaking rules to stable addresses, and the process binds its
-listen addresses directly, so no interface-address reload watcher exists.
-Evaluate Unbound only if it removes real policy complexity or provides
-required local validation.
-
-Proof:
-
-- Capture `enp2s0` while issuing representative queries; no outbound TCP/UDP 53
-  may appear.
-- Local records resolve while sing-box is stopped.
-- Internet records either resolve through authenticated encryption or fail
-  closed.
-- IPv6 privacy-address rotation does not reload or rebind the resolver.
-
-### Phase 5: make the Tailscale DNS path truthful
-
-- [ ] Verify exit-node DNS against the stabilized resolver on `umi`.
+- [ ] Verify exit-node DNS against the resolver on `umi`.
 - [ ] Disable Cloudflare `Use with exit node` for a single client test.
 - [ ] Confirm that the carrier-facing path remains only Tailscale tunnel traffic.
 - [ ] Disable global DNS override on home Wi-Fi if it bypasses the LAN resolver.
@@ -677,7 +628,7 @@ Proof:
 Rollback: re-enable the prior Cloudflare exit-node setting. Do not introduce a
 plain resolver as a temporary fallback.
 
-### Phase 6: tighten Caddy and tailnet authorization
+### Phase 5: tighten Caddy and tailnet authorization
 
 - [ ] Replace implicit wildcard fallthrough with explicit rejection.
 - [ ] Apply source policy to `peerban`, `wpad`, `tv`, and `clash` as intended.
@@ -690,7 +641,7 @@ plain resolver as a temporary fallback.
 Proof: valid clients reach only intended services; unmatched hosts and denied
 sources receive an explicit failure rather than an empty 200.
 
-### Phase 7: make sing-box configuration auditable
+### Phase 6: make sing-box configuration auditable
 
 - [ ] Move non-secret inbounds, DNS rules, route rules, selectors, and logging
       policy into ordinary Nix.
@@ -705,7 +656,7 @@ sources receive an explicit failure rather than an empty 200.
 Proof: the generated runtime JSON is reproducible except for secrets, passes
 `sing-box check`, and its effective rule order matches the Nix policy.
 
-### Phase 8: investigate Tailscale transport independently
+### Phase 7: investigate Tailscale transport independently
 
 - [ ] Capture root daemon logs during a real iPhone session.
 - [ ] Use `tailscale ping` while the phone is awake on Wi-Fi and cellular to
@@ -769,26 +720,29 @@ unrecorded live rule edit.
 
 ### Observed runtime state
 
-- `umi` LAN IPv4: `10.0.1.30`.
+- `umi` LAN IPv4: `10.0.1.30` (router DHCP reservation). Router DHCP/RA
+  advertises `umi` itself (`10.0.1.30` plus the ULA) as the LAN resolver.
+- dnscrypt-proxy is the only `:53` listener: `10.0.1.30`, the ULA
+  `fda1:ac04:d4f6:0:4af3:17ff:fe19:6f16`, and loopback, on TCP and UDP.
+- `systemd-resolved` global DNS is the declared `127.0.0.1` with an empty
+  `FallbackDNS` list. avahi-daemon publishing plus nss-mdns is the only mDNS
+  stack.
 - `umi` Tailscale addresses: unknown. `tailscaled` runs logged out and
   `tailscale0` has no `100.x` address, so the exit-node/TPROXY path is inert
   until re-auth, at which point exit-node and DNS settings are re-decided.
 - iPhone Tailscale addresses: `100.117.156.47` and
   `fd7a:115c:a1e0::4901:9c2f`.
-- Tailscale advertises both IPv4 and IPv6 default routes from `umi`.
-- `umi` uses `--accept-dns=false`; this affects only `umi`'s client resolver.
+- `umi` is configured with `--advertise-exit-node` and `--accept-dns=false`;
+  the latter affects only `umi`'s client resolver.
 - MagicDNS is enabled with suffix `fin-orfe.ts.net`.
 - The coordination server supplies Cloudflare global resolvers.
-- sing-box version: 1.14.0.
-- Tailscale version observed in the unit: 1.102.3.
-- Policy table 169 contains IPv4 and IPv6 `local default dev lo` routes.
-- The Nix reverse-path filter explicitly accepts the custom proxy mark.
-- CoreDNS, dnscrypt-proxy, sing-box, tailscaled, and Caddy were running during
-  the audit.
-- `tailscaled.service` did not inherit the HTTP proxy environment.
-- Caddy did inherit `networking.proxy.envVars`.
-- The mixed and TPROXY listeners bind wildcard addresses.
-- The host firewall globally permits their ports.
+- sing-box version: 1.14.0. Tailscale version in the unit: 1.102.3.
+- Policy table 169 contains IPv4 and IPv6 `local default dev lo` routes; the
+  Nix reverse-path filter explicitly accepts the custom proxy mark.
+- `tailscaled.service` does not inherit the HTTP proxy environment; Caddy
+  does inherit `networking.proxy.envVars`.
+- sing-box's mixed and TPROXY listeners bind wildcard addresses, and the host
+  firewall globally permits their ports.
 
 ### Relevant history
 
@@ -803,8 +757,8 @@ separately, leaving their combined failure behavior implicit.
 
 ### Important uncertainties
 
-- Router DHCP/RA advertisements and inbound IPv6 firewall policy are not in the
-  repository.
+- Router inbound IPv6 firewall policy is not in the repository. DHCP
+  advertisement of the `umi` resolver was observed live; RA details were not.
 - The exact Tailscale **Use with exit node** value was inferred rather than read
   from the privileged netmap or console.
 - The encrypted live sing-box configuration differs from the supplied decoded
@@ -834,9 +788,11 @@ Decisions already supported by the evidence:
 - Treat Tailscale control health as a separate problem.
 - Scope exposed ports at the host even if the router also filters them.
 - Do not treat DNS records or Caddy host matching as authorization.
-- Do not replace CoreDNS/dnscrypt solely to reduce the number of daemons.
-- dnscrypt-proxy alone owns the resolver role via cloaking rules; CoreDNS and
-  avahi2dns are removed.
+- dnscrypt-proxy alone owns the resolver role via exact-match cloaking rules.
+- Local records never point into `.local`; unicast DNS refuses `.local`
+  through the explicit `block_undelegated` setting.
+- DNSSEC validation is delegated to the encrypted upstreams; no local
+  validator runs.
 
 Decisions still required during implementation:
 
