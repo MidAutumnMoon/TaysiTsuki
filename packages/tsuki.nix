@@ -126,7 +126,6 @@ finalize {
     # go 2
     #
     Go_2 = [
-        (tsuki "coredns" { version.regex = "(v1\\..*)"; })
         # nixpkgs opentofu wrapped with plugins; version moves with
         # flake.lock, so there is nothing upstream to track.
         (tsuki "opentofu" null)
