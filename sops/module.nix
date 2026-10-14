@@ -22,7 +22,7 @@ lib.mkMerge [
         sops.defaultSopsFile = ./default.sops.nix;
     }
 
-    (for [ machines.ren ] {
+    (for [ machines.umi ] {
         sops.secrets = {
             "key--ssh--teapot" = {
                 sopsFile = ./ren/key--ssh--teapot.sops.yml;
@@ -40,7 +40,7 @@ lib.mkMerge [
         };
     })
 
-    (for (with machines; [ ren phia ]) {
+    (for (with machines; [ umi phia ]) {
         sops.secrets."rclone.conf" = {
             sopsFile = ./mixed/rclone;
             format = "binary";

@@ -12,7 +12,7 @@
     lore.pubkeys = lib.importJSON ./pubkeys.json;
 
     lore.machines = {
-        ren = {};
+        umi = {};
         phia = {};
 
         # router is in fact openwrt
@@ -57,7 +57,7 @@
                 domain = im_418;
                 cname = target;
             };
-            onRen = cname machines.ren.mdns;
+            onRen = cname machines.umi.mdns;
             onPhia = cname machines.phia.mdns;
         in {
             router = {
@@ -87,7 +87,7 @@
             };
         in {
             slskd_dashboard = on "uk-01" "slskd";
-            clash_dashboard = on "ren" "clash";
+            clash_dashboard = on "umi" "clash";
         };
 
     lore.apps."public" =

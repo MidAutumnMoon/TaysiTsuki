@@ -115,7 +115,7 @@
                 arguments = { inherit flakes; };
             };
         in {
-            ren = nixos "x86_64-linux" <| (
+            umi = nixos "x86_64-linux" <| (
                 lib.listAllModules ./machine/ren
                 ++ (with flakes; [
                     xremap.nixosModules.default
@@ -130,7 +130,7 @@
         colmenaHive =
             {
                 meta.nixpkgs = pkgsBrew.pkgsOf "x86_64-linux";
-                ren.deployment = {
+                umi.deployment = {
                     targetHost = "ren.local";
                     buildOnTarget = true;
                 };
@@ -144,7 +144,7 @@
                 };
             }
             |> lib.nixos2colmena self.nixosConfigurations
-            |> lib.flip removeAttrs [ "ren" ]
+            |> lib.flip removeAttrs [ "umi" ]
             |> flakes.colmena.lib.makeHive;
     };
 

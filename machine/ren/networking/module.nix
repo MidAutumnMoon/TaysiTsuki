@@ -3,14 +3,14 @@
 {
 
     networking = with config; {
-        hostName = lore.machines.ren.hostname;
+        hostName = lore.machines.umi.hostname;
         proxy.default = "http://localhost:${toString lore.ports.proxy}";
         useDHCP = false;
     };
 
     systemd.network.networks = {
-        "10-enp3s0" = {
-            name = "enp3s0";
+        "10-enp2s0" = {
+            name = "enp2s0";
             DHCP = "yes";
             networkConfig = {
                 MulticastDNS = "resolve";

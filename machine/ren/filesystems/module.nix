@@ -8,25 +8,9 @@ let
         "noatime"
     ];
 
-    sambaOption = [
-        "x-systemd.automount"
-        "x-systemd.mount-timeout=10s"
-        "x-systemd.idle-timeout=10m"
-        "_netdev"
-        "noauto"
-        "noatime"
-        "noserverino"
-        "user"
-        "users"
-        "vers=3.1.1"
-        "nofail"
-        "iocharset=utf8"
-        "echo_interval=30"
-        "uid=${toString config.users.users.teapot.uid}"
-        "gid=${toString config.users.groups.users.gid}"
-    ];
+    luksDeviceName = "minato";
 
-    luksDevice = "/dev/mapper/rin";
+    luksDevice = "/dev/mapper/${luksDeviceName}";
 
 in
 
@@ -38,8 +22,8 @@ in
     };
 
     boot.initrd.luks.devices = {
-        "rin" = {
-            device = "/dev/disk/by-uuid/b0fb796a-6982-4c87-b261-80159d03946d";
+        "${luksDeviceName}" = {
+            device = "/dev/disk/by-uuid/95591c3a-d3ed-4870-947b-15339527c596";
             allowDiscards = true;
             bypassWorkqueues = true;
             crypttabExtraOpts = [ "fido2-device=auto" ];
@@ -63,7 +47,7 @@ in
             ];
         };
         "/boot" = {
-            device = "/dev/disk/by-uuid/B6AC-C76F";
+            device = "/dev/disk/by-uuid/3603-DD8C";
             fsType = "vfat";
             options = [ "fmask=0022" "dmask=0022" ];
         };
@@ -72,15 +56,20 @@ in
             fsType = "btrfs";
             options = btrfsOption "nix";
         };
-        "/var" = {
+        "/var/lib" = {
             device = luksDevice;
             fsType = "btrfs";
-            options = btrfsOption "var";
+            options = btrfsOption "var-lib";
         };
-        "/var/.snapshots" = {
+        "/var/lib/.snapshots" = {
             device = luksDevice;
             fsType = "btrfs";
-            options = btrfsOption "var-snapshot";
+            options = btrfsOption "var-lib-snapshot";
+        };
+        "/var/log" = {
+            device = luksDevice;
+            fsType = "btrfs";
+            options = btrfsOption "var-log";
         };
         "/persist" = {
             device = luksDevice;
@@ -103,18 +92,6 @@ in
             fsType = "btrfs";
             options = btrfsOption "home-snapshot";
         };
-        # "/mnt/pool" = {
-        #     # TODO: no hardcode hostname and path
-        #     device = "//phia.local/pool";
-        #     fsType = "cifs";
-        #     options = sambaOption ++ [];
-        # };
-        # "/mnt/torrent" = {
-        #     # TODO: no hardcode hostname and path
-        #     device = "//phia.local/torrent";
-        #     fsType = "cifs";
-        #     options = sambaOption ++ [];
-        # };
     };
 
     services = {
