@@ -22,3 +22,14 @@ The binary cache is hosted using [Cachix](https://www.cachix.org/),
 
 ## Notes on Spinning Up New Machine
 1.
+
+## Unmanaged states
+
+### KDE animation duration
+
+Write this to `~/.config/kdeglobals`:
+
+```ini
+[KDE]
+AnimationDurationFactor=0
+```
