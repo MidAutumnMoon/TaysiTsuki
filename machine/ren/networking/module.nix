@@ -16,7 +16,6 @@ in {
         proxy.default = "http://localhost:${toString lore.ports.proxy}";
         useDHCP = false;
 
-        # trusted-only: ssh admin, caddy serving (see below)
         firewall.extraInputRules =
             let inherit (network) lan4 lan6 tailnet4 tailnet6; in
             ''
@@ -41,12 +40,8 @@ in {
         Cache = false;
     };
 
-    #
-    # Scoped exposure
-    #
-
-    # caddy serves trusted networks only (uk-01 keeps the
-    # shared wildcard binding: it is a public VPS)
+    # trusted-only override; uk-01 keeps the shared wildcard
+    # binding (public VPS)
     services.caddy = {
         openFirewall = false;
         virtualHosts."im_418".listenAddresses = lib.mkForce [
@@ -55,8 +50,6 @@ in {
         ];
     };
 
-    # umi is administered from trusted networks only; shared
-    # behavior (uk-01) is untouched
     services.openssh.openFirewall = false;
 
 }

@@ -1,9 +1,6 @@
 { pkgs, config, lib, ... }:
 
-# This module makes devices on the tailnet able to use proxy
-# in my homelab.
-#
-# AI: Learnt policy based routing and nftables tproxy using LLM.
+# transparent proxying for tailnet devices via this exit node
 
 let
 
@@ -16,16 +13,14 @@ let
 
     table = "169";
 
-    # before tailscale's 52xx table-52 rules: marked packets resolve
-    # via table 169 first, whatever rules tailscale installs. explicit
-    # because the kernel used to auto-allocate this priority (observed
-    # at both 5209 and 32765 across boots).
+    # must sort before tailscale's table-52 rules (52xx) so marked
+    # packets resolve via table 169 first; explicit because kernel
+    # auto-allocation of this priority is unstable across boots
     pref = "5200";
 
     # this module owns mark bits 8-15; tailscale owns 0x00ff0000.
-    # the classifier assigns by masked replacement, never by OR, so
-    # neither field can contaminate the other. (decimal literals:
-    # Nix has no hex ints; nftHex renders them back as hex)
+    # masked replacement, never OR, keeps the fields independent.
+    # decimal literals: nix has no hex ints
     mask = 65280; # 0x0000ff00
     mark = 26880; # 0x00006900
     # ~mask: bits preserved while assigning into our field
@@ -42,27 +37,23 @@ in {
         }
     ];
 
-    # make ren a exit node
     services.tailscale = {
         useRoutingFeatures = "both";
         extraSetFlags = [
             "--advertise-exit-node"
-            # subnet router for the homelab; approval lives in infra
+            # route approval lives in infra
             "--advertise-routes=${lore.network.lan4}"
             # must stay true: accept-dns=false also disables this
-            # node's quad-100 forwarder, which exit-node clients rely
-            # on (SERVFAIL -> clients fall back to plaintext carrier
-            # DNS -> GFW poisoning). host-side: with a global
-            # nameserver configured, tailscale0 claims quad-100 with
-            # ~. and the host resolves via quad-100 -> sing-box ->
-            # dnscrypt; the declared global stub (127.0.0.1) remains
-            # the path when tailscaled is down
+            # node's quad-100 forwarder that exit-node clients rely
+            # on (SERVFAIL would push them onto plaintext carrier
+            # dns). host side, quad-100 chains into sing-box ->
+            # dnscrypt
             "--accept-dns=true"
         ];
     };
 
-    # control-plane traffic goes through sing-box; tailscaled must
-    # survive sing-box being down, hence no Requires here
+    # the control plane detours via sing-box but must survive it
+    # being down: wants, not requires
     systemd.services.tailscaled = {
         serviceConfig.Environment = [
             "HTTPS_PROXY=http://127.0.0.1:${toString lore.ports.proxy}"
@@ -72,7 +63,6 @@ in {
         wants = [ "sing-box.service" ];
     };
 
-    # create custom routing table for PBR later
     networking.iproute2.enable = true;
     networking.iproute2.rttablesExtraConfig = ''
         ${table} tailscale_proxy
@@ -83,11 +73,10 @@ in {
         description = "setup routing rules for tproxy";
 
         wantedBy = [ "multi-user.target" ];
-        # a nixos switch reloads the nft tables (new marking) without
-        # re-running RemainAfterExit services: marked packets would
-        # miss table 169 and leak via the tailscale NAT until this
-        # re-installs the matching policy rule. PartOf restarts us
-        # with the firewall.
+        # a switch reloads nft (new marking) without re-running
+        # RemainAfterExit services: the old policy rule would miss
+        # the new mark and leak via the tailscale NAT. PartOf
+        # restarts us with the firewall
         partOf = [ config.systemd.services."nftables".name ];
         after = [
             "network.target"
@@ -106,7 +95,7 @@ in {
         };
 
         script = ''
-            # rules left by the previous implementation: no pref,
+            # stale rules from an older revision: no pref,
             # tailscale-overlapping mask
             ip ru d fwmark 0x00690000/0x00ff0000 lookup ${table} || true
             ip -6 ru d fwmark 0x00690000/0x00ff0000 lookup ${table} || true
@@ -139,8 +128,6 @@ in {
                 elements = { ${iphone.tailnet_ip6} }
             }
 
-            # bypass prefixes as data: interval sets keep the rules
-            # static however lore's ranges evolve
             set bypassLan4 {
                 type ipv4_addr
                 flags interval
@@ -163,53 +150,48 @@ in {
             }
 
             chain prerouting {
-                # between tailscale's mangle chains (-150: its mark
-                # bookkeeping is done by then) and the NixOS rpfilter
-                # chain (mangle + 10: it consults the mark set here)
+                # after tailscale's mangle chains (-150, their mark
+                # bookkeeping done) and before rpfilter (mangle + 10,
+                # which consults our mark)
                 type filter hook prerouting priority mangle + 5; policy accept;
 
-                # only the selected devices, only from the tailnet
                 iifname != "${tailscaleIface}" return
                 ip saddr @devicesProxy4 jump classify
                 ip6 saddr @devicesProxy6 jump classify
             }
 
             chain classify {
-                # kernel bypasses first: local, LAN and tailnet
-                # traffic must not depend on sing-box, and local
-                # ICMP must survive the protocol drop below
+                # local, lan and tailnet traffic must not depend on
+                # sing-box; the fib return must precede the protocol
+                # drop or local ICMP dies with it
                 fib daddr type local counter return comment "bypass-local"
                 ip daddr @bypassLan4 counter return comment "bypass-lan"
                 ip6 daddr @bypassLan6 counter return comment "bypass-lan"
                 ip daddr @bypassTailnet4 counter return comment "bypass-tailnet"
                 ip6 daddr @bypassTailnet6 counter return comment "bypass-tailnet"
 
-                # remaining traffic is public: unsupported protocols
-                # fail closed (counted), not marked-then-blackholed
+                # unsupported protocols fail closed (counted), not
+                # marked-then-blackholed
                 meta l4proto != { tcp, udp } counter drop comment "drop-unsupported"
 
-                # masked assignment and the transparent handoff share
-                # one tcp/udp-gated rule: the mark is never set on a
-                # packet that is not also given to the socket. nft ends
-                # a rule at the newline -- this MUST stay one line
+                # mark and tproxy share one rule: nothing is marked
+                # without being handed to the socket. nft ends a rule
+                # at the newline -- must stay one line
                 meta l4proto { tcp, udp } meta mark set (meta mark & ${nftHex keep}) | ${nftHex mark} tproxy to :${toString lore.ports.tproxy} counter accept comment "tproxy"
             }
             '';
     };
 
-    # tproxy preserves the original destination address and port, so
-    # transparent packets reach the input chain on arbitrary dports:
-    # port-based acceptance can never authorize them (flaw 1 in
-    # NETWORKING-PLAN.md). the classifier runs at mangle + 5, before
-    # the input chain, so the mark is already set; one inet-family
-    # rule covers both families.
+    # tproxy preserves daddr/dport, so transparent packets hit the
+    # input chain on arbitrary ports; only the mark can authorize
+    # them, and the classifier at mangle + 5 has already set it
     networking.firewall.extraInputRules = ''
         iifname "${tailscaleIface}" meta mark & ${nftHex mask} == ${nftHex mark} counter accept comment "tproxy transparent traffic"
     '';
 
     # rpfilter sits at mangle + 10, after the classifier, so marked
-    # packets resolve through table 169 anyway; explicit accept so
-    # this does not depend on that ordering
+    # packets resolve via table 169 anyway; accept explicitly rather
+    # than depend on that ordering
     networking.firewall.extraReversePathFilterRules = ''
         meta mark & ${nftHex mask} == ${nftHex mark} accept
     '';

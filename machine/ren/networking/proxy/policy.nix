@@ -5,15 +5,11 @@
     secretsFile,
 }:
 
-# Plaintext sing-box policy: inbounds, dns, routing, selectors and
-# logging live here; the encrypted secrets file carries only the
-# commercial outbounds whole (server, port, credentials, sni) plus
-# the clash api secret. Node tags are duplicated between the two on
-# purpose -- they surface in logs and the clash api anyway -- and
-# every selector member is a lookup into the secrets outbounds
-# (nodeTags below), so tag drift between the files fails evaluation
-# before any process is touched. `sing-box check` in the unit
-# validates schema only; it does not catch dangling references.
+# plaintext policy; the encrypted secrets file carries the
+# commercial outbounds and the clash api secret. node tags are
+# duplicated between the two on purpose: `sing-box check`
+# validates schema only, and the nodeTags lookups make tag drift
+# fail at evaluation
 
 let
 
@@ -45,20 +41,13 @@ let
         then concatMap (v: flatten v) val
         else [ val ];
 
-    # commercial nodes from the encrypted file, addressed by tag
     __nodes = secrets.outbounds;
     nodeByName = listToAttrs <| map (o: { name = o.tag; value = o; }) __nodes;
 
     # :: [ string ] -> [ tag ]
-    # selector members as lookups into nodeByName: a selector naming
-    # a node the secrets file does not carry fails evaluation here
     nodeTags = names: map (name: nodeByName.${name}.tag) names;
 
 in rec {
-
-    #
-    # Some global settings
-    #
 
     log = {
         level = "info";
@@ -73,14 +62,9 @@ in rec {
         };
     };
 
-    #
-    # DNS
-    #
-
     __dnsServers = {
-        # dnscrypt on the loopback. the host stub itself detours via
-        # quad-100, so type "local" would resolve through the stub ->
-        # quad-100 -> this dns engine: a cycle.
+        # dnscrypt on the loopback; type "local" would resolve via
+        # the host stub -> quad-100 -> back here: a cycle
         local = {
             tag = "DNS Local";
             type = "udp";
@@ -91,8 +75,7 @@ in rec {
             tag = "DNS Cloudflare";
             type = "https";
             server = "cloudflare-dns.com";
-            # bootstrap via dnscrypt (the local server above), never
-            # via quad-100: same cycle as the note on local.
+            # bootstrap via the local server, never quad-100: same cycle
             domain_resolver.server = __dnsServers.local.tag;
             detour = __groups.proxy.tag;
         };
@@ -111,13 +94,8 @@ in rec {
 
     dns.final = __dnsServers.cloudflare.tag;
 
-    #
-    # Inbounds
-    #
-
     __inbounds = {
-        # trusted devices only: loopback + the lan address. the
-        # firewall decides who is trusted; no wildcard bind.
+        # no wildcard bind: the firewall decides who is trusted
         main = {
             type = "mixed";
             tag = "Inbound Main";
@@ -147,8 +125,8 @@ in rec {
             listen_port = lore.tproxyPort;
         };
         # dns entry point for tailnet clients (dns capture, see
-        # infra/tailscale.tf): port 53 from any inbound is hijacked
-        # into the dns engine by the route rules below.
+        # infra/tailscale.tf); the port-53 route rule hijacks it
+        # into the dns engine
         tailnet_dns = {
             type = "direct";
             tag = "Inbound Tailnet Dns";
@@ -158,10 +136,6 @@ in rec {
     };
 
     inbounds = attrValues __inbounds;
-
-    #
-    # Outbounds & Nodes
-    #
 
     __outs = {
         direct = {
@@ -222,7 +196,6 @@ in rec {
             tag = "Proxy US";
             # the first member is the selector default and must be
             # dual-stack: an ipv6-only default cannot dial ipv4
-            # destinations at all
             outbounds = nodeTags [
                 "Backwave US Lax"
                 "Backwave US Lax Hy2"
@@ -245,8 +218,7 @@ in rec {
             ];
         };
 
-        # commercial nodes only: direct / tailscale are routing
-        # destinations, not proxy choices
+        # direct / tailscale are routing destinations, not proxy choices
         proxy_all_outbounds = {
             type = "selector";
             tag = "Proxy All Outbounds";
@@ -255,10 +227,6 @@ in rec {
     };
 
     outbounds = attrValues <| __outs // __groups;
-
-    #
-    # Route rules
-    #
 
     __3pRuleset = {
         skk = {
@@ -325,15 +293,11 @@ in rec {
             timeout = "1s";
         }
 
-        # dns from any inbound -- the tailnet listener above and
-        # tproxy alike -- enters the dns engine
         {
             port = 53;
             action = "hijack-dns";
         }
 
-
-        # Block
         {
             rule_set = [
                 __3pRuleset.skk.tag
@@ -345,7 +309,6 @@ in rec {
             action = "reject";
         }
 
-        # Direct
         {
             ip_cidr = [
                 "fd7a:115c:a1e0::/48"
@@ -366,7 +329,6 @@ in rec {
             outbound = __outs.tailscale.tag;
         }
 
-        # Manual select
         {
             rule_set = getTags <| __geositeRuleset.manual_select;
             outbound = __groups.proxy_all_outbounds.tag;
@@ -378,7 +340,6 @@ in rec {
             outbound = __groups.proxy_hz_upload.tag;
         }
 
-        # China
         {
             rule_set = getTags <| __geositeRuleset.china;
             domain_suffix = [
@@ -390,25 +351,21 @@ in rec {
             outbound = __outs.direct.tag;
         }
 
-        # Japan
         {
             rule_set = getTags <| __geositeRuleset.japan;
             domain_suffix = [ ".jp" ];
             outbound = __groups.proxy_japan.tag;
         }
 
-        # Europe
         {
             rule_set = getTags <| __geositeRuleset.europe;
             domain_suffix = [];
             outbound = __groups.proxy_europe.tag;
         }
 
-        # US: explicitly-listed us destinations ride the us nodes.
-        # geoip-us matching is deliberately NOT used: the phone's
-        # flows arrive as bare ips, and herding them into a regional
-        # selector breaks on any single-family default member -- they
-        # belong on the dual-stack default (final)
+        # no geoip-us: the phone's bare-ip flows would land in a
+        # regional selector whose default member may be single-family;
+        # they belong on the dual-stack default (final)
         {
             domain_suffix = [
                 "f95zone.to"
@@ -417,8 +374,6 @@ in rec {
             outbound = __groups.proxy_us.tag;
         }
 
-        # China ips: the ip fallback for the china domain rules
-        # above. everything else falls through to `final` (Proxy).
         {
             rule_set = [ __geoipRuleset.cn.tag ];
             outbound = __outs.direct.tag;
@@ -429,7 +384,6 @@ in rec {
 |> (val: with builtins; {
     attr = val;
     names =
-        # select attrnames which are not started with "__"
         filter ( n: ( match "^__.*" n ) == [] )
         <| attrNames val;
 })

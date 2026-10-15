@@ -22,9 +22,9 @@ in {
         ./tproxy.nix
     ];
 
-    # only the commercial outbound secrets; policy is plaintext
-    # (policy.nix). the old conf--sing.nix.sops stays around for
-    # rollback.
+    # commercial outbound secrets only; policy is plaintext
+    # (policy.nix). conf--sing.nix.sops is unreferenced, kept
+    # for rollback.
     sops.secrets =
         let singService = config.systemd.services."sing-box".name; in
         {
@@ -61,14 +61,12 @@ in {
                 clashApiAddr = "${clashApiAddr}";
 
                 # :: string -> path
-                # Return the path of geosite data of $name
                 geositeDataOf = name:
                     let pkg = "${pkgs.sing-geosite}"; in
                     let dir = "''${pkg}/share/sing-box/rule-set"; in
                     "''${dir}/geosite-''${name}.srs";
 
                 # :: string -> path
-                # Return the path of geoip data of $name
                 geoipDataOf = name:
                     let pkg = "${pkgs.sing-geoip}"; in
                     let dir = "''${pkg}/share/sing-box/rule-set"; in
@@ -90,10 +88,10 @@ in {
                 --arg "secretsFile" "$CREDENTIALS_DIRECTORY/private_secrets" \
                 "${./policy.nix}" \
             > "$conf"
-            # systemd stops the old listener before the new ExecStart
-            # on restart, so the gate cannot prevent downtime; its
-            # value is a clean unit failure with a clear journal
-            # message instead of an exec crash-loop
+            # restart stops the old listener before the new
+            # ExecStart, so this cannot prevent downtime; it turns
+            # config errors into a clean unit failure instead of an
+            # exec crash-loop
             sing-box check --config "$conf"
             exec sing-box run \
                 --directory "$STATE_DIRECTORY" \
@@ -108,10 +106,9 @@ in {
                 [ "private_secrets:${secrets.secrets--sing.path}" ];
             DynamicUser = true;
             Nice = -10;
-            # survive the boot race with tailscale0 (the dns inbound
-            # binds the tailnet address): unlimited retries at 2s
-            # spacing -- a critical local listener must not die to a
-            # start-rate burst limit
+            # the dns inbound binds the tailnet address, which races
+            # tailscale0 at boot: unlimited retries at 2s spacing
+            # (the start-rate limit is disabled below)
             Restart = "on-failure";
             RestartSec = "2s";
             AmbientCapabilities = [
@@ -122,28 +119,24 @@ in {
         # [Service]-level StartLimitIntervalSec is ignored by systemd;
         # the start-rate burst limit is a unit-level knob
         startLimitIntervalSec = 0;
-        # a DynamicUser has no passwd entry beyond what nss-systemd
-        # synthesizes WHILE the unit is registered: any home lookup
-        # races it and intermittently fails ("cannot determine user's
-        # home directory", crash-loop until the race is lost enough
-        # times). explicit homes remove the lookup entirely
+        # nss-systemd synthesizes the DynamicUser's passwd entry only
+        # while the unit is registered, so home lookups race it and
+        # intermittently fail ("cannot determine user's home
+        # directory"): explicit homes skip the lookup
         environment = {
             HOME = "%S/sing-box";
             XDG_CACHE_HOME = "%C";
             XDG_STATE_HOME = "%S/sing-box";
         };
-        # useHardening = true;
         wantedBy = [ "multi-user.target" ];
         requires = [ "sops-install-secrets.service" ];
         after = [ "sops-install-secrets.service" ];
     };
 
-    # the proxy port serves trusted devices only; the SOCKS UDP
-    # association is deliberately not exposed. transparent tproxy
-    # traffic opens no port here: tproxy.nix accepts it by mark
-    # (which it owns) because such packets keep their original
-    # daddr/dport through the input chain. no v6 accept: the mixed
-    # inbound is v4-only (loopback + lan)
+    # tcp only: the SOCKS UDP association is deliberately not
+    # exposed. tproxy traffic keeps its original daddr/dport, so
+    # tproxy.nix accepts it by mark instead of a port here. no v6:
+    # the mixed inbound is v4-only (loopback + lan)
     networking.firewall.extraInputRules =
         let inherit (config.lore.network) lan4 tailnet4; in
         ''

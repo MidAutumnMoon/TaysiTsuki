@@ -87,8 +87,8 @@ in
                     default = with config; "${subdomain}.${domain}";
                     description = "FQDN of the service";
                 };
-                # each local app record carries the full triple;
-                # null is explicit so consumers can force them
+                # local records carry explicit nulls so consumers
+                # can read unset fields without eval errors
                 options.cname = mkOption {
                     type = with types; nullOr str;
                     readOnly = true;

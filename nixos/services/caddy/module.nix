@@ -14,9 +14,8 @@ in
 
     config = lib.mkIf caddyCfg.enable {
 
-        # trusted-only machines override this to false and provide
-        # their own networking.firewall rules; upstream opens
-        # http(s) ports when this is true
+        # trusted-only machines set this to false and write
+        # their own firewall rules
         services.caddy.openFirewall = lib.mkDefault true;
 
         services.caddy = {
@@ -25,23 +24,19 @@ in
 
             globalConfig = ''
                 email acme@418.im
-                # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 
-                # h3 stays off: with explicit multi-address listeners the
-                # quic handshake fails and each address appends its own
-                # Alt-Svc -- ios caches the advertisement, races dead QUIC
-                # against a working h2 connection, cancels the h2 and
-                # renders a blank page
+                # h3 deliberately off: multi-address listeners fail
+                # the quic handshake and append per-address Alt-Svc.
+                # ios caches it, races dead QUIC against working h2,
+                # cancels h2 and renders a blank page
                 servers {
                     protocols h1 h2
                 }
             '';
 
-            # N.B.
-            # Caddy will do a DNS lookup using raw Cloudflare IPs,
-            # remeber to open firewall on the router for caddy.
-            #
-            # Also, if it failed to obtain certs, check if DNS is poisoned.
+            # the cloudflare dns plugin resolves via raw cloudflare
+            # IPs, so the router firewall must let caddy through;
+            # if certs fail to obtain, check for poisoned DNS
             extraConfig = ''
                 (tls_cloudflare) {
                     tls {

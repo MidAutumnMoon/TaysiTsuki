@@ -25,8 +25,8 @@
             tailnet_ip6 = "fd7a:115c:a1e0::4901:9c2f";
         };
 
-        # router is in fact openwrt
-        # put it here so that it can be referred elsewhere
+        # openwrt, not a NixOS machine: declared here only for
+        # its address
         router = {
             static_ip = "10.0.1.1";
         };
@@ -86,7 +86,6 @@
                 ip6 = null;
             };
 
-            # ren services
             proxy = onRen "proxy";
             navidrome = onRen "music";
             peerban = onRen "peerban";
@@ -133,8 +132,6 @@
         let
             inherit (config.lore) apps machines domains;
             umiFqdn = "${machines.umi.hostname}.${domains.im_418}";
-            # a homelab app either aliases umi (cname alone) or
-            # carries an ip (ip6 optional alongside it)
             homelabBad = apps.homelab
                 |> lib.attrValues
                 |> lib.filter (app:

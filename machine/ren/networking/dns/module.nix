@@ -9,8 +9,8 @@ let
         let
             localApps = with config.lore.apps; homelab // tailnet;
             line = app: addr: "=${app.fqdn} ${addr}";
-            # apps aliased to umi carry its addresses directly: name
-            # targets are resolved upstream, which cannot see umi
+            # umi-aliased apps carry umi's addresses directly:
+            # upstream resolvers cannot see umi's names
             appLines = app:
                 if app.cname == umiFqdn then
                     map (line app) [ umi.static_ip umi.static_ip6 ]
@@ -32,7 +32,6 @@ in
 
 {
 
-    # dnscrypt serves only trusted networks (LAN + tailnet)
     networking.firewall.extraInputRules =
         let inherit (config.lore.network) lan4 lan6 tailnet4 tailnet6; in
         ''
@@ -42,7 +41,6 @@ in
             ip6 saddr { ${lan6}, ${tailnet6} } udp dport 53 counter accept
         '';
 
-    # dnscrypt-proxy resolves internet names and serves lan records
     services.dnscrypt-proxy = {
         enable = true;
         upstreamDefaults = false;
@@ -65,12 +63,12 @@ in
             netprobe_address = "223.5.5.5:53";
             blocked_names.blocked_names_file =
                 "${pkgs.tsuki.adblocklist}/blocklist-dnscrypt.txt";
-            # cloaking is flat upstream: `cloaking_rules` is the file path,
-            # `cloak_ttl` a top-level key (unlike blocked_names)
+            # upstream quirk: `cloak_ttl` is top-level, unlike
+            # blocked_names' nesting
             cloaking_rules = "${cloakRules}";
             cloak_ttl = 60;
-            # sinks .local etc. locally; the Go default is false and
-            # upstreamDefaults = false means the example config is not merged
+            # sinks .local etc.; the Go default is false and
+            # upstreamDefaults = false skips the example config
             block_undelegated = true;
         };
     };
