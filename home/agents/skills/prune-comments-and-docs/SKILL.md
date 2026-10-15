@@ -23,6 +23,8 @@ A fact often belongs in a name, type, error message, assertion, or test rather t
 
 Map duplicates before pruning. Group comments and leftover planning prose around recurring domain terms ("state", "rendered", "atomic", "converge"). Give each repeated fact one home per audience. Prefer the item the fact describes; otherwise, use the first place the reader reaches. Delete the other copies. Check 4 governs any pointers that remain.
 
+Parallel reviewers each see only their own files, so map duplicates across the whole set before editing starts.
+
 For each comment, apply these checks in order. Act on the first failure.
 
 1. **True?** Read the code it describes. If they disagree and you can't tell which is wrong, flag it. Don't rewrite the comment to match a possible bug.
@@ -33,7 +35,7 @@ For each comment, apply these checks in order. Act on the first failure.
 
 A comment that passes all five stays word for word, even if you would phrase it differently. When a comment fails, fix only that failure. Match the file's comment style: casing, punctuation, and terseness. In text you write, spell proper nouns and acronyms as usual (Nix, DNS).
 
-Delete by default. Rewrite to preserve a needed point, not every fact the comment held. Identify the reader's question at this line, answer it in a sentence, and add the reason if the answer alone seems arbitrary. Add a comment only when the reader would otherwise get something wrong: a missing why, or a missing error, panic, or safety contract. If a comment only explains an unclear name, suggest a rename in your summary instead of polishing it.
+Delete by default: a comment goes unless it holds a fact with no other home. Rewriting may keep that fact, not the whole comment. Identify the reader's question at this line, answer it in a sentence, and add the reason if the answer alone seems arbitrary. Add a comment only when the reader would otherwise get something wrong: a missing why, or a missing error, panic, or safety contract. If a comment only explains an unclear name, suggest a rename in your summary instead of polishing it.
 
 Judge whole blocks, not just sentences. For a comment longer than two lines, ask whether deleting it loses anything this reader needs. If not, delete it. If the code's structure predicts the comment (bare numbering, section dividers, enum glosses), it's narration; cut it.
 
