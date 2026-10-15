@@ -96,6 +96,17 @@ let
                 "Self.AllowedIPs: $(jq -r '.Self.AllowedIPs // [] | join(", ")' <<<"$ts")" \
                 jq -e '(.Self.AllowedIPs // []) | index("0.0.0.0/0")' <<<"$ts"
 
+            # 3b. magicdns + dns capture: quad-100 (magic + split
+            # domains; accept-dns must stay true for it) and the ~.
+            # default route (tailnet-wide capture via the sing-box
+            # listener, infra/tailscale.tf) are both on tailscale0.
+            tsdns=$(resolvectl dns tailscale0 2>/dev/null || true)
+            check "tailscale0 link carries quad-100" "got: ''${tsdns:-none}" \
+                grep -q "100.100.100.100" <<<"$tsdns"
+            tsdom=$(resolvectl domain tailscale0 2>/dev/null || true)
+            check "tailscale0 link routes ~. (dns capture live)" "got: ''${tsdom:-none}" \
+                grep -qE '(^|[[:space:]])~\.' <<<"$tsdom"
+
             # 4. bogus .local names must not resolve
             if getent ahostsv4 something-invalid.local >/dev/null 2>&1; then
                 echo "FAIL: invalid .local name fails (getent returned an address)"
