@@ -26,6 +26,15 @@ in
             globalConfig = ''
                 email acme@418.im
                 # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+
+                # h3 stays off: with explicit multi-address listeners the
+                # quic handshake fails and each address appends its own
+                # Alt-Svc -- ios caches the advertisement, races dead QUIC
+                # against a working h2 connection, cancels the h2 and
+                # renders a blank page
+                servers {
+                    protocols h1 h2
+                }
             '';
 
             # N.B.
@@ -50,10 +59,19 @@ in
         services.caddy.virtualHosts."im_418" = {
             listenAddresses = [ "::" ];
             hostName = "*.${lore.domains.im_418}";
-            extraConfig = lib.mkBefore ''
-                import common
-                import tls_cloudflare
-            '';
+            extraConfig = lib.mkMerge [
+                (lib.mkBefore ''
+                    import common
+                    import tls_cloudflare
+                '')
+                # a final handle so an unmatched hostname gets an
+                # explicit 404 instead of the implicit empty 200
+                (lib.mkAfter ''
+                    handle {
+                        respond 404
+                    }
+                '')
+            ];
         };
 
         sops.templates."cf-token-envfile".content = ''

@@ -88,7 +88,6 @@
 
             # ren services
             proxy = onRen "proxy";
-            wpad = onRen "wpad";
             navidrome = onRen "music";
             peerban = onRen "peerban";
             sillytavern = onRen "tv";

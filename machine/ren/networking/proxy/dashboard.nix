@@ -7,13 +7,6 @@ let
 
     clashApiAddr = "127.0.0.1:${toString lore.ports.clashApi}";
 
-    wpad = with lore;
-        pkgs.writeTextDir "wpad.dat" /*js*/ ''
-            function FindProxyForURL( url, host ) {
-                return "PROXY ${homelab.proxy.fqdn}:${toString ports.proxy}";
-            }
-        '';
-
 in {
 
     services.caddy.virtualHosts."im_418".extraConfig = ''
@@ -27,14 +20,6 @@ in {
             }
             root * ${pkgs.tsuki.metacubexd}
             file_server
-        }
-
-        @wpad host ${homelab.wpad.fqdn}
-        handle @wpad {
-            @dat path *.dat
-            header @dat Content-Type application/x-ns-proxy-autoconfig
-            root * ${wpad}
-            file_server browse
         }
     '';
 
