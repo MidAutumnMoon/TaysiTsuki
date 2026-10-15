@@ -51,16 +51,14 @@ in {
         ];
     };
 
-    # the control plane detours via sing-box but must survive it
-    # being down: wants, not requires
-    systemd.services.tailscaled = {
-        serviceConfig.Environment = [
-            "HTTPS_PROXY=http://127.0.0.1:${toString lore.ports.proxy}"
-            "NO_PROXY=localhost,127.0.0.1,::1"
-        ];
-        after = [ "sing-box.service" ];
-        wants = [ "sing-box.service" ];
-    };
+    # systemd.services.tailscaled = {
+    #     serviceConfig.Environment = [
+    #         "HTTPS_PROXY=http://127.0.0.1:${toString lore.ports.proxy}"
+    #         "NO_PROXY=localhost,127.0.0.1,::1"
+    #     ];
+    #     after = [ "sing-box.service" ];
+    #     wants = [ "sing-box.service" ];
+    # };
 
     networking.iproute2.enable = true;
     networking.iproute2.rttablesExtraConfig = ''
