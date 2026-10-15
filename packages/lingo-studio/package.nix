@@ -68,7 +68,7 @@ stdenv.mkDerivation (drvSelf: {
         inherit (drvSelf) pname version src;
         inherit pnpm;
         fetcherVersion = 4;
-        hash = "sha256-iw3hl6pFiEUUyAFrpcDL4dA6MDk9il+cRcYj1aNMfbk=";
+        hash = "sha256-QAFFWK9cnktos9sl/ChJvTa/5ViX7AES9jlapPu06KA=";
     };
 
     nativeBuildInputs = [
