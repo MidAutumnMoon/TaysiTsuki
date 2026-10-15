@@ -40,8 +40,7 @@ in {
         Cache = false;
     };
 
-    # trusted-only override; uk-01 keeps the shared wildcard
-    # binding (public VPS)
+    # trusted-only: no wildcard bind
     services.caddy = {
         openFirewall = false;
         virtualHosts."im_418".listenAddresses = lib.mkForce [

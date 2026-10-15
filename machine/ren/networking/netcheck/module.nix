@@ -87,9 +87,8 @@ let
                 "Self.AllowedIPs: $(jq -r '.Self.AllowedIPs // [] | join(", ")' <<<"$ts")" \
                 jq -e '(.Self.AllowedIPs // []) | index("0.0.0.0/0")' <<<"$ts"
 
-            # quad-100 carries magicdns + split domains (needs
-            # accept-dns=true); the ~. default route is tailnet-wide
-            # capture into umi's sing-box (infra/tailscale.tf)
+            # these checks mirror the tailnet dns config in
+            # infra/tailscale.tf, so update them together
             tsdns=$(resolvectl dns tailscale0 2>/dev/null || true)
             check "tailscale0 link carries quad-100" "got: ''${tsdns:-none}" \
                 grep -q "100.100.100.100" <<<"$tsdns"

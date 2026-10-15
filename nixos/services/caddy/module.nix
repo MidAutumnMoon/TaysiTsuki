@@ -35,7 +35,7 @@ in
             '';
 
             # the cloudflare dns plugin resolves via raw cloudflare
-            # IPs, so the router firewall must let caddy through;
+            # IPs, so the router firewall must let caddy through.
             # if certs fail to obtain, check for poisoned DNS
             extraConfig = ''
                 (tls_cloudflare) {

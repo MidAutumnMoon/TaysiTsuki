@@ -22,9 +22,7 @@ in {
         ./tproxy.nix
     ];
 
-    # commercial outbound secrets only; policy is plaintext
-    # (policy.nix). conf--sing.nix.sops is unreferenced, kept
-    # for rollback.
+    # conf--sing.nix.sops is unreferenced, kept for rollback.
     sops.secrets =
         let singService = config.systemd.services."sing-box".name; in
         {
@@ -56,7 +54,6 @@ in {
                 lanIp = "${umi.static_ip}";
                 tailnetIp = "${umi.tailnet_ip}";
                 noproxyDomains = ${noproxy};
-                # N.B. bind_interface to tailscale0
                 tailnetDomains = ${tailnetDomains};
                 clashApiAddr = "${clashApiAddr}";
 
@@ -134,9 +131,7 @@ in {
     };
 
     # tcp only: the SOCKS UDP association is deliberately not
-    # exposed. tproxy traffic keeps its original daddr/dport, so
-    # tproxy.nix accepts it by mark instead of a port here. no v6:
-    # the mixed inbound is v4-only (loopback + lan)
+    # exposed. no v6: the mixed inbound is v4-only (loopback + lan)
     networking.firewall.extraInputRules =
         let inherit (config.lore.network) lan4 tailnet4; in
         ''

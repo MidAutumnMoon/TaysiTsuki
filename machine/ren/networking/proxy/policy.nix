@@ -363,9 +363,8 @@ in rec {
             outbound = __groups.proxy_europe.tag;
         }
 
-        # no geoip-us: the phone's bare-ip flows would land in a
-        # regional selector whose default member may be single-family;
-        # they belong on the dual-stack default (final)
+        # no geoip-us: the phone's bare-ip flows belong on the
+        # dual-stack default (final)
         {
             domain_suffix = [
                 "f95zone.to"

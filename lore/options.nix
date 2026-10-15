@@ -19,7 +19,7 @@ in
 
     machines = mkOption {
         readOnly = true;
-        description = "Shared information of NixOS machines";
+        description = "Shared information of machines on the network";
             type = types.attrsOf <| types.submodule
             ( { name, ... }: {
                 options.hostname = mkOption {
@@ -36,7 +36,7 @@ in
                     readOnly = true;
                 };
                 # not readOnly: a null default plus per-machine values
-                # would count as multiple definitions; the consumers
+                # would count as multiple definitions. the consumers
                 # (tproxy device sets) assert non-null themselves
                 options.tailnet_ip = mkOption {
                     type = with types; nullOr str;

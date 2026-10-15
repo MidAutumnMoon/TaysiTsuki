@@ -46,8 +46,7 @@ in {
             # must stay true: accept-dns=false also disables this
             # node's quad-100 forwarder that exit-node clients rely
             # on (SERVFAIL would push them onto plaintext carrier
-            # dns). host side, quad-100 chains into sing-box ->
-            # dnscrypt
+            # dns)
             "--accept-dns=true"
         ];
     };
@@ -68,7 +67,8 @@ in {
         ${table} tailscale_proxy
     '';
 
-    # localCommands doesn't work when systemd-networkd
+    # a plain unit rather than networking.localCommands: the rules
+    # need the requires/partOf coupling below
     systemd.services."tproxy-route" = {
         description = "setup routing rules for tproxy";
 

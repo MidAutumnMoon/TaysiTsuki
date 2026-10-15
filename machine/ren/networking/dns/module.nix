@@ -63,7 +63,7 @@ in
             netprobe_address = "223.5.5.5:53";
             blocked_names.blocked_names_file =
                 "${pkgs.tsuki.adblocklist}/blocklist-dnscrypt.txt";
-            # upstream quirk: `cloak_ttl` is top-level, unlike
+            # cloak_ttl is top-level, unlike
             # blocked_names' nesting
             cloaking_rules = "${cloakRules}";
             cloak_ttl = 60;

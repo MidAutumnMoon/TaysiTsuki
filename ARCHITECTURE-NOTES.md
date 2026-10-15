@@ -3,7 +3,7 @@
 Design tensions and open questions about this flake's structure.
 This is a reference, not a roadmap — choices documented here may stay as-is.
 
-The current networking audit and migration roadmap lives in
+Standing networking contracts and open watch-items live in
 [`NETWORKING-PLAN.md`](NETWORKING-PLAN.md).
 
 ---
