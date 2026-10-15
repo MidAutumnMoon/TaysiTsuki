@@ -15,7 +15,11 @@
     "terminal": {
         "font_weight": 500.0
     },
-    "icon_theme": "JetBrains New UI Icons (Dark)",
+    "icon_theme": {
+        "mode": "dark",
+        "light": "JetBrains New UI Icons (Dark)",
+        "dark": "JetBrains New UI Icons (Dark)"
+    },
     "format_on_save": "modifications_if_available",
     "diff_view_style": "unified",
     "agent_servers": {
@@ -172,7 +176,7 @@
     "theme": {
         "mode": "dark",
         "light": "Catppuccin Latte - No Italics",
-        "dark": "Catppuccin Frappé - No Italics"
+        "dark": "One Dark"
     },
     "autosave": {
         "after_delay": {

@@ -76,7 +76,7 @@
                 ip = null;
                 ip6 = null;
             };
-            onRen = cname "${machines.umi.hostname}.${im_418}";
+            onUmi = cname "${machines.umi.hostname}.${im_418}";
         in {
             router = {
                 subdomain = "router";
@@ -86,11 +86,11 @@
                 ip6 = null;
             };
 
-            proxy = onRen "proxy";
-            navidrome = onRen "music";
-            peerban = onRen "peerban";
-            sillytavern = onRen "tv";
-            clash_dashboard = onRen "clash";
+            proxy = onUmi "proxy";
+            navidrome = onUmi "music";
+            peerban = onUmi "peerban";
+            sillytavern = onUmi "tv";
+            clash_dashboard = onUmi "clash";
         };
 
     lore.apps."tailnet" =
