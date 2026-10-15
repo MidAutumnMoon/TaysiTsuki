@@ -9,6 +9,8 @@ let
 
     inherit (config) lore;
 
+    iphone = lore.machines.iphone;
+
     tailscaleIface =
         config.services.tailscale.interfaceName;
 
@@ -19,6 +21,13 @@ let
 
 in {
 
+    assertions = [
+        {
+            assertion = iphone.tailnet_ip != null && iphone.tailnet_ip6 != null;
+            message = "tproxy device sets need lore.machines.iphone tailnet addresses";
+        }
+    ];
+
     # make ren a exit node
     services.tailscale = {
         useRoutingFeatures = "both";
@@ -26,6 +35,17 @@ in {
             "--advertise-exit-node"
             "--accept-dns=false"
         ];
+    };
+
+    # control-plane traffic goes through sing-box; tailscaled must
+    # survive sing-box being down, hence no Requires here
+    systemd.services.tailscaled = {
+        serviceConfig.Environment = [
+            "HTTPS_PROXY=http://127.0.0.1:${toString lore.ports.proxy}"
+            "NO_PROXY=localhost,127.0.0.1,::1"
+        ];
+        after = [ "sing-box.service" ];
+        wants = [ "sing-box.service" ];
     };
 
     # create custom routing table for PBR later
@@ -72,11 +92,11 @@ in {
         content = ''
             set devicesProxy4 {
                 type ipv4_addr
-                elements = { 100.117.156.47 }
+                elements = { ${iphone.tailnet_ip} }
             }
             set devicesProxy6 {
                 type ipv6_addr
-                elements = { fd7a:115c:a1e0::4901:9c2f }
+                elements = { ${iphone.tailnet_ip6} }
             }
 
             chain prerouting {

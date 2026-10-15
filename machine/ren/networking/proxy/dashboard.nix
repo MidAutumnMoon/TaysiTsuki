@@ -18,7 +18,7 @@ in {
 
     services.caddy.virtualHosts."im_418".extraConfig = ''
         @clash_api {
-            host ${lore.apps.tailnet.clash_dashboard.fqdn}
+            host ${homelab.clash_dashboard.fqdn}
             client_ip private_ranges
         }
         handle @clash_api {

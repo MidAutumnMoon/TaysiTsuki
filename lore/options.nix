@@ -35,6 +35,19 @@ in
                     type = with types; str;
                     readOnly = true;
                 };
+                # not readOnly: a null default plus per-machine values
+                # would count as multiple definitions; the consumers
+                # (tproxy device sets) assert non-null themselves
+                options.tailnet_ip = mkOption {
+                    type = with types; nullOr str;
+                    default = null;
+                    description = "Tailscale IPv4 address";
+                };
+                options.tailnet_ip6 = mkOption {
+                    type = with types; nullOr str;
+                    default = null;
+                    description = "Tailscale IPv6 address";
+                };
             } );
     };
 
@@ -47,6 +60,12 @@ in
     domains = mkOption {
         readOnly = true;
         type = with types; attrsOf str;
+    };
+
+    network = mkOption {
+        readOnly = true;
+        type = with types; attrsOf str;
+        description = "Trusted network ranges, CIDR notation";
     };
 
     apps = mkOption {
@@ -68,17 +87,19 @@ in
                     default = with config; "${subdomain}.${domain}";
                     description = "FQDN of the service";
                 };
+                # each local app record carries the full triple;
+                # null is explicit so consumers can force them
                 options.cname = mkOption {
-                    type = types.str;
+                    type = with types; nullOr str;
                     readOnly = true;
                 };
                 options.ip = mkOption {
-                    type = types.str;
+                    type = with types; nullOr str;
                     readOnly = true;
                     description = "IPv4 address";
                 };
                 options.ip6 = mkOption {
-                    type = types.str;
+                    type = with types; nullOr str;
                     readOnly = true;
                     description = "IPv6 address";
                 };

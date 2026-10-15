@@ -100,9 +100,17 @@ in {
         after = [ "sops-install-secrets.service" ];
     };
 
-    networking.firewall = {
-        allowedTCPPorts = [ ports.proxy ports.tproxy ];
-        allowedUDPPorts = [ ports.proxy ports.tproxy ];
-    };
+    # the proxy port serves trusted devices only; the SOCKS UDP
+    # association is deliberately not exposed. tproxy'd packets
+    # still traverse the input chain with their original daddr/
+    # dport: from trusted ranges only the common ports (53/80/443,
+    # scoped in their own modules) accept them, and that
+    # arbitrary-port gap is pre-existing and out of scope
+    networking.firewall.extraInputRules =
+        let inherit (config.lore.network) lan4 lan6 tailnet4 tailnet6; in
+        ''
+            ip saddr { ${lan4}, ${tailnet4} } tcp dport ${toString ports.proxy} counter accept
+            ip6 saddr { ${lan6}, ${tailnet6} } tcp dport ${toString ports.proxy} counter accept
+        '';
 
 }

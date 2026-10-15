@@ -8,17 +8,15 @@ let
     cloakRules =
         let
             localApps = with config.lore.apps; homelab // tailnet;
-            try = app: attr: (builtins.tryEval (app.${attr})).success;
+            line = app: addr: "=${app.fqdn} ${addr}";
             # apps aliased to umi carry its addresses directly: name
             # targets are resolved upstream, which cannot see umi
             appLines = app:
-                if try app "cname" && app.cname == umiFqdn then
-                    map (ip: "=${app.fqdn} ${ip}")
-                        [ umi.static_ip umi.static_ip6 ]
-                else if try app "ip" then [ "=${app.fqdn} ${app.ip}" ]
-                else if try app "ip6" then [ "=${app.fqdn} ${app.ip6}" ]
-                else if try app "cname" then [ "=${app.fqdn} ${app.cname}" ]
-                else builtins.throw "[BUG] invalid app ${app.fqdn}";
+                if app.cname == umiFqdn then
+                    map (line app) [ umi.static_ip umi.static_ip6 ]
+                else
+                    lib.optional (app.ip != null) (line app app.ip)
+                    ++ lib.optional (app.ip6 != null) (line app app.ip6);
             machineLines =
                 map (ip: "=${umiFqdn} ${ip}") [ umi.static_ip umi.static_ip6 ];
             lines = machineLines ++ (
@@ -34,10 +32,15 @@ in
 
 {
 
-    networking.firewall = {
-        allowedTCPPorts = [ 53 ];
-        allowedUDPPorts = [ 53 ];
-    };
+    # dnscrypt serves only trusted networks (LAN + tailnet)
+    networking.firewall.extraInputRules =
+        let inherit (config.lore.network) lan4 lan6 tailnet4 tailnet6; in
+        ''
+            ip saddr { ${lan4}, ${tailnet4} } tcp dport 53 counter accept
+            ip saddr { ${lan4}, ${tailnet4} } udp dport 53 counter accept
+            ip6 saddr { ${lan6}, ${tailnet6} } tcp dport 53 counter accept
+            ip6 saddr { ${lan6}, ${tailnet6} } udp dport 53 counter accept
+        '';
 
     # dnscrypt-proxy resolves internet names and serves lan records
     services.dnscrypt-proxy = {
