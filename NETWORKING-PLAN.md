@@ -90,15 +90,15 @@ such as DNSCrypt, DoH, or DoT.
 | LAN interface and host proxy environment | `machine/ren/networking/module.nix` | Sets `networking.proxy.default`, networkd policy, and the resolved stub settings. |
 | Local DNS records and recursive forwarding | `machine/ren/networking/dns/module.nix` | Generates cloaking rules from `lore`; dnscrypt-proxy serves them alone. |
 | sing-box process and runtime generation | `machine/ren/networking/proxy/module.nix` | Evaluates an encrypted Nix expression at service start. |
-| iPhone interception and exit-node flags | `machine/ren/networking/proxy/tproxy.nix` | Hard-codes the selected iPhone Tailscale addresses. |
+| iPhone interception and exit-node flags | `machine/ren/networking/proxy/tproxy.nix` | Interception sets and network prefixes come from `lore`. |
 | Service/domain inventory | `lore/module.nix`, `lore/options.nix` | Mixes machine identity, service names, domains, and ports. |
-| Caddy base listener and firewall openings | `nixos/services/caddy/module.nix` | Wildcard site, wildcard certificate, global port openings. |
+| Caddy base listener and firewall openings | `nixos/services/caddy/module.nix` | Wildcard site and certificate; on umi the listeners bind loopback/LAN/ULA addresses only. |
 | Per-service Caddy handlers | Individual machine service modules | Merged into one wildcard virtual host. |
-| Public DNS | `infra/cloudflare.tf` | Includes public records pointing at Tailscale IPv6 addresses; the tailnet service records are keyed to the device hostname `ren`, which breaks once `umi` rejoins the tailnet. |
-| Tailnet ACL and MagicDNS | `infra/tailscale.tf` | ACL is currently allow-all; only MagicDNS preference is declared. |
-| Tailscale global resolvers and `Use with exit node` | Admin console | Not fully represented by the current Terraform resources. |
+| Public DNS | `infra/cloudflare.tf` | Only genuinely public records: mail and the proxied uk-01 services. No Tailscale-coupled records. |
+| Tailnet ACL, tags, split DNS, subnet routes | `infra/tailscale.tf` | Tag-based grants; `418.im` split DNS to `10.0.1.30`; umi's routes approved. |
+| MagicDNS settings | Admin console + `tailscale_dns_preferences` | Override off; no global resolvers; `Use with exit node` stays off (see RUNBOOK). |
 | Secrets | SOPS | The sing-box private configuration is opaque until runtime evaluation. |
-| DHCP/RA DNS advertisement and inbound edge policy | Router | Not represented in this repository. |
+| DHCP/RA DNS advertisement and inbound edge policy | Router | Not represented in this repository; reservation and intended values recorded in RUNBOOK. |
 
 ## Current data flow
 
@@ -132,24 +132,17 @@ ordinary exit-node forwarding path is therefore not a proven fallback.
 
 ### iPhone DNS
 
-Observed packets included DNS from the iPhone to Cloudflare resolver addresses:
+With an exit node selected, the phone uses umi as its resolver for all
+domains, ignoring split DNS entirely. quad-100 forwards to the tailnet's
+global nameserver — sing-box's DNS listener on `100.113.193.81:53` — which
+answers per class: `*.418.im` and China names via dnscrypt on umi, foreign
+names via Cloudflare DoH through the proxy (true answers, so no curated or
+poisoned address is ever dialed). Nothing leaves the tunnel in plaintext.
 
-```text
-iPhone -> encrypted Tailscale tunnel -> 1.1.1.1:53
-       -> nft TPROXY -> sing-box :7891
-       -> sing-box hijack-dns
-       -> sing-box DNS rule and selected upstream
-```
-
-The destination visible in the packet is therefore not necessarily the server
-that answers the query.
-
-Tailscale documents that an exit-node client normally uses the exit node as its
-resolver. A nameserver is retained while using an exit node only when its
-**Use with exit node** setting is enabled. **Inference:** the observed
-Cloudflare-destination traffic, together with the global resolver list received
-from the coordination server, indicates that this setting is enabled. Root
-`tailscale debug netmap` or the admin console must confirm it.
+With no exit node selected, split DNS routes `418.im` to `10.0.1.30` over
+the approved subnet route; all other names use the client's network resolver
+(the carrier on cellular, umi itself on home Wi-Fi). Both modes are verified
+from the phone on cellular.
 
 ### Host and LAN DNS
 
@@ -189,8 +182,9 @@ client -> any address on umi:80/443 -> wildcard *.418.im site
        -> Host matcher -> loopback backend
 ```
 
-Caddy binds to `::`, which is currently a dual-stack wildcard listener. The
-host firewall accepts 80/443 globally. Some handlers use
+On umi, Caddy binds loopback, `10.0.1.30`, and the ULA; the firewall accepts
+80/443 only from LAN and tailnet sources. (uk-01 keeps its public wildcard
+binding for its proxied records.) Some handlers use
 `client_ip private_ranges`; `peerban` and `wpad` do not. The wildcard site has
 no explicit final rejection, so an unmatched hostname can receive an empty
 HTTP 200 response.
@@ -299,54 +293,27 @@ The desired states are:
 | Proxy degraded | Explicit drop or closed TPROXY socket | Kernel bypass | Internal DNS remains available; no plaintext fallback |
 | Policy deliberately disabled | Explicit administrative choice | Normal routing | A separately verified resolver policy |
 
-### 7. DNS transport and DNS policy are conflated
+### 7. sing-box listeners are scoped by firewall only
 
-The iPhone sends toward Cloudflare, Tailscale encrypts the transport to `umi`,
-and sing-box answers according to a different policy. This satisfies part of
-the privacy requirement but obscures ownership and makes packet captures
-misleading.
+The mixed (`:7890`) and TPROXY (`:7891`) inbounds bind wildcard addresses on
+both stacks. The firewall confines them to LAN and tailnet sources, but the
+listeners themselves carry no address policy: the sing-box configuration is
+encrypted, so rebinding waits on the de-secreting work.
 
-The cleaner statement is: the iPhone uses `umi` as its exit-node resolver;
-`umi` owns local names and uses an authenticated encrypted upstream. If
-sing-box requires special remote DNS for routing, that is a separate public
-proxy-DNS policy, not the owner of LAN service records.
-
-### 8. Host firewall exposure is broad
-
-The supplied root ruleset confirms that these ports are accepted without
-source or interface restrictions:
-
-```text
-TCP: 22, 53, 80, 443, 7890, 7891
-UDP: 53, 443, 5353, 7890, 7891, 41641
-```
-
-dnscrypt-proxy binds only the stable LAN address, the ULA, and loopback, but
-its port 53 is still accepted from any source. sing-box's mixed and TPROXY
-listeners bind wildcard addresses and their ports are globally accepted.
-External reachability still depends on the router, but the host firewall
-itself provides no final source restriction. This is a confirmed P0
-host-policy defect, not a DNS-record concern.
-
-### 9. Tailscale access policy is allow-all
-
-`infra/tailscale.tf` permits every user to every destination and port. Caddy
-source matchers and absent public DNS records are not authorization boundaries.
-Exit-node use, service access, and administration need distinct Tailscale
-permissions.
-
-### 10. Runtime sing-box policy is difficult to audit
+### 8. Runtime sing-box policy is difficult to audit
 
 The installed sing-box is 1.14.0. Its generated runtime policy differs from the
 provided decoded `sing-box-config`: live logs contain a materially larger China
 ruleset. The supplied artifact also contains suspicious selector membership and
-an apparent US/China ruleset copy error.
+an apparent US/China ruleset copy error (the US ruleset reuses the China
+geosite), and an "Others" route rule with empty matchers shadows the geo rules.
 
 Nix should own non-secret routing, listener, DNS, and selector policy. SOPS
-should contain only credentials and private endpoints. The generated JSON must
-be checked with `sing-box check` before replacing the running process.
+keeps credentials, server addresses, provider domains, and ports. The
+generated JSON must be checked with `sing-box check` before replacing the
+running process.
 
-### 11. Tailscale transport has an independent health problem
+### 9. Tailscale transport has an independent health problem
 
 Pre-reinstall, the daemon showed:
 
@@ -358,10 +325,10 @@ Pre-reinstall, the daemon showed:
 - Direct HTTPS connectivity to the control-plane endpoint still succeeded.
 
 The custom TPROXY chain only handles packets arriving on `tailscale0`; it does
-not intercept host-originated tailscaled control traffic. The active
-`tailscaled.service` also does not inherit the HTTP proxy environment. The
-control/DERP issue is therefore a separate failure domain. Since the reinstall,
-`tailscaled` runs logged out and the overlay is inert until re-auth.
+not intercept host-originated tailscaled control traffic. `tailscaled.service`
+now carries `HTTPS_PROXY` through the local proxy, and the exit-node
+advertisement synchronized immediately after that landed; the failure has not
+recurred. The control/DERP path remains a separate failure domain to watch.
 
 ## Symptom-to-cause guide
 
@@ -438,33 +405,6 @@ Important details:
 - Remove direct firewall access to 7891. A transparent packet does not need the
   original destination port to be 7891.
 
-### DNS architecture
-
-The LAN side is in place: dnscrypt-proxy owns the LAN records (exact-match
-cloaking to stable addresses) and the encrypted upstream path, with
-`systemd-resolved` reduced to a declared stub (see Host and LAN DNS). What
-remains is the exit-node client path.
-
-Preferred client policy while using the exit node:
-
-```text
-iPhone -> Tailscale exit-node DNS -> umi resolver -> encrypted upstream
-```
-
-This removes the misleading `1.1.1.1` destination/hijack relationship. Migrate
-only after the `umi` resolver is proven from an exit-node client. Until then,
-keep the working DNS hijack while fixing packet classification around it.
-
-For home Wi-Fi independence:
-
-- Router DHCP/RA advertises the stable `umi` resolver.
-- Tailscale's global override must not force home clients away from the LAN
-  resolver.
-- The iPhone must allow local-network access while an exit node is selected.
-- If the Tailscale tunnel itself is broken while still selected, the client must
-  disable the exit node or have an on-demand policy that does so. No server-side
-  architecture can make traffic escape a broken client VPN safely.
-
 ### Proxy lifecycle
 
 The proxy path has three explicit states:
@@ -533,130 +473,30 @@ network exposure in one exposure declaration, public publication in Terraform.
 
 ## Migration plan
 
-Make one behavioral change per activation. Preserve the previous boot generation
-and use a test activation before making it persistent.
+The plan is landed. The classifier repair, the fail-closed lifecycle (config
+check gate, automatic restart, nft-coupled rule install), Caddy hardening
+(scoped listeners, explicit 404 for unmatched hosts, per-handler source
+matchers, wpad removed), and the sing-box de-secreting (plaintext policy in
+`policy.nix`, SOPS reduced to provider endpoints, tailnet DNS served by
+sing-box on `100.113.193.81:53`) are all live and verified — the proof items
+below were exercised: arbitrary ports from the phone, the kill-test matrix,
+`sing-box check` gating, and reddit/HN/Discord/DuckDuckGo loading from
+cellular with clean resolver paths.
 
-### Phase 0: establish a reproducible baseline
+Remaining items are events, not work:
 
-- [ ] Save `nft list ruleset`, IPv4/IPv6 rules, and table 169 routes.
-- [ ] Save `tailscale status --json`, `tailscale dns status`, and current admin
-      console DNS settings.
-- [ ] Inspect the exact generated sing-box JSON and run `sing-box check` on it.
-- [ ] Record current Clash selector choices.
-- [ ] While the iPhone is awake, record whether its Tailscale path is direct or
-      relayed.
-- [ ] Test controlled TCP destinations on 443 and a non-allowlisted port.
-- [ ] Test controlled UDP destinations on 443 and a non-allowlisted port.
-- [ ] Test public and local ICMP separately.
-- [ ] Record resolver answers on home Wi-Fi, cellular, with no exit node, and
-      with `umi` selected as exit node.
+- **Delete `conf--sing.nix.sops`** once the de-secreting has been stable for
+  a comfortable period (it is unreferenced rollback material).
+- **Deduplicate the tailnet IP** between `lore` and `infra/tailscale.tf` via
+  the `default_secrets` mechanism if it ever drifts.
+- **phia returns**: move dnscrypt and Caddy off the desktop onto the NAS.
+- **HTTP/3**: re-enable in Caddy only after quic-on-multi-bind is understood
+  (see the decision log).
 
-Proof required before proceeding: the test distinguishes a Tailscale transport
-failure, Nix input drop, sing-box listener failure, and proxy-outbound failure.
+### Tailscale transport watch
 
-### Phase 1: close broad host exposure
-
-- [ ] Remove direct TCP/UDP firewall openings for 7891.
-- [ ] Restrict 7890 to intended interfaces and source prefixes.
-- [ ] Restrict port 53 to LAN and explicitly selected tailnet sources.
-- [ ] Restrict 80/443 to intended interfaces; retain public GUA access only for
-      deliberately public services.
-- [ ] Restrict SSH to its management plane.
-- [ ] Confirm router IPv6 ingress policy.
-
-Rollback: reactivate the previous NixOS generation. Do not add ad-hoc permanent
-rules outside Nix.
-
-Proof: scan from an allowed LAN client, an allowed tailnet client, and an
-untrusted reachable source. Each listener must have an explicit expected
-result.
-
-### Phase 2: repair the TPROXY classifier without changing DNS policy
-
-- [ ] Add pre-TPROXY bypasses for addresses owned by `umi`.
-- [ ] Add intentional LAN and tailnet bypass prefixes.
-- [ ] Classify TCP/UDP before setting the proxy mark.
-- [ ] Explicitly drop or pass unsupported public protocols; default to drop.
-- [ ] Allocate a mark outside Tailscale's mask.
-- [ ] Replace mark OR with deterministic masked assignment.
-- [ ] Set explicit nft and policy-rule priorities.
-- [ ] Add a NixOS input rule accepting marked transparent traffic independent
-      of original destination port.
-- [ ] Add branch counters.
-- [ ] Keep the existing sing-box DNS hijack and outbound choices unchanged in
-      this phase.
-
-Proof:
-
-- Arbitrary controlled TCP and UDP ports reach sing-box.
-- Local and tailnet destinations do not increment the TPROXY counter.
-- Unsupported public protocols hit their explicit counter.
-- Stopping sing-box leaves direct IP connectivity to local and tailnet services
-  available while public traffic remains closed. Name-based access may still
-  depend on the current hijacked DNS path until Phase 4.
-
-### Phase 3: make fail-closed lifecycle explicit
-
-- [ ] Define active, degraded, and administratively disabled states.
-- [ ] Validate sing-box configuration before changing the active listener.
-- [ ] Install an explicit public drop before exit traffic can flow.
-- [ ] Atomically replace that drop with TPROXY only after listener readiness.
-- [ ] Restart sing-box automatically after unexpected failure.
-- [ ] Ensure degraded state cannot fall through to standard Tailscale NAT.
-- [ ] Provide one explicit administrative transition if direct exit mode is
-      ever required.
-
-Proof: kill sing-box during active traffic. Existing and new public flows must
-fail without revealing `umi`'s direct public egress, while local/tailnet paths
-continue.
-
-Transitional limitation: until Phase 4 moves client DNS onto the stable
-resolver path, stopping sing-box may still break name resolution from the
-iPhone even though direct local/tailnet IP connectivity survives.
-
-### Phase 4: make the Tailscale DNS path truthful
-
-- [ ] Verify exit-node DNS against the resolver on `umi`.
-- [ ] Disable Cloudflare `Use with exit node` for a single client test.
-- [ ] Confirm that the carrier-facing path remains only Tailscale tunnel traffic.
-- [ ] Disable global DNS override on home Wi-Fi if it bypasses the LAN resolver.
-- [ ] Remove unnecessary global resolver configuration after all client modes
-      pass.
-- [ ] Represent every provider-supported setting in OpenTofu.
-- [ ] Record any unavoidable console-only setting and its intended value.
-
-Rollback: re-enable the prior Cloudflare exit-node setting. Do not introduce a
-plain resolver as a temporary fallback.
-
-### Phase 5: tighten Caddy and tailnet authorization
-
-- [ ] Replace implicit wildcard fallthrough with explicit rejection.
-- [ ] Apply source policy to `peerban`, `wpad`, `tv`, and `clash` as intended.
-- [ ] Bind Caddy only to intended stable addresses.
-- [ ] Replace the allow-all Tailscale ACL with separate service, management, and
-      `autogroup:internet` grants.
-- [ ] Treat public Tailscale-address DNS records as discovery only, never
-      authorization.
-
-Proof: valid clients reach only intended services; unmatched hosts and denied
-sources receive an explicit failure rather than an empty 200.
-
-### Phase 6: make sing-box configuration auditable
-
-- [ ] Move non-secret inbounds, DNS rules, route rules, selectors, and logging
-      policy into ordinary Nix.
-- [ ] Limit SOPS data to private endpoints and credentials.
-- [ ] Remove direct and Tailscale outbounds from groups named as proxy-only.
-- [ ] Resolve the apparent US/China ruleset error against the live config.
-- [ ] Guard optional generated rules so an empty matcher cannot become a broad
-      catch-all.
-- [ ] Use info-level timestamped logging by default; enable debug temporarily.
-- [ ] Tailor systemd hardening with only the capabilities actually required.
-
-Proof: the generated runtime JSON is reproducible except for secrets, passes
-`sing-box check`, and its effective rule order matches the Nix policy.
-
-### Phase 7: investigate Tailscale transport independently
+The control plane now reaches the coordination servers through the local
+proxy and the map-poll failure has not recurred. If it does:
 
 - [ ] Capture root daemon logs during a real iPhone session.
 - [ ] Use `tailscale ping` while the phone is awake on Wi-Fi and cellular to
@@ -679,7 +519,7 @@ planes do not share the current packet path.
 | Cellular, exit node selected | DNS remains inside Tailscale then encrypted upstream | Public TCP/UDP uses sing-box | Public proxy IP is observed; no direct fallback. |
 | Cellular, exit node selected, arbitrary TCP port | Same | Marked input accepted independent of original port | Controlled connection reaches sing-box. |
 | Cellular, unsupported public protocol | No DNS effect | Explicit counted policy | Deliberate drop by default. |
-| sing-box stopped | Local DNS remains available; no plaintext public fallback | Local/tailnet bypass; public fails closed | Local services work; public proxy traffic fails. |
+| sing-box stopped | LAN and umi-host DNS remain on dnscrypt; the phone's DNS dies with the exit-node resolver (the tailnet global nameserver IS sing-box — verified trade-off) | Local/tailnet bypass; public fails closed | LAN services work; `418.im` by direct IP works; public proxy traffic fails closed. |
 | tailscaled stopped | LAN resolver remains available | Direct LAN only | Home LAN services work; remote tailnet access fails. |
 | encrypted upstream unavailable | Local zone remains available | No DNS fallback to WAN port 53 | Public DNS fails closed. |
 | IPv6 temporary address rotates | No resolver reload storm | Stable listeners unchanged | No user-visible interruption. |
@@ -693,11 +533,10 @@ ports, not only HTTPS and a successful DNS lookup.
 
 ### Current configuration
 
-If sing-box fails before Phase 2, the safest client-side recovery for LAN access
-is to disable the exit node or Tailscale on the iPhone. Deleting the complete
-TPROXY table would enable an untested ordinary exit-node path and could let DNS
-addressed to `1.1.1.1:53` leave `umi` in plaintext. Do not use that as a privacy-
-preserving fallback.
+If sing-box fails before the classifier repair lands, the safest client-side
+recovery for LAN access is to disable the exit node or Tailscale on the
+iPhone. Deleting the complete TPROXY table would enable an untested ordinary
+exit-node path. Do not use that as a privacy-preserving fallback.
 
 A server-side emergency change that preserves privacy must add local/tailnet
 bypasses ahead of TPROXY while keeping public traffic intercepted or explicitly
@@ -727,22 +566,26 @@ unrecorded live rule edit.
 - `systemd-resolved` global DNS is the declared `127.0.0.1` with an empty
   `FallbackDNS` list. avahi-daemon publishing plus nss-mdns is the only mDNS
   stack.
-- `umi` Tailscale addresses: unknown. `tailscaled` runs logged out and
-  `tailscale0` has no `100.x` address, so the exit-node/TPROXY path is inert
-  until re-auth, at which point exit-node and DNS settings are re-decided.
-- iPhone Tailscale addresses: `100.117.156.47` and
-  `fd7a:115c:a1e0::4901:9c2f`.
-- `umi` is configured with `--advertise-exit-node` and `--accept-dns=false`;
-  the latter affects only `umi`'s client resolver.
-- MagicDNS is enabled with suffix `fin-orfe.ts.net`.
-- The coordination server supplies Cloudflare global resolvers.
+- `umi` Tailscale addresses: `100.113.193.81` and
+  `fd7a:115c:a1e0::cb3b:c152`. The exit node is advertised and approved;
+  the `10.0.1.0/24` subnet route is advertised and approved. The iPhone
+  (`100.117.156.47`, `fd7a:115c:a1e0::4901:9c2f`) uses the exit node and
+  both DNS modes are verified from cellular.
+- Tailnet policy: tag-based grants (`tag:phone`, `tag:server`), MagicDNS on
+  with override off, no global resolvers, split DNS `418.im -> 10.0.1.30`.
+- `umi` is configured with `--advertise-exit-node`, `--advertise-routes` for
+  the LAN, and `--accept-dns=false`; the last affects only `umi`'s client
+  resolver.
 - sing-box version: 1.14.0. Tailscale version in the unit: 1.102.3.
 - Policy table 169 contains IPv4 and IPv6 `local default dev lo` routes; the
   Nix reverse-path filter explicitly accepts the custom proxy mark.
-- `tailscaled.service` does not inherit the HTTP proxy environment; Caddy
-  does inherit `networking.proxy.envVars`.
-- sing-box's mixed and TPROXY listeners bind wildcard addresses, and the host
-  firewall globally permits their ports.
+- `tailscaled.service` reaches the control plane via `HTTPS_PROXY` through
+  the local proxy; Caddy inherits `networking.proxy.envVars`.
+- sing-box's mixed and TPROXY listeners bind wildcard addresses; the
+  firewall confines their ports to LAN and tailnet sources.
+- Firewall: 22/53/80/443/7890 accepted only from LAN and tailnet ranges;
+  Caddy binds loopback/LAN/ULA. A `netcheck` command verifies the DNS and
+  exit-node invariants.
 
 ### Relevant history
 
@@ -757,21 +600,22 @@ separately, leaving their combined failure behavior implicit.
 
 ### Important uncertainties
 
-- Router inbound IPv6 firewall policy is not in the repository. DHCP
-  advertisement of the `umi` resolver was observed live; RA details were not.
-- The exact Tailscale **Use with exit node** value was inferred rather than read
-  from the privileged netmap or console.
+- Router inbound IPv6 firewall policy is not in the repository (intended
+  default-deny; see RUNBOOK). DHCP advertisement of the `umi` resolver was
+  observed live; RA details were not.
+- The TPROXY LAN bypass covers the ULA prefix only; LAN GUA destinations are
+  deliberately treated as public (proxied or dropped). No current client
+  needs them.
 - The encrypted live sing-box configuration differs from the supplied decoded
   artifact; exact rule semantics must be checked against generated JSON.
-- No controlled arbitrary-port test was completed from the iPhone during the
-  audit.
+- No controlled arbitrary-port test was completed from the iPhone (awaits the
+  classifier repair).
 - No fail-open standard exit-node path has been proven. IPv4 forwarding into
   `ts-forward` was zero, IPv6 saw only 12 packets, and neither Tailscale
   masquerade rule saw a packet; this path must not be treated as a ready
   fallback.
-- The cause of the Tailscale map-poll/DERP instability remains unresolved.
-- Public IPv6 reachability through the router was not tested, although host-side
-  exposure is confirmed.
+- The root cause of the historical Tailscale map-poll/DERP instability is
+  unconfirmed, though proxying the control plane has kept it at bay.
 
 ## Decision log
 
@@ -792,16 +636,44 @@ Decisions already supported by the evidence:
 - Local records never point into `.local`; unicast DNS refuses `.local`
   through the explicit `block_undelegated` setting.
 - DNSSEC validation is delegated to the encrypted upstreams; no local
-  validator runs.
+  validator runs. Never publish a DS for `418.im`: the unsigned `.im`
+  delegation is what keeps locally-synthesized answers validation-safe.
+- Publication has exactly two modes: genuinely public services live on uk-01
+  behind Cloudflare-proxied records; private services are local-resolver
+  names only. The public zone never carries Tailscale-coupled records.
+- The away path rides the tailnet: exit node selected means umi resolves;
+  exit node deselected means split DNS over the subnet route. No
+  Tailscale-independent away path (cloudflared was evaluated and rejected as
+  primary: unreliable free-plan edge from China).
+- Tailnet authorization is tag-based grants, not allow-all; exit-node use and
+  service access are distinct rules.
+- Unsupported public protocols from the phone are dropped (fail closed).
+- sing-box de-secreting moves only structural policy to Nix; credentials,
+  server addresses, provider domains, and ports stay encrypted.
+- Console-only state is recorded in `RUNBOOK.md`, not remembered.
+- sing-box's sniff action never rewrites the dial destination (removed
+  upstream, no replacement); poisoned or curated answers are therefore healed
+  at the RESOLVER layer instead: the tailnet's global nameserver is sing-box's
+  own DNS engine, which returns real answers per class (China via dnscrypt,
+  foreign via Cloudflare-through-the-proxy).
+- No DNS-side ad blocking in sing-box's engine (it silently NXDOMAIN'd
+  duckduckgo.com for every captured client); route-level ad blocking stays.
+- No geoip-based regional herding for bare-IP flows: they fall to the
+  dual-stack default selector. A regional selector's default member must be
+  dual-stack or the other family's destinations die.
+- Caddy serves h1/h2 only; HTTP/3 stays off until quic over explicit
+  multi-address listeners is understood (the failure mode was iOS caching the
+  Alt-Svc advertisement, racing dead QUIC, and rendering blank pages).
+- The exit-node resolver ignores split DNS ("regardless of configuration"):
+  with an exit node selected, the phone's `418.im` queries ride the global
+  nameserver too. sing-box down therefore costs the phone name resolution —
+  accepted, because public traffic is sing-box-dependent anyway. A second
+  global nameserver was rejected: Tailscale round-robins rather than fails
+  over, which would randomly serve curated answers.
 
-Decisions still required during implementation:
+Decisions still open:
 
-- Whether unsupported public protocols are dropped or sent directly. Default:
-  drop.
-- Whether public DNS policy remains in sing-box or moves entirely to the stable
-  resolver after encrypted-upstream testing.
 - Which services, if any, should be reachable through public GUAs.
-- Which Tailscale identities may use the exit node and administrative services.
 - Whether a closer/custom DERP is justified by controlled transport tests.
 
 ## Sources
