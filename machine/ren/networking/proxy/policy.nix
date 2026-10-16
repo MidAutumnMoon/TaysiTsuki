@@ -208,14 +208,14 @@ in rec {
         proxy_hz_upload = {
             type = "selector";
             tag = "Proxy Storage Box Upload";
-            outbounds = nodeTags [
+            outbounds = (nodeTags [
                 "Backwave US Lax"
                 "Backwave US Lax Hy2"
                 "Backwave JP"
                 "Backwave JP Naive"
                 "Backwave JP IPv4"
                 "Backwave JP Naive IPv4"
-            ];
+            ]) ++ [ "Outbound Direct" ];
         };
 
         # direct / tailscale are routing destinations, not proxy choices
