@@ -116,7 +116,7 @@
             };
         in {
             umi = nixos "x86_64-linux" <| (
-                lib.listAllModules ./machine/ren
+                lib.listAllModules ./machine/umi
                 ++ (with flakes; [
                     xremap.nixosModules.default
                 ]));

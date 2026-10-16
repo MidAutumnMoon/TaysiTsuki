@@ -36,7 +36,7 @@
         uv
         tsuki.omp
         tsuki.zcode
-        tsuki.lingo-studio
+        # tsuki.lingo-studio
 
         nodejs
         pnpm_12
