@@ -2,3 +2,21 @@
 name = "nix"
 auto-format = true
 language-servers = ["nixd"]
+
+    [language.auto-pairs]
+    '(' = ')'
+    '{' = '}'
+    '[' = ']'
+    '"' = '"'
+
+[[language]]
+name = "markdown"
+
+    [language.auto-pairs]
+    '(' = ')'
+    '{' = '}'
+    '[' = ']'
+    '<' = '>'
+    '"' = '"'
+    "'" = "'"
+
