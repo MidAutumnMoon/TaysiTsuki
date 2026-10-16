@@ -135,6 +135,10 @@ swayimg.viewer.on_key("c", function()
     end
 end)
 
+swayimg.viewer.on_mouse("MouseMiddle", function()
+    swayimg.exit()
+end)
+
 -- Viewer mouse bindings
 swayimg.viewer.on_mouse("MouseRight", function()
     swayimg.viewer.open("next")
