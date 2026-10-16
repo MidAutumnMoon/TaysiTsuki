@@ -168,4 +168,8 @@ finalize {
 
     # nixpkgs niri with local patches; version moves with flake.lock.
     Niri = [ (tsuki "niri" null) ];
+
+    # Self-contained mozc from the fcitx fork (bazel-built). The vendor FOD
+    # hash defeats nix-update — bumped by hand; see packages/fcitx5-mozc.
+    Mozc = [ (tsuki "fcitx5-mozc" null) ];
 }

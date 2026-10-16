@@ -59,6 +59,8 @@ in rec {
 
     fish = tsuki.fish;
 
+    fcitx5-mozc = tsuki.fcitx5-mozc;
+
     helix = tsuki.helix;
 
     yt-dlp = prev.yt-dlp.override {
