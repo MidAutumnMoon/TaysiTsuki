@@ -143,6 +143,7 @@ in rec {
             tag = "Outbound Direct";
             domain_resolver = {
                 server = __dnsServers.local.tag;
+                strategy = "prefer_ipv4";
                 disable_cache = true;
             };
         };
