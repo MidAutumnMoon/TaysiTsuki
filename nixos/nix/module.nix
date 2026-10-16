@@ -93,4 +93,13 @@ in
 
     nix.daemonCPUSchedPolicy = "batch";
 
+    programs.fish.interactiveInit = /* fish */ ''
+        complete -f -c nix -n '__fish_use_subcommand' -a shell \
+            -d 'run a shell in which the specified packages are available'
+    '';
+
+    environment.systemPackages = [
+        (pkgs.callPackage ./bash-completion-fix.nix { })
+    ];
+
 }
