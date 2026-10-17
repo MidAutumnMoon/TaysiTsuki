@@ -7,6 +7,7 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+    "soft_wrap_indent": "extra_one",
     "disable_ai": true,
     "helix_mode": true,
     "cursor_animation": {
@@ -187,7 +188,8 @@
     "auto_update": false,
     "indent_guides": {
         "enabled": true,
-        "coloring": "indent_aware"
+        "coloring": "indent_aware",
+        "background_coloring": "indent_aware"
     },
     "tabs": {
         "git_status": true,
@@ -197,6 +199,7 @@
         "modal_max_width": "medium"
     },
     "soft_wrap": "bounded",
+    "show_wrap_guides": true,
     "git": {
         "inline_blame": {
             "enabled": false
