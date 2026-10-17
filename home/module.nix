@@ -13,7 +13,6 @@
     };
 
     packages = with pkgs; [
-        colmena
         fuc
         (lib.getOutput "out" pkgs.tsuki.inori)
         tsuki.opentofu
