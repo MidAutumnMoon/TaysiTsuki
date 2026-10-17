@@ -296,8 +296,8 @@ binds {
     // The allow-when-locked=true property makes them work even when the session is locked.
     // Using spawn-sh allows to pass multiple arguments together with the command.
     // "-l 1.0" limits the volume to 100%.
-    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "noctalia msg volume-up"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "noctalia msg volume-down"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "noctalia msg volume-up 2%"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "noctalia msg volume-down 2%"; }
     XF86AudioMute        allow-when-locked=true { spawn-sh "noctalia msg volume-mute"; }
 
     // Example media keys mapping using playerctl.
