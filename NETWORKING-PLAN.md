@@ -44,11 +44,11 @@ the open watch items.
 
 | Concern | Owner |
 |---|---|
-| LAN interface, host proxy environment, resolved stub | `machine/ren/networking/module.nix` |
-| Local DNS records and recursive forwarding | `machine/ren/networking/dns/module.nix` |
-| sing-box process, policy, secrets split | `machine/ren/networking/proxy/{module,policy}.nix` |
-| iPhone interception, marks, policy routing, exit-node flags | `machine/ren/networking/proxy/tproxy.nix` |
-| Runtime verification | `machine/ren/networking/netcheck/module.nix` |
+| LAN interface, host proxy environment, resolved stub | `machine/umi/networking/module.nix` |
+| Local DNS records and recursive forwarding | `machine/umi/networking/dns/module.nix` |
+| sing-box process, policy, secrets split | `machine/umi/networking/proxy/{module,policy}.nix` |
+| iPhone interception, marks, policy routing, exit-node flags | `machine/umi/networking/proxy/tproxy.nix` |
+| Runtime verification | `machine/umi/networking/netcheck/module.nix` |
 | Service/domain inventory | `lore/module.nix`, `lore/options.nix` |
 | Caddy base listener and unmatched-host policy | `nixos/services/caddy/module.nix` |
 | Per-service Caddy handlers | Individual machine service modules |
@@ -67,7 +67,7 @@ repository. Their intended values live in RUNBOOK.md.
 |---|---|---|
 | All public traffic and public DNS stop together | Tailscale path, sing-box process/listener, or selected outbound failed | Check Tailscale peer path, sing-box listener, and classifier counters separately. |
 | Local Wi-Fi fails when Tailscale itself is broken | iPhone still routes/DNSes through the selected exit node | Enable local-network access or disable the exit node. The server cannot route around a broken client VPN. |
-| Caddy or another address-bound service logs `cannot assign requested address` at boot | Unit started before DHCP or RA assigned its bind addresses | Compare the wait-online exit time with the lease in the journal, then check `RequiredForOnline`/`RequiredFamilyForOnline` and the unit's `After=network-online.target`. |
+| Caddy or another address-bound service logs `cannot assign requested address` at boot | Bind address unassigned yet (DHCP, RA) or still DAD-tentative | Check the unit's `After=network-online.target`, then for IPv6 compare the address's DAD completion against the bind time in the journal. |
 | `tailscale netcheck` says it uses the proxy | CLI inherited the shell proxy environment | Inspect `tailscaled.service` environment separately. |
 
 ## Emergency behavior
@@ -155,6 +155,18 @@ problem. The two planes do not share the current packet path.
 - No DNS-side ad blocking in sing-box's DNS engine, because it
   silently NXDOMAIN'd duckduckgo.com for every captured client.
   Route-level ad blocking stays.
+- bind() returns the same EADDRNOTAVAIL for a tentative and an
+  unassigned address, and routable proves only one ready address per
+  family. DAD is off on enp2s0, whose pinned ULA is EUI-64 from the
+  NIC MAC. caddy and sing-box bind without freebind and start after
+  network-online. dnscrypt freebinds and needs no ordering.
+- Outbound server addresses never resolve through a detoured server.
+  route.default_domain_resolver is the plain local dnscrypt, because
+  DoH detouring through the proxy cannot resolve the proxy's own
+  node domains. sing-box rejects the cycle on every cold dial.
+- Remote rule-set downloads detour through the Proxy selector. The
+  implicit default rides the first outbound in the list, a proxy
+  node by sort order, and is deprecated.
 
 ## References
 

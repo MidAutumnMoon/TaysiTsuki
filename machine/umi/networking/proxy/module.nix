@@ -103,9 +103,11 @@ in {
                 [ "private_secrets:${secrets.secrets--sing.path}" ];
             DynamicUser = true;
             Nice = -10;
-            # the dns inbound binds the tailnet address, which races
-            # tailscale0 at boot: unlimited retries at 2s spacing
-            # (the start-rate limit is disabled below)
+            # network-online covers the dhcpv4 address bind.
+            # tailscale0 is not networkd-managed, so the tailnet
+            # dns bind still races tailscaled and needs unlimited
+            # retries at 2s spacing (the start-rate limit is
+            # disabled below)
             Restart = "on-failure";
             RestartSec = "2s";
             AmbientCapabilities = [
@@ -127,7 +129,15 @@ in {
         };
         wantedBy = [ "multi-user.target" ];
         requires = [ "sops-install-secrets.service" ];
-        after = [ "sops-install-secrets.service" ];
+        # the dns engine's local upstream is dnscrypt. the
+        # tailnet's dns is captured into this service, so a
+        # premature start fails every client until dnscrypt boots
+        after = [
+            "network-online.target"
+            "dnscrypt-proxy.service"
+            "sops-install-secrets.service"
+        ];
+        wants = [ "network-online.target" ];
     };
 
     # tcp only: the SOCKS UDP association is deliberately not

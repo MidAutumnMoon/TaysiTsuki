@@ -229,16 +229,24 @@ in rec {
 
     outbounds = attrValues <| __outs // __groups;
 
+    # rule-set downloads ride the proxy because github raw is
+    # unreachable directly from cn
+    __ruleSetHttp = {
+        detour = __groups.proxy.tag;
+    };
+
     __3pRuleset = {
         skk = {
             tag = "Ruleset SKK Blocklist";
             type = "remote";
             url = "https://ruleset.skk.moe/sing-box/domainset/reject.json";
+            http_client = __ruleSetHttp;
         };
         antiAD = {
             tag = "Ruleset anti-AD Blocklist";
             type = "remote";
             url = "https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/anti-ad-sing-box.srs";
+            http_client = __ruleSetHttp;
         };
     };
 
@@ -281,7 +289,12 @@ in rec {
     route = {
         final = __groups.proxy.tag;
         auto_detect_interface = true;
-        default_domain_resolver = __dnsServers.cloudflare.tag;
+        # outbound server addresses must never resolve through a
+        # detoured server. a node domain resolved by the doh that
+        # detours through that node is a cycle sing-box rejects
+        # on every cold dial ("DNS query loopback in transport"),
+        # so the default is the plain local server
+        default_domain_resolver = __dnsServers.local.tag;
     };
 
     route.rule_set =

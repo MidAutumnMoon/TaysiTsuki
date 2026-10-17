@@ -40,6 +40,14 @@ in {
         networkConfig.DNSSEC = "no";
     };
 
+    # bind() fails with EADDRNOTAVAIL while an address is
+    # DAD-tentative, and routable only proves one ready address
+    # per family, so network-online cannot gate binds on RA
+    # addresses by itself. The ULA is EUI-64 from the NIC MAC on
+    # a wired lan, so the duplicate DAD would catch is a cloned
+    # MAC.
+    boot.kernel.sysctl."net.ipv6.conf.enp2s0.accept_dad" = 0;
+
     services.resolved.settings.Resolve = {
         DNS = [ "127.0.0.1" ];
         FallbackDNS = [ ];
