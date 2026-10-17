@@ -74,8 +74,12 @@ in
         '';
 
         systemd.services.caddy = {
+            wants = [ "network-online.target" ];
             requires = [ "sops-install-secrets.service" ];
-            after = [ "sops-install-secrets.service" ];
+            after = [
+                "network-online.target"
+                "sops-install-secrets.service"
+            ];
             useHardening = true;
             serviceConfig = {
                 EnvironmentFile =

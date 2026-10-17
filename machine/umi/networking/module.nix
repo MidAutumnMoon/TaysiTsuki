@@ -31,6 +31,12 @@ in {
     systemd.network.networks."10-enp2s0" = {
         name = "enp2s0";
         DHCP = "yes";
+        # Address-bound services listen on both the DHCPv4 and RA
+        # addresses. wait-online defaults to family "any" and state
+        # "degraded", so link-local or IPv6-only connectivity can
+        # signal online. Require both families and a routable state.
+        linkConfig.RequiredForOnline = "routable";
+        linkConfig.RequiredFamilyForOnline = "both";
         networkConfig.DNSSEC = "no";
     };
 

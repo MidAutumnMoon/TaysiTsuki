@@ -67,6 +67,7 @@ repository. Their intended values live in RUNBOOK.md.
 |---|---|---|
 | All public traffic and public DNS stop together | Tailscale path, sing-box process/listener, or selected outbound failed | Check Tailscale peer path, sing-box listener, and classifier counters separately. |
 | Local Wi-Fi fails when Tailscale itself is broken | iPhone still routes/DNSes through the selected exit node | Enable local-network access or disable the exit node. The server cannot route around a broken client VPN. |
+| Caddy or another address-bound service logs `cannot assign requested address` at boot | Unit started before DHCP or RA assigned its bind addresses | Compare the wait-online exit time with the lease in the journal, then check `RequiredForOnline`/`RequiredFamilyForOnline` and the unit's `After=network-online.target`. |
 | `tailscale netcheck` says it uses the proxy | CLI inherited the shell proxy environment | Inspect `tailscaled.service` environment separately. |
 
 ## Emergency behavior
