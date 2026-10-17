@@ -11,7 +11,10 @@ in {
     };
 
     config = {
-        environment.etc."machine-id".text = machineId;
+        environment.etc."machine-id" = {
+            text = machineId;
+            mode = "0444";
+        };
         boot.kernelParams = [ "systemd.machine_id=${machineId}" ];
         networking.hostId = lib.substring 0 8 machineId;
     };
