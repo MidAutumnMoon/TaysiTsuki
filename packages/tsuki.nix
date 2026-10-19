@@ -143,6 +143,7 @@ finalize {
         (tsuki "mimic-cloud-init" null)
         (pkgs "zram-generator")
         (pkgs "sudo-rs")
+        (tsuki "cryslen" { version = "branch"; })
     ];
 
     #
