@@ -189,7 +189,7 @@
     "indent_guides": {
         "enabled": true,
         "coloring": "indent_aware",
-        "background_coloring": "indent_aware"
+        "background_coloring": "disabled"
     },
     "tabs": {
         "git_status": true,

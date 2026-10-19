@@ -1,6 +1,6 @@
 ---
 name: host-system-convention
-description: Convention and quirks about the host system. Use whenever you need to navigate or operate on the host system.
+description: Convention and quirks about the host system. Use this skill before navigate or operate on the host system.
 ---
 
 # Host system convention
