@@ -43,6 +43,7 @@ window-rule {
     match app-id="dev.zed.Zed"
     match app-id="CherryStudio"
     match app-id="YACReader"
+    match app-id="cryslen"
 
     open-maximized true
     open-focused true
