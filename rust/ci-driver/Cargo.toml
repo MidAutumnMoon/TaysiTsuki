@@ -13,7 +13,7 @@ gix-discover.workspace = true
 ino_shell = "1.0.0"
 ino_tracing = "1.0.0"
 itertools = "0.15.0"
-parking_lot = "0.12.5"
+parking_lot = "0.13.0"
 rayon = "1.11.0"
 ureq = { version = "3.4.1", default-features = false, features = ["rustls"] }
 serde = { version = "1.0.228", features = ["derive"] }
