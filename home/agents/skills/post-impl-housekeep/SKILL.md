@@ -1,19 +1,37 @@
 ---
 name: post-impl-housekeep
-description: Use after all implementation is in to improve the readablity of touched codes, comments and documents.
+description: Use after implementation to clean up names, comments, and docs.
 ---
 
-## Post implementation housekeep
+## Post-implementation housekeeping
 
-Run these steps *one by one* on the implementation change set. Must fullfill the previous step before advancing to the next.
+You set scope and accept results. Delegate each editing pass and final review to a fresh subagent. Reuse a teammate only for follow-ups and repairs to its own pass. Run one writer at a time.
 
-1. Map out the *complete* change set in this session or from last `post-impl-housekeep` run. Persist the "map" to a scratch file for the rest of steps. The map should contain file list and document/comment inventory. If it's VCS tracked (git or jj), map it from diff. Beware external diff tool or pager, pass `--git` to jj is safer.
-2. Skill: `naming-and-magic-literals`.
-3. Skill: `prune-comments-and-docs`: Don't skip any touched codes or documents. The default position is "delete". Prefer whole block rewrite or cut over patching sentences. But don't over-done it.
-4. Skill: `humanizer`: It pairs nicely with step 3. The default position is also "cut". Delete fillers and rearrange sentences.
-5. (Optional; Chinese only) Skill: `chinese-prose-lint`: Only chain this if the majority of changes are in Chinese.
-6. Review, fix and cleanup.
+Give every agent the current artifacts, change map, relevant requirements and decisions, and explicit write scope. Pass along what it needs from earlier work, not the conversation history.
 
-Re-map: Between each step, compare the current state against the map. If anything unexpected happened, e.g. file changed but the chain didn't edit it, immediately re-map the changed file.
+For each specialist pass, require the agent to load the requested skill and follow it.
 
-Teammates: At any moment in the chain, if you consider the blast raidus to be quite large, load `group-meeting` if not already, and delegate works to your teammates.
+Require a brief report: files examined, changed paths, checks and results, blockers, and anything the assigned skill requires. No edits is also a valid outcome.
+
+## Run in order
+
+Fullfill each step before advancing.
+
+1. *Yourself:* Map the implementation change set, or changes since the last completed housekeeping. Use session knowledge and VCS evidence, including committed, uncommitted, and new files. Exclude unrelated work; ask if the boundary is unclear. Save the map in a scratch file outside the deliverables. Avoid pagers and external diff tools; use `--git` with `jj`.
+2. *Teammate:* `naming-and-magic-literals` on all changed code. Include necessary reference updates. Ask before changing names that external code or stored data depends on.
+3. *Teammate:* `prune-comments-and-docs` on comments and prose throughout the mapped files, not just changed lines. Map cross-file duplicates before editing. Respect the write scope.
+4. `humanizer` on surviving English prose. Preserve technical meaning, obligations, and terminology.
+5. (Chinese only; otherwise skip) `chinese-prose-lint` on Chinese prose remaining in scope.
+6. Have a fresh, read-only agent review the combined result against the baseline and requirements. Check for missed coverage, broken references, behavior changes, lost meaning, and later edits undoing earlier work. Send specialist concerns back to the responsible pass rather than asking the reviewer to repeat every skill. Route fixes to that pass's agent, rerun affected later passes, and have the reviewer recheck.
+
+## Handoffs and close
+
+After each pass, inspect its actual diff and report. Check coverage and spot-check material edits, especially deletions. Resolve blockers before advancing, then update the map, pass status, and accepted checkpoint. Keep the original baseline untouched.
+
+Investigate unexpected changes before proceeding. Do not overwrite them or silently add them to scope.
+
+Rerun checks affected by later edits against the final checkpoint. Report failures and unavailable checks; never treat them as passes.
+
+If delegation or a required skill is unavailable, report the blocked step and ask before substituting another workflow.
+
+Record a completed checkpoint only after the required passes and final review are accepted. Summarize material changes, deleted files, pass status, checks, and unresolved issues. State any limits on verification.
