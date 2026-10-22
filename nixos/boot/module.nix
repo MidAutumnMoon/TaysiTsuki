@@ -6,10 +6,6 @@
         ./id.nix
     ];
 
-    boot.initrd = {
-        systemd.enable = true;
-    };
-
     boot.loader.grub.enable = lib.mkDefault false;
 
     boot.kernel.sysctl = {
