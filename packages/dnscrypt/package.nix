@@ -1,10 +1,10 @@
 {
     lib,
-    buildGoModule,
+    buildGoLatestModule,
     fetchFromGitHub,
 }:
 
-buildGoModule rec {
+buildGoLatestModule rec {
 
     pname = "dnscrypt-proxy";
     version = "2.1.19";
