@@ -195,7 +195,7 @@ Plan / contracts / claims:
 <only what this role needs; nothing that introduces a conclusion into a blind pass>
 
 Skills:
-<names and paths; load and follow within the access grant>
+<required skill names>
 
 Rules:
 - Work alone unless this brief names a counterpart; don't launch subagents.
