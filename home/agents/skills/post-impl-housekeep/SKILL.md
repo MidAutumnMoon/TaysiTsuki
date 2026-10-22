@@ -15,14 +15,14 @@ Require a brief report: files examined, changed paths, checks and results, block
 
 ## Run in order
 
-Fullfill each step before advancing.
+Fulfill each step before advancing.
 
-1. *Yourself:* Map the whole change range: every implementation, commit, and uncommitted edit produced in this session. A single housekeeping convers all commits that contribute to one implementation, and one session may have several implementations. Map out the complete range. Exclude unrelated work; ask if the boundary is unclear. At the top of the map, state the chosen boundary, and the last housekeeping you measured from.
-2. *Teammate:* `naming-and-magic-literals` on all changed code. Include necessary reference updates. Ask before changing names that external code or stored data depends on.
-3. *Teammate:* `prune-comments-and-docs` on comments and prose throughout the mapped files, not just changed lines. Map cross-file duplicates before editing. Respect the write scope.
-4. `humanizer` on surviving English prose. Preserve technical meaning, obligations, and terminology.
+1. *Yourself:* Map the whole change range since the last housekeeping: every implementation, commit, and uncommitted edit this session produced. Exclude unrelated work; ask if the boundary is unclear. At the top of the map, state the boundary and the last housekeeping you measured from. Record the design contract for each change: the decisions and constraints that explain its shape. Record the project's check commands and any execution restrictions.
+2. *Teammate:* `naming-and-magic-literals` on all changed code. Include necessary reference updates, even ones past the mapped files. Authorize and record any extension. Ask before changing names that external code or stored data depends on.
+3. *One fresh teammate:* `prune-comments-and-docs` on comments and prose throughout the mapped files, not just changed lines. Map cross-file duplicates before editing. Give it the map as its write scope and the design contract as its standard, so a comment stating a contract point stays and one narrating history goes. Require a report of every deletion and rewrite with its reason, and every spared comment with the constraint it states. Adjudicate the deletions and restore false positives.
+4. Same teammate: `humanizer` on surviving English prose. Preserve technical meaning, obligations, and terminology.
 5. (Chinese only; otherwise skip) `chinese-prose-lint` on Chinese prose remaining in scope.
-6. Have a fresh, read-only agent review the combined result against the baseline and requirements. Check for missed coverage, broken references, behavior changes, lost meaning, and later edits undoing earlier work. Send specialist concerns back to the responsible pass rather than asking the reviewer to repeat every skill. Route fixes to that pass's agent, rerun affected later passes, and have the reviewer recheck.
+6. Have a fresh, read-only agent review the combined result against the baseline and requirements. Check for missed coverage, broken references, behavior changes, lost meaning, and later edits undoing earlier work. Send specialist concerns back to the responsible pass rather than asking the reviewer to repeat every skill. Route fixes to that pass's agent, rerun affected later passes, and have the reviewer recheck, or a fresh checker holding its findings and the fixes.
 
 ## Handoffs and close
 
