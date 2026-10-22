@@ -77,11 +77,11 @@
         "rust-overlay": []
       },
       "locked": {
-        "lastModified": 1792155436,
-        "narHash": "sha256-x0XijAggHzJaB7VADrDMIkfdzGnz0epmYLebYpiFBMs=",
+        "lastModified": 1792683151,
+        "narHash": "sha256-50Yt+gGVbmDvIV6VWaknEpw6Uins+0WEm8Rel0ODVC0=",
         "owner": "MidAutumnMoon",
         "repo": "helix-of-mine",
-        "rev": "3a0daf403b50f276d761fa451bcab86cb42680c2",
+        "rev": "3a2ce46795c9c91110495dae3f88aabfb3bbcdc0",
         "type": "github"
       },
       "original": {
