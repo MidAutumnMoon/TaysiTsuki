@@ -17,7 +17,7 @@ Require a brief report: files examined, changed paths, checks and results, block
 
 Fullfill each step before advancing.
 
-1. *Yourself:* Map the implementation change set, or changes since the last completed housekeeping. Use session knowledge and VCS evidence, including committed, uncommitted, and new files. Exclude unrelated work; ask if the boundary is unclear. Save the map in a scratch file outside the deliverables. Avoid pagers and external diff tools; use `--git` with `jj`.
+1. *Yourself:* Map the whole change range: every implementation, commit, and uncommitted edit produced in this session. A single housekeeping convers all commits that contribute to one implementation, and one session may have several implementations. Map out the complete range. Exclude unrelated work; ask if the boundary is unclear. At the top of the map, state the chosen boundary, and the last housekeeping you measured from.
 2. *Teammate:* `naming-and-magic-literals` on all changed code. Include necessary reference updates. Ask before changing names that external code or stored data depends on.
 3. *Teammate:* `prune-comments-and-docs` on comments and prose throughout the mapped files, not just changed lines. Map cross-file duplicates before editing. Respect the write scope.
 4. `humanizer` on surviving English prose. Preserve technical meaning, obligations, and terminology.
