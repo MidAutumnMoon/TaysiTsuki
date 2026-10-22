@@ -95,7 +95,6 @@
         "browser.cache.memory.max_entry_size" = -1;
         "browser.contentblocking.category" = "strict";
         "browser.discovery.enabled" = false;
-        "browser.display.auto_quality_min_font_size" = 0;
         # hit ctrl-q by accident and the browser quits is really annoying
         "browser.quitShortcut.disabled" = true;
         "browser.search.suggest.enabled" = false;
@@ -126,8 +125,6 @@
         "browser.ml.linkPreview.enabled" = false;
         "browser.tabs.loadBookmarksInTabs" = true;
 
-        # enabled by default in 141; current 140
-        "dom.ipc.forkserver.enable" = true;
         "dom.netinfo.enabled" = false;
         "dom.battery.enabled" = false;
         "dom.vr.enabled" = false;
@@ -146,7 +143,6 @@
 
         "media.autoplay.default" = 5;
         "media.autoplay.blocking_policy" = 2;
-        # 16GiB in KiB
         "media.peerconnection.enabled" = false;
         "media.webspeech.recognition.enable" = false;
         "media.webspeech.synth.enabled" = false;
