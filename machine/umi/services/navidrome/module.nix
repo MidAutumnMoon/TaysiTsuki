@@ -20,6 +20,7 @@ in {
             MusicFolder = "${srvPool}/Music";
             # default but without "albumartistid"
             PID.Album = "musicbrainz_albumid|album,albumversion,releasedate";
+            Plugins.Enabled = false;
         };
     };
 
