@@ -28,7 +28,10 @@ Parallel reviewers each see only their own files, so map duplicates across the w
 For each comment, apply these checks in order. Act on the first failure.
 
 1. **True?** Read the code it describes. If they disagree and you can't tell which is wrong, flag it. Don't rewrite the comment to match a possible bug.
-2. **Needed?** Check strictly from the perspective of the codes, never your past memory. Delete it if the name, signature, types, nearby strings (error messages, test or check labels), or next few lines already say it. Also delete it if the fact's home already gives this reader everything they need here.
+2. **Needed?** Check strictly from the perspective of the code, never your past memory:
+    1. Delete it if the name, signature, types, nearby strings (error messages, test or check labels), or next few lines already say it.
+    2. Delete it if the fact's home already gives this reader everything they need here.
+    3. Delete it if it re-states or explains another module's, file's or dependency's documents, types, signatures, mechanics, implementations or contracts. Exception: non-obvious choice forced by outside behavior, or implementation disagreeing with the API document. In that case, tighten the wording to the fact itself, never a tour.
 3. **About the current code?** Delete history that depends on knowing an earlier version ("now", "no longer", "instead of", "replaced", "split", "moved", "refactored", "originally", "ported from"). Judge the meaning, not the marker: "instead of ORing" names a live alternative, and "new routes" is not history. Delete plans too ("will", "could", "eventually", "in the future", "not implemented yet"). Preserve a real regression guard as a present-tense constraint. Keep current limitations ("teardown is not implemented") as plain prose and include them in the duplicate map. Turn intended actions into TODOs or issue links, not narrative.
 4. **At the fact's home?** If not, delete it. Keep a pointer only when a caller must take another step to use the API correctly, or a maintainer changing this code must check or update another place. State the obligation ("new routes also need approval in infra"), not the fact again. A pointer that merely locates a topic is a tour. Keep links to issues, specs, and upstream bugs that justify a workaround. Move implementation detail from a doc comment inline only if it explains why; otherwise, delete it.
 5. **Clear at a glance?** Fail if the point is buried, an inline comment makes several points, or filler, hedges, or asides pad it. Keep the point this reader needs here. Move another point only if the reader needs it at another line. Otherwise, drop it even if it has no other home.
@@ -78,10 +81,11 @@ Use one point per sentence. Facts that support one point can share a sentence ("
 
 ## Examples
 
-**Over-explained contract**
+### Over-explained contract
+
+Before:
 
 ```rust
-// Before
 /// Discovers agent definitions in the given directory.
 ///
 /// This function recursively walks the provided `root` path, reads each
@@ -93,9 +97,12 @@ Use one point per sentence. Facts that support one point can share a sentence ("
 /// Returns a dynamic [`Report`](rootcause::Report) when a directory cannot
 /// be read or a file fails to parse — the report includes the failing path.
 pub fn discover(root: &Path) -> Result<Vec<AgentDef>, Report>
+```
 
-// After
-/// Loads every `.toml` agent definition under `root`, recursively.
+After:
+
+```rust
+/// Recursively loads every `.toml` agent definition under `root`.
 ///
 /// # Errors
 ///
@@ -104,46 +111,55 @@ pub fn discover(root: &Path) -> Result<Vec<AgentDef>, Report>
 pub fn discover(root: &Path) -> Result<Vec<AgentDef>, Report>
 ```
 
-The signature already says `Vec` and `Report`. "Walks, reads, parses, collects" narrates the body. Keep the contract.
+> The signature already says `Vec` and `Report`. "Walks, reads, parses, collects" narrates the body. Keep the contract.
 
-**History**
+### History
+
+Before:
 
 ```rust
-// Before
 // Switched from HashMap to BTreeMap so output order is deterministic.
 // The sort step after collection is no longer needed.
 let mut seen = BTreeMap::new();
+```
 
-// After
+After:
+
+```rust
 // Ordered so output is stable across runs.
 let mut seen = BTreeMap::new();
 ```
 
-Keep the reason, not the history. The reader need not know about the HashMap.
+> Keep the reason, not the history. The reader need not know about the HashMap. Don't re-state BTreeMap's document, the focus here is "ordered".
 
-**Cross-reference told as a story**
+### Cross-reference told as a story
+
+Before:
 
 ```rust
-// Before
 /// Downloads the archive from `url`.
 ///
 /// The fetch-and-verify pipeline was split into two steps: this function
 /// only downloads, and checksum validation now lives in [`verify_archive`].
 /// The old `fetch_verified` helper has been removed.
 pub async fn download(url: &Url) -> Result<Bytes>
+```
 
-// After
+After:
+
+```rust
 /// Downloads the archive from `url` without verifying it. Pass the bytes to
 /// [`verify_archive`] before use.
 pub async fn download(url: &Url) -> Result<Bytes>
 ```
 
-The caller needs their obligation, not the architecture's history. "Without verifying it" rules out a likely wrong assumption. The pointer survives because the caller must act on it. The removed helper is irrelevant.
+> The caller needs their obligation, not the architecture's history. "Without verifying it" rules out a likely wrong assumption. The pointer survives because the caller must act on it. The removed helper is irrelevant. Also don't re-explain the document or implementation of "verify_archive".
 
-**The same fact in several places**
+### The same fact in several places
+
+Before:
 
 ```rust
-// Before
 //! An interrupted run retries against the previous state and converges.
 
 /// Atomically install the state. A failure leaves the previous state
@@ -153,8 +169,11 @@ pub fn write(self) -> Result<()>
 // Retry converges and records the new generation.
 #[test]
 fn retry_converges() { ... }
+```
 
-// After
+After:
+
+```rust
 //! An interrupted run retries against the previous state and converges.
 
 /// Atomically install the state. On failure the previous state is intact.
@@ -164,28 +183,33 @@ pub fn write(self) -> Result<()>
 fn retry_converges() { ... }
 ```
 
-The module doc owns the convergence fact and stays unchanged. `write()` keeps its local failure guarantee. The test comment adds nothing beyond the test name and body. A `README` may repeat the convergence guarantee if it serves a different audience.
+> The module doc owns the convergence fact and stays unchanged. `write()` keeps its local failure guarantee. The test comment adds nothing beyond the test name and body. A `README` may repeat the convergence guarantee if it serves a different audience.
 
-**A pile of facts rewritten around its point**
+### A pile of facts rewritten around its point
+
+Before:
 
 ```rust
-// Before
 // default 0 (no retries); bundled defaults skipped (see config/README.md).
 // server side, retries go gateway -> backend
 cfg.set("retries", 3);
+```
 
-// After
+After:
+
+```rust
 // Set explicitly because we skip the bundled defaults, and without them
 // the client never retries.
 cfg.set("retries", 3);
 ```
 
-The reader's question is why a default-looking value is set explicitly. "Because" connects the facts into an answer. The pointer and server-side path are tours; nothing here depends on them.
+> The reader's question is why a default-looking value is set explicitly. The reason isn't obvious. "Because" connects the facts into an answer. The pointer and server-side path are tours; nothing here depends on them. It also shouldn't explain `set`'s signature or mechanic.
 
-**Implementation detail in the contract**
+### Implementation detail in the contract
+
+Before:
 
 ```rust
-// Before
 /// Returns the thumbnail for `id`, generating it on a cache miss.
 ///
 /// Uses an LRU cache (a `HashMap` plus a `VecDeque` for recency) holding
@@ -193,8 +217,11 @@ The reader's question is why a default-looking value is set explicitly. "Because
 /// Lanczos3, and inserts, evicting the least recently used entry. Lanczos3
 /// is used because Triangle aliased visibly on line art.
 pub fn thumbnail(&mut self, id: ImageId) -> Result<&Thumbnail>
+```
 
-// After
+After:
+
+```rust
 /// Returns the thumbnail for `id`, generating and caching it on a cache miss.
 pub fn thumbnail(&mut self, id: ImageId) -> Result<&Thumbnail> {
     // ...
@@ -202,33 +229,44 @@ pub fn thumbnail(&mut self, id: ImageId) -> Result<&Thumbnail> {
     let small = img.resize(w, h, FilterType::Lanczos3);
 ```
 
-Cache layout and decoding steps can change without changing the contract. The filter choice explains why, so it moves to the relevant line. Naming Triangle helps because a maintainer might choose it, and the comment explains the consequence.
+> Cache layout and decoding steps can change without changing the contract. The filter choice explains why, so it moves to the relevant line. Naming Triangle helps because a maintainer might choose it, and the comment explains the consequence.
 
-**Reference implementation**
+### Reference implementation
+
+Before:
 
 ```rust
-// Before
 //! Token-bucket rate limiter, ported from the Java reference implementation
 //! (`RateLimiter.java`). Unlike the Java version, there is no background
 //! refill thread. Instead, `acquire` computes refills lazily, mirroring
 //! Java's `reserveEarliestAvailable()`.
-
-// After
-//! Token-bucket rate limiter. Tokens refill lazily inside `acquire`, so
-//! idle limiters do no refill work.
 ```
 
-Mappings to reference code rot as implementations diverge. Keep the fact the reader needs, along with any required license or attribution notice.
+After: Deleted
 
-**Leave these alone**
+> Delete mappings to reference code once the implementation is fully absorbed. Facts should now live in places that fit this project, which are subject to other comment pruning rules. Exception: required license or attribution notice.
+
+### Prose docs
+
+Before:
+
+```markdown
+<!-- For example, in README.md -->
+## Recent Improvements ✅
+- **Refactored** config loading for better maintainability
+- **Added** comprehensive error handling
+- **Removed** legacy `config.ini` support
+```
+
+After: Deleted
+
+> Delete the section. A `README` describes the project as it is. If users need the config format, document the current format.
+
+### Exception: Leave these alone
 
 ```rust
 // SAFETY: `idx < self.len` is checked above, and `buf` never shrinks.
 unsafe { self.buf.get_unchecked(idx) }
-
-// `fs::rename` fails across mount points, and the temp dir is often tmpfs.
-fs::copy(&tmp, &dest)?;
-fs::remove_file(&tmp)?;
 ```
 
 ```nix
@@ -236,19 +274,7 @@ fs::remove_file(&tmp)?;
 router = { static_ip = "10.0.1.1"; };
 ```
 
-These supply facts the code doesn't. The router comment identifies its OS in the author's style. Replacing it with "not a NixOS machine" would emphasize a comparison instead. Fixing its casing would restyle a comment that passed.
-
-**Prose docs**
-
-```markdown
-<!-- Before, in README.md -->
-## Recent Improvements ✅
-- **Refactored** config loading for better maintainability
-- **Added** comprehensive error handling
-- **Removed** legacy `config.ini` support
-```
-
-Delete the section. A `README` describes the project as it is. If users need the config format, document the current format.
+> These supply facts the code doesn't. The router comment identifies its OS in the author's style. Replacing it with "not a NixOS machine" would emphasize a comparison instead. Fixing its casing would restyle a comment that passed.
 
 ## Finish
 
