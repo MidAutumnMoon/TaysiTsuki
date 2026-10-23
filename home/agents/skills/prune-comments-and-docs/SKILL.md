@@ -25,7 +25,7 @@ Map duplicates before pruning. Group comments and leftover planning prose around
 
 Parallel reviewers each see only their own files, so map duplicates across the whole set before editing starts.
 
-For each comment, apply these checks in order. Act on the first failure.
+For each comment, apply these checks in order. Judge the whole comment block, as well as all sentences of it. Act on the first failure.
 
 1. **True?** Read the code it describes. If they disagree and you can't tell which is wrong, flag it. Don't rewrite the comment to match a possible bug.
 2. **Needed?** Check strictly from the perspective of the code, never your past memory:
@@ -36,11 +36,11 @@ For each comment, apply these checks in order. Act on the first failure.
 4. **At the fact's home?** If not, delete it. Keep a pointer only when a caller must take another step to use the API correctly, or a maintainer changing this code must check or update another place. State the obligation ("new routes also need approval in infra"), not the fact again. A pointer that merely locates a topic is a tour. Keep links to issues, specs, and upstream bugs that justify a workaround. Move implementation detail from a doc comment inline only if it explains why; otherwise, delete it.
 5. **Clear at a glance?** Fail if the point is buried, an inline comment makes several points, or filler, hedges, or asides pad it. Keep the point this reader needs here. Move another point only if the reader needs it at another line. Otherwise, drop it even if it has no other home.
 
-A comment that passes all these five stays. Fix failed comments and docs. Match the file's comment style: casing, punctuation, and terseness.
+A comment that passes all these five stays. Fix failed comments and docs. Match established style.
 
-Delete by default: a comment goes unless it holds a fact with no other home. Rewriting may keep that fact, not the whole comment. Identify the reader's question at this line, answer it in a sentence, and add the reason if the answer alone seems arbitrary. Add a comment only when the reader would otherwise get something wrong: a missing why, or a missing error, panic, or safety contract. If a comment only explains an unclear name, suggest a rename in your summary instead of polishing it.
+For comment block: Per the checks, delete the whole comment block if it's useless; but even if the block is useful, still cut any sentence that fails the check.
 
-Judge whole blocks, not just sentences. For a comment longer than two lines, ask whether deleting it loses anything this reader needs. If not, delete it. If the code's structure predicts the comment (bare numbering, section dividers, enum glosses), it's narration; cut it.
+Delete by default. Cut any comment unless it holds unique fact with no other home. Rewriting keeps the fact but not the whole comment. Identify the reader's question at this line, answer it in a sentence, and add the reason if the answer alone seems arbitrary. Add a comment only when the reader would otherwise get something wrong: a missing why, or a missing error, panic, or safety contract. If a comment only explains an unclear name, suggest a rename in your summary instead of polishing it.
 
 Then review the whole file. When comments mirror the code's structure one to one, the file is over-commented even if each comment passes alone. Cut the class, not individual instances, unless a project convention requires it. Keep classes distinct: bare numbering and labeled decisions are different classes.
 
@@ -238,7 +238,7 @@ Before:
 ```rust
 //! Token-bucket rate limiter, ported from the Java reference implementation
 //! (`RateLimiter.java`). Unlike the Java version, there is no background
-//! refill thread. Instead, `acquire` computes refills lazily, mirroring
+//! refill thread. Instead, ` Judge the whole comment block, as well as all sentences of it.acquire` computes refills lazily, mirroring
 //! Java's `reserveEarliestAvailable()`.
 ```
 
@@ -278,7 +278,10 @@ router = { static_ip = "10.0.1.1"; };
 
 ## Finish
 
-1. Re-scan the survivors. For each fact assigned a home, search for all its phrasings, not one keyword ("rendered", "literal", "template text"). Verify one statement of each fact per audience. Keep additional references only when they satisfy check 4. Search every plausible home, including prose docs outside the reviewed scope.
+1. Re-scan the survivors. For each fact assigned a home, search for all its phrasings, not one keyword ("rendered", "literal", "template text"). Verify comment one statement of each fact per audience. Keep additional references only when they satisfy check 4. Search every plausible home, including prose docs outside the reviewed the whole block.
+
+For comment block:
 2. Search comments in the reviewed files for `—`, mid-sentence `;` and `:`, contrasts (`unlike`, `not a`, `rather than`), pointers (`see`, `lives in`, `->`, file paths), history (`now`, `no longer`, `instead`, `previously`, `old`, `new`, `refactor`), and plans (`will`, `could`, `eventually`, `not implemented yet`). Each hit is a candidate, not a failure. Change it only if the comment fails a check, or if text you wrote breaks "Sentences".
 3. Build docs and run doctests if available. Deletions can break intra-doc links.
-4. Report briefly: files examined; repeated facts and their chosen homes; points dropped with no other home (one line each so the author can veto); deleted files; possibly incorrect comments; suggested renames and other code moves. No per-edit changelog.
+4. Report briefly: files examined; repeated facts and their chosen homes; points dropped with no other home and keeps you weighed (one line each so the author can veto); deleted files; possibly incorrect comments; suggested renames and other code moves. No per-edit changelog.
+
