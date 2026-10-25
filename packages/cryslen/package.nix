@@ -24,21 +24,17 @@ tsuki.rust.buildRustPackage {
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "cryslen";
-        rev = "a1fbfcb04b51d4f06bd3f85109c4d197d9613c18";
-        hash = "sha256-PwVKbnTJShkuUy6JWAbaMCJ71AMb9TJ6JP1MZRcL5xo=";
+        rev = "801e8447d4296915659e3f4f4e3f09e99573837d";
+        hash = "sha256-WgG9Nyj7I8VvfsYzGAdsDRHiTMty7Ol4Kj7U5c1iEic=";
     };
 
     cargoHash = "sha256-HU2NikzI68zi8dYzF8Oc37o7tzsJz0leHHvTCarRjII=";
 
     doCheck = false;
 
-    # ninja's setup hook would claim buildPhase/installPhase before the
-    # cargo hooks can set them, so the build would run plain ninja.
     dontUseNinjaBuild = true;
     dontUseNinjaInstall = true;
 
-    # libavif-sys and libdav1d-sys compile vendored libavif+aom and dav1d
-    # inside cargo build.
     nativeBuildInputs = [
         cmake
         meson
