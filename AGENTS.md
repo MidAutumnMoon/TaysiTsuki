@@ -56,7 +56,9 @@ Do not pipe any command output through `head` or `tail`, tools will properly han
 
 Use `jj` vcs exclusively. For example, `jj status`, `jj new`.
 
-`difftastic` is configured as diff tool. Use `jj diff --git` and `jj show --git` for traditional git style diff output.
+External pager is configured. Use `jj diff --git` and `jj show --git` for traditional git style diff output.
+
+Don't commit on behalf of the user. Don't write commit message
 
 ## Look Things Up
 

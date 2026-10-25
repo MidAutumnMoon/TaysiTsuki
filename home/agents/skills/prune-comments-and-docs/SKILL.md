@@ -79,15 +79,20 @@ Preserve these facts, but apply check 5 and the Sentences rules to their wording
 
 Apply these to every comment you keep, rewrite, or add.
 
+First find the true focus of the sentence burried in texts. Rules serve to better present this focus.
+
 Shorten by reducing points, not squeezing words. Use complete sentences, but leave labels such as "// not ours" as labels. Keep connectives ("because", "so", "otherwise") that explain how facts relate. Without them, the reader must reconstruct the reason. Don't compress prose into shorthand or replace a plain word with a shorter, vaguer one.
 
-Say what something is or does. Don't define it by what it isn't ("not a managed host", "unlike `retry`"). Use a negative only when it rules out a likely wrong assumption ("without verifying it", "not thread-safe"). Name an alternative only when the reader would consider using it, then explain what goes wrong with it.
+Say what something is or does. Don't define it by what it isn't ("not a managed host", "unlike `retry`"; avoid "not xxx" in general). Use a negative only when it rules out a likely wrong assumption ("without verifying it", "not thread-safe"). Name an alternative only when the reader would consider using it, then explain what goes wrong with it.
 
 Use one point per sentence. Facts that support one point can share a sentence ("`idx < self.len` is checked above, and `buf` never shrinks"). Separate points need separate sentences, regardless of punctuation. Don't use em dashes or imitate them with `;`, `:`, ` - `, or parentheses. A sentence that needs such a join usually carries a second point. Check whether it belongs.
 
 ## Language-specific checks
 
-- Rust: the `reason` in `#[allow(...)]` and `#[expect(...)]` serves the maintainer. Apply every check and the Sentences rules to it. If a lint requires a reason, rewrite a failing one instead of deleting it.
+- Rust. Apply every check and Sentences rules. Rewrite failing ones:
+    * `reason` in `#[allow(...)]` and `#[expect(...)]` serves the maintainer.
+    * Message in `.expect()` and error library's `.context()` serves the user.
+    * Message in tracing's `debug!()`, `info!()` and all other macros.
 
 ## Examples
 
