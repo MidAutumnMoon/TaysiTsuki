@@ -31,7 +31,7 @@ in {
             renames = true
             algorithm = histogram
             colorMoved = plain
-            external = "${lib.getExe pkgs.difftastic}"
+            external = "${lib.getExe pkgs.delta}"
 
         [branch]
             sort = -committerdate

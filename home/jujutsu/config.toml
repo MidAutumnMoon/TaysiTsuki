@@ -25,15 +25,6 @@ ba = ["bookmark", "advance"]
 mine = ["log", "-r", "mine()"]
 roots = ["log", "-r", "roots(mine())"]
 
-# git: merge.conflictstyle = diff3
-# jj's "git" style emits diff3-style markers for tools that
-# depend on them.
-[ui]
-conflict-marker-style = "git"
-default-command = "log"
-# difftty: difftastic on a terminal, plain unified diff otherwise (module.nix).
-diff-formatter = "difftty"
-
 [templates]
 draft_commit_description = '''
     concat(
