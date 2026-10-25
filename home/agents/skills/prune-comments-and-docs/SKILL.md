@@ -5,18 +5,19 @@ description: Review, tighten, and rewrite code comments, doc comments, and prose
 
 # Prune comments and docs
 
-Write for someone who knows the current code but not the history or context behind it. Each comment should make a point the reader needs here and cannot get from the code. Keep one point per inline comment, doc-comment section, and prose paragraph. State each fact once per audience.
+Write for someone who knows the language, common domain concepts, and the current code, but not its history or context. Name the mistake this reader would make without each comment. If there is none, delete it. Otherwise, keep only what prevents that mistake. Apply this test regardless of who wrote the comment. Being true, current, and unique is not enough.
 
-Comments written during a change often describe what was replaced, split, or implemented, and how. That's bad for readable comments.
-If you made the change, assume you're too close to judge. Read each comment as if opening the file for the first time.
+Comments written during a change tend to narrate what was replaced, split, or implemented, or to defend the design. Keep the reasons a reader needs here. Other rationale belongs in the commit description. If you made the change, assume you're too close to judge. Read each comment as if opening the file for the first time.
 
 ## Who reads what
 
-- **Doc comments** (`///`, `//!`, docstrings) serve callers. State the contract: what it does, what the types don't say, when it fails or panics, and what the caller must ensure. The comment should remain true if the implementation changes but its behavior does not.
+- **Doc comments** (`///`, `//!`, docstrings) serve callers, who see the signature but not the body. State the contract: what it does, what the types don't say, when it fails or panics, and what the caller must ensure. The comment should remain true if the implementation changes but its behavior does not.
 - **Inline comments** serve maintainers. Answer the question a maintainer has at this line: why the code is written this way, or what would break if it changed. The answer is usually a constraint, workaround, or consequence. Don't narrate the next lines.
 - **Prose docs** serve readers new to the topic. Cover concepts, usage, and decisions that span files. Don't mirror the code, report progress, or repeat contracts documented in doc comments.
 
 Keep the facts each audience needs. A fact may serve two audiences, such as `README` readers and API callers, but should not appear twice for the same audience.
+
+For private items and application code, callers are maintainers who read the body. State each fact once, on the item it describes. A field and its getter don't both need docs.
 
 Prefer expressing a fact through a name, type, error message, assertion, or test rather than a comment. Suggest those changes in your summary. This pass changes only comments and docs, not code.
 
@@ -29,34 +30,34 @@ Group comments and leftover planning prose around recurring domain terms, such a
 For each comment or passage of documentation, apply these checks in order. Check the whole block and each sentence within it. Act on the first failure.
 
 1. **True?** Read the code it describes. If the code and comment disagree and you can't tell which is wrong, flag the discrepancy. Don't rewrite the comment to match a possible bug.
-2. **Needed?** Judge strictly from the current code, not your memory of earlier versions:
-    * Delete it if the name, signature, types, nearby strings (error messages, test or check labels), or next few lines already say it.
-    * Delete it if the fact's home already gives this reader everything they need here.
-    * Delete it if it restates or explains another module's, file's, or dependency's documentation, types, signatures, mechanics, implementations, or contracts. Exception: non-obvious choice forced by external behavior, or implementation differing from its API documentation. State the relevant fact directly. Don't summarize the other component.
-3. **About the current code?** Delete history that assumes the reader knows an earlier version ("now", "no longer", "instead of", "replaced", "split", "moved", "refactored", "originally", "ported from"). Judge the meaning, not the keyword: "instead of ORing" names a current alternative, and "new routes" is not history. Delete plans too ("will", "could", "eventually", "in the future", "not implemented yet"). Preserve real regression guards as present-tense constraints. Keep current limitations ("teardown is not implemented") in plain prose and include them in the duplicate map. Turn intended actions into TODOs or issue links, not narrative.
+2. **Needed?** Judge strictly from the current code, not your memory of earlier versions. Name the mistake a reader would make without it. For prose docs, a step or concept a new reader would miss counts as a mistake. If there is none, delete it. Typical cases:
+    * The name, signature, types, nearby strings (error messages, test or check labels), assertions, or next few lines already say it.
+    * The fact's home already gives this reader everything they need here.
+    * The reader already knows it, such as what premultiplied alpha means or how a standard algorithm works.
+    * It restates or explains another module's, file's, or dependency's documentation, types, mechanics, or contracts. Exception: a non-obvious choice forced by external behavior, or an implementation that differs from its API documentation. State the relevant fact directly. Don't summarize the other component.
+3. **About the current code?** Delete history that assumes the reader knows an earlier version ("now", "no longer", "instead of", "replaced", "split", "moved", "refactored", "originally", "ported from"). Judge the meaning, not the keyword. "Instead of ORing" names a current alternative, and "new routes" is not history. Delete plans too ("will", "could", "eventually", "in the future", "not implemented yet"), including constraints on code that doesn't exist yet ("a future toggle must..."). Preserve real regression guards as present-tense constraints. Keep current limitations ("teardown is not implemented") in plain prose and include them in the duplicate map. Turn intended actions into TODOs or issue links, not narrative.
 4. **At the fact's home?** If not, delete it. Keep a cross-reference only when a caller must take another step to use the API correctly, or a maintainer changing this code must check or update another place. State the required action ("new routes also need approval in infra"), not the fact again. Delete references that merely tell the reader where a topic is covered. Keep links to issues, specifications, and upstream bugs that justify a workaround. Move implementation detail from a doc comment to an inline comment only if it explains why the code is written this way. Otherwise, delete it.
-5. **Clear at a glance?** Fail if the point is buried, an inline comment makes several points, or filler, hedges, or asides pad the text. Keep the point this reader needs here. Move another point only if the reader needs it at another line. Otherwise, drop it even if it has no other home.
+5. **Minimal?** Reduce it to what prevents the mistake from check 2. For a comment, that is usually one sentence. Add the reason if that sentence alone would seem arbitrary. Keep one point per inline comment, doc-comment section, and prose paragraph. Move another point only if the reader needs it at another line. Otherwise, drop it even if it has no other home. Cut consequences the reader can infer, restatements, filler, hedges, and asides. Most surviving comments fit in one or two lines.
 
-Keep comment or doc passage that passes all five checks. Delete a whole block if it has no useful content; otherwise, cut or rewrite each failing sentence while preserving any unique fact. Match established style,
+Delete a whole block if nothing in it prevents a mistake. Otherwise, cut or rewrite each failing sentence. Preserve the fact, not the whole comment. Match the established style in casing, comment markers, and layout, but follow the Sentences rules where they conflict. Leave a comment unchanged if it passes every check and follows the Sentences rules.
 
-Delete by default. Cut any comment unless it contains a unique fact with no other home. When rewriting, preserve the fact, not the whole comment.
+Add a comment only when the reader would otherwise get something wrong because a reason or an error, panic, or safety contract is missing. If a comment only explains an unclear name, suggest a rename in your summary instead of polishing it.
 
-Identify the reader's question at this line and answer it in one sentence. Add the reason if the answer alone would seem arbitrary. Add a comment only when the reader would otherwise get something wrong because a reason or an error, panic, or safety contract is missing. If a comment only explains an unclear name, suggest a rename in your summary instead of polishing it.
+Then review each file as a whole. A file is over-commented when its comments mirror the code's structure one for one, even if each comment passes on its own. Remove the entire category, not isolated instances, unless a project convention requires those comments. Bare numbering and labels for deliberate decisions are separate categories. Removing one doesn't remove the other.
 
-Then review each file as a whole. A file is over-commented when its comments mirror the code's structure one for one, even if each comment passes on its own. Remove the entire category, not isolated instances, unless a project convention requires those comments. Treat bare numbering and comments that label deliberate decisions as separate categories.
+## Keep the fact, not the wording
 
-## Keep
+Preserve these facts, but apply check 5 and the Sentences rules to their wording. Leave license notices verbatim.
 
 - Safety contracts and `// SAFETY:` justifications.
 - Error, panic, and invariant contracts callers rely on.
-- Why the obvious approach wasn't taken, stated as what goes wrong with it.
-- Notes and test labels that record a deliberate decision ("N.B. we deliberately allow src to not exist") or identify the case being set up ("// not ours", "// ancestor is a regular file").
+- Why the obvious approach wasn't taken, when a maintainer would otherwise try it. State what goes wrong with it.
+- Notes that record a deliberate decision a maintainer would otherwise "fix" ("N.B. we deliberately allow src to not exist").
+- Test labels that identify the case being set up ("// not ours", "// ancestor is a regular file").
 - Links to issues, specs, or upstream bugs behind a workaround.
 - License and attribution notices, even when cutting "ported from" narrative.
 - Doctests and examples.
 - Language and project conventions: `# Errors` / `# Panics` / `# Safety` sections, `missing_docs`, and the existing doc style.
-
-Apply "Sentences" rules on kept ones. "Keep" doesn't mean keep them as-is.
 
 ## Cut on sight
 
@@ -68,25 +69,25 @@ Apply "Sentences" rules on kept ones. "Keep" doesn't mean keep them as-is.
 - Empty openers and labels: "Note:", "Important:", "This function...", "Helper to...", "This ensures that...", "upstream quirk:", "host side,".
 - Bare sequence markers: "// 1.", "// step 2", "// Case 3".
 - Cross-references that merely locate a topic, or trace a request through other components (`a -> b -> c`), when nothing here depends on that information.
-- Comments announcing what the next assertion checks. Name the case or the purpose of the setup instead.
+- Test comments that announce the next assertion or paraphrase the test name. Name the case or the purpose of the setup instead.
+- Claims that the design is sound: "lives in one place", "holds structurally", "single source of truth". Delete the claim, but preserve any fact that prevents a mistake.
 - Hype and padding: "robust", "seamless", "comprehensive", "simply", "just".
 - Links to types already linked by the signature.
 - Doc files that serve as work logs, such as summaries, plans, migration notes, and status reports. Delete the file and name it in your summary.
 
 ## Sentences
 
-These rules apply to rewrites and new comments. They are not a sixth check. A comment that passes the five checks keeps its wording even if it breaks these rules.
+Apply these to every comment you keep, rewrite, or add.
 
 Shorten by reducing points, not squeezing words. Use complete sentences, but leave labels such as "// not ours" as labels. Keep connectives ("because", "so", "otherwise") that explain how facts relate. Without them, the reader must reconstruct the reason. Don't compress prose into shorthand or replace a plain word with a shorter, vaguer one.
 
-Say what something is or does. Don't define it by what it isn't ("not a managed host", "unlike `retry`"). Use a negative when it rules out a likely wrong assumption ("without verifying it", "not thread-safe"). Name an alternative only when the reader would consider using it, then explain what goes wrong with it.
+Say what something is or does. Don't define it by what it isn't ("not a managed host", "unlike `retry`"). Use a negative only when it rules out a likely wrong assumption ("without verifying it", "not thread-safe"). Name an alternative only when the reader would consider using it, then explain what goes wrong with it.
 
-Use one point per sentence. Facts that support one point can share a sentence ("`idx < self.len` is checked above, and `buf` never shrinks"). Separate points need separate sentences, regardless of punctuation. Don't use em dashes or imitate them with `;`, `:`, ` - `, or parentheses. If a sentence needs such a join, check whether it contains two points and whether both belong.
+Use one point per sentence. Facts that support one point can share a sentence ("`idx < self.len` is checked above, and `buf` never shrinks"). Separate points need separate sentences, regardless of punctuation. Don't use em dashes or imitate them with `;`, `:`, ` - `, or parentheses. A sentence that needs such a join usually carries a second point. Check whether it belongs.
 
-## Language specific checks
+## Language-specific checks
 
-- Rust:
-    * `#[allow(..., reason = "...")]` and `#[expect(..., reason = "...")]` serves the maintainer. Apply same rules on `reason`'s content.
+- Rust: the `reason` in `#[allow(...)]` and `#[expect(...)]` serves the maintainer. Apply every check and the Sentences rules to it. If a lint requires a reason, rewrite a failing one instead of deleting it.
 
 ## Examples
 
@@ -120,7 +121,44 @@ After:
 pub fn discover(root: &Path) -> Result<Vec<AgentDef>, Report>
 ```
 
-> The signature already says `Vec` and `Report`. "Walks, reads, parses, collects" narrates the body. Keep the contract.
+> The signature already says `Vec` and `Report`. Keep recursion and the `.toml` filter so callers don't assume a shallow search over all file types. Say that errors name the path so callers don't add it again. The rest narrates the body.
+
+### True, unique, and still too long
+
+Before:
+
+```rust
+/// Framebuffer clear color. Wayland composites ARGB buffers as
+/// premultiplied alpha, so the translucent variant scales the color
+/// channels by alpha; stored straight, the compositor would treat
+/// them as already premultiplied, and the composite would come out
+/// brighter than intended.
+fn clear_color(translucent: bool) -> [f32; 4] { ... }
+
+/// The glass color as egui's premultiplied u8 color: [`clear_color`]'s
+/// translucent channels, quantized. The premultiplied glass lives in one
+/// place ([`clear_color`]); this is only its u8 conversion, so the bar
+/// repeating the background holds structurally.
+fn glass_fill() -> egui::Color32 {
+    let [red, green, blue, alpha] = clear_color(true);
+    // ...
+}
+```
+
+After:
+
+```rust
+/// Framebuffer clear color, premultiplied because Wayland composites
+/// ARGB buffers that way.
+fn clear_color(translucent: bool) -> [f32; 4] { ... }
+
+fn glass_fill() -> egui::Color32 {
+    let [red, green, blue, alpha] = clear_color(true);
+    // ...
+}
+```
+
+> Keep Wayland's requirement so a maintainer doesn't remove the alpha multiplication as redundant. The reader already knows what premultiplied alpha means. `glass_fill`'s comment repeats its body and defends the design.
 
 ### History
 
@@ -139,7 +177,7 @@ After:
 let mut seen = BTreeMap::new();
 ```
 
-> Keep the reason, not the history. The point is stable output across runs, not the switch from `HashMap` or an explanation of `BTreeMap`.
+> Keep the need for stable output across runs so a maintainer doesn't replace `BTreeMap` with an unordered map. The switch and removed sort step are history.
 
 ### A required cross-reference buried in history
 
@@ -162,7 +200,7 @@ After:
 pub async fn download(url: &Url) -> Result<Bytes>
 ```
 
-> The caller needs the verification requirement, not the API's history. "Without verifying it" rules out a likely wrong assumption. The link stays because the caller must act on it. Don't restate or explain `verify_archive`'s documentation or implementation.
+> A caller who assumes verification would use unchecked bytes. Keep the warning and required call to `verify_archive`, not the API's history. Don't summarize `verify_archive`'s documentation or implementation.
 
 ### The same fact in several places
 
@@ -192,7 +230,7 @@ pub fn write(self) -> Result<()>
 fn retry_converges() { ... }
 ```
 
-> The convergence guarantee belongs in the module documentation, which stays unchanged. `write()` keeps its local failure guarantee. The test comment adds nothing beyond the test name and body. A `README` may repeat the convergence guarantee if it serves a different audience.
+> The module docs keep the convergence guarantee. `write()` keeps its local failure guarantee because callers need it when handling an error. The test comment repeats the name and body. A `README` may repeat the convergence guarantee for a different audience.
 
 ### Several facts rewritten around one point
 
@@ -212,7 +250,7 @@ After:
 cfg.set("retries", 3);
 ```
 
-> The reader needs to know why a default-looking value is set explicitly. "Because" connects the facts into an answer. The cross-reference and server-side path add no needed information at this line. Don't explain `set`'s signature or mechanics.
+> A maintainer might remove a default-looking setting and disable retries. Keep the reason for setting it explicitly. The `README` pointer and server-side path add nothing here, even if they have no other home. Don't explain `set`'s signature or mechanics.
 
 ### Implementation detail in the contract
 
@@ -231,14 +269,14 @@ pub fn thumbnail(&mut self, id: ImageId) -> Result<&Thumbnail>
 After:
 
 ```rust
-/// Returns the thumbnail for `id`, generating and caching it on a cache miss.
+/// Returns the thumbnail for `id`, generating and caching it on a miss.
 pub fn thumbnail(&mut self, id: ImageId) -> Result<&Thumbnail> {
     // ...
     // Triangle aliases visibly on line art.
     let small = img.resize(w, h, FilterType::Lanczos3);
 ```
 
-> Cache layout and decoding steps can change without changing the contract. The filter choice explains why, so it moves to the relevant line. Naming Triangle helps because a maintainer might choose it and needs to know the consequence.
+> Cache layout and decoding steps can change without changing the contract. Move the reason for the filter choice to its line so a maintainer doesn't substitute Triangle and cause aliasing on line art.
 
 ### Reference implementation
 
@@ -253,7 +291,7 @@ Before:
 
 After: Deleted.
 
-> Delete mappings to reference code once the implementation is fully integrated. Put any still-needed facts where they belong in this project and apply the same pruning checks. Keep required license and attribution notices.
+> Delete mappings to reference code once this implementation stands on its own. State any still-needed fact at its home and apply the same checks. Preserve required license and attribution notices.
 
 ### Prose docs
 
@@ -268,9 +306,9 @@ Before (`README.md`):
 
 After: Deleted.
 
-> Delete the section. A `README` describes the project as it is. If users need to know the config format, document the current format.
+> The section is a change log, and "comprehensive" is padding. A `README` describes the project as it is. If users need to know the config format, document the current format.
 
-### Exception: Leave these alone
+### Already minimal
 
 ```rust
 // SAFETY: `idx < self.len` is checked above, and `buf` never shrinks.
@@ -282,20 +320,21 @@ unsafe { self.buf.get_unchecked(idx) }
 router = { static_ip = "10.0.1.1"; };
 ```
 
-> These comments supply facts the code doesn't. The router comment identifies its operating system in the author's style. Replacing it with "not a NixOS machine" would substitute a comparison for that fact. Changing its casing would restyle a comment that already passes.
+> Both comments make one needed point. Without the router comment, a maintainer might manage it like the surrounding NixOS machines. "Not a NixOS machine" would lose the fact that it runs OpenWrt. Changing the casing would only restyle it.
 
 ## Finish
 
 1. Review the remaining comments and docs. For each fact assigned a home, search for all its phrasings, not just one keyword ("rendered", "literal", "template text"). Confirm that each fact is stated once per audience. Keep additional references only when they pass check 4. Search every plausible home, including prose docs outside the files initially reviewed.
-2. Search comments in the reviewed files for `—`, mid-sentence `;` and `:`, contrasts (`unlike`, `not a`, `rather than`), cross-references (`see`, `lives in`, `->`, file paths), history (`now`, `no longer`, `instead`, `previously`, `old`, `new`, `refactor`), and plans (`will`, `could`, `eventually`, `not implemented yet`). Each hit is a candidate, not a failure. Change it only if the comment fails a check or text you wrote breaks the "Sentences" rules.
-3. Build docs and run doctests if available. Deletions can break intra-doc links.
-4. Report briefly:
+2. Search comments in the reviewed files for `—`, mid-sentence `;` and `:`, contrasts (`unlike`, `not a`, `rather than`), cross-references (`see`, `lives in`, `->`, file paths), history (`now`, `no longer`, `instead`, `previously`, `old`, `new`, `refactor`), and plans (`will`, `could`, `eventually`, `future`, `not implemented yet`). Each hit is a candidate, not a failure. Change it only if the comment fails a check or breaks the Sentences rules.
+3. Reread every kept inline comment or doc section longer than two lines. Reduce it to what prevents the mistake named in check 2.
+4. Build docs and run doctests if available. Deletions can break intra-doc links.
+5. Report briefly:
     * Files examined.
     * Repeated facts and their chosen homes.
-    * Facts dropped despite having no other home, and comments you considered cutting but kept. Give each decision one line so the author can veto it.
+    * Facts dropped despite having no other home, kept comments or doc sections longer than two lines, and other comments you considered cutting but kept. Give each decision one line so the author can veto it. For a keep, that line names the mistake it prevents. "It states a constraint" names no mistake.
+    * Rationale cut from comments that belongs in the commit description.
     * Deleted files.
     * Possibly incorrect comments.
     * Suggested renames and other moves into code.
 
 Do not provide a per-edit changelog.
-
