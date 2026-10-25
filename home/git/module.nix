@@ -14,6 +14,10 @@ let
         me@418.im ${nixosCfg.lore.pubkeys.teapot}
     '';
 
+    deltaThemes = pkgs.runCommand "delta-themes.gitconfig" { } ''
+        install -Dm644 ${pkgs.delta.src}/themes.gitconfig $out
+    '';
+
 in {
 
     packages = with pkgs; [ git ];
@@ -22,6 +26,9 @@ in {
         [user]
             email = "me@418.im"
             name = "MidAutumnMoon"
+
+        [include]
+            path = ${deltaThemes}
 
         [merge]
             conflictstyle = "diff3"
@@ -80,8 +87,9 @@ in {
 
         [delta]
             navigate = true
-            hyperlinks = true
             line-numbers = true;
+            features = mantis-shrimp
+            side-by-side = false
 
         [column]
             ui = auto
