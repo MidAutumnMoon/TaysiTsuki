@@ -18,11 +18,11 @@ Require a brief report: files examined, changed paths, checks and results, block
 Fulfill each step before advancing. For each step, if the scope and change are massive, coordinate parallel teammates to do the work if that's more efficient.
 
 1. *Yourself:* Map the whole change range since the last housekeeping: every implementation, commit, and uncommitted edit this session produced. Ask user if the boundary is unclear. At the top of the map, state the boundary. Record the project's check commands and any execution restrictions.
-2. *Fresh teammate(s):* `language-style-guide` for the workspace's languages. If the guide conflicts with established style, follow that style and report the conflict.
-3. *Fresh teammate(s):* `naming-and-magic-literals` on all changed code. Include necessary reference updates, even ones past the mapped files. Authorize and record any extension. Ask before changing names that external code or stored data depends on.
-4. *Fresh teammate(s):* `prune-comments-and-docs` on comments and prose throughout the timeline. The comments and contract came from the same reasoning, so agreement alone does not justify keeping a comment. Review deletions and kept comments against the report and diff. Restore deleted facts a maintainer needs. Send back kept comments if the mistake they are meant to prevent is implausible or they say more than needed to prevent it. Collect removed rationale for possible use in the change description.
-5. Same teammate: `humanizer` on surviving English prose.
-6. (Chinese only, otherwise skip) `chinese-prose-lint` on Chinese prose.
+2. *Fresh teammate(s):* `language-style-guide` for the workspace's languages. Report conflicts between the guide and established style.
+3. *Fresh teammate(s):* `naming-and-magic-literals` on all changed code. Update references past the mapped file to ensure coherency if necessary. Ask before changing public names that external code depends on.
+4. *Fresh teammate(s):* `prune-comments-and-docs` on comments and documents throughout the timeline. Review deletions and kept comments.
+5. Same teammate: `humanizer` on surviving English.
+6. (Chinese only, otherwise skip) `chinese-prose-lint` on Chinese.
 7. Have a fresh, read-only agent review the combined work. Check for missed coverage, broken references, behavior changes, lost meaning, over-explanation, and later edits undoing earlier work. Send specialist concerns back to the responsible pass rather than asking the reviewer to repeat every skill. Route fixes to that pass's agent and rerun affected later passes. Have the reviewer recheck the result afterwards.
 
 ## Handoffs and close
