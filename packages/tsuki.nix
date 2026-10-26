@@ -104,6 +104,7 @@ finalize {
         (tsuki "zed")
         (tsuki "sing-box")
         (tsuki "sillytavern-token-estimate" { version = "branch"; })
+        (tsuki "sillytavern")
         (tsuki "playwright-cli.unwrapped" {
             # microsoft/playwright-cli also publishes deprecated stub tags (e.g. v0.180.0)
             # whose empty lockfile breaks prefetch-npm-deps and sorts above the real 0.1.x
