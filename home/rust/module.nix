@@ -3,7 +3,7 @@
 
 let
 
-    llvm = pkgs.llvmPackages_latest;
+    llvm = pkgs.llvmPackages;
 
 in
 
