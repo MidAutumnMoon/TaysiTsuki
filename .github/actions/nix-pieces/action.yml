@@ -52,9 +52,9 @@ runs:
         nix config show
 
     - name: Setup cachix
-      uses: cachix/cachix-action@v17
+      uses: cachix/cachix-action@master
       with:
-        installCommand: "nix profile install nixpkgs#cachix"
+        installCommand: "nix profile install .#cachix"
         name: "nuirrce"
         pushFilter: '(NVIDIA.*\.run)'
         skipAddingSubstituter: true
