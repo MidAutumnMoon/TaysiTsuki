@@ -5,6 +5,8 @@ description: Adversarial architecture review of work just completed. Use when us
 
 ## Challenge architecture
 
+**Think out side of the box.**
+
 Challenge the whole feature, not just the diff. Preserve behavior; treat the current structure as negotiable.
 
 - **Check the fit.** Read callers and similar features. If starting fresh, would you put this logic here, with these boundaries? What existing concepts could replace newly introduced ones?
