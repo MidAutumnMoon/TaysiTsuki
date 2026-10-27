@@ -80,11 +80,6 @@
 
     boot.machineId = "4918e038ffe84b618de01b10861eca7f";
 
-    hardware = {
-        cpu.amd.updateMicrocode = true;
-        enableRedistributableFirmware = true;
-    };
-
     nixpkgs.hostPlatform = "x86_64-linux";
 
 }
