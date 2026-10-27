@@ -39,13 +39,16 @@ runs:
         sudo bash "$GITHUB_ACTION_PATH/freeup.bash" &
         disown
 
-    - name: Setup Lix
-      uses: canidae-solutions/lix-quick-install-action@v4
+    - name: Setup Nix
+      uses: cachix/install-nix-action@v31
       with:
-        lix_conf: |
+        install_options: --no-daemon
+        extra_nix_config: |
+          experimental-features = nix-command flakes pipe-operators
           auto-optimise-store = false
           always-allow-substitutes = true
-          extra-experimental-features = pipe-operator
+          max-jobs = 1
+          sandbox = true
           sandbox-fallback = false
 
     - name: Configure nix

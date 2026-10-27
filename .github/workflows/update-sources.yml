@@ -32,8 +32,6 @@ jobs:
           echo "date=$( date '+%Y-%b-%d' )" >> "$GITHUB_OUTPUT"
           TOOL=".#tsuki.ci-driver"
           nix build --print-build-logs "$TOOL"
-          conf="$HOME/.config/nix/nix.conf"
-          sed -i '/^experimental-features/s/$/ pipe-operators/' "$conf"
           # Logs go to stderr, stdout is only the update summary.
           RUST_LOG=trace nix shell nixpkgs#nix-update -c \
             nix run "$TOOL" -- update -m "packages/tsuki.nix" \
