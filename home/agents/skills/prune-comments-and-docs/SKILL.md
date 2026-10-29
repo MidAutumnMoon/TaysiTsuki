@@ -7,77 +7,46 @@ description: Review and prune code comments, doc comments, lint reasons, prose d
 
 Keep the information readers need without making them read a second description of the implementation.
 
-Assume code readers know the language, libraries, and standard concepts, but not project-specific rules. For private code, assume they also read the body. Write public API docs and guides so readers do not need to inspect the implementation.
+Delete optional text by default. Keep only the parts that clearly help the intended reader. Leave useful, clear text unchanged.
+
+Assume code readers know the language, libraries, and standard concepts, but not project-specific rules. For private code, assume they also read the body.
 
 ## Scope
 
-Review the files the user names, or the current change if no files are named. Search related files for repeated or outdated explanations, but keep edits within scope.
+- Review the named files, or the current change if no files are named. Consult related files as needed, but edit only within scope.
+- Edit only comments, documentation, lint reasons, and message text. Do not change program logic, names, or types.
+- Leave generated and vendored files, tool directives, and license and attribution notices unchanged. Review explanations attached to directives.
+- Preserve safety justifications, required documentation, doctests, and examples. You may edit their prose, but retain necessary information and keep doctests and examples valid.
+- You may rewrite program messages, but do not delete them. Suggest removal in the report if a message adds no information.
 
-Limit edits to comments, documentation, lint reasons, and message text. Leave program logic, names, and types unchanged. Suggest code changes in the report.
+## Editing rules
 
-Leave generated and vendored files unchanged. Leave tool directives unchanged, but review their attached explanations.
+- Check claims against relevant code, callers, tests, and external requirements. Do not invent intent or describe possible outcomes as guarantees.
+- When text and code disagree, establish the intended behavior before changing the text. Investigate unfamiliar warnings and constraints before deleting them. If intent or purpose remains unclear, leave the affected text unchanged and report the uncertainty.
+- Delete narration of local operations, consequences readers can readily infer, and text that merely repeats names, types, code, test labels, assertions, or other explanations. Keep concise overviews that save readers from reconstructing a policy or lifecycle.
+- Review related explanations together. In private code, prefer one coherent explanation of a policy or lifecycle to scattered captions on fields and helpers. Put reasons for local choices beside the code and explain cross-cutting concepts in prose documentation. Repeat information only when separate references must stand alone.
+- Organize each explanation around what the reader needs to know. Combine, move, or rewrite text when trimming alone would leave the explanation unclear. Remove unnecessary points instead of packing them into fewer words. Keep conditions and exceptions needed for accuracy.
+- Use consistent technical terms and ordinary punctuation. Name standard concepts when useful instead of explaining their routine mechanics. Remove filler, praise for the design, and storytelling or metaphors that add vocabulary without adding information. Follow the language's documentation conventions.
+- Add missing contracts, reasons, constraints, or essential overviews when readers need them. Do not add a comment only because someone might edit the code incorrectly.
+- Suggest clearer names, types, assertions, or tests when they could replace an explanation. Keep the explanation while the current code still needs it.
 
-## Outcomes
+## Text-specific requirements
 
-### Delete
-
-Delete text that repeats what names, types, code, test labels, assertions, or other text already explain. Also delete consequences the reader can readily work out from those explanations.
-
-Review related comments as a group. Field captions, branch notes, and test summaries can repeat the same policy even when each comment is accurate.
-
-Remove filler and praise for the design. Describe current behavior and limitations instead of recounting past edits. Put planned work in TODOs or issues.
-
-Delete session logs after moving needed information to its proper location. Keep documents meant to record history, decisions, or plans.
-
-### Rewrite
-
-Remove unnecessary points instead of packing them into fewer words.
-
-Use direct sentences and consistent technical terms. Remove storytelling and metaphors that add vocabulary without adding information. Keep conditions and exceptions needed for accuracy. Follow the language's documentation conventions and use ordinary punctuation.
-
-### Move
-
-Put caller requirements and guarantees in API docs. Keep reasons for local choices beside the code, and explain shared concepts in prose docs.
-
-Repeat information only when readers need it in separate, self-contained references. A private type, its helpers, and its tests usually need only one explanation of a policy.
-
-### Flag
-
-Check claims against the code. Do not describe a possible outcome as a guarantee.
-
-When text and code disagree, check which behavior is intended. If intent remains unclear, leave the text unchanged and report the conflict. Do not rewrite a contract to match code that may be wrong.
-
-Before deleting a warning or constraint you do not understand, investigate its purpose. If you still cannot explain it, keep it and report your uncertainty.
-
-### Keep
-
-Leave useful, clear text unchanged. A test can verify behavior without explaining why it is required.
-
-Leave license and attribution notices unchanged. Preserve safety justifications, required documentation, doctests, and examples. Keep labels that identify test setup conditions.
-
-### Add
-
-Add missing contracts, reasons, constraints, or essential overviews. Do not add a comment only because someone might edit the code incorrectly.
-
-If a clearer name, type, assertion, or test would replace an explanation, suggest that change. Keep the explanation while the current code still needs it.
-
-## Program messages
-
-You may rewrite program messages, but do not delete them. If a message adds no information, suggest its removal in the report.
-
-Before changing a message, check whether tests, scripts, or other tools depend on its wording. Preserve formatting arguments and error-handling behavior.
-
-Include only information missing from the rest of the error chain or log line. In panic and `.expect()` messages, state which assumption failed. Follow the project's message style.
+- Public API docs and guides must be usable without inspecting the implementation. Put caller requirements and guarantees in API docs.
+- A test can verify behavior without explaining why it is required. Keep needed rationale and labels that identify test setup conditions.
+- Lint reasons must address the concern being suppressed. State why the concern does not apply or why the trade-off is accepted.
+- Reference documentation should describe current behavior and limitations rather than recount past edits. Put planned work in TODOs or issues. Keep documents intended to record history, decisions, or plans. Move needed information out of session logs before deleting them.
+- Before changing a program message, check whether tests, scripts, or other tools depend on its wording. Preserve formatting arguments and error-handling behavior. Include only information missing from the rest of the error chain or log line. In panic and `.expect()` messages, state which assumption failed. Follow the project's message style.
 
 ## Verification and report
 
-Run checks relevant to the edits, including doctests and documentation checks where applicable.
+Run checks relevant to the edits, including doctests and documentation checks where applicable. Report checks you could not run.
 
-Keep the report brief. State what you reviewed, report check results, and note significant decisions or unresolved risks. Include every changed message, any deleted files, and suggestions outside scope. Do not list routine edits.
+Keep the report brief. State what you reviewed and the check results. Note significant decisions and unresolved issues. Include every changed program message, every deleted file, and suggestions outside scope. Do not list routine comment or documentation edits.
 
 ## Examples
 
-### Remove narration, keep the reason
+### Remove narration and keep the local reason
 
 Before:
 
@@ -87,8 +56,7 @@ pub fn sync(&mut self) -> Result<()> {
     let remote = self.fetch_manifest()?;
     // Compare it with the local state.
     let diff = self.local.diff(&remote);
-    // Apply the diff. Apply even an empty diff because that refreshes
-    // the lock file.
+    // Apply even an empty diff because `apply` refreshes the lock file.
     self.apply(diff)?;
     Ok(())
 }
@@ -106,90 +74,90 @@ pub fn sync(&mut self) -> Result<()> {
 }
 ```
 
-The calls explain the sequence. They do not explain why an empty diff must still be applied.
+The calls show the sequence. They do not explain why an empty diff must still be applied. The retained comment needs no rewrite.
 
-### Remove repeated explanations of one policy
+### Delete a reason the reader can infer
 
 Before:
 
 ```rust
-/// Page changes are atomic across seats.
-struct ScreenPlan {
-    /// Freeze both seats until pending pages are decided.
-    hold: bool,
-}
-
-/// Delay a spread change until every requested page is Ready or Failed.
-fn plan_screen(changing: bool, all_decided: bool) -> ScreenPlan {
-    // Do not replace one seat while its partner is pending.
-    let hold = changing && !all_decided;
-    ScreenPlan { hold }
-}
-
-/// Both seats stay unchanged when a requested page is pending.
-#[test]
-fn pending_page_delays_spread_change() {
-    let plan = plan_screen(true, false);
-    assert!(plan.hold);
+/// Uses the shared parser so validation stays consistent.
+fn validate(input: &str) -> Result<()> {
+    parse(input).map(|_| ())
 }
 ```
 
 After:
 
 ```rust
-struct ScreenPlan {
-    hold: bool,
-}
-
-/// Delay a spread change until every requested page is Ready or Failed.
-fn plan_screen(changing: bool, all_decided: bool) -> ScreenPlan {
-    let hold = changing && !all_decided;
-    ScreenPlan { hold }
-}
-
-#[test]
-fn pending_page_delays_spread_change() {
-    let plan = plan_screen(true, false);
-    assert!(plan.hold);
+fn validate(input: &str) -> Result<()> {
+    parse(input).map(|_| ())
 }
 ```
 
-The comments use different wording, but explain the same policy. Keep that explanation on the planner. The other comments add no separate requirement or reason.
+The body shows the parser call. The consistency benefit needs no separate explanation.
 
-### Keep an external requirement, cut the rest
+### Describe public behavior
 
 Before:
 
 ```rust
-/// Framebuffer clear color. Wayland composites ARGB buffers as
-/// premultiplied alpha, so the translucent variant scales the color
-/// channels by alpha. With straight alpha, the compositor would treat
-/// them as already premultiplied, making the result too bright.
-fn clear_color(translucent: bool) -> [f32; 4] { ... }
+/// Replaces the active configuration.
+/// Each request holds a reference to the configuration it started with.
+/// Replacing the active configuration leaves those references unchanged.
+/// New requests use the replacement.
+pub fn reload(&self, config: Config) { ... }
+```
 
-/// Converts the translucent clear color to egui's premultiplied u8 format.
-/// Using `clear_color` keeps the status bar and background consistent.
-fn glass_fill() -> egui::Color32 {
-    let [r, g, b, a] = clear_color(true)
-        .map(|channel| (channel * 255.0).round() as u8);
-    egui::Color32::from_rgba_premultiplied(r, g, b, a)
+After:
+
+```rust
+/// New requests use `config`; in-flight requests keep their configuration.
+pub fn reload(&self, config: Config) { ... }
+```
+
+The rewrite makes the timing rule clear without making callers derive it from ownership mechanics.
+
+### Move the explanation to the relevant field
+
+Before:
+
+```rust
+/// Rendering resources.
+/// The window owns the GL context, so it drops after pages and egui.
+struct Gl {
+    pages: PageTextures,
+    egui: egui_glow::EguiGlow,
+    window: Window,
+}
+
+impl Drop for Gl {
+    fn drop(&mut self) {
+        // The drop body runs before the fields drop.
+        // egui's GL objects are destroyed here while the context is alive.
+        self.egui.destroy();
+    }
 }
 ```
 
 After:
 
 ```rust
-/// Premultiplied because Wayland requires it for ARGB buffers.
-fn clear_color(translucent: bool) -> [f32; 4] { ... }
+struct Gl {
+    pages: PageTextures,
+    egui: egui_glow::EguiGlow,
+    // Must drop last: owns the GL context used by the fields above.
+    window: Window,
+}
 
-fn glass_fill() -> egui::Color32 {
-    let [r, g, b, a] = clear_color(true)
-        .map(|channel| (channel * 255.0).round() as u8);
-    egui::Color32::from_rgba_premultiplied(r, g, b, a)
+impl Drop for Gl {
+    fn drop(&mut self) {
+        self.egui.destroy();
+    }
 }
 ```
 
-Keep Wayland's requirement. The reader already knows what premultiplied alpha means. Delete the entire `glass_fill` comment because the body shows the conversion and reuse.
+Put the lifetime requirement beside `window`. The wrapper caption and explanation of Rust's drop order are unnecessary.
 
 ### Flag uncertain intent
 
@@ -200,41 +168,6 @@ pub fn shutdown(&self) {
 }
 ```
 
-If callers, tests, and other evidence do not establish the intended behavior, leave the comment unchanged and report:
+If intended behavior remains unclear, leave the comment unchanged and report:
 
 > `shutdown` promises to wait for the worker, but the implementation only sets a flag. Confirm whether it must wait before changing the contract.
-
-Callers may rely on the documented guarantee. Rewriting the comment to match the implementation could hide a bug.
-
-
-### Name the standard concept
-
-Before:
-
-```rust
-pub fn add(&mut self, index: usize, delta: i64) {
-    // Start one past the index. Each slot covers a range as long as its
-    // lowest set bit, so adding that bit jumps to the next slot whose
-    // range contains the index. Repeat until we run off the end.
-    let mut i = index + 1;
-    while i < self.tree.len() {
-        self.tree[i] += delta;
-        i += i & i.wrapping_neg();
-    }
-}
-```
-
-After:
-
-```rust
-pub fn add(&mut self, index: usize, delta: i64) {
-    // Fenwick tree update.
-    let mut i = index + 1;
-    while i < self.tree.len() {
-        self.tree[i] += delta;
-        i += i & i.wrapping_neg();
-    }
-}
-```
-
-Reader knows the algorithm. Name the concept directly instead of explaining step.
