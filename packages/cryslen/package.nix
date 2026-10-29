@@ -9,11 +9,10 @@
     meson,
     ninja,
     nasm,
-    perl,
-    pkg-config,
     wayland,
     libxkbcommon,
     libglvnd,
+    fontconfig,
 }:
 
 tsuki.rust.buildRustPackage {
@@ -24,11 +23,11 @@ tsuki.rust.buildRustPackage {
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "cryslen";
-        rev = "5517b647a675cf65a54f28d9b0ea7feeddc34665";
-        hash = "sha256-rj/tnMfdaNJ9wuNloUumv7CMZoEVvnhMjNg2XFPu/ao=";
+        rev = "e66cbcae8ef7654282016d8a88cbb13dc354cfdc";
+        hash = "sha256-mW6J/zTZycsFbTk+sUUYLb7LUsMbMruG3STG81EgzGM=";
     };
 
-    cargoHash = "sha256-QJjUW8uTSXfo32zDNPasiB0fTXf80nlHxtt3FHgjBEk=";
+    cargoHash = "sha256-Yt+Ya8yXGDsHup3W64dUDerVsEj3dp0/7+ksMfk5rYs=";
 
     doCheck = false;
 
@@ -40,14 +39,11 @@ tsuki.rust.buildRustPackage {
         meson
         ninja
         nasm
-        perl
-        pkg-config
         makeBinaryWrapper
     ];
 
-    # winit/glutin dlopen libwayland-client, libwayland-egl, libxkbcommon
-    # and libEGL at runtime. They never enter DT_NEEDED, so autoPatchelf
-    # cannot provide them and the wrapper must.
+    # winit → wayland, gl etc.
+    # egui_system_font_provider → fontconfig
     postInstall = /*sh*/ ''
         install -Dm644 assets/cryslen.desktop -t $out/share/applications
         mkdir -p $out/share/icons
@@ -58,6 +54,7 @@ tsuki.rust.buildRustPackage {
                 wayland
                 libxkbcommon
                 libglvnd
+                fontconfig
             ]}
     '';
 
@@ -66,7 +63,6 @@ tsuki.rust.buildRustPackage {
     ;
 
     meta = {
-        description = "Minimal Wayland image and comic pager";
         homepage = "https://github.com/MidAutumnMoon/cryslen";
         mainProgram = "cy";
         platforms = lib.platforms.linux;
