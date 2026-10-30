@@ -19,6 +19,7 @@
         "vm.dirty_background_bytes" = 67108864;
         "vm.dirty_writeback_centisecs" = 1500;
         "vm.page-cluster" = 0;
+        "vm.mem_profiling" = "never";
     };
 
     boot.kernelParams = [
@@ -32,6 +33,10 @@
         "nmi_watchdog=0"
         # use zram swap
         "zswap.enabled=0"
+        "kfence.sample_interval=0"
+        "damon_stat.enabled=N"
+        "audit=0"
+        "cryptomgr.notests"
     ];
 
     boot.blacklistedKernelModules = [

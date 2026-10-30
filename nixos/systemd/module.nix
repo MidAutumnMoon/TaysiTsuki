@@ -71,6 +71,10 @@ in
         systemd.tmpfiles.rules = [
             "e /var/lib/systemd/coredump - - - 3d"
         ];
+
+        systemd.suppressedSystemUnits = [
+            "systemd-importd.service"
+        ];
     };
 
 }
