@@ -15,6 +15,7 @@
 
     boot.kernel.sysctl = {
         "net.core.default_qdisc" = "fq_pie";
+        "net.core.netdev_max_backlog" = 4096;
         "net.ipv4.tcp_congestion_control" = "bbr";
         "net.ipv4.tcp_notsent_lowat" = 16384;
         "net.ipv4.tcp_slow_start_after_idle" = 0;

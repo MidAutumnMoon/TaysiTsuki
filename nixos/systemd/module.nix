@@ -67,6 +67,10 @@ in
             # DefaultTimeoutStartSec = lib.mkDefault "20s";
             # DefaultTimeoutStopSec = lib.mkDefault "20s";
         };
+
+        systemd.tmpfiles.rules = [
+            "e /var/lib/systemd/coredump - - - 3d"
+        ];
     };
 
 }

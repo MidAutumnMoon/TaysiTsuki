@@ -32,6 +32,7 @@
 
     boot.kernel.sysctl = {
         "kernel.dmesg_restrict" = 0;
+        "vm.vfs_cache_pressure" = 50;
     };
 
 }

@@ -15,6 +15,10 @@
         "kernel.sysrq" = 1;
         "net.ipv4.ip_unprivileged_port_start" = 80;
         "vm.overcommit_memory" = 1;
+        "vm.dirty_bytes" = 268435456;
+        "vm.dirty_background_bytes" = 67108864;
+        "vm.dirty_writeback_centisecs" = 1500;
+        "vm.page-cluster" = 0;
     };
 
     boot.kernelParams = [
@@ -31,7 +35,7 @@
     ];
 
     boot.blacklistedKernelModules = [
-        "sp5100_tco" "iTCO_wdt"
+        "sp5100_tco" "iTCO_wdt" "wdat_wdt"
     ];
 
     boot.tmp = {
