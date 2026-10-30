@@ -25,6 +25,8 @@
     };
 
     environment.variables = {
-        GLIBC_TUNABLES = "glibc.elision.enable=1:glibc.malloc.hugetlb=1";
+        GLIBC_TUNABLES = "glibc.malloc.hugetlb=1:glibc.elf.thp=1";
+        MALLOC_CONF = "thp:always,metadata_thp:always";
+        MIMALLOC_ALLOW_THP = "2";
     };
 }
