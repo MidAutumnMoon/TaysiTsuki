@@ -50,10 +50,9 @@
     boot.kernel.sysfs = {
         # ref: https://github.com/CachyOS/CachyOS-Settings/
         kernel.mm.transparent_hugepage = {
-            enabled = "always";
-            defrag = "defer";
+            defrag = "defer+madvise";
             shmem_enabled = "within_size";
-            khugepaged.max_ptes_none = "400";
+            khugepaged.max_ptes_none = "409";
         };
     };
 
