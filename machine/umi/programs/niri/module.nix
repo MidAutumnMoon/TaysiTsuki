@@ -9,6 +9,7 @@ let
     '';
 
 in {
+
     programs.niri = {
         enable = true;
         useNautilus = false;
@@ -40,22 +41,19 @@ in {
     # ref: https://github.com/NixOS/nixpkgs/issues/409986
     environment.etc."xdg/menus/applications.menu".source = appMenu;
 
-    systemd.user.services."trigger-kbuildsycoca6" = {
-        description = "Trigger kbuildsycoca6 manually";
-
-        wantedBy = [ "nixos-activation.service" ];
-        after = [ "nixos-activation.service" ];
-        stopIfChanged = false;
-
-        serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = false;
-        };
-
-        script = ''
-            ${lib.getExe pkgs.kdePackages.kservice} --noincremental
-        '';
-    };
+    # ref: https://github.com/NixOS/nixpkgs/issues/292632
+    system.userActivationScripts.rebuildSycoca = /* sh */ ''
+        cache="''${XDG_CACHE_HOME:-$HOME/.cache}"
+        [ -d "$cache" ] && find "$cache/" \
+            -maxdepth 1 -name 'ksycoca*_*=' -type f \
+            -mtime +30 -print -delete
+        for f in "$cache"/ksycoca*_*=; do
+            [ -f "$f" ] || continue
+            printf '\0\0\0\0' > "$f.invalidate" \
+                && touch -r "$f" "$f.invalidate" \
+                && mv -f "$f.invalidate" "$f"
+        done
+    '';
 
     services.system76-scheduler.enable = true;
 
