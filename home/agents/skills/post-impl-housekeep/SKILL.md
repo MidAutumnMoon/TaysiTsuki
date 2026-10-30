@@ -18,8 +18,8 @@ Require a brief report: files examined, changed paths, checks and results, block
 Fulfill each step before advancing. For each step, if the scope and change are massive, coordinate parallel teammates to do the work if that's more efficient.
 
 1. *Yourself:* Map the whole change range since the last housekeeping: every implementation, commit, and uncommitted edit this session produced. Ask user if the boundary is unclear. At the top of the map, state the boundary. Record the project's check commands and any execution restrictions.
-2. *Fresh teammate(s):* `language-style-guide` for the workspace's languages. Report conflicts between the guide and established style.
-3. *Fresh teammate(s):* `naming-and-magic-literals` on all changed code. Update references past the mapped file to ensure coherency if necessary. Ask before changing public names that external code depends on.
+2. *Fresh teammate(s):* `naming-and-magic-literals` on all changed code. Update references past the mapped file to ensure coherency if necessary. Ask before changing public names that external code depends on.
+3. *Fresh teammate(s):* `language-style-guide` for the workspace's languages. Report conflicts between the guide and established style.
 4. *Fresh teammate(s):* `prune-comments-and-docs` on comments and documents throughout the timeline. Review deletions and kept comments.
 5. Same teammate: `humanizer` on surviving English.
 6. (Chinese only, otherwise skip) `chinese-prose-lint` on Chinese.
