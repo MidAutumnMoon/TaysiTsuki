@@ -491,7 +491,7 @@ binds {
     // Mod+Space       { switch-layout "next"; }
     // Mod+Shift+Space { switch-layout "prev"; }
 
-    Print { spawn-sh "noctalia msg screenshot-region --annotate --remember-last-region --freeze-screen"; }
+    Print { spawn-sh "noctalia msg screenshot-region --annotate --freeze-screen"; }
     Ctrl+Print { spawn-sh "noctalia msg screenshot-annotate --format png --freeze-screen --skip-annotate-on-copy-save"; }
     // Alt+Print { screenshot-window; }
 
