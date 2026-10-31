@@ -1,19 +1,17 @@
 ---
 name: prune-comments-and-docs
-description: Review and prune code comments, doc comments, lint reasons, prose documentation, and program messages. Use when asked to review, clarify, or improve these texts.
+description: Review and prune code comments, doc comments, lint reasons, prose documentation, and program messages. Use when asked to delete, review, or improve these texts.
 ---
 
 ## Goal
 
-Keep the information readers need without making them read a second description of the implementation.
-
-Delete optional text by default. Keep only the parts that clearly help the intended reader. Leave useful, clear text unchanged.
+Strongly delete by default. Delete unless the code can't show the contract. Keep only the parts that clearly help the intended reader. Keep only the parts that document trap, complexity, hidden constraints, hidden design intention.
 
 Assume code readers know the language, libraries, and standard concepts, but not project-specific rules. For private code, assume they also read the body.
 
 ## Scope
 
-- Review the named files, or the current change if no files are named. Consult related files as needed, but edit only within scope.
+- Review the named files, or the current change if no files are named. Read related files as well.
 - Edit only comments, documentation, lint reasons, and message text. Do not change program logic, names, or types.
 - Leave generated and vendored files, tool directives, and license and attribution notices unchanged. Review explanations attached to directives.
 - Preserve safety justifications, required documentation, doctests, and examples. You may edit their prose, but retain necessary information and keep doctests and examples valid.
@@ -23,10 +21,12 @@ Assume code readers know the language, libraries, and standard concepts, but not
 
 - Check claims against relevant code, callers, tests, and external requirements. Do not invent intent or describe possible outcomes as guarantees.
 - When text and code disagree, establish the intended behavior before changing the text. Investigate unfamiliar warnings and constraints before deleting them. If intent or purpose remains unclear, leave the affected text unchanged and report the uncertainty.
-- Delete narration of local operations, consequences readers can readily infer, and text that merely repeats names, types, code, test labels, assertions, or other explanations. Keep concise overviews that save readers from reconstructing a policy or lifecycle.
-- Review related explanations together. In private code, prefer one coherent explanation of a policy or lifecycle to scattered captions on fields and helpers. Put reasons for local choices beside the code and explain cross-cutting concepts in prose documentation. Repeat information only when separate references must stand alone.
+- Delete narration of local operations, consequences readers can readily infer, and text that merely repeats names, types, code, test labels, assertions, or other explanations.
+- Delete re-explanation of other file's, module's, or dependency's document, API, contract, or internal.
+- Keep concise overviews that save readers from reconstructing a policy or lifecycle.
+- Review related points together. In private code, prefer one coherent explanation of a policy or lifecycle to scattered captions on fields and helpers. Put reasons for local choices beside the code and explain cross-cutting concepts in prose documentation. Repeat information only when separate references must stand alone.
 - Organize each explanation around what the reader needs to know. Combine, move, or rewrite text when trimming alone would leave the explanation unclear. Remove unnecessary points instead of packing them into fewer words. Keep conditions and exceptions needed for accuracy.
-- Use consistent technical terms and ordinary punctuation. Name standard concepts when useful instead of explaining their routine mechanics. Remove filler, praise for the design, and storytelling or metaphors that add vocabulary without adding information. Follow the language's documentation conventions.
+- Use consistent technical terms and ordinary punctuation. Name standard concepts when useful (e.g. name the algorithm, don't document steps). Remove filler, praise for the design, and storytelling or metaphors that add vocabulary without adding information.
 - Add missing contracts, reasons, constraints, or essential overviews when readers need them. Do not add a comment only because someone might edit the code incorrectly.
 - Suggest clearer names, types, assertions, or tests when they could replace an explanation. Keep the explanation while the current code still needs it.
 
