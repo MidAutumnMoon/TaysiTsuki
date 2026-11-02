@@ -1,5 +1,5 @@
 ---
-name: group-meeting
+name: teamwork
 description: "Use for teamwork, subagents, challenges, or independent review."
 ---
 

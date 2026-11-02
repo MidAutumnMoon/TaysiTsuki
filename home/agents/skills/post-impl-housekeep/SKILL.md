@@ -3,7 +3,7 @@ name: post-impl-housekeep
 description: "Use after implementation to clean names, style, comments, and docs."
 ---
 
-Load `group-meeting`. Abort of required skills are unavailable.
+Load `teamwork`. Abort of required skills are unavailable.
 
 ## Scope
 

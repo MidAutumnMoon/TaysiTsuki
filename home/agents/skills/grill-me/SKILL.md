@@ -31,7 +31,7 @@ Questions are user-facing, they are not your monolog. Word each question so "yes
 
 *As the coordinator:*
 
-Load `group-meeting` skill.
+Load `teamwork` skill.
 
 Finding *facts* is you and your team's job. Gather facts and do research with teammates; don't ask the user for anything you could look up yourself.
 
@@ -45,4 +45,4 @@ Each round the user answers reshapes the tree: settled decisions push the fronti
 
 Team work refines the frontier and questions, while answers from the user reshapes the research and implementation.
 
-The session is done when every design tree branch is settled, nothing is silently assumed, you and user have reached a shared understanding, and `group-meeting` has met completion condition.
+The session is done when every design tree branch is settled, nothing is silently assumed, you and user have reached a shared understanding, and `teamwork` has met completion condition.
