@@ -85,3 +85,23 @@ Exceptions:
 - Ambiguities. Rename the item in such case, e.g. `use std::io::Error as IoError`.
 - In code with lots of dependencies or a large group of types, where importing everything would lead to a very large import block with little benefit.
 - In macros and generated code.
+
+## Ownership and borrowing
+
+- Avoid Rc and Arc. Prefer unique ownership and borrowing.
+    * Exception: Alternatives would be unreasonably complex to write, understand, or maintain.
+- Prefer borrows over copies. Use `.clone(` when a deep copy is genuinely needed. But this rule *doesn't* apply to smart pointers.
+
+## Functions
+
+### Accept flexible references for immutable data
+
+When functions accept borrowed, immutable data, use a reference type that affords the most flexibility. Pass references to the data itself instead of references to wrappers.
+
+| Use          | Instead of   |
+| ------------ | ------------ |
+| `&T`         | `&Box<T>`    |
+| `&[T]`       | `&Vec<T>`    |
+| `&str`       | `&String`    |
+| `Option<&T>` | `&Option<T>` |
+
