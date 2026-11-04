@@ -8,7 +8,7 @@ A NixOS config repo. Flake at the root. Machines in `machine/`, shared modules i
 
 - Don't run `nix flake show` — it evaluates every output and takes forever.
 - Don't run `nixos-rebuild switch/test` without being asked.
-- When editing Nix files, match the existing style: `=` alignment, `with` at module level, `let`/`in` blocks for local bindings.
+- Match the surrounding code style.
 
 ## Communication
 
