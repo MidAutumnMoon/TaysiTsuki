@@ -14,10 +14,10 @@ let
 
 in {
 
-    services.scx = {
+    services.scx-loader = {
         enable = true;
-        inherit scheduler;
-        package = trimmed;
+        schedsPackages = [ trimmed ];
+        config.default_sched = scheduler;
     };
 
 }
