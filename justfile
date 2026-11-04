@@ -26,6 +26,11 @@ test host=host:
 switch host=host:
     nu .scripts/nixos-rebuild-with-diff switch {{host}}
 
+# Show all live gc roots
+[group("os")]
+gc-roots-show:
+    nix-store --gc --print-roots | rg --invert-match ^\"/proc
+
 #
 # Repo maintanence recipes
 #
