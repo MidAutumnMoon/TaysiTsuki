@@ -51,6 +51,8 @@
         slskd = 9106;
         slskdWebui = 9107;
         sillytavern = 9108;
+        magpieGateway = 3425;
+        magpieWeb = 3430;
     };
 
     lore.domains = rec {
@@ -91,6 +93,7 @@
             peerban = onUmi "peerban";
             sillytavern = onUmi "tv";
             clash_dashboard = onUmi "clash";
+            magpie = onUmi "gate";
         };
 
     lore.apps."tailnet" =
