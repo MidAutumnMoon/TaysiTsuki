@@ -74,6 +74,7 @@ in
 
         systemd.suppressedSystemUnits = [
             "systemd-importd.service"
+            "systemd-importd.socket"
         ];
     };
 

@@ -7,7 +7,6 @@
         tsuki.helix
         ripgrep
         fd
-        skim
         nixd
     ];
 

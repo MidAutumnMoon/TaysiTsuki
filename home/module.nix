@@ -37,6 +37,7 @@
         tsuki.zcode
         # tsuki.lingo-studio
         tsuki.cryslen
+        just
 
         nodejs
         pnpm_12

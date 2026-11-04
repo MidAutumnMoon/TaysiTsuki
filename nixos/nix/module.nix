@@ -3,7 +3,7 @@
 let
 
     buildDir = "/nix/var/nix/builds";
-    fsTypeOfBuildDir = "xfs";
+    fsTypeOfBuildDir = "ext4";
 
 in
 
@@ -60,7 +60,7 @@ in
         fs-type = fsTypeOfBuildDir;
         mount-point = buildDir;
         # nix errors if build dir is everyone writable (i.e. /tmp)
-        options = "X-mount.mode=0755,discard";
+        options = "X-mount.mode=0755,noatime,discard";
         zram-size = "ram";
     };
 

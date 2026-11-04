@@ -48,7 +48,8 @@
         tmpfsSize = "100%";
         useZram = true;
         zramSettings.zram-size = "ram";
-        zramSettings.fs-type = "xfs";
+        zramSettings.fs-type = "ext4";
+        zramSettings.options = "X-mount.mode=1777,noatime,discard";
     };
 
     boot = {
