@@ -26,11 +26,6 @@
         };
     };
 
-    programs.nh = {
-        enable = true;
-        flake = "/home/teapot/TaysiTsuki";
-    };
-
     #
     # Users
     #
@@ -72,6 +67,13 @@
     security.pam.services = {
         login.u2fAuth = true;
         sudo.u2fAuth = true;
+    };
+
+    system = {
+        tools.nixos-rebuild = {
+            enable = true;
+            enableRun0Elevation = true;
+        };
     };
 
     #

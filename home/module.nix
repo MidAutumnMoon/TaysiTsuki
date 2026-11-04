@@ -38,6 +38,8 @@
         # tsuki.lingo-studio
         tsuki.cryslen
         just
+        nix-output-monitor
+        dix
 
         nodejs
         pnpm_12

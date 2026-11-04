@@ -10,10 +10,6 @@
         "ca" = "cargo";
         "n" = "nix";
         "j" = "jj";
-        ".ns" = "nh switch";
-        ".nt" = "nh test";
-        ".nb" = "nh boot";
-        ".nbd" = "nh build";
     };
 
     programs.fish.init = /* fish */ ''
