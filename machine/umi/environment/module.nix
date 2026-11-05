@@ -3,7 +3,7 @@
 {
 
     environment.systemPackages = with pkgs; [
-        fastfetchMinimal
+        microfetch
         git
         # cifs-utils
         wl-clipboard
@@ -16,10 +16,5 @@
         nvme-cli
         smartmontools
     ];
-
-    environment.variables = {
-        KWIN_USE_OVERLAYS = 1;
-        POWERDEVIL_NO_DDCUTIL = 1;
-    };
 
 }
