@@ -1,5 +1,5 @@
 ---
-name: grilling
+name: grill-me
 description: Grill the user relentlessly about a plan, decision, or idea, meanwhile coordinate teammates to do research and work on the plan. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.
 ---
 
