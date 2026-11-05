@@ -72,7 +72,10 @@ in
         ${fsTypeOfBuildDir} = true;
     };
 
-    nix.registry.p.flake = flakes.self;
+    nix.registry = {
+        p.flake = flakes.self;
+        nixpkgs.flake = flakes.self;
+    };
 
     # A registry path only retains the top-level flake source, not its inputs.
     # Keep nixpkgs in the system closure so GC cannot evict it between uses.

@@ -18,15 +18,12 @@
     ];
 
     environment.sessionVariables = {
+        GLIBC_TUNABLES = "glibc.malloc.hugetlb=1:glibc.elf.thp=1";
+        MALLOC_CONF = "thp:always,metadata_thp:always";
+        MIMALLOC_ALLOW_THP = "2";
         XDG_DATA_HOME = "$HOME/.local/share";
         XDG_STATE_HOME = "$HOME/.local/state";
         XDG_CACHE_HOME = "$HOME/.cache";
         XDG_CONFIG_HOME = "$HOME/.config";
-    };
-
-    environment.variables = {
-        GLIBC_TUNABLES = "glibc.malloc.hugetlb=1:glibc.elf.thp=1";
-        MALLOC_CONF = "thp:always,metadata_thp:always";
-        MIMALLOC_ALLOW_THP = "2";
     };
 }
