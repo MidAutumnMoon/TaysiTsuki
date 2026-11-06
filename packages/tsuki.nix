@@ -131,7 +131,6 @@ finalize {
         # nixpkgs opentofu wrapped with plugins; version moves with
         # flake.lock, so there is nothing upstream to track.
         (tsuki "opentofu" null)
-        # (tsuki "octopus")
     ];
 
     #
