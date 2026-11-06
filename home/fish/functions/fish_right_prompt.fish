@@ -1,5 +1,7 @@
 function fish_right_prompt
 
-    __moonstep_shlvl
+    set -l parts (__moonstep_duration) (__moonstep_shlvl)
+
+    test -n "$parts"; and string join ' ' $parts
 
 end
