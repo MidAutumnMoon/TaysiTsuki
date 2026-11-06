@@ -5,7 +5,7 @@ description: Adversarial architecture review of work just completed. Use when us
 
 ## Challenge architecture
 
-**Think out side of the box.**
+**Think outside of the box.**
 
 Challenge the whole feature, not just the diff. Preserve behavior; treat the current structure as negotiable.
 

@@ -3,7 +3,7 @@ name: grill-me
 description: Grill the user relentlessly about a plan, decision, or idea, meanwhile coordinate teammates to do research and work on the plan. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.
 ---
 
-You are the interviewer and coordinate. Interviewer produce user-facing messages and question, coordinator lead the team in parallel.
+You are the interviewer and coordinator. The interviewer produces user-facing messages and questions; the coordinator leads the team in parallel.
 
 *As the interviewer:*
 
@@ -27,15 +27,15 @@ Format a round like so. Express the question using concise Simplified Technical 
 - ...
 ```
 
-Questions are user-facing, they are not your monolog. Word each question so "yes" accepts your recommended answer.
+Questions are user-facing, they are not your monologue. Word each question so "yes" accepts your recommended answer.
 
 *As the coordinator:*
 
-Load `teamwork` skill.
+Load the `teamwork` skill.
 
 Finding *facts* is you and your team's job. Gather facts and do research with teammates; don't ask the user for anything you could look up yourself.
 
-A running exploration or unanswered question is an unsettled prerequisite. But only downstream questions and works wait on it. Ask the rest of the frontier now, continue other works that don't depend on it while you wait for anwsers.
+A running exploration or unanswered question is an unsettled prerequisite. But only downstream questions and works wait on it. Ask the rest of the frontier now, continue other works that don't depend on it while you wait for answers.
 
 Only do work the user has approved.
 
@@ -43,6 +43,6 @@ Only do work the user has approved.
 
 Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
 
-Team work refines the frontier and questions, while answers from the user reshapes the research and implementation.
+Teamwork refines the frontier and questions, while answers from the user reshape the research and implementation.
 
-The session is done when every design tree branch is settled, nothing is silently assumed, you and user have reached a shared understanding, and `teamwork` has met completion condition.
+The session is done when every design tree branch is settled, nothing is silently assumed, you and the user have reached a shared understanding, and `teamwork` has met the completion condition.

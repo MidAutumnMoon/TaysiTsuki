@@ -42,7 +42,7 @@ use foo::{Foo, bar::Bar};
 
 ### Prefer locally-scoped imports
 
-Import items within function or block bodies, unless the they are used extensively throughout the file.
+Import items within function or block bodies, unless they are used extensively throughout the file.
 
 Good:
 ```rust
@@ -78,7 +78,7 @@ Exceptions:
 
 ### Import and use unqualified type names
 
-By default, use types and traits without their module path, e.g. `Regex` instead of `regex::Regex`. Import `Regex` at the top of the file or in relevant funciton.
+By default, use types and traits without their module path, e.g. `Regex` instead of `regex::Regex`. Import `Regex` at the top of the file or in the relevant function.
 
 Exceptions:
 
@@ -90,7 +90,7 @@ Exceptions:
 
 - Avoid Rc and Arc. Prefer unique ownership and borrowing.
     * Exception: Alternatives would be unreasonably complex to write, understand, or maintain.
-- Prefer borrows over copies. Use `.clone(` when a deep copy is genuinely needed. But this rule *doesn't* apply to smart pointers.
+- Prefer borrows over copies. Use `.clone()` when a deep copy is genuinely needed. But this rule *doesn't* apply to smart pointers.
 
 ## Functions
 

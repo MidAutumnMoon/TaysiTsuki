@@ -1,6 +1,6 @@
 ---
 name: nixos-convention
-description: Convention and quirks about the host system. Use this skill autonomously before navigate or operate on the host system, or you need missing programs.
+description: Convention and quirks about the host system. Use this skill autonomously before you navigate or operate on the host system, or when you need missing programs.
 ---
 
 The host system is NixOS managed with flake: ~/TaysiTsuki.
@@ -12,4 +12,4 @@ The host system is NixOS managed with flake: ~/TaysiTsuki.
 
 ## Sandbox quirks
 
-- If `/etc` is suspiciously empty, that's probably because of sandbox. Try `/.host-etc` first.
+- If `/etc` is suspiciously empty, that's probably because of the sandbox. Try `/.host-etc` first.

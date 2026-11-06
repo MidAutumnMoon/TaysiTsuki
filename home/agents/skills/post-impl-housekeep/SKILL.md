@@ -3,12 +3,12 @@ name: post-impl-housekeep
 description: "Use after implementation to clean names, style, comments, and docs."
 ---
 
-Load `teamwork`. Abort of required skills are unavailable.
+Load `teamwork`. Abort if required skills are unavailable.
 
 ## Scope
 
 - All changes since the last housekeeping.
-- Confirm a unclear baseline with the user. Remember the baseline during housekeep.
+- Confirm an unclear baseline with the user. Remember the baseline during housekeeping.
 - Record scoped paths, exclusions, check commands, and execution restrictions.
 - State what each pass reviews: changed lines, code items, document sections, or whole files.
 - Include required reference updates in the naming scope. Get approval before changing names used by external code.

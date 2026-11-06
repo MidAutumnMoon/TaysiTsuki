@@ -5,7 +5,7 @@ description: Review and prune code comments, doc comments, lint reasons, prose d
 
 ## Goal
 
-Strongly delete by default. Delete unless the code can't show the contract. Keep only the parts that clearly help the intended reader. Keep only the parts that document trap, complexity, hidden constraints, hidden design intention.
+Strongly delete by default. Delete unless the code can't show the contract. Keep only the parts that clearly help the intended reader. Keep only the parts that document traps, complexity, hidden constraints, hidden design intention.
 
 Assume code readers know the language, libraries, and standard concepts, but not project-specific rules. For private code, assume they also read the body.
 
@@ -22,7 +22,7 @@ Assume code readers know the language, libraries, and standard concepts, but not
 - Check claims against relevant code, callers, tests, and external requirements. Do not invent intent or describe possible outcomes as guarantees.
 - When text and code disagree, establish the intended behavior before changing the text. Investigate unfamiliar warnings and constraints before deleting them. If intent or purpose remains unclear, leave the affected text unchanged and report the uncertainty.
 - Delete narration of local operations, consequences readers can readily infer, and text that merely repeats names, types, code, test labels, assertions, or other explanations.
-- Delete re-explanation of other file's, module's, or dependency's document, API, contract, or internal.
+- Delete re-explanation of another file's, module's, or dependency's document, API, contract, or internals.
 - Keep concise overviews that save readers from reconstructing a policy or lifecycle.
 - Review related points together. In private code, prefer one coherent explanation of a policy or lifecycle to scattered captions on fields and helpers. Put reasons for local choices beside the code and explain cross-cutting concepts in prose documentation. Repeat information only when separate references must stand alone.
 - Organize each explanation around what the reader needs to know. Combine, move, or rewrite text when trimming alone would leave the explanation unclear. Remove unnecessary points instead of packing them into fewer words. Keep conditions and exceptions needed for accuracy.
