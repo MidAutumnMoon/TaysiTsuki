@@ -29,18 +29,14 @@ stdenvNoCC.mkDerivation (drvSelf: {
 
     sourceRoot = ".";
     unpackPhase = /* sh */ ''
-        runHook preUnpack
         ${lib.getExe' bintools "ar"} x $src
         tar xf data.tar.xz
-        runHook postUnpack
     '';
 
     installPhase = /* sh */ ''
-        runHook preInstall
         mkdir -p $out/lib $out/share
         cp -a opt/ZCode $out/lib/ZCode
         cp -a usr/share/icons $out/share/icons
         chmod +x $out/lib/ZCode/zcode $out/lib/ZCode/chrome_crashpad_handler
-        runHook postInstall
     '';
 })

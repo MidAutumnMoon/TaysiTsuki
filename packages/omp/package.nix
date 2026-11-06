@@ -38,14 +38,12 @@ stdenvNoCC.mkDerivation (drvSelf: {
     nativeBuildInputs = [ makeBinaryWrapper ];
 
     installPhase = /* sh */ ''
-        runHook preInstall
         install -Dm555 $src $out/libexec/omp/omp
         makeBinaryWrapper $out/libexec/omp/omp $out/bin/omp \
             --set NIX_LD "${lib.getLib glibc}/lib/ld-linux-x86-64.so.2" \
             --set PI_SKIP_VERSION_CHECK 1 \
             --set-default PI_DISABLE_UUTILS_BUILTINS 1 \
             --prefix PATH : "${tsuki.inori.agentcept}/bin"
-        runHook postInstall
     '';
 
     # Tracked binary, no link-time checks — glibc drift would surface

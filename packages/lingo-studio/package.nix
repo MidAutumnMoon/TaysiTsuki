@@ -131,8 +131,6 @@ stdenv.mkDerivation (drvSelf: {
     };
 
     buildPhase = /*sh*/ ''
-        runHook preBuild
-
         # pnpmConfigHook installs with --ignore-scripts, so the root
         # postinstall (bundling the dsh-bridge runtime) never ran.
         pnpm --filter @cherrystudio/dsh-bridge build
@@ -147,8 +145,6 @@ stdenv.mkDerivation (drvSelf: {
             --config.npmRebuild=false \
             --config.electronDist="${electron.dist}" \
             --config.electronVersion=${electron.version}
-
-        runHook postBuild
     '';
 
     desktopItems = [
@@ -166,8 +162,6 @@ stdenv.mkDerivation (drvSelf: {
     ];
 
     installPhase = /*sh*/ ''
-        runHook preInstall
-
         # The unpacked dir already holds the electron runtime, app.asar,
         # unpacked natives and extraResources; copy it wholesale.
         mkdir -p $out/opt

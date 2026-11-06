@@ -63,8 +63,6 @@ let
         passAsFile = [ "configAttrNormalized" ];
 
         installPhase = /* bash */ ''
-            runHook preInstall
-
             root="$PWD/root"
             mkdir "$root"
             tar --zstd -xf "$src" -C "$root" \
@@ -105,8 +103,6 @@ let
             fi
 
             install -Dm644 "$headersBuild/.config" "$out"
-
-            runHook postInstall
         '';
     };
 
@@ -171,8 +167,6 @@ stdenvNoCC.mkDerivation {
     noAuditTmpdir = true;
 
     installPhase = /* bash */ ''
-        runHook preInstall
-
         root="$PWD/root"
         mkdir "$root"
         tar --zstd -xf "$src" -C "$root"
@@ -217,8 +211,6 @@ stdenvNoCC.mkDerivation {
 
         # CachyOS suppresses depmod while creating the Arch package.
         depmod -b "$modules" "${modDirVersion}"
-
-        runHook postInstall
     '';
 
     passthru = {

@@ -72,8 +72,6 @@ let
         dontUnpack = true;
 
         installPhase = ''
-            runHook preInstall
-
             browsersJson="$(
                 find "${unwrapped}" -type f \
                     -path '*playwright-core*' -name browsers.json \
@@ -129,8 +127,6 @@ let
                      "source layout at '$srcBrowsers' may have changed" >&2
                 exit 1
             fi
-
-            runHook postInstall
         '';
     };
 
@@ -153,13 +149,11 @@ stdenvNoCC.mkDerivation {
     dontUnpack = true;
 
     installPhase = ''
-        runHook preInstall
         mkdir -p "$out/bin"
         makeBinaryWrapper "${lib.getExe unwrapped}" "$out/bin/playwright-cli" \
             --set-default PLAYWRIGHT_BROWSERS_PATH "${browsers}" \
             --set-default PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS 1 \
             --set-default PLAYWRIGHT_MCP_BROWSER chromium
-        runHook postInstall
     '';
 
     passthru = {
