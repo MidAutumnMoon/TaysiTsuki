@@ -37,7 +37,7 @@ in {
     services.udisks2.enable = true;
 
     xdg.icons.enable = true;
-    xdg.icons.fallbackCursorThemes = [ "Neuro-sama" ];
+    xdg.icons.fallbackCursorThemes = [ "elaina" ];
 
     # ref: https://github.com/NixOS/nixpkgs/issues/409986
     environment.etc."xdg/menus/applications.menu".source = appMenu;
