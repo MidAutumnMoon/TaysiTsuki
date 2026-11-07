@@ -4,6 +4,7 @@ result*
 target/
 .zcode/
 .zcodeignore
+.mimosa/
 .playwright-cli/
 
 **/clipper/Assets/
