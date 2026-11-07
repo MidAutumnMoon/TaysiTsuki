@@ -26,6 +26,10 @@ test host=host:
 switch host=host:
     nu .scripts/nixos-rebuild-with-diff switch {{host}}
 
+[group("os")]
+boot host=host:
+    nu .scripts/nixos-rebuild-with-diff boot {{host}}
+
 # Show all live gc roots
 [group("os")]
 gc-roots-show:

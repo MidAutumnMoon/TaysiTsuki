@@ -1,7 +1,7 @@
 #!/usr/bin/env nu
 
 def main [action: string, host: string] {
-    if $action not-in ["build" "test" "switch"] {
+    if $action not-in ["build" "test" "switch" "boot"] {
         error make {
             msg: $"unsupported action '($action)'; expected build, test, or switch"
         }
