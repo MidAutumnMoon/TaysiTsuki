@@ -1,4 +1,6 @@
 {
+    pkg-config,
+    zstd,
     tsuki,
     workspace,
 }:
@@ -12,6 +14,9 @@ tsuki.rust.buildRustPackage rec {
 
     cargoBuildFlags = "-p ${pname}";
     doCheck = false;
+
+    nativeBuildInputs = [ pkg-config ];
+    buildInputs = [ zstd ];
 
     meta.mainProgram = pname;
 }
