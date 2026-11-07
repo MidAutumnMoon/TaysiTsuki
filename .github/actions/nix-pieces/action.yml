@@ -47,7 +47,7 @@ runs:
           experimental-features = nix-command flakes pipe-operators
           auto-optimise-store = false
           always-allow-substitutes = true
-          max-jobs = 1
+          max-jobs = 3
           sandbox = true
           sandbox-fallback = false
 
