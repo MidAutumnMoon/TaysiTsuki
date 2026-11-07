@@ -28,6 +28,7 @@ in {
         kdePackages.breeze-gtk
         nwg-look
         adwaita-icon-theme
+        tsuki.cursors.elaina
     ];
 
     services.power-profiles-daemon.enable = true;
@@ -36,7 +37,7 @@ in {
     services.udisks2.enable = true;
 
     xdg.icons.enable = true;
-    xdg.icons.fallbackCursorThemes = [ "breeze_cursors" ];
+    xdg.icons.fallbackCursorThemes = [ "Neuro-sama" ];
 
     # ref: https://github.com/NixOS/nixpkgs/issues/409986
     environment.etc."xdg/menus/applications.menu".source = appMenu;

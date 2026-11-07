@@ -6,5 +6,6 @@ target/
 .zcodeignore
 .mimosa/
 .playwright-cli/
+__pycache__/
 
 **/clipper/Assets/
