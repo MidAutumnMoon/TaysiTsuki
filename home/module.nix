@@ -15,7 +15,7 @@
     packages = with pkgs; [
         fuc
         (lib.getOutput "out" pkgs.tsuki.inori)
-        tsuki.opentofu
+        # tsuki.opentofu
         libtree
         # picard
         sops

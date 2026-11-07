@@ -1,12 +1,14 @@
 {
     lib,
     stdenv,
-    pkgsStatic,
+    tsuki,
 
     fetchFromGitHub,
+    pkg-config,
+    aws-lc,
 }:
 
-pkgsStatic.tsuki.rust.buildRustPackage rec {
+tsuki.rust.buildRustPackage rec {
 
     pname = "shadowsocks-rust";
     version = "1.25.0";
@@ -19,6 +21,9 @@ pkgsStatic.tsuki.rust.buildRustPackage rec {
     };
 
     cargoHash = "sha256-Qx5l6LC2KBLX9I4R/spZyPo61GzDilkgH5LBjGgVCFA=";
+
+    nativeBuildInputs = [ pkg-config ];
+    buildInputs = [ aws-lc ];
 
     doCheck = false;
 

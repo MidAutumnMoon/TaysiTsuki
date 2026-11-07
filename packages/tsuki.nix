@@ -113,9 +113,6 @@ finalize {
         })
     ];
 
-    #
-    # go 1
-    #
     Go_1 = [
         (tsuki "caddy")
         (tsuki "dnscrypt")
@@ -124,14 +121,9 @@ finalize {
         (tsuki "magpie")
     ];
 
-    #
-    # go 2
-    #
-    Go_2 = [
-        # nixpkgs opentofu wrapped with plugins; version moves with
-        # flake.lock, so there is nothing upstream to track.
-        (tsuki "opentofu" null)
-    ];
+    # Go_2 = [
+    #     (tsuki "opentofu" null)
+    # ];
 
     #
     # rust 1

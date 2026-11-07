@@ -2,6 +2,7 @@
     lib,
     fetchFromGitHub,
     zstd,
+    libgit2,
     pkg-config,
     tsuki,
     stdenv,
@@ -26,6 +27,7 @@ tsuki.rust.buildRustPackage (drvSelf: {
 
     buildInputs = [
         zstd
+        libgit2
     ];
 
     RUSTFLAGS = with stdenv;
