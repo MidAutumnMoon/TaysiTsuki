@@ -11,11 +11,13 @@ in {
             openFirewall = true;
             nssmdns4 = true;
             nssmdns6 = true;
-            publish.enable = true;
-            publish.addresses = true;
-            publish.userServices = true;
-            publish.domain = true;
-            denyInterfaces = [ tailscaleIface ];
+            settings.publish = {
+                "disable-publishing" = false;
+                disable-user-service-publishing = false;
+                publish-addresses = true;
+                publish-domain = true;
+            };
+            settings.server.deny-interfaces = [ tailscaleIface ];
         };
 
     systemd.services.avahi-daemon = {
