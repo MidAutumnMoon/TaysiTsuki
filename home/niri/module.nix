@@ -14,7 +14,7 @@
         kdePackages.konsole
         kdePackages.ark
         ffmpegthumbnailer
-        xwayland-satellite
+        # xwayland-satellite
     ];
 
     envvars = {
