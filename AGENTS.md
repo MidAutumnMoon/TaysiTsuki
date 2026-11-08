@@ -10,15 +10,6 @@ A NixOS config repo. Flake at the root. Machines in `machine/`, shared modules i
 - Don't run `nixos-rebuild switch/test` without being asked.
 - Match the surrounding code style.
 
-## Communication
-
-- Be concise. Say the thing, stop. Say natural, straight and plain English. No jargon in any form.
-- Don't repeat what user already said or what's already in context.
-- Don't meaninglessly repeat what the user already knows or owns.
-- Don't pad with disclaimers, summaries, or "hope that helps" type closings.
-- If something is wrong, say what's wrong and how to fix it. Don't hedge.
-- Write user-facing messages in concise and non-repetitive manner. Don't repeat what user already knows.
-
 ## Establish the goal and scope
 
 Use the request and prior discussion to identify what the user truely wants to achieve. Check your interpretation against relevant code, tests, and project conventions. Respect the user's explicit constraints. Turn broad or vague requests into concrete decisions. For brief examples:
