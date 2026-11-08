@@ -1,7 +1,9 @@
+{ pkgs, ... }:
+
 {
     services.xremap = {
         enable = true;
-        withNiri = true;
+        package = pkgs.xremap.override { withVariant = "niri"; };
         serviceMode = "user";
         userName = "teapot";
     };

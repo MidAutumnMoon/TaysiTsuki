@@ -23,6 +23,8 @@
             url = "github:xremap/nix-flake";
             inputs.nixpkgs.follows = "nixpkgs";
             inputs.flake-parts.follows = "flake-parts";
+            inputs.crane.follows = "";
+            inputs.xremap.follows = "";
         };
 
         # Some packages
