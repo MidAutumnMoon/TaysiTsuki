@@ -13,7 +13,7 @@ touched. Run `netcheck` after any change on either side.
   machine. A stale entry still advertises whatever it advertised,
   including exit node.
 - **OAuth client used by Terraform**: its key lives in
-  `infra/secrets/token--tailscale.sops.yml`. It needs ACL write,
+  `sops/infra/token--tailscale.sops.yml`. It needs ACL write,
   Devices write with allowed tags `tag:phone` and `tag:server`, and
   Routes write. Editing scopes does not rotate the key.
 
@@ -36,7 +36,7 @@ touched. Run `netcheck` after any change on either side.
 
 ## Secrets
 
-- `nixos/sops/token--cloudflare.sops.yml` is one token shared by
+- `sops/shared/token--cloudflare.sops.yml` is one token shared by
   Terraform and Caddy DNS-01. On the next rotation, consider minting
   two narrow tokens instead, one with zone/DNS edit for Terraform and
   one DNS-01-only for Caddy.

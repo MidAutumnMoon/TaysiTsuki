@@ -1,4 +1,4 @@
-{ lib, pkgs, config, ... }:
+{ lib, pkgs, config, flakes, ... }:
 
 let
 
@@ -22,12 +22,11 @@ in {
         ./tproxy.nix
     ];
 
-    # conf--sing.nix.sops is unreferenced, kept for rollback.
     sops.secrets =
         let singService = config.systemd.services."sing-box".name; in
         {
             secrets--sing = {
-                sopsFile = ./secrets--sing.nix.sops;
+                sopsFile = flakes.self + "/sops/umi/secrets--sing.nix.sops";
                 format = "binary";
                 restartUnits = [ singService ];
             };

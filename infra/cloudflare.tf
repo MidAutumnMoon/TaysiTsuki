@@ -97,7 +97,7 @@ resource "cloudflare_dns_record" "namecrane-mail" {
 
 locals {
   __dkim = nonsensitive(
-    jsondecode(file("./secrets/dkim.json"))
+    jsondecode(file("./dkim.json"))
   )
 }
 

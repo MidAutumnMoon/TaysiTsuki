@@ -92,8 +92,6 @@ successful DNS lookup.
 
 ## Watch items
 
-- Delete `conf--sing.nix.sops` once the de-secreting has been stable
-  for a comfortable period. It is unreferenced rollback material.
 - Deduplicate the tailnet IP between `lore` and `infra/tailscale.tf`
   (via `default_secrets`) if it ever drifts.
 - When `phia` returns, move dnscrypt and Caddy off the desktop onto

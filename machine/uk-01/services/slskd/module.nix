@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, lib, flakes, ... }:
 
 let
 
@@ -61,7 +61,7 @@ in {
 
     sops.secrets.slskd_cred = {
         format = "binary";
-        sopsFile = ./slskd;
+        sopsFile = flakes.self + "/sops/uk-01/slskd.sops";
     };
 
     systemd.services.slskd = {

@@ -1,0 +1,19 @@
+ip_addr:
+    uk-01:
+        ipv4: ENC[AES256_GCM,data:87Shg/3GEZni3ZFs0A==,iv:2ZKBJExjBEMr1FD6mEBlfTD1WJkzIOZ8ftsQvLtetA4=,tag:KXdRxu95BZTxS9y10Vj/IQ==,type:str]
+        ipv6: ENC[AES256_GCM,data:i1h+qp25DTEY0myWrlmBtFU5mZg=,iv:60MsBVLaDh82xbtll49f12CSGQQHhJw1WNQKHVpeOOo=,tag:l8FWmBcONN2iu9gIq8S5Qg==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBkcEtJYmlVNDkrS2taM014
+            UjZKTHlET3ZNU3p6NXRVcGZ6REc4STZCd1dZCnVWVVNPYmVJcXhNNWkvczcrb1Np
+            amdrSWtKUHpoUmdYeGNFYU1XLzRuN2cKLS0tIHkxd1ZBQ3l6TExkSCttUzNvSitO
+            UENuWUdqQ0szcUNXUklZT2VmRmduVEEKva+fC/x+PLHPCIYlxoChY1NdTpdQEe7B
+            nD/GzFhFmlA8vtuPq0v1gWUeJk3DYohq1T/k83jsY1osieq9Qac6DQ==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age17lvnmh99feams2pvfljw34k5s705uk89x6g26r4ml85yu0h2q9uswpmjm6
+    lastmodified: "2026-03-21T13:50:21Z"
+    mac: ENC[AES256_GCM,data:7QXlyG4rmvNrQriMz5TV9Q034rFRudpVj0fArcsVn3EHrh/B65VAoNPAki7vVbzhqNowMbvcrsLIomgq5MU/B9OuPYIADA8V4mec4mhWJKy6sZKsYSRaPfYg8ZicqCRYQ+wwEatItEqk+ui3e9ALc63+vrPlUuaTgBezRA87HpM=,iv:d81VxAMvXz5yeVhfWmHTlHzcGQSkE4MglYg9Bu1MoTo=,tag:dAvZP+CTu61SKuLHB88xKQ==,type:str]
+    unencrypted_suffix: _unencrypted
+    version: 3.12.1

@@ -78,17 +78,19 @@ architectural tension.
 
 ---
 
-## Secrets: a symptom of the subset problem
+## Secrets: routed by directory
 
-Secrets are currently split across three locations, none of which is clearly
-the "right" one:
+All secrets live under `sops/`, audience routed by directory via `.sops.yaml`
+`path_regex` (no catch-all — an unmatched path fails loudly):
 
-- `sops/module.nix` — shared secrets + per-machine blocks guarded by hostname.
-- `machine/<n>/sops/module.nix` — machine-local key material and seed secrets.
-- `nixos/sops/module.nix` — a shared secret (cloudflare token) that overlaps
-  with `sops/`.
+- `sops/<host>/main.yml` — per-machine store, wired by `sops.defaultSopsFile`
+  in `sops/module.nix`. Service modules declare bare key names;
+  service-owned keys are `svc--key` prefixed in the host namespace.
+- `sops/shared/` — multi-consumer secrets (cloudflare token: Caddy DNS-01 +
+  Terraform).
+- `sops/infra/` — terraform-only.
 
-The split exists because the inheritance model has no native concept of
-"secrets for a subset of machines." The hostname-guard helper in
-`sops/module.nix` is a workaround, and the `nixos/sops/` duplication suggests
-the boundary between "shared secret" and "machine secret" is unclear.
+The hostname-guard helper in `sops/module.nix` remains: sops-nix has no
+native concept of "secrets for a subset of machines," so per-host
+declarations are still `mkIf`-guarded. Binary-store files (`.sops`) keep
+explicit `sopsFile` refs since they cannot join a `main.yml`.

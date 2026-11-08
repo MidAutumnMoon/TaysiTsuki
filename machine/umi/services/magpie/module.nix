@@ -24,9 +24,7 @@ in
         home = "${stateDir}/home";
     };
 
-    sops.secrets."magpie--web-key" = {
-        sopsFile = ./secrets.sops.yml;
-        key = "web_key";
+    sops.secrets."magpie--web_key" = {
         owner = "magpie";
         group = "magpie";
         mode = "0400";
@@ -34,7 +32,7 @@ in
     };
 
     sops.templates."magpie-env".content = ''
-        MAGPIE_WEB_KEY=${config.sops.placeholder."magpie--web-key"}
+        MAGPIE_WEB_KEY=${config.sops.placeholder."magpie--web_key"}
     '';
 
     systemd.services.magpie = {

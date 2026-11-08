@@ -19,36 +19,49 @@ in
 lib.mkMerge [
 
     {
-        sops.defaultSopsFile = ./default.sops.nix;
+        sops.age.keyFile = "/var/lib/age.txt";
     }
 
     (for [ machines.umi ] {
+        sops.defaultSopsFile = ./umi/main.yml;
+    })
+
+    (for [ machines.uk-01 ] {
+        sops.defaultSopsFile = ./uk-01/main.yml;
+    })
+
+    (for (with machines; [ umi uk-01 ]) {
         sops.secrets = {
-            "key--ssh--teapot" = {
-                sopsFile = ./ren/key--ssh--teapot.sops.yml;
-                owner = teapot;
-            };
-            "conf--ssh" = {
-                sopsFile = ./ren/conf--ssh.sops;
-                owner = teapot;
-                format = "binary";
-            };
-            "token--github--me" = {
-                sopsFile = ./ren/token--github.sops.yml;
-                owner = teapot;
-            };
+            ssh_ed25519_key = { };
+            ssh_ed25519_pub = { };
         };
     })
 
-    (for (with machines; [ umi phia ]) {
-        sops.secrets."rclone.conf" = {
-            sopsFile = ./mixed/rclone;
-            format = "binary";
-            # insecure, but only on machiens in the lan
-            mode = "0644";
+    (for [ machines.umi ] {
+        sops.secrets = {
+            "key--ssh--teapot".owner = teapot;
+            "token--github--me".owner = teapot;
+            "conf--ssh" = {
+                sopsFile = ./umi/conf--ssh.sops;
+                owner = teapot;
+                format = "binary";
+            };
+            "rclone.conf" = {
+                sopsFile = ./umi/rclone.sops;
+                format = "binary";
+                # insecure, but only on machiens in the lan
+                mode = "0644";
+            };
         };
         environment.etc."rclone.conf".source =
             config.sops.secrets."rclone.conf".path;
+    })
+
+    (for (with machines; [ umi uk-01 ]) {
+        sops.secrets."token--cloudflare" = {
+            sopsFile = ./shared/token--cloudflare.sops.yml;
+            key = "api_token";
+        };
     })
 
 ]

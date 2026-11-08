@@ -57,7 +57,7 @@ resource "tailscale_acl" "main" {
 # override_local_dns -- every other name flow into umi's sing-box dns
 # listener (lore.machines.umi.tailnet_ip), which fronts dnscrypt and
 # the proxy. Apply only after that listener is live, i.e. after the
-# sing-box commit is built and switched (machine/ren/networking/proxy):
+# sing-box commit is built and switched (machine/umi/networking/proxy):
 # pointing clients at a dead :53 takes the whole tailnet's dns down.
 resource "tailscale_dns_configuration" "main" {
   magic_dns           = true
@@ -98,7 +98,7 @@ resource "tailscale_device_tags" "uk-01" {
 # `routes` is authoritative: every route enabled for the device must
 # be listed or the apply disables it, so umi's approved exit-node
 # routes stay listed. The 10.0.1.0/24 approval requires the nix
-# advertisement active first (machine/ren/networking/proxy/tproxy.nix).
+# advertisement active first (machine/umi/networking/proxy/tproxy.nix).
 resource "tailscale_device_subnet_routes" "umi" {
   device_id = local.__device_id["umi"]
   routes    = ["10.0.1.0/24", "0.0.0.0/0", "::/0"]

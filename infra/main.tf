@@ -16,15 +16,15 @@ terraform {
 }
 
 data "sops_file" "token--cloudflare" {
-  source_file = "../nixos/sops/token--cloudflare.sops.yml"
+  source_file = "../sops/shared/token--cloudflare.sops.yml"
 }
 
 data "sops_file" "token--tailscale" {
-  source_file = "./secrets/token--tailscale.sops.yml"
+  source_file = "../sops/infra/token--tailscale.sops.yml"
 }
 
 data "sops_file" "default_secrets" {
-  source_file = "../sops/default.sops.yml"
+  source_file = "../sops/infra/main.yml"
 }
 
 locals {

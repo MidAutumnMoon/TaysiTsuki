@@ -101,18 +101,17 @@ in {
         '';
 
     sops.secrets = {
-        "basicauth_name".sopsFile = ./cred--basicauth.sops.yml;
-        "basicauth_passwd".sopsFile = ./cred--basicauth.sops.yml;
+        "qbittorrent--basicauth_name" = { };
+        "qbittorrent--basicauth_passwd" = { };
     };
 
     sops.templates."download-auth-creds".content =
         let
-            inherit (config.sops.placeholder)
-                basicauth_name basicauth_passwd;
+            ph = config.sops.placeholder;
         in
         ''
-            DOWNLOAD_AUTH_NAME=${basicauth_name}
-            DOWNLOAD_AUTH_PASSWD=${basicauth_passwd}
+            DOWNLOAD_AUTH_NAME=${ph."qbittorrent--basicauth_name"}
+            DOWNLOAD_AUTH_PASSWD=${ph."qbittorrent--basicauth_passwd"}
         '';
 
     systemd.services.caddy = {
