@@ -2,7 +2,7 @@
     lib,
     stdenv,
     fetchFromGitHub,
-    makeBinaryWrapper,
+    autoPatchelfHook,
 
     tsuki,
     cmake,
@@ -35,27 +35,31 @@ tsuki.rust.buildRustPackage {
     dontUseNinjaInstall = true;
 
     nativeBuildInputs = [
+        autoPatchelfHook
         cmake
         meson
         ninja
         nasm
-        makeBinaryWrapper
     ];
 
+    buildInputs = [
+        (lib.getLib stdenv.cc.cc)
+    ];
+
+    # dlopen:
     # winit → wayland, gl etc.
     # egui_system_font_provider → fontconfig
+    runtimeDependencies = map lib.getLib [
+        wayland
+        libxkbcommon
+        libglvnd
+        fontconfig
+    ];
+
     postInstall = /*sh*/ ''
         install -Dm644 assets/cryslen.desktop -t $out/share/applications
         mkdir -p $out/share/icons
         cp -r assets/icons/hicolor $out/share/icons/
-
-        wrapProgram $out/bin/cy \
-            --suffix LD_LIBRARY_PATH : ${lib.makeLibraryPath [
-                wayland
-                libxkbcommon
-                libglvnd
-                fontconfig
-            ]}
     '';
 
     RUSTFLAGS = with stdenv;
