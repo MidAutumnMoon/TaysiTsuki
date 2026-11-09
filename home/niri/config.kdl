@@ -27,7 +27,7 @@ input {
         // numlock
 
         repeat-delay 200
-        repeat-rate 60
+        repeat-rate 80
     }
 
     // Next sections include libinput settings.
