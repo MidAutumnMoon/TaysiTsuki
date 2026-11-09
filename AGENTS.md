@@ -2,6 +2,8 @@
 
 A NixOS config repo. Flake at the root. Machines in `machine/`, shared modules in `nixos/`, custom lib in `tsukilib/`, packages in `packages/`, Rust crates in `rust/`, secrets via sops.
 
+`taysitsuki-convention` skill has more details and rules that are not in here.
+
 ## Establish the goal and scope
 
 Use the request and prior discussion to identify what the user truely wants to achieve. Check your interpretation against relevant code, tests, and project conventions. Respect the user's explicit constraints. Turn broad or vague requests into concrete decisions. For brief examples:
