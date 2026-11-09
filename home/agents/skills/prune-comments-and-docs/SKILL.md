@@ -5,7 +5,7 @@ description: Review and prune code comments, doc comments, lint reasons, prose d
 
 ## Goal
 
-Strongly delete by default. Delete unless the code can't show the contract. Keep only the parts that clearly help the intended reader. Keep only the parts that document traps, complexity, hidden constraints, hidden design intention.
+Strongly delete by default. Keep a sentence only if it states a trap, an invariant, an ordering or ownership constraint, or behaviour the code cannot show. Delete the rest. A module doc states the module's job and such an invariant, in at most three lines.
 
 Assume code readers know the language, libraries, and standard concepts, but not project-specific rules. For private code, assume they also read the body.
 
@@ -14,21 +14,21 @@ Assume code readers know the language, libraries, and standard concepts, but not
 - Review the named files, or the current change if no files are named. Read related files as well.
 - Edit only comments, documentation, lint reasons, and message text. Do not change program logic, names, or types.
 - Leave generated and vendored files, tool directives, and license and attribution notices unchanged. Review explanations attached to directives.
-- Preserve safety justifications, required documentation, doctests, and examples. You may edit their prose, but retain necessary information and keep doctests and examples valid.
+- Preserve safety justifications, doctests, and anything a compiler or lint requires. You may edit their prose; keep doctests and examples valid.
 - You may rewrite program messages, but do not delete them. Suggest removal in the report if a message adds no information.
 
 ## Editing rules
 
 - Check claims against relevant code, callers, tests, and external requirements. Do not invent intent or describe possible outcomes as guarantees.
-- When text and code disagree, establish the intended behavior before changing the text. Investigate unfamiliar warnings and constraints before deleting them. If intent or purpose remains unclear, leave the affected text unchanged and report the uncertainty.
-- Delete narration of local operations, consequences readers can readily infer, and text that merely repeats names, types, code, test labels, assertions, or other explanations.
-- Delete re-explanation of another file's, module's, or dependency's document, API, contract, or internals.
-- Keep concise overviews that save readers from reconstructing a policy or lifecycle.
-- Review related points together. In private code, prefer one coherent explanation of a policy or lifecycle to scattered captions on fields and helpers. Put reasons for local choices beside the code and explain cross-cutting concepts in prose documentation. Repeat information only when separate references must stand alone.
-- Organize each explanation around what the reader needs to know. Combine, move, or rewrite text when trimming alone would leave the explanation unclear. Remove unnecessary points instead of packing them into fewer words. Keep conditions and exceptions needed for accuracy.
+- When text and code disagree, establish the intended behaviour first. If the behaviour is unclear, leave the text and report it; if only the text's necessity is unclear, delete it.
+- Delete narration of local operations, consequences readers can readily infer, and text that repeats names, types, code, test labels, or assertions.
+- State each policy once. Delete text that repeats another file's documentation, or that the types, signatures, and field names already show.
+- Keep an overview only if no other file states it, the signatures cannot show it, and it fits in three lines. A longer one is an essay: delete it or move it to the reference documentation.
+- Put a local reason beside its code; put a cross-cutting policy in the reference documentation.
+- Remove unnecessary points instead of packing them into fewer words. Keep conditions and exceptions needed for accuracy.
 - Use consistent technical terms and ordinary punctuation. Name standard concepts when useful (e.g. name the algorithm, don't document steps). Remove filler, praise for the design, and storytelling or metaphors that add vocabulary without adding information.
-- Add missing contracts, reasons, constraints, or essential overviews when readers need them. Do not add a comment only because someone might edit the code incorrectly.
-- Suggest clearer names, types, assertions, or tests when they could replace an explanation. Keep the explanation while the current code still needs it.
+- Add a contract or constraint only when the code cannot show it.
+- Prefer a clearer name, type, assertion, or test over an explanation.
 
 ## Text-specific requirements
 
@@ -42,9 +42,35 @@ Assume code readers know the language, libraries, and standard concepts, but not
 
 Run checks relevant to the edits, including doctests and documentation checks where applicable. Report checks you could not run.
 
-Keep the report brief. State what you reviewed and the check results. Note significant decisions and unresolved issues. Include every changed program message, every deleted file, and suggestions outside scope. Do not list routine comment or documentation edits.
+Keep the report brief. State what you reviewed, the check results, and the per-file comment line delta. List every surviving doc block longer than three lines with its reason, every changed program message, every deleted file, and suggestions outside scope. Do not list routine wording edits.
 
 ## Examples
+
+### Cut a module essay
+
+Before:
+
+```rust
+//! Decode worker: the app's demand service over a store of previews.
+//!
+//! Two inputs decide what the thread does: the app's wants, the
+//! artifacts its presentation is missing right now, and the plan, the
+//! order in which pages are worth producing into the store ahead of
+//! time. Wants are served first, from the store when the plan already
+//! warmed them and otherwise by decoding and minting on the spot. The
+//! plan alone never delivers anything; it only fills the store.
+//!
+//! Nothing decoded survives here: the preview store is the only cache.
+```
+
+After:
+
+```rust
+//! Decode worker: serves the app's wants and fills the preview store
+//! from the plan. Nothing decoded survives here.
+```
+
+The first paragraph restates the type docs and the reference document; the second states the one invariant.
 
 ### Remove narration and keep the local reason
 
