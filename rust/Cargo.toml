@@ -112,5 +112,5 @@ arithmetic_side_effects = "allow"
 # Prefer match ergonomics or explicit ownership like as_ref().
 pattern_type_mismatch = "allow"
 
-# I prefer pub(crate) shorthand
 pub_with_shorthand = "allow"
+must_use_candidate = "allow"
