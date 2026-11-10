@@ -7,7 +7,7 @@ description: Review and prune code comments, doc comments, lint reasons, prose d
 
 Strongly delete by default. Keep a sentence only if it states a trap, an invariant, an ordering or ownership constraint, or behaviour the code cannot show. Delete the rest. A module doc states the module's job and such an invariant, in at most three lines.
 
-Assume code readers know the language, libraries, and standard concepts, but not project-specific rules. For private code, assume they also read the body.
+Assume code readers know the language, libraries, and standard concepts; treat project-specific rules as new information. For private code, assume they also read the body.
 
 ## Scope
 
@@ -25,17 +25,18 @@ Assume code readers know the language, libraries, and standard concepts, but not
 - State each policy once. Delete text that repeats another file's documentation, or that the types, signatures, and field names already show.
 - Keep an overview only if no other file states it, the signatures cannot show it, and it fits in three lines. A longer one is an essay: delete it or move it to the reference documentation.
 - Put a local reason beside its code; put a cross-cutting policy in the reference documentation.
-- Remove unnecessary points instead of packing them into fewer words. Keep conditions and exceptions needed for accuracy.
-- Use consistent technical terms and ordinary punctuation. Name standard concepts when useful (e.g. name the algorithm, don't document steps). Remove filler, praise for the design, and storytelling or metaphors that add vocabulary without adding information.
+- Remove unnecessary points. A tighter phrasing keeps every point. Keep conditions and exceptions needed for accuracy.
+- Use consistent technical terms and ordinary punctuation. Name standard concepts when useful (e.g. name the algorithm and leave its steps in the code). Remove filler, praise for the design, and storytelling or metaphors that add vocabulary without adding information.
 - Add a contract or constraint only when the code cannot show it.
 - Prefer a clearer name, type, assertion, or test over an explanation.
+- Look out for `*subject*, not *negative*`, `*abc* instead of *negative*` (which implies abc does xyz), and `*abc* is not *negative*` (which implies abc is xyz) patterns. Avoid "negative subjects" in general, rewrite the sentences to be straight.
 
 ## Text-specific requirements
 
 - Public API docs and guides must be usable without inspecting the implementation. Put caller requirements and guarantees in API docs.
 - A test can verify behavior without explaining why it is required. Keep needed rationale and labels that identify test setup conditions.
-- Lint reasons must address the concern being suppressed. State why the concern does not apply or why the trade-off is accepted.
-- Reference documentation should describe current behavior and limitations rather than recount past edits. Put planned work in TODOs or issues. Keep documents intended to record history, decisions, or plans. Move needed information out of session logs before deleting them.
+- Lint reasons must address the concern being suppressed. State why the concern is inapplicable or why the trade-off is acceptable.
+- Reference documentation describes current behavior and limitations. Put past edits in history, decision, or plan documents; put planned work in TODOs or issues. Keep documents intended to record history, decisions, or plans. Move needed information out of session logs before deleting them.
 - Before changing a program message, check whether tests, scripts, or other tools depend on its wording. Preserve formatting arguments and error-handling behavior. Include only information missing from the rest of the error chain or log line. In panic and `.expect()` messages, state which assumption failed. Follow the project's message style.
 
 ## Verification and report
@@ -67,7 +68,7 @@ After:
 
 ```rust
 //! Decode worker: serves the app's wants and fills the preview store
-//! from the plan. Nothing decoded survives here.
+//! from the plan. Decoded artifacts live only in the store.
 ```
 
 The first paragraph restates the type docs and the reference document; the second states the one invariant.
@@ -100,7 +101,7 @@ pub fn sync(&mut self) -> Result<()> {
 }
 ```
 
-The calls show the sequence. They do not explain why an empty diff must still be applied. The retained comment needs no rewrite.
+The calls show the sequence. The retained comment explains why an empty diff must still be applied; it stays as written.
 
 ### Delete a reason the reader can infer
 
@@ -121,7 +122,7 @@ fn validate(input: &str) -> Result<()> {
 }
 ```
 
-The body shows the parser call. The consistency benefit needs no separate explanation.
+The body shows the parser call; consistency follows from it.
 
 ### Describe public behavior
 
@@ -142,7 +143,7 @@ After:
 pub fn reload(&self, config: Config) { ... }
 ```
 
-The rewrite makes the timing rule clear without making callers derive it from ownership mechanics.
+The rewrite states the timing rule directly and leaves ownership mechanics to the implementation.
 
 ### Move the explanation to the relevant field
 
@@ -183,7 +184,7 @@ impl Drop for Gl {
 }
 ```
 
-Put the lifetime requirement beside `window`. The wrapper caption and explanation of Rust's drop order are unnecessary.
+Put the lifetime requirement beside `window`; the example drops the wrapper caption and the drop-order explanation.
 
 ### Flag uncertain intent
 
