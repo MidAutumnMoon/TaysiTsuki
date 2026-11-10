@@ -43,7 +43,7 @@ Assume code readers know the language, libraries, and standard concepts; treat p
 
 Run checks relevant to the edits, including doctests and documentation checks where applicable. Report checks you could not run.
 
-Keep the report brief. State what you reviewed, the check results, and the per-file comment line delta. List every surviving doc block longer than three lines with its reason, every changed program message, every deleted file, and suggestions outside scope. Do not list routine wording edits.
+Keep the report brief. State what you reviewed and the check results. List every surviving doc block longer than three lines with its reason, every changed program message, every deleted file, and suggestions outside scope. Do not list routine wording edits.
 
 ## Examples
 
