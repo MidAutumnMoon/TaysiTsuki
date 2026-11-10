@@ -16,14 +16,14 @@
 stdenvNoCC.mkDerivation (drvSelf: {
 
     pname = "monstar";
-    version = "1.1.0";
+    version = "1.1.1";
 
     src = tsuki.fetchGitHubRelease {
         owner = "rockorager";
         repo = "monstar";
         tag = "v${drvSelf.version}";
         file = "monstar-${drvSelf.version}-x86_64-linux.tar.gz";
-        hash = "sha256-Ocdgxj2Grh2Tw8NixChIH73RNgwmB7G8afES4RLUiuQ=";
+        hash = "sha256-BSNawH2skVFVSByBpS7twIMYKelYODW71Z7hcV9KkUo=";
     };
 
     nativeBuildInputs = [ autoPatchelfHook ];
