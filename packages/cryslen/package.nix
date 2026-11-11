@@ -23,11 +23,11 @@ tsuki.rust.buildRustPackage {
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "cryslen";
-        rev = "396d6044c8d27905772778e3978379211a8fc5b0";
-        hash = "sha256-BUpRZGo/xxZi1odExqk+V3wbMfVRZ9BUGLr19AjYV9w=";
+        rev = "3a1b3a0b0fc37cf2fb959521811c84e0332792c0";
+        hash = "sha256-ShuZ+bHiKWBWA2oZT/PzsDnySVMBVPAwH/te6a6BHAk=";
     };
 
-    cargoHash = "sha256-7/jzJ5VAOJaHj2tTlbJB+oHx1BzilJt6gBrsLMtcDE0=";
+    cargoHash = "sha256-XHYKAqgmJcanQPc/dhD8kqDSD1MmCtZWmd6P3kzXOs8=";
 
     doCheck = false;
 
