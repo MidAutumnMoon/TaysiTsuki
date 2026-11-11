@@ -3,8 +3,6 @@ name: code-cultivation
 description: Review and refactor code so each unit completes a clear job, APIs return usable results, invalid states are hard to represent, and ownership and dependencies are explicit. Use for clean-code and architecture reviews, root-cause refactors, API/configuration/schema/test/documentation audits, or fitting new behavior into an existing design.
 ---
 
-# Code cultivation: make the job clear and the structure tell the truth
-
 Start with what the caller needs, not the techniques used to produce it. If every caller must run `download(source)` and then `verify(file, expected_hash)`, and an unverified tarball has no valid use, those steps are one operation. Expose `fetch_tarball(source, expected_hash)` and return either a verified tarball or an error. Private helpers may still handle network I/O and hashing; callers should not have to coordinate them.
 
 Apply the same test to a module or service. For example, an updater may replace a pin only after all downloaded artifacts and generated records identify the same release. Organize the module around that job, rather than a row of equally prominent `fetch`, `parse`, and `render` stages.
@@ -100,32 +98,4 @@ Match the size of the change to the evidence. Do not redesign unrelated code mer
 
 ## Prove the complete operation
 
-Run the operation from input to externally visible result. Compilation proves only that the pieces fit.
-
-- Exercise the ordinary workflow through the CLI, UI, API, or runtime surface that users rely on.
-- Inspect the artifact or state at the boundary its consumers use.
-- Try the misuse that the new boundary should prevent: skipped validation, stale context, partial commit, contradictory fields, or an escaped intermediate.
-- Cover the relevant transitions and failure, recovery, concurrency, and resource behavior.
-- If a contract claims exactness, inspect all relevant data with a trustworthy check rather than a sample or metadata proxy.
-- After a removal or rename, confirm that code, tests, schemas, documentation, callers, and persisted references agree.
-
-Add a lasting test only when a plausible regression would violate observable behavior or an invariant. Prefer guards in this order: representation, ownership or API, boundary validation, behavioral test, then a comment for a constraint that code cannot express.
-
-Read the main flow once more. Check that each major step serves the stated job, each unit returns something usable, obsolete compensation is gone, and the next likely change has one obvious home. Continue only if this pass finds a material problem.
-
-## Report and stop
-
-Match the work to the request. In a review, report only material findings and say when suspicious code should stay. In a refactor, fix proven causes and make a clean cutover. When adding behavior, put it in the operation that already owns the job; reshape only when the current boundary cannot support it.
-
-Report in this order:
-
-```text
-Purpose: the result this code must produce.
-Problem: where the current structure makes that result unclear or unreliable.
-Decision: what to merge, split, move, model, rename, or deliberately keep.
-Check: the operation exercised and the result observed.
-```
-
-Treat metrics, line counts, abstraction counts, and uniformity as clues, not goals. Delete explanations whose cause is gone, but preserve comments that record a live, nonlocal constraint. Use specialist review for security, performance, accessibility, or domain claims that this skill cannot prove.
-
-Stop when the job is clear, each important unit returns a valid result, supporting mechanics stay in the background, every fact has one owner, and behavior is proven. Another structural pass needs new evidence, not lingering aesthetic discomfort.
+Ensure the data flows i.e. the path from input to external output is all green. Exercise boundary, concurrency, and error etc. Ensure test and CI still pass (if they exist).
