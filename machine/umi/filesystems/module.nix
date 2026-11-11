@@ -40,7 +40,7 @@ in
         "/home/teapot/z" = {
             device = "none";
             fsType = "tmpfs";
-            options = [ "defaults,mode=777,size=100%,noatime" ];
+            options = [ "defaults,mode=777,size=100%,noatime,noswap" ];
         };
         "/boot" = {
             device = "/dev/disk/by-uuid/3603-DD8C";

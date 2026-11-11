@@ -1,6 +1,6 @@
 ---
 name: too-many-concepts
-description: "There may be too many concepts, making code harder to follow."
+description: "There may be too many concepts, making code harder to follow. Try simplify the code."
 disable-model-invocation: true
 ---
 
