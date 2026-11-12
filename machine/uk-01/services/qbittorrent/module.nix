@@ -75,7 +75,6 @@ in {
     services.caddy.virtualHosts."im_418".extraConfig =
         let
             inherit (apps.public) downloader_dashboard;
-            inherit (apps.public) torrent_download;
         in
         ''
             @qbitwebui host ${downloader_dashboard.fqdn}
@@ -84,19 +83,6 @@ in {
                     {env.DOWNLOAD_AUTH_NAME} {env.DOWNLOAD_AUTH_PASSWD}
                 }
                 reverse_proxy http://localhost:${toString ports.qbitwebui}
-            }
-
-            @torrent_download host ${torrent_download.fqdn}
-            handle @torrent_download {
-                basic_auth {
-                    {env.DOWNLOAD_AUTH_NAME} {env.DOWNLOAD_AUTH_PASSWD}
-                }
-                root * ${downloadDir}
-                file_server {
-                    browse {
-                        sort size desc
-                    }
-                }
             }
         '';
 
@@ -118,7 +104,6 @@ in {
         serviceConfig = {
             EnvironmentFile =
                 config.sops.templates."download-auth-creds".path;
-            SupplementaryGroups = [ groupsCfg.qbit.name ];
         };
     };
 }

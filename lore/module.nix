@@ -51,6 +51,7 @@
         slskd = 9106;
         slskdWebui = 9107;
         sillytavern = 9108;
+        dufs = 9109;
         magpieGateway = 3425;
         magpieWeb = 3430;
     };
