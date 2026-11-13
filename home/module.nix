@@ -38,8 +38,8 @@
         # tsuki.lingo-studio
         tsuki.cryslen
         just
-        nix-output-monitor
         dix
+        rom
 
         nodejs
         pnpm_12

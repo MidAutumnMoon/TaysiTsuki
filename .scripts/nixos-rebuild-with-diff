@@ -1,6 +1,8 @@
 #!/usr/bin/env nu
 
 def main [action: string, host: string] {
+    hide-env RUST_LOG
+
     if $action not-in ["build" "test" "switch" "boot"] {
         error make {
             msg: $"unsupported action '($action)'; expected build, test, or switch"
@@ -10,14 +12,14 @@ def main [action: string, host: string] {
     let result_file = (mktemp)
 
     try {
-        ^nix build --no-link --print-out-paths --log-format internal-json $".#nixosConfigurations.($host).config.system.build.toplevel" o> $result_file e>| nom --json
+        ^nix build --no-link --print-out-paths --log-format internal-json $".#nixosConfigurations.($host).config.system.build.toplevel" o> $result_file e>| rom
         let new = (open $result_file | str trim)
         if ($new | is-empty) {
             error make { msg: "nix build produced no store path" }
         }
         ^dix diff /run/current-system $new
         if $action != "build" {
-            ^nixos-rebuild $action --store-path $new --elevate=run0 --log-format internal-json o+e>| nom --json
+            ^nixos-rebuild $action --store-path $new --elevate=run0 --log-format internal-json o+e>| rom
         }
     } finally {
         rm -f $result_file
