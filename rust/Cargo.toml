@@ -112,5 +112,8 @@ arithmetic_side_effects = "allow"
 # Prefer match ergonomics or explicit ownership like as_ref().
 pattern_type_mismatch = "allow"
 
+# Prefer `{ .. }` over `_`.
+rest_pattern_accessible_field = "allow"
+
 pub_with_shorthand = "allow"
 must_use_candidate = "allow"
