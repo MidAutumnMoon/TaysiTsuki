@@ -7,16 +7,16 @@
 buildGoModule rec {
 
     pname = "magpie";
-    version = "0.1.3806";
+    version = "0.1.4087";
 
     src = fetchFromGitHub {
         owner = "yetone";
         repo = "magpie";
         tag = "v${version}";
-        hash = "sha256-zFlIpEdhRWCwrYVhgnjhne40JKpLdQxXPWpYuj2Ff6s=";
+        hash = "sha256-hnqkOq7rCJIFZuZ+Z8/M63/PMl5TDum1GIc2XdiNkpc=";
     };
 
-    vendorHash = "sha256-1uxRG7QOibgmJBx99O5OQmIeCJ5V9zdZmsgGVwaKZbo=";
+    vendorHash = "sha256-nxO7lvPHI5L8iHuVfjPBjSUOui/OdlQ/9uGW/7GpmtE=";
 
     # Terminal-only build: no Wails, GTK 3 or WebKitGTK 4.1 — what
     # upstream's Dockerfile builds for `magpie serve`.
