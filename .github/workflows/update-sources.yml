@@ -33,7 +33,7 @@ jobs:
           TOOL=".#tsuki.ci-driver"
           nix build --print-build-logs "$TOOL"
           # Logs go to stderr, stdout is only the update summary.
-          RUST_LOG=trace nix shell nixpkgs#nix-update -c \
+          RUST_LOG=trace nix shell .#nix-update -c \
             nix run "$TOOL" -- update -m "packages/tsuki.nix" \
             > "$RUNNER_TEMP/summary.md"
 

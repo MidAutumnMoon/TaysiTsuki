@@ -65,6 +65,12 @@ in rec {
         jsRuntime = prev.nodejs;
     };
 
+    # `nix flake metadata` in nix 2.35 no longer materializes the store path
+    # that `nix-update --flake` passes to `nix-instantiate` (Mic92/nix-update#687).
+    nix-update = prev.nix-update.override {
+        nix = prev.nixVersions.nix_2_34;
+    };
+
     zram-generator =
         lib.onceride prev.zram-generator
         { rustPlatform = tsuki.rust; }
