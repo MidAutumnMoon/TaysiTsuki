@@ -5,45 +5,43 @@ description: Review and prune code comments, doc comments, lint reasons, prose d
 
 ## Goal
 
-Strongly delete by default. Keep a sentence only if it states a trap, an invariant, an ordering or ownership constraint, or behaviour the code cannot show. Delete the rest. A module doc states the module's job and such an invariant, in at most three lines.
+Strongly delete by default. Keep an optional comment only when all three hold: it states a trap, invariant, ordering or ownership constraint, or external contract that reading the code will not show; it applies directly to the code it sits on; and it appears once. Delete everything else, including module docs and overviews that fail this bar.
 
-Assume code readers know the language, libraries, and standard concepts; treat project-specific rules as new information. For private code, assume they also read the body.
+Assume code readers know the language, libraries, and standard concepts; treat project-specific rules as new information. For private code and inline code literals, assume they also read the body. Do not add new explanatory comments or invent details to pad existing ones.
 
 ## Scope
 
 - Review the named files, or the current change if no files are named. Read related files as well.
 - Edit only comments, documentation, lint reasons, and message text. Do not change program logic, names, or types.
 - Leave generated and vendored files, tool directives, and license and attribution notices unchanged. Review explanations attached to directives.
-- Preserve safety justifications, doctests, and anything a compiler or lint requires. You may edit their prose; keep doctests and examples valid.
+- Keep required items (safety comments, lint reasons, doctests, required API docs) present and valid; edit their prose when needed.
 - You may rewrite program messages, but do not delete them. Suggest removal in the report if a message adds no information.
 
 ## Editing rules
 
-- Check claims against relevant code, callers, tests, and external requirements. Do not invent intent or describe possible outcomes as guarantees.
-- When text and code disagree, establish the intended behaviour first. If the behaviour is unclear, leave the text and report it; if only the text's necessity is unclear, delete it.
-- Delete narration of local operations, consequences readers can readily infer, and text that repeats names, types, code, test labels, or assertions.
-- State each policy once. Delete text that repeats another file's documentation, or that the types, signatures, and field names already show.
-- Keep an overview only if no other file states it, the signatures cannot show it, and it fits in three lines. A longer one is an essay: delete it or move it to the reference documentation.
-- Put a local reason beside its code; put a cross-cutting policy in the reference documentation.
-- Remove unnecessary points. A tighter phrasing keeps every point. Keep conditions and exceptions needed for accuracy.
+- Check claims against the code, callers, tests, and external requirements. State only verified intent, and describe possible outcomes as possibilities.
+- When text and code disagree, check the intended behavior first. If intent is unclear, leave the text and report it; if only the text's necessity is unclear, delete it.
+- Delete narration of local steps, inferable consequences, and text that repeats names, types, code, test labels, or assertions.
+- Delete notes left out of place after code changed or describing code elsewhere; move a displaced constraint to its real site only if that site needs it.
+- Delete weak points outright; avoid packing them into half-sentences. Keep conditions and exceptions needed for accuracy, and limit any module doc or overview to three lines; put cross-cutting policy in reference documentation.
 - Use consistent technical terms and ordinary punctuation. Name standard concepts when useful (e.g. name the algorithm and leave its steps in the code). Remove filler, praise for the design, and storytelling or metaphors that add vocabulary without adding information.
-- Add a contract or constraint only when the code cannot show it.
-- Prefer a clearer name, type, assertion, or test over an explanation.
-- Look out for `*subject*, not *negative*`, `*abc* instead of *negative*` (which implies abc does xyz), and `*abc* is not *negative*` (which implies abc is xyz) patterns. Avoid "negative subjects" in general, rewrite the sentences to be straight.
+- Suggest a clearer name, type, assertion, or test when that would remove the need for a comment.
+- Look out for `*subject*, not *negative*`, `*abc* instead of *negative*` (which implies abc does xyz), and `*abc* is not *negative*` (which implies abc is xyz) patterns. Avoid "negative subjects" in general; rewrite the sentences straight.
 
 ## Text-specific requirements
 
-- Public API docs and guides must be usable without inspecting the implementation. Put caller requirements and guarantees in API docs.
+- Docs and guides for external callers must be usable without inspecting the implementation; put caller requirements and guarantees there. Treat internal items in private modules as private code.
 - A test can verify behavior without explaining why it is required. Keep needed rationale and labels that identify test setup conditions.
-- Lint reasons must address the concern being suppressed. State why the concern is inapplicable or why the trade-off is acceptable.
-- Reference documentation describes current behavior and limitations. Put past edits in history, decision, or plan documents; put planned work in TODOs or issues. Keep documents intended to record history, decisions, or plans. Move needed information out of session logs before deleting them.
-- Before changing a program message, check whether tests, scripts, or other tools depend on its wording. Preserve formatting arguments and error-handling behavior. Include only information missing from the rest of the error chain or log line. In panic and `.expect()` messages, state which assumption failed. Follow the project's message style.
+- Safety comments state only the concrete invariant preventing UB; omit adjacent checks, behavior narration, and standard language or library mechanics. Point to a single module or type invariant when one covers the block, and report safe functions whose safety comments rely on unchecked caller assumptions.
+- Lint reasons must address the suppressed lint directly. State why it does not apply or why the trade-off is acceptable.
+- Reference documentation describes current behavior and limitations. Put past edits in history, decision, or plan documents; put planned work in TODOs or issues. Keep documents meant to record history, decisions, or plans. Move needed facts out of session logs before deleting them.
+- Before changing a program message, check whether tests, scripts, or other tools depend on its wording. Preserve formatting arguments and error-handling behavior. Include only facts missing from the rest of the error chain or log line. In panic and `.expect()` messages, state which assumption failed. Follow the project's message style.
 
 ## Verification and report
 
 Run checks relevant to the edits, including doctests and documentation checks where applicable. Report checks you could not run.
 
-Keep the report brief. State what you reviewed and the check results. List every surviving doc block longer than three lines with its reason, every changed program message, every deleted file, and suggestions outside scope. Do not list routine wording edits.
+Keep the report brief. State what you reviewed and the check results. List every surviving doc block longer than three lines with its reason, every changed program message, every deleted file, unresolved intent or unchecked safety assumptions, and suggestions outside scope. Do not list routine wording edits.
 
 ## Examples
 
@@ -67,11 +65,10 @@ Before:
 After:
 
 ```rust
-//! Decode worker: serves the app's wants and fills the preview store
-//! from the plan. Decoded artifacts live only in the store.
+//! Decoded artifacts live only in the preview store.
 ```
 
-The first paragraph restates the type docs and the reference document; the second states the one invariant.
+The first two paragraphs restate types, signatures, and reference docs; only the cache-ownership invariant stays.
 
 ### Remove narration and keep the local reason
 
@@ -198,3 +195,39 @@ pub fn shutdown(&self) {
 If intended behavior remains unclear, leave the comment unchanged and report:
 
 > `shutdown` promises to wait for the worker, but the implementation only sets a flag. Confirm whether it must wait before changing the contract.
+
+### Delete an out-of-place summary
+
+Before:
+
+```rust
+// Per-draw constants are folded CPU-side; output is premultiplied.
+const FRAGMENT_SHADER_SOURCE: &str = "... * alpha, alpha ...";
+```
+
+After:
+
+```rust
+const FRAGMENT_SHADER_SOURCE: &str = "... * alpha, alpha ...";
+```
+
+The shader body shows premultiplied output, and constant folding lives elsewhere; delete the out-of-place caption.
+
+### Trim a safety comment
+
+Before:
+
+```rust
+// SAFETY: Caller ensures the GL context is current on the render thread,
+// `shader` was just created on it, and this frees the temporary handle.
+unsafe { gl.delete_shader(shader); }
+```
+
+After:
+
+```rust
+// SAFETY: Context is current (`Window`).
+unsafe { gl.delete_shader(shader); }
+```
+
+Drop the local restatement and behavior narration, and point to the invariant's owner.
