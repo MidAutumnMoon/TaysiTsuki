@@ -19,17 +19,6 @@ let
     unwrapped = callPackage ./unwrapped.nix {};
     targetPkgs = import ./target.nix;
 
-    # Runs after the FHS profile's exports, so the unsets stick — zcode's
-    # terminals inherit whatever stays. nixpkgs composes ${profile} last,
-    # so the agentcept prepend lands ahead of the FHS base PATH export,
-    # with the real find/grep still reachable behind it for agentcept's
-    # pass-through.
-    hygieneProfile = /* sh */ ''
-        unset NIX_CFLAGS_COMPILE NIX_CFLAGS_LINK NIX_LDFLAGS \
-            PKG_CONFIG_PATH ACLOCAL_PATH GST_PLUGIN_SYSTEM_PATH_1_0
-        export PATH="${tsuki.inori.agentcept}/bin:$PATH"
-    '';
-
     # runScript must stay one line — the FHS init execs it verbatim.
     waylandFlags = ''''${NIXOS_OZONE_WL:+''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}'';
 
@@ -113,7 +102,6 @@ buildFHSEnv {
     # Sessions must outlive the launching terminal.
     dieWithParent = false;
 
-    profile = hygieneProfile;
     runScript = "${unwrapped}/lib/ZCode/zcode ${waylandFlags}";
 
     extraInstallCommands = /* sh */ ''

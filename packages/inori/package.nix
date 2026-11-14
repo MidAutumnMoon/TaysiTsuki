@@ -26,11 +26,6 @@ tsuki.rust.buildRustPackage {
 
     cargoHash = "sha256-dVp5TSK6VlUC+QUm5K2jbiujuvH6INUHqIkbZiO/anU=";
 
-    outputs = [
-        "out"
-        "agentcept"
-    ];
-
     doCheck = false;
 
     env.CARGO_PROFILE_RELEASE_LTO = "thin";
@@ -53,22 +48,7 @@ tsuki.rust.buildRustPackage {
         let
             canExe = with stdenv;
                 buildPlatform.canExecute hostPlatform;
-            pythonVersions =
-                [ "2" "2.7" "3" ]
-                ++ map (minor: "3.${toString minor}") (lib.range 0 99);
-            agentceptAliases =
-                [ "find" "grep" "egrep" "fgrep" "python" "pip" ]
-                ++ lib.concatMap
-                    (version: [ "python${version}" "pip${version}" ])
-                    pythonVersions;
         in /* sh */ ''
-            mkdir -p "$agentcept/bin"
-            mv "$out/bin/agentcept" "$agentcept/bin/"
-            for name in ${lib.escapeShellArgs agentceptAliases}
-            do
-                ln -s agentcept "$agentcept/bin/$name"
-            done
-
             makeBinaryWrapper "$out/bin/derputils" "$out/bin/,?" \
                 --add-flag hops
 
