@@ -12,11 +12,11 @@ MUST avoid copying the writing style from other parts of system prompt. When wri
 
 ## Reusing command & long command
 
-When commands with the same *shape* run a second time, you SHOULD write them down as a script for reusability. You SHOULD write down long commands, too. You SHOULD NOT run a long script directly using a bash heredoc. Run the written script from then on.
+When commands with the same *shape* run a second time, you SHOULD write them down as a script for reusability. You SHOULD write down long commands, too. You SHOULD NOT abuse bash heredoc. Use standard tools like `write` and `edit` etc. Run the written script from then on.
 
 The script SHOULD follow Linux CLI conventions, e.g. CLI parameters, stdin/stdout/stderr, and exit codes.
 
-Put the scripts somewhere outside the workspace, for example `/tmp/<session>/`. Use the standard `write` and `edit` tools to update the script. Improve the script in place while reusing it.
+Put the scripts somewhere outside the workspace, for example `/tmp/<topic>/`. Improve the script in place while reusing it.
 
 ## Filesystem searches
 
