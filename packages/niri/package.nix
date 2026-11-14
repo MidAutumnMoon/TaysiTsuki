@@ -2,7 +2,6 @@
     stdenv,
     lib,
     niri,
-    rustPlatform,
     ...
 }:
 
@@ -14,15 +13,8 @@ lib.onceride niri
 
 (oldAttrs: {
     patches = (oldAttrs.patches or []) ++ [
-        ./mimalloc.patch
         ./squircle-v26.04.patch
     ];
-
-    cargoDeps = rustPlatform.fetchCargoVendor {
-        inherit (oldAttrs) pname version src;
-        patches = [ ./mimalloc.patch ];
-        hash = "sha256-N+n2VU/15jF1mLmMmdulb2O1MP/4ehwMAGxy0IZ4QxU=";
-    };
 
     doCheck = false;
 
