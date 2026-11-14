@@ -34,6 +34,8 @@ tsuki.rust.buildRustPackage {
     dontUseNinjaBuild = true;
     dontUseNinjaInstall = true;
 
+    env.CARGO_PROFILE_RELEASE_LTO = "thin";
+
     nativeBuildInputs = [
         autoPatchelfHook
         cmake

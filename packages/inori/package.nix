@@ -33,6 +33,8 @@ tsuki.rust.buildRustPackage {
 
     doCheck = false;
 
+    env.CARGO_PROFILE_RELEASE_LTO = "thin";
+
     nativeBuildInputs = [
         installShellFiles
         makeBinaryWrapper
