@@ -18,9 +18,9 @@ If a host-wide search really seems necessary, ask user first.
 
 ## Cache command output
 
-MUST NOT pipe costly command's output through `head` and `tail`; tools will properly handle large output natively. MUST NOT pipe test command output.
+MUST NOT pipe costly command's output through `head` and `tail` and discard the rest; tools will properly handle large output natively. MUST NOT pipe test command output.
 
-If you want to be efficient and grep the output, MUST NOT pipe the output to grep directly. Cache the output then grep the file instead.
+If you want to be efficient and grep the output, cache the output then grep the file. MUST NOT pipe the output to grep directly.
 
 ## Host system
 
