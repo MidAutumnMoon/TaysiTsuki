@@ -23,18 +23,19 @@ tsuki.rust.buildRustPackage {
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "cryslen";
-        rev = "01e5fc4377de5e4421f1e5d1c73ed508c5a166f9";
-        hash = "sha256-xKnUlLJ371GoZTvh8SvjVH9aofZgRiVibZfm8vnu8a8=";
+        rev = "b496f3dfe611744c83fdf8acfa5c23be6501b458";
+        hash = "sha256-spaJCSZNXUjZHK24sYzPj3uT5dTNLePave+tLXkxjZY=";
     };
 
-    cargoHash = "sha256-X2huEX+V0cdezid8kHRA/t8aRlYqk0UQvuW/scMX0BU=";
+    cargoHash = "sha256-iOjR6yhBJzI3Pgdq8CwCC2RUKMsf/+pwypfOApK6c2M=";
 
     doCheck = false;
 
     dontUseNinjaBuild = true;
     dontUseNinjaInstall = true;
 
-    env.CARGO_PROFILE_RELEASE_LTO = "thin";
+    env.CARGO_PROFILE_RELEASE_LTO = "fat";
+    env.CARGO_PROFILE_RELEASE_CODEGEN_UNITS = "1";
 
     nativeBuildInputs = [
         autoPatchelfHook
