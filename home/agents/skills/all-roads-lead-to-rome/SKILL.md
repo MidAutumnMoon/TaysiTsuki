@@ -10,6 +10,6 @@ Challenge my request. I want the *outcome*, or roughly the *observable equivalen
 
 Analyze the core of the request's outcome. Think outside of the box and from different angles. How to combine "simple pieces" to reach the outcome?
 
-For example, I want a popup for typing numbers. The initial plan is to add a text input widget + popup widget. But that will mess up the event handling badly under certain constraints, resulting in behemoth implementation. So step back: the core outcome is "see what numbers are typed". So the alternative combination is to handle typing events and displaying separately. The popup is now simply a text display, but it still *looks like* and *works like* an input popup. This is the simplest road leading to "Rome".
+For example, I want a popup for typing numbers. The initial plan is to add a text input widget + popup widget. But that will mess up the event handling badly under certain constraints, resulting in behemoth implementation. So step back: the core outcome is "see what numbers are typed". So the alternative combination is to handle typing events and displaying separately. The popup is now simply a text display, but it still *looks like* and *works like* an input popup. This is the simplest road leading to "Rome" in this case. You MUST NOT copy the solution of this example. The mindset is the important.
 
 The current policy or behavior can be loosened. I prefer "fit well" instead of "bolt on and somehow it works". Always beware the trade off. Don't over engineer it.
