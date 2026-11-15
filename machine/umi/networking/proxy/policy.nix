@@ -274,9 +274,6 @@ in rec {
             "pixiv"
             "dmm"
         ];
-        europe = mkRulesets "Geosite" lore.geositeDataOf [
-            "hetzner"
-        ];
         manual_select = mkRulesets "Geosite" lore.geositeDataOf [
             "ehentai"
         ];
@@ -369,12 +366,6 @@ in rec {
             rule_set = getTags <| __geositeRuleset.japan;
             domain_suffix = [ ".jp" ];
             outbound = __groups.proxy_japan.tag;
-        }
-
-        {
-            rule_set = getTags <| __geositeRuleset.europe;
-            domain_suffix = [];
-            outbound = __groups.proxy_europe.tag;
         }
 
         # no geoip-us: the phone's bare-ip flows belong on the
