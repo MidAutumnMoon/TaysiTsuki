@@ -12,14 +12,14 @@
 
 stdenvNoCC.mkDerivation (drvSelf: {
     pname = "omp";
-    version = "18.20.0";
+    version = "18.20.3";
 
     src = tsuki.fetchGitHubRelease {
         owner = "can1357";
         repo = "oh-my-pi";
         tag = "v${drvSelf.version}";
         file = "omp-linux-x64";
-        hash = "sha256-yGlL6MbmofReNjbdio6eqniHitYpqJAAtAPsXkVtP4k=";
+        hash = "sha256-807JsPDDaPGTdwHi/hEbPCmnz1MxSmQkSLPGzykl2Fo=";
     };
 
     dontUnpack = true;
