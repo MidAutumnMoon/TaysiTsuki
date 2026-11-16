@@ -52,9 +52,6 @@ tsuki.rust.buildRustPackage {
             makeBinaryWrapper "$out/bin/derputils" "$out/bin/,?" \
                 --add-flag hops
 
-            rm -v "$out/bin/xsleep"
-            rm -v "$out/bin/xecho"
-
             ${lib.optionalString canExe ''
                 bin="$out/bin/i"
                 installShellCompletion --cmd i \
