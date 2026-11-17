@@ -75,6 +75,26 @@
         "type": "github"
       }
     },
+    "luciole": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794889510,
+        "narHash": "sha256-k7qcGqJnMBDmd4Ww8iPmRscD04tF76ZauU1z3s3xfsg=",
+        "owner": "noctalia-dev",
+        "repo": "luciole",
+        "rev": "b40c96336d97a15a3874bc93cb7b61627aeb3563",
+        "type": "github"
+      },
+      "original": {
+        "owner": "noctalia-dev",
+        "repo": "luciole",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1794811116,
@@ -124,6 +144,7 @@
         "flake-parts": "flake-parts",
         "flake-utils": "flake-utils",
         "helix-of-mine": "helix-of-mine",
+        "luciole": "luciole",
         "nixpkgs": "nixpkgs",
         "preservation": "preservation",
         "rust-overlay": "rust-overlay",

@@ -45,6 +45,8 @@ in rec {
         sops-install-secrets
     ;
 
+    luciole = (pkgsFrom "luciole").default;
+
     linuxCachyos = tsuki.cachyos.linuxPackages;
 
     # tangled = {

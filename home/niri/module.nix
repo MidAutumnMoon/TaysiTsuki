@@ -15,6 +15,7 @@
         kdePackages.ark
         ffmpegthumbnailer
         # xwayland-satellite
+        luciole
     ];
 
     envvars = {

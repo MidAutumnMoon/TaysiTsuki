@@ -35,6 +35,12 @@
             inputs.rust-overlay.follows = "";
         };
 
+        luciole = {
+            url = "github:noctalia-dev/luciole";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
+
+
         # tangled = {
         #     url = "git+https://tangled.org/tangled.org/core?shallow=1";
         #     inputs = {
