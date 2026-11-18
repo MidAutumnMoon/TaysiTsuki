@@ -25,6 +25,8 @@
     boot.kernelParams = [
         "amd_pstate=active"
         "preempt=full"
+        # Workaround a ACPI bug that keeps waking up monitors.
+        "video.report_key_events=0"
     ];
 
     boot.kernelPackages =
