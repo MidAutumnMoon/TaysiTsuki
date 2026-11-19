@@ -30,6 +30,9 @@ Design types, functions, and modules directly from the simplified pseudocode:
 - Split functions and modules where data changes shape, non-trivial logic is shared, or side effects and external formats should be isolated.
 - Introduce interfaces only for multiple real implementations or external IO boundaries.
 
+Don't over-compact it. Few code smells to watch out and avoid:
+- New god object/class.
+
 When `SCRATCHPAD.md` is complete, present:
 1. Old abstractions and glue to cut (`file:line` and what they hid).
 2. Proposed data structures and boundaries, noting why each boundary exists.

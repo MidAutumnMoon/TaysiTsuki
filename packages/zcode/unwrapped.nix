@@ -9,11 +9,11 @@
 
 stdenvNoCC.mkDerivation (drvSelf: {
     pname = "zcode-unwrapped";
-    version = "3.19.0";
+    version = "3.19.1";
 
     src = fetchurl {
         url = "https://cdn-zcode.z.ai/zcode/electron/releases/${drvSelf.version}/linux-x64/ZCode-${drvSelf.version}-linux-x64.deb";
-        hash = "sha256-1x8l0jDDcblQduvEKqZra7fp0Q9mSmZdOO7rWRYA6oU=";
+        hash = "sha256-66y95wLtxBevLUjdpXpXoRaQpbrOnpYD6Ig1ut1FavY=";
     };
 
     nativeBuildInputs = [

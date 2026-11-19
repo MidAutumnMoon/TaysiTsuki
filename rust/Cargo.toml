@@ -51,6 +51,9 @@ correctness = { level = "deny", priority = -1 }
 # Suppress Clippy's warning about enabling all restriction lints.
 blanket_clippy_restriction_lints = "allow"
 
+exhaustive_enums = "allow"
+exhaustive_structs = "allow"
+
 # Too annoying!
 cognitive_complexity = "allow"
 missing_const_for_fn = "allow" # has bug
