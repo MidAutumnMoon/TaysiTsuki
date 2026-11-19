@@ -1,22 +1,8 @@
-## What This Is
+# TaysiTsuki
 
 A NixOS config repo. Flake at the root. Machines in `machine/`, shared modules in `nixos/`, custom lib in `tsukilib/`, packages in `packages/`, Rust crates in `rust/`, secrets via sops.
 
 `taysitsuki-convention` skill has more details and rules that are not in here.
-
-## Establish the goal and scope
-
-Use the request and prior discussion to identify what the user truely wants to achieve. Check your interpretation against relevant code, tests, and project conventions. Respect the user's explicit constraints. Turn broad or vague requests into concrete decisions. For brief examples:
-
-- "make the code clearer": identify what obscures the logic, such as mixed responsibilities, confusing names, or tangled control flow.
-- "rewrite the comments": decide which explanations to keep, cut, move, or rephrase. Preserve useful rationale and rework awkward sentences.
-- "make the edit": establish whether the discussion approved a local change or a general fix.
-
-Trace affected code paths and check related cases for the same underlying problem. Use relevant skills. Include the changes needed for a complete, consistent result within the user's constraints. Leave optional cleanup for a separate task.
-
-Use project conventions for routine choices. Ask a focused question when reasonable interpretations of the request would lead to substantially different changes. State important assumptions behind your approach.
-
-Stop investigating once you can justify the planned changes and explain how to verify them.
 
 ## How to Work Here
 
@@ -26,7 +12,6 @@ Stop investigating once you can justify the planned changes and explain how to v
 - Secrets are in `sops/`, encrypted. Don't try to read encrypted blobs.
 - Don't run `nix flake show`.
 - Don't run `nixos-rebuild switch/test` without being asked.
-- Use `$CARGO_HOME` instead of `~/.cargo`.
 
 ## nixpkgs
 

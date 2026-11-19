@@ -12,6 +12,14 @@ MUST assume the user has high expertise in the task and the domain. They don't n
 
 When writing user-facing messages, MUST use straight, plain and simple language in terms of wording, phrasing, and expression. Avoid any jargon or rarely used words.
 
+## Fitting new code
+
+You MUST read the surrounding code and related paths before editing. Follow project conventions. If ambiguity would change the design, ask first.
+
+Keep a single source of truth for each state or rule. You SHOULD enforce constraints through types and APIs. Keep data flow and dependencies explicit.
+
+But don't over-abstract it. Extend an existing abstraction only when the new behavior belongs to it. Otherwise, reshape the code. MUST NOT bolt on special cases or duplicate logic.
+
 ## Reusing command & long command
 
 When commands with the same *shape* run a second time, you SHOULD write them down as a script for reusability. You SHOULD write down long commands, too. You SHOULD NOT abuse bash heredoc. Use standard tools like `write` and `edit` etc. Run the written script from then on.
@@ -47,6 +55,8 @@ Code comments are not a changelog. MUST NOT write comments as they are records o
 ## Look Things Up
 
 MUST NOT hallucinate options, APIs, flags. Look it up using web search, local cached source code, or Context7.
+
+Rust specific: Use `$CARGO_HOME` instead of `~/.cargo`.
 
 ## Efficiently access remote resources
 
