@@ -31,6 +31,28 @@ sync = [
     "jj git fetch --all-remotes && jj rebase -d 'trunk()'"
 ]
 
+ap = [
+    "util", "exec", "--",
+    "sh", "-c",
+    '''
+        set -eu
+        op=$(jj op log --no-graph -n 1 -T 'id')
+        # Restore on failures
+        trap 'jj op restore --quiet "$op" >/dev/null 2>&1 || true' EXIT
+        jj bookmark advance "$@"
+        jj git push --dry-run
+        printf "Push? [Y/n] "
+        read -r ans
+        case "$ans" in
+            ""|y|Y) ;;
+            *) exit 1 ;;
+        esac
+        jj git push
+        trap - EXIT
+    ''',
+    "--"
+]
+
 [ui]
 conflict-marker-style = "git"
 default-command = "log"
@@ -40,6 +62,9 @@ diff-formatter = ":git"
 behavior = "own"
 backend = "ssh"
 key = "~/.ssh/id_teapot.pub"
+
+[git]
+private-commits = "private()"
 
 [templates]
 draft_commit_description = '''
@@ -57,12 +82,19 @@ draft_commit_description = '''
 bookmark-advance-to = 'closest_pushable(@)'
 
 [revset-aliases]
+"private()" = '''
+    description(glob:"private:*")
+    | description(glob:"wip:*")
+'''
+
 'closest_pushable(to)' = '''
     heads(
         ::to
         & mutable()
         & description(regex:"\\S")
         & (~empty() | merges())
+        & ~(conflicts()::)
+        & ~(private()::)
     )
 '''
 
