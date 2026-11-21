@@ -25,6 +25,16 @@ ba = ["bookmark", "advance"]
 mine = ["log", "-r", "mine()"]
 roots = ["log", "-r", "roots(mine())"]
 
+[ui]
+conflict-marker-style = "git"
+default-command = "log"
+diff-formatter = ":git"
+
+[signing]
+behavior = "own"
+backend = "ssh"
+key = "~/.ssh/id_teapot.pub"
+
 [templates]
 draft_commit_description = '''
     concat(
