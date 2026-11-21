@@ -16,7 +16,7 @@ ino_iter = "0.2.0"
 ino_tracing = "1.0.0"
 itertools = "0.15.0"
 niri-ipc.workspace = true
-saphyr = "0.3.0"
+saphyr = "0.4.0"
 tap = "1.0.1"
 tracing = "0.1.43"
 
