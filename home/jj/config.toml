@@ -25,6 +25,12 @@ ba = ["bookmark", "advance"]
 mine = ["log", "-r", "mine()"]
 roots = ["log", "-r", "roots(mine())"]
 
+sync = [
+    "util", "exec", "--",
+    "sh", "-c",
+    "jj git fetch --all-remotes && jj rebase -d 'trunk()'"
+]
+
 [ui]
 conflict-marker-style = "git"
 default-command = "log"
