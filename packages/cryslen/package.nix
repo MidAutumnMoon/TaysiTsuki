@@ -18,16 +18,16 @@
 tsuki.rust.buildRustPackage {
 
     pname = "cryslen";
-    version = "0-unstable-2026-11-21";
+    version = "0-unstable-2026-11-24";
 
     src = fetchFromGitHub {
         owner = "MidAutumnMoon";
         repo = "cryslen";
-        rev = "fc72d8a071c90ff50bffe01e1c6564ffd1dc97c2";
-        hash = "sha256-a2uu1qAvXNS2VrhkrcXCPO5ryVx6X8mmOdQ2hV2wemc=";
+        rev = "17e5854eae169ebc1f46a9b029463ba2ea613473";
+        hash = "sha256-p8uOD6EYYyibQy52bu07lHa7dvuj9b96B2ra+v+FNmc=";
     };
 
-    cargoHash = "sha256-bbeM2X2mejYP7R1EZbQjvxeJpkqsFARqt04KC5tRzw8=";
+    cargoHash = "sha256-NJtNtooXH7q3lB+NDXWnHk2k9gN7y6rA1NWyYs04JaM=";
 
     doCheck = false;
 
