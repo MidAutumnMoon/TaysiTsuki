@@ -31,7 +31,8 @@ sync = [
     "jj git fetch --all-remotes && jj rebase -d 'trunk()'"
 ]
 
-ap = [
+# Abbr for advance & push
+adv_push = [
     "util", "exec", "--",
     "sh", "-c",
     '''
