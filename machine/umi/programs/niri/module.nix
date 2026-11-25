@@ -89,6 +89,16 @@ in {
     services.fwupd.enable = false;
     services.speechd.enable = false;
 
+    nixpkgs.overlays = lib.singleton (final: prev: {
+        qt6Packages = prev.qt6Packages.overrideScope (self: super: {
+            fcitx5-with-addons = super.fcitx5-with-addons.override {
+                libsForQt5 = prev.libsForQt5 // {
+                    fcitx5-qt = final.emptyDirectory;
+                };
+            };
+        });
+    });
+
     i18n.inputMethod = {
         enable = true;
         type = "fcitx5";
