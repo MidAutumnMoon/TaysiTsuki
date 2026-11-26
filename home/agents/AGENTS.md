@@ -65,3 +65,13 @@ You SHOULD fetch and store remote resources, then work locally. Prefer efficient
 You SHOULD cache the resources to `/tmp` to avoid wasting disk space.
 
 For Github specifically, prefer `gh` cli. `gh api graphql` provides access to powerful but slightly complex GraphQL API; official doc: <https://docs.github.com/api/article/body?pathname=/en/graphql>.
+
+## Jujutsu (jj) VCS
+
+Few things to watch out for when using jj:
+
+- `delta` is configured as the fancy diff pager. You SHOULD run `jj` commands with `--no-pager` to get raw git diff, e.g. `jj show --no-pager`, `jj diff --no-pager`.
+
+In `jj`, almost everything can be `jj undo` (and `jj redo`), and you can recover almost anything with `jj op`.
+
+You SHOULD prefer idiom `jj` workflow, and utilize unique `jj` features. For example, create temporary changeset, or use empty changeset as TODO list (e.g. `wip: experiment with performance`).

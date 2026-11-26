@@ -21,11 +21,7 @@ Run: `nix eval --raw .#flakes.nixpkgs.outPath` to get the path of local nixpkgs 
 
 ## VCS
 
-Use `jj` vcs exclusively. For example, `jj status`, `jj new`.
-
-External pager is configured. Use `jj diff --git` and `jj show --git` for traditional git style diff output.
-
-Don't commit on behalf of the user. Don't write commit message
+Use `jj` vcs exclusively. For example, `jj status`, `jj new`. Don't commit on behalf of the user without permission.
 
 ## Dotfile modules (`home/*/module.nix`)
 
